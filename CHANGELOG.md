@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] — 2026-05-26
+
+### Added
+- Third bench run on record — **tiny sub-4B models** via OpenRouter. Five
+  models, 10 cases, 50 runs/side, 260 checks:
+  - `google/gemma-3-4b-it`: **38% → 96%** (+58 pts)
+  - `meta-llama/llama-3.2-3b-instruct`: **28% → 73%** (+45 pts)
+  - `google/gemma-3n-e4b-it`: **44% → 88%** (+44 pts)
+  - `microsoft/phi-4-mini-instruct`: **36% → 73%** (+37 pts)
+  - `meta-llama/llama-3.2-1b-instruct`: **26% → 40%** (+14 pts)
+  - **Tiny avg: 35% → 74% (+39 pts, +112% relative)**
+- `bench/results.md` now has three sections (tiny → frontier → mid-tier
+  archival), 14 models total across three runs.
+
+### Changed
+- README headline updated: **"Fourteen models tested across three runs"**
+  with the tiny table positioned **above** the frontier table per request.
+
+### Notes
+- 8 of the 11 originally requested sub-4B models are **not hosted on
+  OpenRouter** (Gemma 3 270M, Gemma 3 1B, Gemma 2 2B, Qwen3 0.6B, Qwen3 1.7B,
+  Qwen2.5 0.5B, Qwen2.5 1.5B, Qwen 3B, Nemotron Nano 4B — OR's smallest
+  Nemotron is 9B). Closest available substitutes were used.
+- Output-quality on tiny rerun: DIFF block **0% → 74%**, target file
+  mentioned **0% → 84%**, TEST block **82% → 80%**.
+- Cost on tiny rerun: tokens 1,006 → 1,289 per run (+28%); wall-clock
+  **15.6s → 9.1s per run (−42% — faster *with* simplicio)** because the
+  raw side often emits long chatty answers while the contract clamps output
+  shape.
+
 ## [0.2.5] — 2026-05-26
 
 ### Changed
@@ -157,6 +187,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provider-agnostic LLM client (any OpenAI-compatible endpoint + Anthropic native).
 - CLI commands: `index`, `task`, `bench`, `smoke`.
 
+[0.2.6]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.6
 [0.2.5]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.5
 [0.2.4]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.4
 [0.2.3]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.3

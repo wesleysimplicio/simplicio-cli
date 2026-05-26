@@ -20,9 +20,25 @@ pip install simplicio-cli
 ## Why it works — the numbers
 
 Same model. Same task. Only the prompt changes. **Measured, reproducible, deterministic.**
-**Nine models tested across two runs** — six frontier 2026 models and three mid-tier
-7B–12B open models. Every one gained at least **+48 points** when wrapped in
-simplicio's 6-layer contract.
+**Fourteen models tested across three runs** — five sub-4B tiny models, six
+frontier 2026 models, and three mid-tier 7B–12B open models. Every one gained
+at least **+14 points** when wrapped in simplicio's 6-layer contract.
+
+#### Tiny models — sub-4B, run on 2026-05-26 (50 runs/side, 260 checks)
+
+| Model | Without simplicio | With simplicio | Gain |
+|---|---|---|---|
+| **Gemma 3 4B** (`google/gemma-3-4b-it`) | 38% | **96%** | **+58 pts** |
+| **Llama 3.2 3B** (`meta-llama/llama-3.2-3b-instruct`) | 28% | **73%** | **+45 pts** |
+| **Gemma 3n e4B** (`google/gemma-3n-e4b-it`) | 44% | **88%** | **+44 pts** |
+| **Phi-4 mini** (`microsoft/phi-4-mini-instruct`) | 36% | **73%** | **+37 pts** |
+| **Llama 3.2 1B** (`meta-llama/llama-3.2-1b-instruct`) | 26% | **40%** | **+14 pts** |
+| **Tiny avg (5 models · 10 cases · 260 checks)** | **35%** | **74%** | **+39 pts (+112%)** |
+
+> **Not hosted on OpenRouter** (requested but skipped): Gemma 3 270M, Gemma 3 1B,
+> Gemma 2 2B, Qwen3 0.6B, Qwen3 1.7B, Qwen2.5 0.5B, Qwen2.5 1.5B, Qwen 3B,
+> Nemotron Nano 4B (OR's smallest Nemotron is 9B). Sub-4B substitutes used above.
+> simplicio still gains **+14 to +58 points** even on a 1B-param model.
 
 #### Frontier 2026 models — run on 2026-05-26 (60 runs/side, 312 checks)
 
@@ -45,10 +61,11 @@ simplicio's 6-layer contract.
 | **Qwen 2.5 7B** (`qwen/qwen-2.5-7b-instruct`) | 34% | **88%** | **+54 pts** |
 | **Mid-tier avg (3 models · 10 cases · 156 checks)** | **35%** | **90%** | **+55 pts (+156%)** |
 
-> **Across all 9 models tested**, the average gain is **+56 points**. Smallest:
-> **+52 pts** (DeepSeek V4 Pro on frontier run). Largest: **+62 pts** (GPT-5.5).
-> The contract helps frontier reasoning models *and* mid-tier 7B–12B alike —
-> five of the six frontier models hit **100% pass-rate**.
+> **Across all 14 models tested across three runs**, the average gain is **+51
+> points**. Smallest: **+14 pts** (Llama 3.2 1B — the contract still moves a
+> 1B-param model). Largest: **+62 pts** (GPT-5.5). The contract helps tiny
+> sub-4B models, frontier reasoning models, and mid-tier 7B–12B alike — five
+> of the six frontier models hit **100% pass-rate**.
 
 ### Output-quality signals (rate across all 60 frontier runs)
 
