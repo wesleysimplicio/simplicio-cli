@@ -22,14 +22,14 @@
           true
         ],
         "sem_quality": {
-          "len": 3242,
-          "has_diff_block": false,
+          "len": 4060,
+          "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 6
         },
         "com_quality": {
-          "len": 1699,
+          "len": 2117,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -37,15 +37,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 17,
-          "completion_tokens": 976,
-          "total_tokens": 993,
-          "elapsed_ms": 28515
+          "completion_tokens": 1325,
+          "total_tokens": 1342,
+          "elapsed_ms": 42843
         },
         "com_usage": {
-          "prompt_tokens": 200,
-          "completion_tokens": 416,
-          "total_tokens": 616,
-          "elapsed_ms": 9550
+          "prompt_tokens": 279,
+          "completion_tokens": 3614,
+          "total_tokens": 3893,
+          "elapsed_ms": 62153
         }
       },
       {
@@ -69,30 +69,30 @@
           true
         ],
         "sem_quality": {
-          "len": 2345,
+          "len": 19342,
           "has_diff_block": false,
-          "has_test_block": true,
+          "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 9
         },
         "com_quality": {
-          "len": 2096,
+          "len": 2033,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 9
         },
         "sem_usage": {
           "prompt_tokens": 16,
-          "completion_tokens": 746,
-          "total_tokens": 762,
-          "elapsed_ms": 16724
+          "completion_tokens": 4609,
+          "total_tokens": 4625,
+          "elapsed_ms": 79496
         },
         "com_usage": {
-          "prompt_tokens": 193,
-          "completion_tokens": 1731,
-          "total_tokens": 1924,
-          "elapsed_ms": 44051
+          "prompt_tokens": 272,
+          "completion_tokens": 6191,
+          "total_tokens": 6463,
+          "elapsed_ms": 134444
         }
       },
       {
@@ -116,30 +116,30 @@
           true
         ],
         "sem_quality": {
-          "len": 2134,
-          "has_diff_block": false,
+          "len": 2745,
+          "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 7
         },
         "com_quality": {
-          "len": 2643,
+          "len": 3041,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 7
         },
         "sem_usage": {
           "prompt_tokens": 18,
-          "completion_tokens": 596,
-          "total_tokens": 614,
-          "elapsed_ms": 13360
+          "completion_tokens": 930,
+          "total_tokens": 948,
+          "elapsed_ms": 15442
         },
         "com_usage": {
           "prompt_tokens": 199,
-          "completion_tokens": 2456,
-          "total_tokens": 2655,
-          "elapsed_ms": 51911
+          "completion_tokens": 1872,
+          "total_tokens": 2071,
+          "elapsed_ms": 79888
         }
       },
       {
@@ -165,14 +165,14 @@
           true
         ],
         "sem_quality": {
-          "len": 2376,
+          "len": 3162,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 11
+          "criteria_keywords_hit": 14
         },
         "com_quality": {
-          "len": 1704,
+          "len": 2057,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -180,15 +180,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 27,
-          "completion_tokens": 780,
-          "total_tokens": 807,
-          "elapsed_ms": 20984
+          "completion_tokens": 925,
+          "total_tokens": 952,
+          "elapsed_ms": 23219
         },
         "com_usage": {
           "prompt_tokens": 220,
-          "completion_tokens": 1351,
-          "total_tokens": 1571,
-          "elapsed_ms": 33233
+          "completion_tokens": 1750,
+          "total_tokens": 1970,
+          "elapsed_ms": 57944
         }
       },
       {
@@ -212,14 +212,14 @@
           false
         ],
         "sem_quality": {
-          "len": 4528,
+          "len": 3152,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 12
+          "criteria_keywords_hit": 10
         },
         "com_quality": {
-          "len": 1919,
+          "len": 1879,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -227,15 +227,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 20,
-          "completion_tokens": 1366,
-          "total_tokens": 1386,
-          "elapsed_ms": 35882
+          "completion_tokens": 1165,
+          "total_tokens": 1185,
+          "elapsed_ms": 24692
         },
         "com_usage": {
           "prompt_tokens": 200,
-          "completion_tokens": 520,
-          "total_tokens": 720,
-          "elapsed_ms": 31577
+          "completion_tokens": 2245,
+          "total_tokens": 2445,
+          "elapsed_ms": 97055
         }
       },
       {
@@ -261,14 +261,14 @@
           true
         ],
         "sem_quality": {
-          "len": 6034,
+          "len": 4329,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 12
         },
         "com_quality": {
-          "len": 4051,
+          "len": 2983,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -276,15 +276,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 25,
-          "completion_tokens": 1913,
-          "total_tokens": 1938,
-          "elapsed_ms": 64374
+          "completion_tokens": 1389,
+          "total_tokens": 1414,
+          "elapsed_ms": 37981
         },
         "com_usage": {
           "prompt_tokens": 211,
-          "completion_tokens": 3352,
-          "total_tokens": 3563,
-          "elapsed_ms": 64658
+          "completion_tokens": 2303,
+          "total_tokens": 2514,
+          "elapsed_ms": 57754
         }
       },
       {
@@ -308,14 +308,14 @@
           true
         ],
         "sem_quality": {
-          "len": 10028,
+          "len": 1452,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 15
+          "criteria_keywords_hit": 14
         },
         "com_quality": {
-          "len": 2325,
+          "len": 2284,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -323,19 +323,66 @@
         },
         "sem_usage": {
           "prompt_tokens": 25,
-          "completion_tokens": 2415,
-          "total_tokens": 2440,
-          "elapsed_ms": 40627
+          "completion_tokens": 1227,
+          "total_tokens": 1252,
+          "elapsed_ms": 35724
         },
         "com_usage": {
           "prompt_tokens": 217,
-          "completion_tokens": 1329,
-          "total_tokens": 1546,
-          "elapsed_ms": 24349
+          "completion_tokens": 1553,
+          "total_tokens": 1770,
+          "elapsed_ms": 43318
         }
       },
       {
         "goal": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
+        "stack": "dotnet",
+        "sem_hits": 4,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          true,
+          false,
+          true,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3582,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 9
+        },
+        "com_quality": {
+          "len": 1784,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 7
+        },
+        "sem_usage": {
+          "prompt_tokens": 23,
+          "completion_tokens": 947,
+          "total_tokens": 970,
+          "elapsed_ms": 28974
+        },
+        "com_usage": {
+          "prompt_tokens": 212,
+          "completion_tokens": 1518,
+          "total_tokens": 1730,
+          "elapsed_ms": 28991
+        }
+      },
+      {
+        "goal": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
         "stack": "dotnet",
         "sem_hits": 1,
         "com_hits": 5,
@@ -355,35 +402,35 @@
           true
         ],
         "sem_quality": {
-          "len": 2957,
-          "has_diff_block": false,
-          "has_test_block": false,
+          "len": 3208,
+          "has_diff_block": true,
+          "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 6
         },
         "com_quality": {
-          "len": 3273,
+          "len": 4220,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 9
+          "criteria_keywords_hit": 8
         },
         "sem_usage": {
           "prompt_tokens": 23,
-          "completion_tokens": 1303,
-          "total_tokens": 1326,
-          "elapsed_ms": 27992
+          "completion_tokens": 1125,
+          "total_tokens": 1148,
+          "elapsed_ms": 32214
         },
         "com_usage": {
-          "prompt_tokens": 212,
-          "completion_tokens": 1301,
-          "total_tokens": 1513,
-          "elapsed_ms": 36655
+          "prompt_tokens": 215,
+          "completion_tokens": 1802,
+          "total_tokens": 2017,
+          "elapsed_ms": 59918
         }
       },
       {
-        "goal": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
-        "stack": "dotnet",
+        "goal": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
+        "stack": "angular",
         "sem_hits": 2,
         "com_hits": 5,
         "total": 5,
@@ -402,110 +449,63 @@
           true
         ],
         "sem_quality": {
-          "len": 4038,
-          "has_diff_block": true,
-          "has_test_block": true,
+          "len": 30539,
+          "has_diff_block": false,
+          "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 14
         },
         "com_quality": {
-          "len": 2450,
+          "len": 3168,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 8
-        },
-        "sem_usage": {
-          "prompt_tokens": 23,
-          "completion_tokens": 1384,
-          "total_tokens": 1407,
-          "elapsed_ms": 63320
-        },
-        "com_usage": {
-          "prompt_tokens": 215,
-          "completion_tokens": 1918,
-          "total_tokens": 2133,
-          "elapsed_ms": 71863
-        }
-      },
-      {
-        "goal": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
-        "stack": "angular",
-        "sem_hits": 2,
-        "com_hits": 1,
-        "total": 5,
-        "sem_flags": [
-          false,
-          false,
-          false,
-          true,
-          true
-        ],
-        "com_flags": [
-          false,
-          false,
-          false,
-          true,
-          false
-        ],
-        "sem_quality": {
-          "len": 15705,
-          "has_diff_block": false,
-          "has_test_block": false,
-          "target_mentioned": false,
-          "criteria_keywords_hit": 11
-        },
-        "com_quality": {
-          "len": 121,
-          "has_diff_block": false,
-          "has_test_block": false,
-          "target_mentioned": false,
-          "criteria_keywords_hit": 7
+          "criteria_keywords_hit": 12
         },
         "sem_usage": {
           "prompt_tokens": 21,
-          "completion_tokens": 4096,
-          "total_tokens": 4117,
-          "elapsed_ms": 58126
+          "completion_tokens": 6740,
+          "total_tokens": 6761,
+          "elapsed_ms": 99211
         },
         "com_usage": {
-          "prompt_tokens": 249,
-          "completion_tokens": 31,
-          "total_tokens": 280,
-          "elapsed_ms": 5223
+          "prompt_tokens": 217,
+          "completion_tokens": 3456,
+          "total_tokens": 3673,
+          "elapsed_ms": 106624
         }
       }
     ],
-    "sem_hits": 21,
-    "com_hits": 46,
+    "sem_hits": 23,
+    "com_hits": 50,
     "total": 52,
-    "sem_pct": 40,
-    "com_pct": 88,
+    "sem_pct": 44,
+    "com_pct": 96,
     "quality_sem": {
-      "len": 53387,
-      "has_diff_block": 4,
+      "len": 75571,
+      "has_diff_block": 7,
       "has_test_block": 8,
-      "target_mentioned": 0,
-      "criteria_keywords_hit": 98
+      "target_mentioned": 1,
+      "criteria_keywords_hit": 101
     },
     "quality_com": {
-      "len": 22281,
-      "has_diff_block": 9,
-      "has_test_block": 9,
-      "target_mentioned": 9,
-      "criteria_keywords_hit": 95
+      "len": 25566,
+      "has_diff_block": 10,
+      "has_test_block": 10,
+      "target_mentioned": 10,
+      "criteria_keywords_hit": 98
     },
     "usage_sem": {
       "prompt_tokens": 215,
-      "completion_tokens": 15575,
-      "total_tokens": 15790,
-      "elapsed_ms": 369904
+      "completion_tokens": 20382,
+      "total_tokens": 20597,
+      "elapsed_ms": 419796
     },
     "usage_com": {
-      "prompt_tokens": 2116,
-      "completion_tokens": 14405,
-      "total_tokens": 16521,
-      "elapsed_ms": 373070
+      "prompt_tokens": 2242,
+      "completion_tokens": 26304,
+      "total_tokens": 28546,
+      "elapsed_ms": 728089
     }
   },
   "qwen/qwen3.7-max": {
@@ -531,30 +531,30 @@
           true
         ],
         "sem_quality": {
-          "len": 2308,
+          "len": 2621,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 5
+          "criteria_keywords_hit": 6
         },
         "com_quality": {
-          "len": 2387,
+          "len": 2941,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 11
+          "criteria_keywords_hit": 9
         },
         "sem_usage": {
           "prompt_tokens": 23,
-          "completion_tokens": 1239,
-          "total_tokens": 1262,
-          "elapsed_ms": 24371
+          "completion_tokens": 1232,
+          "total_tokens": 1255,
+          "elapsed_ms": 21044
         },
         "com_usage": {
           "prompt_tokens": 217,
-          "completion_tokens": 3096,
-          "total_tokens": 3313,
-          "elapsed_ms": 44631
+          "completion_tokens": 3228,
+          "total_tokens": 3445,
+          "elapsed_ms": 59043
         }
       },
       {
@@ -578,30 +578,30 @@
           true
         ],
         "sem_quality": {
-          "len": 1456,
+          "len": 1573,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 9
         },
         "com_quality": {
-          "len": 2801,
+          "len": 2262,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 10
+          "criteria_keywords_hit": 9
         },
         "sem_usage": {
           "prompt_tokens": 21,
-          "completion_tokens": 1309,
-          "total_tokens": 1330,
-          "elapsed_ms": 26412
+          "completion_tokens": 1458,
+          "total_tokens": 1479,
+          "elapsed_ms": 24180
         },
         "com_usage": {
           "prompt_tokens": 211,
-          "completion_tokens": 3239,
-          "total_tokens": 3450,
-          "elapsed_ms": 48069
+          "completion_tokens": 2751,
+          "total_tokens": 2962,
+          "elapsed_ms": 51032
         }
       },
       {
@@ -625,30 +625,30 @@
           true
         ],
         "sem_quality": {
-          "len": 2372,
+          "len": 2221,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 6
         },
         "com_quality": {
-          "len": 2549,
+          "len": 2521,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 9
         },
         "sem_usage": {
           "prompt_tokens": 24,
-          "completion_tokens": 1912,
-          "total_tokens": 1936,
-          "elapsed_ms": 34033
+          "completion_tokens": 1471,
+          "total_tokens": 1495,
+          "elapsed_ms": 29863
         },
         "com_usage": {
           "prompt_tokens": 216,
-          "completion_tokens": 3214,
-          "total_tokens": 3430,
-          "elapsed_ms": 55376
+          "completion_tokens": 3676,
+          "total_tokens": 3892,
+          "elapsed_ms": 52806
         }
       },
       {
@@ -674,14 +674,14 @@
           true
         ],
         "sem_quality": {
-          "len": 2895,
+          "len": 3071,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 11
         },
         "com_quality": {
-          "len": 3306,
+          "len": 2607,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -689,15 +689,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 33,
-          "completion_tokens": 1581,
-          "total_tokens": 1614,
-          "elapsed_ms": 27355
+          "completion_tokens": 2005,
+          "total_tokens": 2038,
+          "elapsed_ms": 46264
         },
         "com_usage": {
           "prompt_tokens": 236,
-          "completion_tokens": 3336,
-          "total_tokens": 3572,
-          "elapsed_ms": 52011
+          "completion_tokens": 4254,
+          "total_tokens": 4490,
+          "elapsed_ms": 102986
         }
       },
       {
@@ -721,14 +721,14 @@
           true
         ],
         "sem_quality": {
-          "len": 2967,
+          "len": 2438,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 10
         },
         "com_quality": {
-          "len": 1725,
+          "len": 1974,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -736,15 +736,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 25,
-          "completion_tokens": 2114,
-          "total_tokens": 2139,
-          "elapsed_ms": 34425
+          "completion_tokens": 1635,
+          "total_tokens": 1660,
+          "elapsed_ms": 53138
         },
         "com_usage": {
           "prompt_tokens": 218,
-          "completion_tokens": 3531,
-          "total_tokens": 3749,
-          "elapsed_ms": 47448
+          "completion_tokens": 3734,
+          "total_tokens": 3952,
+          "elapsed_ms": 112767
         }
       },
       {
@@ -770,14 +770,14 @@
           true
         ],
         "sem_quality": {
-          "len": 3118,
+          "len": 2606,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 12
+          "criteria_keywords_hit": 13
         },
         "com_quality": {
-          "len": 2710,
+          "len": 2672,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -785,22 +785,22 @@
         },
         "sem_usage": {
           "prompt_tokens": 30,
-          "completion_tokens": 1018,
-          "total_tokens": 1048,
-          "elapsed_ms": 22475
+          "completion_tokens": 878,
+          "total_tokens": 908,
+          "elapsed_ms": 15330
         },
         "com_usage": {
           "prompt_tokens": 228,
-          "completion_tokens": 3590,
-          "total_tokens": 3818,
-          "elapsed_ms": 51863
+          "completion_tokens": 4247,
+          "total_tokens": 4475,
+          "elapsed_ms": 79992
         }
       },
       {
         "goal": "Show a 'No results' empty state when the search returns zero items AND the query is not empty.",
         "stack": "react",
         "sem_hits": 2,
-        "com_hits": 1,
+        "com_hits": 5,
         "total": 5,
         "sem_flags": [
           false,
@@ -811,36 +811,36 @@
         ],
         "com_flags": [
           true,
-          false,
-          false,
-          false,
-          false
+          true,
+          true,
+          true,
+          true
         ],
         "sem_quality": {
-          "len": 2721,
+          "len": 2960,
           "has_diff_block": false,
-          "has_test_block": false,
+          "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 16
+          "criteria_keywords_hit": 15
         },
         "com_quality": {
-          "len": 188,
-          "has_diff_block": false,
-          "has_test_block": false,
+          "len": 5281,
+          "has_diff_block": true,
+          "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 1
+          "criteria_keywords_hit": 18
         },
         "sem_usage": {
           "prompt_tokens": 31,
-          "completion_tokens": 819,
-          "total_tokens": 850,
-          "elapsed_ms": 14079
+          "completion_tokens": 1075,
+          "total_tokens": 1106,
+          "elapsed_ms": 24556
         },
         "com_usage": {
           "prompt_tokens": 235,
-          "completion_tokens": 82,
-          "total_tokens": 317,
-          "elapsed_ms": 2365
+          "completion_tokens": 1551,
+          "total_tokens": 1786,
+          "elapsed_ms": 43885
         }
       },
       {
@@ -871,7 +871,7 @@
           "criteria_keywords_hit": 4
         },
         "com_quality": {
-          "len": 3213,
+          "len": 2184,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -881,13 +881,13 @@
           "prompt_tokens": 28,
           "completion_tokens": 757,
           "total_tokens": 785,
-          "elapsed_ms": 13887
+          "elapsed_ms": 21765
         },
         "com_usage": {
           "prompt_tokens": 232,
-          "completion_tokens": 3555,
-          "total_tokens": 3787,
-          "elapsed_ms": 67542
+          "completion_tokens": 3008,
+          "total_tokens": 3240,
+          "elapsed_ms": 187476
         }
       },
       {
@@ -911,14 +911,14 @@
           true
         ],
         "sem_quality": {
-          "len": 4728,
+          "len": 4706,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 6
         },
         "com_quality": {
-          "len": 3122,
+          "len": 3249,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -926,27 +926,27 @@
         },
         "sem_usage": {
           "prompt_tokens": 28,
-          "completion_tokens": 2703,
-          "total_tokens": 2731,
-          "elapsed_ms": 47976
+          "completion_tokens": 2439,
+          "total_tokens": 2467,
+          "elapsed_ms": 46383
         },
         "com_usage": {
           "prompt_tokens": 236,
-          "completion_tokens": 3382,
-          "total_tokens": 3618,
-          "elapsed_ms": 52271
+          "completion_tokens": 3158,
+          "total_tokens": 3394,
+          "elapsed_ms": 74047
         }
       },
       {
         "goal": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
         "stack": "angular",
-        "sem_hits": 2,
+        "sem_hits": 3,
         "com_hits": 5,
         "total": 5,
         "sem_flags": [
           false,
           false,
-          false,
+          true,
           true,
           true
         ],
@@ -958,63 +958,63 @@
           true
         ],
         "sem_quality": {
-          "len": 4873,
+          "len": 5282,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 11
         },
         "com_quality": {
-          "len": 3654,
+          "len": 3551,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 16
+          "criteria_keywords_hit": 15
         },
         "sem_usage": {
           "prompt_tokens": 27,
-          "completion_tokens": 1709,
-          "total_tokens": 1736,
-          "elapsed_ms": 25221
+          "completion_tokens": 1782,
+          "total_tokens": 1809,
+          "elapsed_ms": 47910
         },
         "com_usage": {
           "prompt_tokens": 234,
-          "completion_tokens": 3859,
-          "total_tokens": 4093,
-          "elapsed_ms": 65554
+          "completion_tokens": 4499,
+          "total_tokens": 4733,
+          "elapsed_ms": 107723
         }
       }
     ],
-    "sem_hits": 22,
-    "com_hits": 48,
+    "sem_hits": 23,
+    "com_hits": 52,
     "total": 52,
-    "sem_pct": 42,
-    "com_pct": 92,
+    "sem_pct": 44,
+    "com_pct": 100,
     "quality_sem": {
-      "len": 28554,
+      "len": 28594,
       "has_diff_block": 6,
-      "has_test_block": 9,
+      "has_test_block": 10,
       "target_mentioned": 0,
-      "criteria_keywords_hit": 90
+      "criteria_keywords_hit": 91
     },
     "quality_com": {
-      "len": 25655,
-      "has_diff_block": 9,
-      "has_test_block": 9,
+      "len": 29242,
+      "has_diff_block": 10,
+      "has_test_block": 10,
       "target_mentioned": 10,
-      "criteria_keywords_hit": 100
+      "criteria_keywords_hit": 114
     },
     "usage_sem": {
       "prompt_tokens": 270,
-      "completion_tokens": 15161,
-      "total_tokens": 15431,
-      "elapsed_ms": 270234
+      "completion_tokens": 14732,
+      "total_tokens": 15002,
+      "elapsed_ms": 330433
     },
     "usage_com": {
       "prompt_tokens": 2263,
-      "completion_tokens": 30884,
-      "total_tokens": 33147,
-      "elapsed_ms": 487130
+      "completion_tokens": 34106,
+      "total_tokens": 36369,
+      "elapsed_ms": 871757
     }
   },
   "moonshotai/kimi-k2.6": {
@@ -1040,30 +1040,30 @@
           true
         ],
         "sem_quality": {
-          "len": 1535,
-          "has_diff_block": true,
-          "has_test_block": true,
+          "len": 25093,
+          "has_diff_block": false,
+          "has_test_block": false,
           "target_mentioned": false,
           "criteria_keywords_hit": 7
         },
         "com_quality": {
-          "len": 17543,
+          "len": 1467,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 11
+          "criteria_keywords_hit": 7
         },
         "sem_usage": {
           "prompt_tokens": 21,
-          "completion_tokens": 837,
-          "total_tokens": 858,
-          "elapsed_ms": 32321
+          "completion_tokens": 6069,
+          "total_tokens": 6090,
+          "elapsed_ms": 45148
         },
         "com_usage": {
           "prompt_tokens": 202,
-          "completion_tokens": 4096,
-          "total_tokens": 4298,
-          "elapsed_ms": 77912
+          "completion_tokens": 5422,
+          "total_tokens": 5624,
+          "elapsed_ms": 172180
         }
       },
       {
@@ -1087,30 +1087,30 @@
           true
         ],
         "sem_quality": {
-          "len": 15933,
+          "len": 22699,
           "has_diff_block": false,
           "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 10
+          "criteria_keywords_hit": 9
         },
         "com_quality": {
-          "len": 17983,
+          "len": 1083,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 9
+          "criteria_keywords_hit": 8
         },
         "sem_usage": {
           "prompt_tokens": 19,
-          "completion_tokens": 4096,
-          "total_tokens": 4115,
-          "elapsed_ms": 144108
+          "completion_tokens": 5281,
+          "total_tokens": 5300,
+          "elapsed_ms": 174419
         },
         "com_usage": {
           "prompt_tokens": 194,
-          "completion_tokens": 4096,
-          "total_tokens": 4290,
-          "elapsed_ms": 51068
+          "completion_tokens": 5893,
+          "total_tokens": 6087,
+          "elapsed_ms": 73981
         }
       },
       {
@@ -1134,30 +1134,30 @@
           true
         ],
         "sem_quality": {
-          "len": 16607,
+          "len": 28924,
           "has_diff_block": false,
-          "has_test_block": false,
+          "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 7
         },
         "com_quality": {
-          "len": 970,
+          "len": 1386,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 5
+          "criteria_keywords_hit": 8
         },
         "sem_usage": {
           "prompt_tokens": 22,
-          "completion_tokens": 4096,
-          "total_tokens": 4118,
-          "elapsed_ms": 172909
+          "completion_tokens": 7329,
+          "total_tokens": 7351,
+          "elapsed_ms": 106987
         },
         "com_usage": {
-          "prompt_tokens": 198,
-          "completion_tokens": 4096,
-          "total_tokens": 4294,
-          "elapsed_ms": 114111
+          "prompt_tokens": 199,
+          "completion_tokens": 6688,
+          "total_tokens": 6887,
+          "elapsed_ms": 319811
         }
       },
       {
@@ -1183,14 +1183,14 @@
           true
         ],
         "sem_quality": {
-          "len": 16552,
+          "len": 17710,
           "has_diff_block": false,
-          "has_test_block": true,
+          "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 13
+          "criteria_keywords_hit": 14
         },
         "com_quality": {
-          "len": 18178,
+          "len": 3499,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -1198,15 +1198,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 30,
-          "completion_tokens": 4096,
-          "total_tokens": 4126,
-          "elapsed_ms": 130909
+          "completion_tokens": 4496,
+          "total_tokens": 4526,
+          "elapsed_ms": 244402
         },
         "com_usage": {
           "prompt_tokens": 219,
-          "completion_tokens": 4096,
-          "total_tokens": 4315,
-          "elapsed_ms": 124508
+          "completion_tokens": 6695,
+          "total_tokens": 6914,
+          "elapsed_ms": 159673
         }
       },
       {
@@ -1230,43 +1230,43 @@
           true
         ],
         "sem_quality": {
-          "len": 10656,
+          "len": 31495,
           "has_diff_block": false,
           "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 10
         },
         "com_quality": {
-          "len": 17484,
+          "len": 868,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 12
+          "criteria_keywords_hit": 10
         },
         "sem_usage": {
           "prompt_tokens": 23,
-          "completion_tokens": 4096,
-          "total_tokens": 4119,
-          "elapsed_ms": 226282
+          "completion_tokens": 7662,
+          "total_tokens": 7685,
+          "elapsed_ms": 199839
         },
         "com_usage": {
           "prompt_tokens": 200,
-          "completion_tokens": 4096,
-          "total_tokens": 4296,
-          "elapsed_ms": 17082
+          "completion_tokens": 7337,
+          "total_tokens": 7537,
+          "elapsed_ms": 30808
         }
       },
       {
         "goal": "Disable the 'Save Draft' button while the form is invalid OR a save request is in-flight.",
         "stack": "react",
-        "sem_hits": 2,
+        "sem_hits": 3,
         "com_hits": 6,
         "total": 6,
         "sem_flags": [
           false,
           false,
           false,
-          false,
+          true,
           true,
           true
         ],
@@ -1279,14 +1279,14 @@
           true
         ],
         "sem_quality": {
-          "len": 15593,
+          "len": 25128,
           "has_diff_block": false,
-          "has_test_block": false,
+          "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 11
+          "criteria_keywords_hit": 12
         },
         "com_quality": {
-          "len": 17157,
+          "len": 3132,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -1294,15 +1294,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 28,
-          "completion_tokens": 4096,
-          "total_tokens": 4124,
-          "elapsed_ms": 41462
+          "completion_tokens": 6096,
+          "total_tokens": 6124,
+          "elapsed_ms": 258114
         },
         "com_usage": {
           "prompt_tokens": 210,
-          "completion_tokens": 4096,
-          "total_tokens": 4306,
-          "elapsed_ms": 212012
+          "completion_tokens": 7240,
+          "total_tokens": 7450,
+          "elapsed_ms": 235221
         }
       },
       {
@@ -1326,30 +1326,30 @@
           true
         ],
         "sem_quality": {
-          "len": 12701,
+          "len": 18651,
           "has_diff_block": false,
           "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 18
+          "criteria_keywords_hit": 16
         },
         "com_quality": {
-          "len": 17043,
+          "len": 2276,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
           "criteria_keywords_hit": 19
         },
         "sem_usage": {
-          "prompt_tokens": 28,
-          "completion_tokens": 4096,
-          "total_tokens": 4124,
-          "elapsed_ms": 130738
+          "prompt_tokens": 29,
+          "completion_tokens": 5435,
+          "total_tokens": 5464,
+          "elapsed_ms": 307766
         },
         "com_usage": {
           "prompt_tokens": 218,
-          "completion_tokens": 4096,
-          "total_tokens": 4314,
-          "elapsed_ms": 57405
+          "completion_tokens": 5490,
+          "total_tokens": 5708,
+          "elapsed_ms": 86381
         }
       },
       {
@@ -1373,30 +1373,30 @@
           true
         ],
         "sem_quality": {
-          "len": 820,
+          "len": 873,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 5
         },
         "com_quality": {
-          "len": 19006,
+          "len": 3651,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 12
+          "criteria_keywords_hit": 7
         },
         "sem_usage": {
-          "prompt_tokens": 24,
-          "completion_tokens": 523,
-          "total_tokens": 547,
-          "elapsed_ms": 37627
+          "prompt_tokens": 25,
+          "completion_tokens": 304,
+          "total_tokens": 329,
+          "elapsed_ms": 4624
         },
         "com_usage": {
           "prompt_tokens": 210,
-          "completion_tokens": 4096,
-          "total_tokens": 4306,
-          "elapsed_ms": 107493
+          "completion_tokens": 6554,
+          "total_tokens": 6764,
+          "elapsed_ms": 105475
         }
       },
       {
@@ -1420,36 +1420,36 @@
           true
         ],
         "sem_quality": {
-          "len": 2777,
+          "len": 2893,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 6
         },
         "com_quality": {
-          "len": 1483,
+          "len": 2592,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
           "criteria_keywords_hit": 8
         },
         "sem_usage": {
-          "prompt_tokens": 25,
-          "completion_tokens": 1278,
-          "total_tokens": 1303,
-          "elapsed_ms": 26667
+          "prompt_tokens": 24,
+          "completion_tokens": 1799,
+          "total_tokens": 1823,
+          "elapsed_ms": 49180
         },
         "com_usage": {
-          "prompt_tokens": 212,
-          "completion_tokens": 10440,
-          "total_tokens": 10652,
-          "elapsed_ms": 374618
+          "prompt_tokens": 213,
+          "completion_tokens": 7902,
+          "total_tokens": 8115,
+          "elapsed_ms": 213918
         }
       },
       {
         "goal": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
         "stack": "angular",
-        "sem_hits": 1,
+        "sem_hits": 2,
         "com_hits": 5,
         "total": 5,
         "sem_flags": [
@@ -1457,7 +1457,7 @@
           false,
           false,
           true,
-          false
+          true
         ],
         "com_flags": [
           true,
@@ -1467,14 +1467,14 @@
           true
         ],
         "sem_quality": {
-          "len": 13401,
+          "len": 22022,
           "has_diff_block": false,
-          "has_test_block": false,
+          "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 11
         },
         "com_quality": {
-          "len": 18617,
+          "len": 35875,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -1482,48 +1482,48 @@
         },
         "sem_usage": {
           "prompt_tokens": 25,
-          "completion_tokens": 4096,
-          "total_tokens": 4121,
-          "elapsed_ms": 182471
+          "completion_tokens": 6505,
+          "total_tokens": 6530,
+          "elapsed_ms": 331127
         },
         "com_usage": {
           "prompt_tokens": 216,
-          "completion_tokens": 4096,
-          "total_tokens": 4312,
-          "elapsed_ms": 83050
+          "completion_tokens": 8192,
+          "total_tokens": 8408,
+          "elapsed_ms": 30283
         }
       }
     ],
-    "sem_hits": 19,
+    "sem_hits": 21,
     "com_hits": 52,
     "total": 52,
-    "sem_pct": 36,
+    "sem_pct": 40,
     "com_pct": 100,
     "quality_sem": {
-      "len": 106575,
-      "has_diff_block": 2,
-      "has_test_block": 4,
+      "len": 195488,
+      "has_diff_block": 1,
+      "has_test_block": 5,
       "target_mentioned": 0,
-      "criteria_keywords_hit": 96
+      "criteria_keywords_hit": 97
     },
     "quality_com": {
-      "len": 145464,
+      "len": 55829,
       "has_diff_block": 10,
       "has_test_block": 10,
       "target_mentioned": 10,
-      "criteria_keywords_hit": 120
+      "criteria_keywords_hit": 111
     },
     "usage_sem": {
-      "prompt_tokens": 245,
-      "completion_tokens": 31310,
-      "total_tokens": 31555,
-      "elapsed_ms": 1125494
+      "prompt_tokens": 246,
+      "completion_tokens": 50976,
+      "total_tokens": 51222,
+      "elapsed_ms": 1721606
     },
     "usage_com": {
-      "prompt_tokens": 2079,
-      "completion_tokens": 47304,
-      "total_tokens": 49383,
-      "elapsed_ms": 1219259
+      "prompt_tokens": 2081,
+      "completion_tokens": 67413,
+      "total_tokens": 69494,
+      "elapsed_ms": 1427731
     }
   },
   "openai/gpt-5.5": {
@@ -1549,30 +1549,30 @@
           true
         ],
         "sem_quality": {
-          "len": 438,
+          "len": 595,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 4
+          "criteria_keywords_hit": 5
         },
         "com_quality": {
-          "len": 1025,
+          "len": 1083,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 9
+          "criteria_keywords_hit": 5
         },
         "sem_usage": {
           "prompt_tokens": 19,
-          "completion_tokens": 234,
-          "total_tokens": 253,
-          "elapsed_ms": 5212
+          "completion_tokens": 288,
+          "total_tokens": 307,
+          "elapsed_ms": 6175
         },
         "com_usage": {
           "prompt_tokens": 201,
-          "completion_tokens": 3879,
-          "total_tokens": 4080,
-          "elapsed_ms": 70598
+          "completion_tokens": 1838,
+          "total_tokens": 2039,
+          "elapsed_ms": 30042
         }
       },
       {
@@ -1596,14 +1596,14 @@
           true
         ],
         "sem_quality": {
-          "len": 521,
+          "len": 323,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 10
         },
         "com_quality": {
-          "len": 1204,
+          "len": 1606,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -1611,21 +1611,21 @@
         },
         "sem_usage": {
           "prompt_tokens": 17,
-          "completion_tokens": 213,
-          "total_tokens": 230,
-          "elapsed_ms": 4751
+          "completion_tokens": 170,
+          "total_tokens": 187,
+          "elapsed_ms": 4539
         },
         "com_usage": {
           "prompt_tokens": 193,
-          "completion_tokens": 816,
-          "total_tokens": 1009,
-          "elapsed_ms": 37302
+          "completion_tokens": 923,
+          "total_tokens": 1116,
+          "elapsed_ms": 16777
         }
       },
       {
         "goal": "Only show the audit log link for users with role 'auditor'.",
         "stack": "angular",
-        "sem_hits": 1,
+        "sem_hits": 2,
         "com_hits": 5,
         "total": 5,
         "sem_flags": [
@@ -1633,7 +1633,7 @@
           false,
           false,
           true,
-          false
+          true
         ],
         "com_flags": [
           true,
@@ -1643,30 +1643,30 @@
           true
         ],
         "sem_quality": {
-          "len": 372,
+          "len": 354,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 6
         },
         "com_quality": {
-          "len": 813,
+          "len": 1243,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 6
+          "criteria_keywords_hit": 7
         },
         "sem_usage": {
           "prompt_tokens": 20,
-          "completion_tokens": 210,
-          "total_tokens": 230,
-          "elapsed_ms": 22037
+          "completion_tokens": 202,
+          "total_tokens": 222,
+          "elapsed_ms": 6024
         },
         "com_usage": {
           "prompt_tokens": 198,
-          "completion_tokens": 1800,
-          "total_tokens": 1998,
-          "elapsed_ms": 31497
+          "completion_tokens": 1404,
+          "total_tokens": 1602,
+          "elapsed_ms": 23442
         }
       },
       {
@@ -1692,30 +1692,30 @@
           true
         ],
         "sem_quality": {
-          "len": 643,
+          "len": 598,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 11
         },
         "com_quality": {
-          "len": 1581,
+          "len": 1466,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 15
+          "criteria_keywords_hit": 12
         },
         "sem_usage": {
           "prompt_tokens": 28,
-          "completion_tokens": 243,
-          "total_tokens": 271,
-          "elapsed_ms": 6696
+          "completion_tokens": 227,
+          "total_tokens": 255,
+          "elapsed_ms": 4124
         },
         "com_usage": {
           "prompt_tokens": 217,
-          "completion_tokens": 931,
-          "total_tokens": 1148,
-          "elapsed_ms": 15197
+          "completion_tokens": 887,
+          "total_tokens": 1104,
+          "elapsed_ms": 13520
         }
       },
       {
@@ -1739,14 +1739,14 @@
           true
         ],
         "sem_quality": {
-          "len": 681,
+          "len": 593,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 10
+          "criteria_keywords_hit": 12
         },
         "com_quality": {
-          "len": 1881,
+          "len": 1074,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -1754,15 +1754,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 21,
-          "completion_tokens": 530,
-          "total_tokens": 551,
-          "elapsed_ms": 14870
+          "completion_tokens": 375,
+          "total_tokens": 396,
+          "elapsed_ms": 8159
         },
         "com_usage": {
           "prompt_tokens": 199,
-          "completion_tokens": 1025,
-          "total_tokens": 1224,
-          "elapsed_ms": 15830
+          "completion_tokens": 825,
+          "total_tokens": 1024,
+          "elapsed_ms": 12982
         }
       },
       {
@@ -1788,14 +1788,14 @@
           true
         ],
         "sem_quality": {
-          "len": 814,
+          "len": 1262,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 10
+          "criteria_keywords_hit": 12
         },
         "com_quality": {
-          "len": 1193,
+          "len": 2169,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -1803,15 +1803,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 26,
-          "completion_tokens": 402,
-          "total_tokens": 428,
-          "elapsed_ms": 7819
+          "completion_tokens": 533,
+          "total_tokens": 559,
+          "elapsed_ms": 10716
         },
         "com_usage": {
           "prompt_tokens": 209,
-          "completion_tokens": 2394,
-          "total_tokens": 2603,
-          "elapsed_ms": 111513
+          "completion_tokens": 1064,
+          "total_tokens": 1273,
+          "elapsed_ms": 14091
         }
       },
       {
@@ -1835,14 +1835,14 @@
           true
         ],
         "sem_quality": {
-          "len": 813,
+          "len": 625,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 15
         },
         "com_quality": {
-          "len": 1896,
+          "len": 1531,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -1850,22 +1850,22 @@
         },
         "sem_usage": {
           "prompt_tokens": 27,
-          "completion_tokens": 368,
-          "total_tokens": 395,
-          "elapsed_ms": 7385
+          "completion_tokens": 444,
+          "total_tokens": 471,
+          "elapsed_ms": 11244
         },
         "com_usage": {
           "prompt_tokens": 217,
-          "completion_tokens": 1021,
-          "total_tokens": 1238,
-          "elapsed_ms": 14454
+          "completion_tokens": 1448,
+          "total_tokens": 1665,
+          "elapsed_ms": 21690
         }
       },
       {
         "goal": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
         "stack": "dotnet",
         "sem_hits": 2,
-        "com_hits": 4,
+        "com_hits": 5,
         "total": 5,
         "sem_flags": [
           false,
@@ -1879,33 +1879,33 @@
           true,
           true,
           true,
-          false
+          true
         ],
         "sem_quality": {
-          "len": 510,
+          "len": 627,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 4
+          "criteria_keywords_hit": 5
         },
         "com_quality": {
-          "len": 4241,
+          "len": 1854,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 11
+          "criteria_keywords_hit": 9
         },
         "sem_usage": {
           "prompt_tokens": 23,
-          "completion_tokens": 226,
-          "total_tokens": 249,
-          "elapsed_ms": 6574
+          "completion_tokens": 265,
+          "total_tokens": 288,
+          "elapsed_ms": 8005
         },
         "com_usage": {
           "prompt_tokens": 209,
-          "completion_tokens": 4096,
-          "total_tokens": 4305,
-          "elapsed_ms": 70303
+          "completion_tokens": 959,
+          "total_tokens": 1168,
+          "elapsed_ms": 13946
         }
       },
       {
@@ -1929,30 +1929,30 @@
           true
         ],
         "sem_quality": {
-          "len": 1287,
+          "len": 1673,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 5
+          "criteria_keywords_hit": 4
         },
         "com_quality": {
-          "len": 1255,
+          "len": 1144,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 4
+          "criteria_keywords_hit": 8
         },
         "sem_usage": {
           "prompt_tokens": 24,
-          "completion_tokens": 729,
-          "total_tokens": 753,
-          "elapsed_ms": 15250
+          "completion_tokens": 779,
+          "total_tokens": 803,
+          "elapsed_ms": 12215
         },
         "com_usage": {
           "prompt_tokens": 214,
-          "completion_tokens": 2370,
-          "total_tokens": 2584,
-          "elapsed_ms": 45381
+          "completion_tokens": 792,
+          "total_tokens": 1006,
+          "elapsed_ms": 12117
         }
       },
       {
@@ -1976,14 +1976,14 @@
           true
         ],
         "sem_quality": {
-          "len": 2544,
+          "len": 1857,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 10
         },
         "com_quality": {
-          "len": 3406,
+          "len": 3947,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -1991,48 +1991,48 @@
         },
         "sem_usage": {
           "prompt_tokens": 23,
-          "completion_tokens": 835,
-          "total_tokens": 858,
-          "elapsed_ms": 11840
+          "completion_tokens": 591,
+          "total_tokens": 614,
+          "elapsed_ms": 7778
         },
         "com_usage": {
           "prompt_tokens": 215,
-          "completion_tokens": 1343,
-          "total_tokens": 1558,
-          "elapsed_ms": 20648
+          "completion_tokens": 3040,
+          "total_tokens": 3255,
+          "elapsed_ms": 50276
         }
       }
     ],
-    "sem_hits": 19,
-    "com_hits": 51,
+    "sem_hits": 20,
+    "com_hits": 52,
     "total": 52,
-    "sem_pct": 36,
-    "com_pct": 98,
+    "sem_pct": 38,
+    "com_pct": 100,
     "quality_sem": {
-      "len": 8623,
+      "len": 8507,
       "has_diff_block": 0,
       "has_test_block": 10,
       "target_mentioned": 0,
-      "criteria_keywords_hit": 85
+      "criteria_keywords_hit": 90
     },
     "quality_com": {
-      "len": 18495,
+      "len": 17117,
       "has_diff_block": 10,
       "has_test_block": 10,
       "target_mentioned": 10,
-      "criteria_keywords_hit": 107
+      "criteria_keywords_hit": 103
     },
     "usage_sem": {
       "prompt_tokens": 228,
-      "completion_tokens": 3990,
-      "total_tokens": 4218,
-      "elapsed_ms": 102434
+      "completion_tokens": 3874,
+      "total_tokens": 4102,
+      "elapsed_ms": 78979
     },
     "usage_com": {
       "prompt_tokens": 2072,
-      "completion_tokens": 19675,
-      "total_tokens": 21747,
-      "elapsed_ms": 432723
+      "completion_tokens": 13180,
+      "total_tokens": 15252,
+      "elapsed_ms": 208883
     }
   },
   "anthropic/claude-opus-4.7": {
@@ -2058,14 +2058,14 @@
           true
         ],
         "sem_quality": {
-          "len": 1194,
+          "len": 1297,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 5
         },
         "com_quality": {
-          "len": 1804,
+          "len": 1247,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -2073,15 +2073,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 29,
-          "completion_tokens": 501,
-          "total_tokens": 530,
-          "elapsed_ms": 7824
+          "completion_tokens": 550,
+          "total_tokens": 579,
+          "elapsed_ms": 8086
         },
         "com_usage": {
           "prompt_tokens": 325,
-          "completion_tokens": 751,
-          "total_tokens": 1076,
-          "elapsed_ms": 9934
+          "completion_tokens": 522,
+          "total_tokens": 847,
+          "elapsed_ms": 6347
         }
       },
       {
@@ -2105,14 +2105,14 @@
           true
         ],
         "sem_quality": {
-          "len": 1102,
+          "len": 1208,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 8
         },
         "com_quality": {
-          "len": 1988,
+          "len": 1926,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -2120,15 +2120,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 27,
-          "completion_tokens": 452,
-          "total_tokens": 479,
-          "elapsed_ms": 7149
+          "completion_tokens": 476,
+          "total_tokens": 503,
+          "elapsed_ms": 6952
         },
         "com_usage": {
           "prompt_tokens": 317,
-          "completion_tokens": 796,
-          "total_tokens": 1113,
-          "elapsed_ms": 8635
+          "completion_tokens": 775,
+          "total_tokens": 1092,
+          "elapsed_ms": 9074
         }
       },
       {
@@ -2152,37 +2152,37 @@
           true
         ],
         "sem_quality": {
-          "len": 1116,
+          "len": 1112,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 6
         },
         "com_quality": {
-          "len": 2160,
+          "len": 1399,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 9
+          "criteria_keywords_hit": 7
         },
         "sem_usage": {
           "prompt_tokens": 30,
-          "completion_tokens": 503,
-          "total_tokens": 533,
-          "elapsed_ms": 15391
+          "completion_tokens": 484,
+          "total_tokens": 514,
+          "elapsed_ms": 7722
         },
         "com_usage": {
           "prompt_tokens": 323,
-          "completion_tokens": 906,
-          "total_tokens": 1229,
-          "elapsed_ms": 10329
+          "completion_tokens": 597,
+          "total_tokens": 920,
+          "elapsed_ms": 7373
         }
       },
       {
         "goal": "Show 'Approve' button only when the order status is 'pending' and the user has approver permission.",
         "stack": "angular",
         "sem_hits": 3,
-        "com_hits": 5,
+        "com_hits": 6,
         "total": 6,
         "sem_flags": [
           false,
@@ -2196,35 +2196,35 @@
           true,
           true,
           true,
-          false,
+          true,
           true,
           true
         ],
         "sem_quality": {
-          "len": 2072,
+          "len": 2556,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 11
         },
         "com_quality": {
-          "len": 1636,
+          "len": 2284,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 13
         },
         "sem_usage": {
           "prompt_tokens": 40,
-          "completion_tokens": 813,
-          "total_tokens": 853,
-          "elapsed_ms": 11037
+          "completion_tokens": 943,
+          "total_tokens": 983,
+          "elapsed_ms": 11395
         },
         "com_usage": {
           "prompt_tokens": 347,
-          "completion_tokens": 681,
-          "total_tokens": 1028,
-          "elapsed_ms": 8151
+          "completion_tokens": 947,
+          "total_tokens": 1294,
+          "elapsed_ms": 10203
         }
       },
       {
@@ -2248,14 +2248,14 @@
           true
         ],
         "sem_quality": {
-          "len": 2187,
+          "len": 1868,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 10
         },
         "com_quality": {
-          "len": 1353,
+          "len": 1857,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -2263,15 +2263,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 31,
-          "completion_tokens": 898,
-          "total_tokens": 929,
-          "elapsed_ms": 23601
+          "completion_tokens": 800,
+          "total_tokens": 831,
+          "elapsed_ms": 10314
         },
         "com_usage": {
           "prompt_tokens": 323,
-          "completion_tokens": 587,
-          "total_tokens": 910,
-          "elapsed_ms": 7316
+          "completion_tokens": 811,
+          "total_tokens": 1134,
+          "elapsed_ms": 9039
         }
       },
       {
@@ -2297,14 +2297,14 @@
           true
         ],
         "sem_quality": {
-          "len": 3041,
+          "len": 3921,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 12
         },
         "com_quality": {
-          "len": 1512,
+          "len": 1465,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -2312,15 +2312,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 42,
-          "completion_tokens": 1265,
-          "total_tokens": 1307,
-          "elapsed_ms": 14452
+          "completion_tokens": 1583,
+          "total_tokens": 1625,
+          "elapsed_ms": 17872
         },
         "com_usage": {
           "prompt_tokens": 346,
-          "completion_tokens": 670,
-          "total_tokens": 1016,
-          "elapsed_ms": 7741
+          "completion_tokens": 626,
+          "total_tokens": 972,
+          "elapsed_ms": 7105
         }
       },
       {
@@ -2344,30 +2344,30 @@
           true
         ],
         "sem_quality": {
-          "len": 3496,
+          "len": 2714,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 15
+          "criteria_keywords_hit": 16
         },
         "com_quality": {
-          "len": 2237,
+          "len": 1562,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 19
+          "criteria_keywords_hit": 16
         },
         "sem_usage": {
           "prompt_tokens": 39,
-          "completion_tokens": 1362,
-          "total_tokens": 1401,
-          "elapsed_ms": 16398
+          "completion_tokens": 1102,
+          "total_tokens": 1141,
+          "elapsed_ms": 13719
         },
         "com_usage": {
           "prompt_tokens": 350,
-          "completion_tokens": 919,
-          "total_tokens": 1269,
-          "elapsed_ms": 10852
+          "completion_tokens": 655,
+          "total_tokens": 1005,
+          "elapsed_ms": 7305
         }
       },
       {
@@ -2391,14 +2391,14 @@
           true
         ],
         "sem_quality": {
-          "len": 1826,
+          "len": 1630,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 6
+          "criteria_keywords_hit": 5
         },
         "com_quality": {
-          "len": 1367,
+          "len": 1330,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -2406,15 +2406,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 41,
-          "completion_tokens": 736,
-          "total_tokens": 777,
-          "elapsed_ms": 9574
+          "completion_tokens": 657,
+          "total_tokens": 698,
+          "elapsed_ms": 10607
         },
         "com_usage": {
           "prompt_tokens": 346,
-          "completion_tokens": 635,
-          "total_tokens": 981,
-          "elapsed_ms": 9075
+          "completion_tokens": 618,
+          "total_tokens": 964,
+          "elapsed_ms": 8219
         }
       },
       {
@@ -2438,14 +2438,14 @@
           true
         ],
         "sem_quality": {
-          "len": 2560,
+          "len": 3091,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 6
+          "criteria_keywords_hit": 4
         },
         "com_quality": {
-          "len": 1631,
+          "len": 1394,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -2453,27 +2453,27 @@
         },
         "sem_usage": {
           "prompt_tokens": 39,
-          "completion_tokens": 1035,
-          "total_tokens": 1074,
-          "elapsed_ms": 13671
+          "completion_tokens": 1179,
+          "total_tokens": 1218,
+          "elapsed_ms": 15033
         },
         "com_usage": {
           "prompt_tokens": 352,
-          "completion_tokens": 697,
-          "total_tokens": 1049,
-          "elapsed_ms": 8432
+          "completion_tokens": 601,
+          "total_tokens": 953,
+          "elapsed_ms": 7873
         }
       },
       {
         "goal": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
         "stack": "angular",
-        "sem_hits": 3,
+        "sem_hits": 2,
         "com_hits": 4,
         "total": 5,
         "sem_flags": [
           false,
           false,
-          true,
+          false,
           true,
           true
         ],
@@ -2485,14 +2485,14 @@
           true
         ],
         "sem_quality": {
-          "len": 5042,
+          "len": 5579,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 11
         },
         "com_quality": {
-          "len": 993,
+          "len": 955,
           "has_diff_block": false,
           "has_test_block": false,
           "target_mentioned": true,
@@ -2500,32 +2500,32 @@
         },
         "sem_usage": {
           "prompt_tokens": 37,
-          "completion_tokens": 2063,
-          "total_tokens": 2100,
-          "elapsed_ms": 22267
+          "completion_tokens": 2244,
+          "total_tokens": 2281,
+          "elapsed_ms": 22420
         },
         "com_usage": {
           "prompt_tokens": 371,
-          "completion_tokens": 337,
-          "total_tokens": 708,
-          "elapsed_ms": 7641
+          "completion_tokens": 324,
+          "total_tokens": 695,
+          "elapsed_ms": 6920
         }
       }
     ],
-    "sem_hits": 23,
-    "com_hits": 50,
+    "sem_hits": 22,
+    "com_hits": 51,
     "total": 52,
-    "sem_pct": 44,
-    "com_pct": 96,
+    "sem_pct": 42,
+    "com_pct": 98,
     "quality_sem": {
-      "len": 23636,
+      "len": 24976,
       "has_diff_block": 0,
       "has_test_block": 10,
       "target_mentioned": 0,
-      "criteria_keywords_hit": 90
+      "criteria_keywords_hit": 88
     },
     "quality_com": {
-      "len": 16681,
+      "len": 15419,
       "has_diff_block": 9,
       "has_test_block": 9,
       "target_mentioned": 10,
@@ -2533,15 +2533,15 @@
     },
     "usage_sem": {
       "prompt_tokens": 355,
-      "completion_tokens": 9628,
-      "total_tokens": 9983,
-      "elapsed_ms": 141364
+      "completion_tokens": 10018,
+      "total_tokens": 10373,
+      "elapsed_ms": 124120
     },
     "usage_com": {
       "prompt_tokens": 3400,
-      "completion_tokens": 6979,
-      "total_tokens": 10379,
-      "elapsed_ms": 88106
+      "completion_tokens": 6476,
+      "total_tokens": 9876,
+      "elapsed_ms": 79458
     }
   },
   "google/gemini-3.5-flash": {
@@ -2584,13 +2584,13 @@
           "prompt_tokens": 13,
           "completion_tokens": 1491,
           "total_tokens": 1504,
-          "elapsed_ms": 8777
+          "elapsed_ms": 8493
         },
         "com_usage": {
           "prompt_tokens": 209,
           "completion_tokens": 2225,
           "total_tokens": 2434,
-          "elapsed_ms": 11631
+          "elapsed_ms": 11579
         }
       },
       {
@@ -2631,19 +2631,19 @@
           "prompt_tokens": 11,
           "completion_tokens": 1195,
           "total_tokens": 1206,
-          "elapsed_ms": 7654
+          "elapsed_ms": 6943
         },
         "com_usage": {
           "prompt_tokens": 203,
           "completion_tokens": 2520,
           "total_tokens": 2723,
-          "elapsed_ms": 14230
+          "elapsed_ms": 13253
         }
       },
       {
         "goal": "Only show the audit log link for users with role 'auditor'.",
         "stack": "angular",
-        "sem_hits": 1,
+        "sem_hits": 2,
         "com_hits": 5,
         "total": 5,
         "sem_flags": [
@@ -2651,7 +2651,7 @@
           false,
           false,
           true,
-          false
+          true
         ],
         "com_flags": [
           true,
@@ -2661,14 +2661,14 @@
           true
         ],
         "sem_quality": {
-          "len": 1780,
+          "len": 1696,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 7
+          "criteria_keywords_hit": 6
         },
         "com_quality": {
-          "len": 3155,
+          "len": 3037,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -2676,15 +2676,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 14,
-          "completion_tokens": 1132,
-          "total_tokens": 1146,
-          "elapsed_ms": 7137
+          "completion_tokens": 1174,
+          "total_tokens": 1188,
+          "elapsed_ms": 7066
         },
         "com_usage": {
           "prompt_tokens": 208,
-          "completion_tokens": 3239,
-          "total_tokens": 3447,
-          "elapsed_ms": 16505
+          "completion_tokens": 4102,
+          "total_tokens": 4310,
+          "elapsed_ms": 18694
         }
       },
       {
@@ -2717,7 +2717,7 @@
           "criteria_keywords_hit": 11
         },
         "com_quality": {
-          "len": 3361,
+          "len": 3021,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -2727,13 +2727,13 @@
           "prompt_tokens": 23,
           "completion_tokens": 1511,
           "total_tokens": 1534,
-          "elapsed_ms": 8053
+          "elapsed_ms": 8122
         },
         "com_usage": {
           "prompt_tokens": 229,
-          "completion_tokens": 3346,
-          "total_tokens": 3575,
-          "elapsed_ms": 15767
+          "completion_tokens": 2494,
+          "total_tokens": 2723,
+          "elapsed_ms": 12700
         }
       },
       {
@@ -2774,13 +2774,13 @@
           "prompt_tokens": 15,
           "completion_tokens": 1712,
           "total_tokens": 1727,
-          "elapsed_ms": 10912
+          "elapsed_ms": 9602
         },
         "com_usage": {
           "prompt_tokens": 206,
           "completion_tokens": 2884,
           "total_tokens": 3090,
-          "elapsed_ms": 12791
+          "elapsed_ms": 14131
         }
       },
       {
@@ -2813,7 +2813,7 @@
           "criteria_keywords_hit": 12
         },
         "com_quality": {
-          "len": 3021,
+          "len": 2978,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -2823,13 +2823,13 @@
           "prompt_tokens": 21,
           "completion_tokens": 1944,
           "total_tokens": 1965,
-          "elapsed_ms": 10345
+          "elapsed_ms": 10284
         },
         "com_usage": {
           "prompt_tokens": 219,
-          "completion_tokens": 2544,
-          "total_tokens": 2763,
-          "elapsed_ms": 12964
+          "completion_tokens": 3081,
+          "total_tokens": 3300,
+          "elapsed_ms": 15326
         }
       },
       {
@@ -2853,11 +2853,11 @@
           true
         ],
         "sem_quality": {
-          "len": 6339,
+          "len": 5887,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 15
+          "criteria_keywords_hit": 16
         },
         "com_quality": {
           "len": 3223,
@@ -2868,15 +2868,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 21,
-          "completion_tokens": 2881,
-          "total_tokens": 2902,
-          "elapsed_ms": 13959
+          "completion_tokens": 2577,
+          "total_tokens": 2598,
+          "elapsed_ms": 13202
         },
         "com_usage": {
           "prompt_tokens": 226,
           "completion_tokens": 2450,
           "total_tokens": 2676,
-          "elapsed_ms": 12149
+          "elapsed_ms": 11306
         }
       },
       {
@@ -2917,13 +2917,13 @@
           "prompt_tokens": 17,
           "completion_tokens": 841,
           "total_tokens": 858,
-          "elapsed_ms": 5763
+          "elapsed_ms": 5136
         },
         "com_usage": {
           "prompt_tokens": 220,
           "completion_tokens": 2387,
           "total_tokens": 2607,
-          "elapsed_ms": 10802
+          "elapsed_ms": 10783
         }
       },
       {
@@ -2964,13 +2964,13 @@
           "prompt_tokens": 17,
           "completion_tokens": 1774,
           "total_tokens": 1791,
-          "elapsed_ms": 9688
+          "elapsed_ms": 11566
         },
         "com_usage": {
           "prompt_tokens": 223,
           "completion_tokens": 2766,
           "total_tokens": 2989,
-          "elapsed_ms": 14234
+          "elapsed_ms": 13959
         }
       },
       {
@@ -3011,30 +3011,30 @@
           "prompt_tokens": 17,
           "completion_tokens": 2356,
           "total_tokens": 2373,
-          "elapsed_ms": 33840
+          "elapsed_ms": 12009
         },
         "com_usage": {
           "prompt_tokens": 226,
           "completion_tokens": 3504,
           "total_tokens": 3730,
-          "elapsed_ms": 16902
+          "elapsed_ms": 16122
         }
       }
     ],
-    "sem_hits": 21,
+    "sem_hits": 22,
     "com_hits": 52,
     "total": 52,
-    "sem_pct": 40,
+    "sem_pct": 42,
     "com_pct": 100,
     "quality_sem": {
-      "len": 31655,
+      "len": 31119,
       "has_diff_block": 8,
       "has_test_block": 10,
       "target_mentioned": 0,
       "criteria_keywords_hit": 93
     },
     "quality_com": {
-      "len": 28876,
+      "len": 28375,
       "has_diff_block": 10,
       "has_test_block": 10,
       "target_mentioned": 10,
@@ -3042,15 +3042,15 @@
     },
     "usage_sem": {
       "prompt_tokens": 169,
-      "completion_tokens": 16837,
-      "total_tokens": 17006,
-      "elapsed_ms": 116128
+      "completion_tokens": 16575,
+      "total_tokens": 16744,
+      "elapsed_ms": 92423
     },
     "usage_com": {
       "prompt_tokens": 2169,
-      "completion_tokens": 27865,
-      "total_tokens": 30034,
-      "elapsed_ms": 137975
+      "completion_tokens": 28413,
+      "total_tokens": 30582,
+      "elapsed_ms": 137853
     }
   }
 }

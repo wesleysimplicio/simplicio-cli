@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] — 2026-05-26
+
+### Changed
+- README and `bench/results.md` now list **all nine models** tested across both
+  bench runs — six frontier 2026 models (current headline) plus the three
+  mid-tier 7B–12B open models from the earlier v0.2.2 run (archival). The full
+  set is explicit so readers can see every model the harness has hit.
+- Re-ran the frontier bench (same 6 models, same 10 cases, `max_tokens=8192`).
+  Headline moved **40% → 95%** (prior 0.2.4 numbers) to **41% → 99%** (+58 pts,
+  +136% relative). Five of six frontier models hit **100% pass-rate**; smallest
+  per-model gain is **+52 pts** (DeepSeek V4 Pro), largest **+62 pts** (GPT-5.5).
+- Output-quality signals on the rerun: DIFF block **36% → 98%**, target file
+  mentioned **1% → 100%**, TEST block **88% → 98%**.
+- Cost on the rerun: tokens 1,967 → 3,168 per run (+61%); wall-clock 46.1s →
+  57.6s per run (+24%); 118,040 → 190,119 total tokens across 60 runs/side.
+
 ## [0.2.4] — 2026-05-26
 
 ### Changed
@@ -141,6 +157,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provider-agnostic LLM client (any OpenAI-compatible endpoint + Anthropic native).
 - CLI commands: `index`, `task`, `bench`, `smoke`.
 
+[0.2.5]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.5
+[0.2.4]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.4
 [0.2.3]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.3
 [0.2.2]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.2
 [0.2.1]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.1

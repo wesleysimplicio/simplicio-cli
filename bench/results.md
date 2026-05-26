@@ -13,9 +13,9 @@ same goal in simplicio's 6-layer contract.
 
 ## Headline
 
-- **Without simplicio:** 125/312 (40%)
-- **With simplicio:** 299/312 (95%)
-- **Delta:** **+55 points** (+139% relative)
+- **Without simplicio:** 131/312 (41%)
+- **With simplicio:** 309/312 (99%)
+- **Delta:** **+58 points** (+136% relative)
 
 ![pass rate by model](charts/overall.svg)
 
@@ -25,12 +25,12 @@ same goal in simplicio's 6-layer contract.
 
 | Model | Cases | Without | With | Delta (pts) | Relative gain |
 |---|---|---|---|---|---|
-| `deepseek/deepseek-v4-pro` | 10 | 21/52 (40%) | 46/52 (88%) | **+48** | +119% |
-| `qwen/qwen3.7-max` | 10 | 22/52 (42%) | 48/52 (92%) | **+50** | +118% |
-| `moonshotai/kimi-k2.6` | 10 | 19/52 (36%) | 52/52 (100%) | **+64** | +174% |
-| `openai/gpt-5.5` | 10 | 19/52 (36%) | 51/52 (98%) | **+62** | +168% |
-| `anthropic/claude-opus-4.7` | 10 | 23/52 (44%) | 50/52 (96%) | **+52** | +117% |
-| `google/gemini-3.5-flash` | 10 | 21/52 (40%) | 52/52 (100%) | **+60** | +148% |
+| `deepseek/deepseek-v4-pro` | 10 | 23/52 (44%) | 50/52 (96%) | **+52** | +117% |
+| `qwen/qwen3.7-max` | 10 | 23/52 (44%) | 52/52 (100%) | **+56** | +126% |
+| `moonshotai/kimi-k2.6` | 10 | 21/52 (40%) | 52/52 (100%) | **+60** | +148% |
+| `openai/gpt-5.5` | 10 | 20/52 (38%) | 52/52 (100%) | **+62** | +160% |
+| `anthropic/claude-opus-4.7` | 10 | 22/52 (42%) | 51/52 (98%) | **+56** | +132% |
+| `google/gemini-3.5-flash` | 10 | 22/52 (42%) | 52/52 (100%) | **+58** | +136% |
 
 ## Per-case (averaged across models)
 
@@ -40,14 +40,14 @@ same goal in simplicio's 6-layer contract.
 |---|---|---|---|---|---|
 | 1 | `angular` | Hide the Delete button when the current user is not an admin | 37% | 100% | **+63** |
 | 2 | `angular` | Disable the email field unless the profile role is editor. | 40% | 100% | **+60** |
-| 3 | `angular` | Only show the audit log link for users with role 'auditor'. | 33% | 100% | **+67** |
-| 4 | `angular` | Show 'Approve' button only when the order status is 'pending | 47% | 94% | **+47** |
+| 3 | `angular` | Only show the audit log link for users with role 'auditor'. | 40% | 100% | **+60** |
+| 4 | `angular` | Show 'Approve' button only when the order status is 'pending | 47% | 97% | **+50** |
 | 5 | `react` | Render the export menu item only for users in the 'analytics | 37% | 97% | **+60** |
-| 6 | `react` | Disable the 'Save Draft' button while the form is invalid OR | 47% | 100% | **+53** |
-| 7 | `react` | Show a 'No results' empty state when the search returns zero | 40% | 87% | **+47** |
-| 8 | `dotnet` | Require the 'CanApprove' policy on the Approve endpoint of t | 37% | 97% | **+60** |
-| 9 | `dotnet` | Restrict the GET /reports endpoint so only users in the Mana | 40% | 100% | **+60** |
-| 10 | `angular` | Show a warning banner if the user has unsaved changes and tr | 40% | 83% | **+43** |
+| 6 | `react` | Disable the 'Save Draft' button while the form is invalid OR | 50% | 100% | **+50** |
+| 7 | `react` | Show a 'No results' empty state when the search returns zero | 40% | 100% | **+60** |
+| 8 | `dotnet` | Require the 'CanApprove' policy on the Approve endpoint of t | 47% | 100% | **+53** |
+| 9 | `dotnet` | Restrict the GET /reports endpoint so only users in the Mana | 37% | 100% | **+63** |
+| 10 | `angular` | Show a warning banner if the user has unsaved changes and tr | 43% | 97% | **+53** |
 
 ## Per-stack
 
@@ -55,9 +55,9 @@ same goal in simplicio's 6-layer contract.
 
 | Stack | Without | With | Δ |
 |---|---|---|---|
-| `angular` | 40% | 96% | **+56** |
-| `dotnet` | 38% | 98% | **+60** |
-| `react` | 42% | 95% | **+53** |
+| `angular` | 42% | 99% | **+57** |
+| `dotnet` | 42% | 100% | **+58** |
+| `react` | 43% | 99% | **+56** |
 
 ## Output-quality signals (rate across all runs)
 
@@ -66,11 +66,11 @@ Each row = % of runs (cases × models) where the signal is present.
 
 | Signal | Without simplicio | With simplicio |
 |---|---|---|
-| DIFF block present | 33% (20/60) | 95% (57/60) |
-| TEST block present | 85% (51/60) | 95% (57/60) |
-| target file mentioned | 0% (0/60) | 98% (59/60) |
-| avg criteria-keywords hit / run | 9.2 | 10.2 |
-| avg output length (chars) | 4207 | 4290 |
+| DIFF block present | 36% (22/60) | 98% (59/60) |
+| TEST block present | 88% (53/60) | 98% (59/60) |
+| target file mentioned | 1% (1/60) | 100% (60/60) |
+| avg criteria-keywords hit / run | 9.3 | 10.3 |
+| avg output length (chars) | 6070 | 2859 |
 
 ## Cost — tokens & wall-clock (measured, per run)
 
@@ -80,25 +80,43 @@ tokens (the 6-layer wrap) and fewer output tokens (model stops guessing earlier)
 
 | Model | Side | Avg prompt tok | Avg completion tok | Avg total tok | Avg latency |
 |---|---|---|---|---|---|
-| `deepseek/deepseek-v4-pro` | without | 21 | 1557 | 1579 | 36990 ms |
-| `deepseek/deepseek-v4-pro` | with    | 211 | 1440 | 1652 | 37307 ms |
-| `qwen/qwen3.7-max` | without | 27 | 1516 | 1543 | 27023 ms |
-| `qwen/qwen3.7-max` | with    | 226 | 3088 | 3314 | 48713 ms |
-| `moonshotai/kimi-k2.6` | without | 24 | 3131 | 3155 | 112549 ms |
-| `moonshotai/kimi-k2.6` | with    | 207 | 4730 | 4938 | 121925 ms |
-| `openai/gpt-5.5` | without | 22 | 399 | 421 | 10243 ms |
-| `openai/gpt-5.5` | with    | 207 | 1967 | 2174 | 43272 ms |
-| `anthropic/claude-opus-4.7` | without | 35 | 962 | 998 | 14136 ms |
-| `anthropic/claude-opus-4.7` | with    | 340 | 697 | 1037 | 8810 ms |
-| `google/gemini-3.5-flash` | without | 16 | 1683 | 1700 | 11612 ms |
-| `google/gemini-3.5-flash` | with    | 216 | 2786 | 3003 | 13797 ms |
+| `deepseek/deepseek-v4-pro` | without | 21 | 2038 | 2059 | 41979 ms |
+| `deepseek/deepseek-v4-pro` | with    | 224 | 2630 | 2854 | 72808 ms |
+| `qwen/qwen3.7-max` | without | 27 | 1473 | 1500 | 33043 ms |
+| `qwen/qwen3.7-max` | with    | 226 | 3410 | 3636 | 87175 ms |
+| `moonshotai/kimi-k2.6` | without | 24 | 5097 | 5122 | 172160 ms |
+| `moonshotai/kimi-k2.6` | with    | 208 | 6741 | 6949 | 142773 ms |
+| `openai/gpt-5.5` | without | 22 | 387 | 410 | 7897 ms |
+| `openai/gpt-5.5` | with    | 207 | 1318 | 1525 | 20888 ms |
+| `anthropic/claude-opus-4.7` | without | 35 | 1001 | 1037 | 12412 ms |
+| `anthropic/claude-opus-4.7` | with    | 340 | 647 | 987 | 7945 ms |
+| `google/gemini-3.5-flash` | without | 16 | 1657 | 1674 | 9242 ms |
+| `google/gemini-3.5-flash` | with    | 216 | 2841 | 3058 | 13785 ms |
 
 **Aggregate over the full bench** (60 runs per side):
 
-- without simplicio: 93,983 tokens total · 2125.6s wall-clock · 1566 tok/run · 35425 ms/run
-- with simplicio:    161,211 tokens total · 2738.3s wall-clock · 2686 tok/run · 45637 ms/run
-- token delta:       +67,228 (+71%)
-- time delta:        +612.7s (+28%)
+- without simplicio: 118,040 tokens total · 2767.4s wall-clock · 1967 tok/run · 46122 ms/run
+- with simplicio:    190,119 tokens total · 3453.8s wall-clock · 3168 tok/run · 57562 ms/run
+- token delta:       +72,079 (+61%)
+- time delta:        +686.4s (+24%)
+
+## Earlier run — mid-tier 7B–12B open models (v0.2.2, archival)
+
+Run on the same harness against the previous generation of mid-tier open models
+before the frontier 2026 lineup. Kept here so the full set of **nine models**
+tested across both runs is on record.
+
+| Model | Cases | Without | With | Delta (pts) | Relative gain |
+|---|---|---|---|---|---|
+| `google/gemma-3-12b-it` | 10 | 18/52 (34%) | 48/52 (92%) | **+58** | +167% |
+| `meta-llama/llama-3.1-8b-instruct` | 10 | 19/52 (36%) | 47/52 (90%) | **+54** | +147% |
+| `qwen/qwen-2.5-7b-instruct` | 10 | 18/52 (34%) | 46/52 (88%) | **+54** | +159% |
+| **Mid-tier avg (3 models · 10 cases · 156 checks)** | — | **35%** | **90%** | **+55** | **+156%** |
+
+Output-quality signals on that run: DIFF block 0% → 100%, target file mentioned
+0% → 96%, TEST block 80% → 96%. Wall-clock 12.4s → 9.9s/run (simplicio faster
+on smaller models because they stop guessing earlier). Source: `CHANGELOG.md`
+entry `[0.2.2] — 2026-05-26`.
 
 ## How to reproduce
 
