@@ -64,7 +64,7 @@ def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
         raise SystemExit("set OPENROUTER_API_KEY (or BENCH_API_KEY)")
     body = json.dumps({
         "model": model,
-        "max_tokens": 900,
+        "max_tokens": 8192,
         "temperature": 0,
         "messages": [{"role": "user", "content": prompt}],
     }).encode()
@@ -84,8 +84,10 @@ def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
             data = json.loads(r.read())
         elapsed_ms = int((time.perf_counter() - t0) * 1000)
         usage = data.get("usage") or {}
+        msg = data["choices"][0].get("message") or {}
+        text = msg.get("content") or msg.get("reasoning") or ""
         return {
-            "text": data["choices"][0]["message"]["content"] or "",
+            "text": text,
             "prompt_tokens": int(usage.get("prompt_tokens", 0)),
             "completion_tokens": int(usage.get("completion_tokens", 0)),
             "total_tokens": int(usage.get("total_tokens", 0)),

@@ -23,37 +23,43 @@ Same model. Same task. Only the prompt changes. **Measured, reproducible, determ
 
 | Model | Without simplicio | With simplicio | Gain |
 |---|---|---|---|
-| **Gemma 3 12B IT** | 34% | **92%** | **+58 pts** |
-| **Llama 3.1 8B Instruct** | 36% | **90%** | **+54 pts** |
-| **Qwen 2.5 7B Instruct** | 34% | **88%** | **+54 pts** |
-| **Average across 3 models · 10 cases · 156 checks** | **35%** | **90%** | **+55 pts (+156%)** |
+| **Kimi K2.6** | 36% | **100%** | **+64 pts** |
+| **GPT-5.5** | 36% | **98%** | **+62 pts** |
+| **Gemini 3.5 Flash** | 40% | **100%** | **+60 pts** |
+| **Claude Opus 4.7** | 44% | **96%** | **+52 pts** |
+| **Qwen 3.7 Max** | 42% | **92%** | **+50 pts** |
+| **DeepSeek V4 Pro** | 40% | **88%** | **+48 pts** |
+| **Average across 6 models · 10 cases · 312 checks** | **40%** | **95%** | **+55 pts (+139%)** |
 
-### Output-quality signals (rate across all 30 runs)
+### Output-quality signals (rate across all 60 runs)
 
 | Signal | Raw prompt | With simplicio |
 |---|---|---|
-| **DIFF block present** | 0% | **100%** |
-| Target file mentioned | 0% | **96%** |
-| TEST block present | 80% | **96%** |
+| **DIFF block present** | 33% | **95%** |
+| Target file mentioned | 0% | **98%** |
+| TEST block present | 85% | **95%** |
 
 ### Cost — tokens & wall-clock (measured, not estimated)
 
 Same provider, same models, same cases. Token counts pulled from the API
 `usage` field; latency from `time.perf_counter()` around each call.
 
-| Side | Tokens / run | Wall-clock / run | Total tokens (30 runs) | Total time |
+| Side | Tokens / run | Wall-clock / run | Total tokens (60 runs) | Total time |
 |---|---|---|---|---|
-| Raw prompt | 759 | 12.4s | 22,774 | 6m 13s |
-| With simplicio | **770** | **9.9s** | **23,127** | **4m 58s** |
-| Δ | **+1%** | **−21%** | +353 | **−75s** |
+| Raw prompt | 1,566 | 35.4s | 93,983 | 35m 26s |
+| With simplicio | **2,686** | **45.6s** | **161,211** | **45m 38s** |
+| Δ | **+71%** | **+29%** | +67,228 | +10m 12s |
 
 simplicio wraps the objective in a 6-layer contract — more input tokens up
-front, fewer completion tokens because the model stops guessing. Net effect
-across 30 runs: roughly the same token bill, **21% faster, 90% pass-rate**.
+front, longer completions because the model produces the full DIFF + TEST +
+EVIDENCE the contract demands instead of a one-line guess. The bill goes up,
+but so does the **pass-rate (40% → 95%)** and the **DIFF-block rate (33% → 95%)** —
+useful tokens, not chat.
 
-> A 7B-parameter open model wrapped in simplicio's 6-layer contract outperforms
-> the same model with raw prompting **by 42 to 64 points**. Without changing the
-> model. Without fine-tuning. Without extra tokens at runtime worth mentioning.
+> Six frontier models — Opus 4.7, GPT-5.5, Gemini 3.5 Flash, Kimi K2.6,
+> Qwen 3.7 Max, DeepSeek V4 Pro — gained **+48 to +64 points** when wrapped in
+> simplicio's 6-layer contract. Without changing the model. Without
+> fine-tuning. Three of them went from sub-45% raw to **≥ 98% with simplicio**.
 
 Full report: [`bench/results.md`](bench/results.md) · [`bench/results.pdf`](bench/results.pdf) · raw outputs under `.simplicio/bench_runs/`.
 
@@ -142,7 +148,7 @@ code block → vector reused. Change one file → only that block re-embeds.
 
 ```bash
 OPENROUTER_API_KEY=… \
-  BENCH_MODELS="qwen/qwen-2.5-7b-instruct,meta-llama/llama-3.1-8b-instruct,google/gemma-3-12b-it" \
+  BENCH_MODELS="deepseek/deepseek-v4-pro,qwen/qwen3.7-max,moonshotai/kimi-k2.6,openai/gpt-5.5,anthropic/claude-opus-4.7,google/gemini-3.5-flash" \
   python3 bench/run_offline.py
 ```
 

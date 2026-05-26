@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] — 2026-05-26
+
+### Changed
+- Re-ran the full offline bench against six **frontier 2026 models** —
+  DeepSeek V4 Pro, Qwen 3.7 Max, Kimi K2.6, GPT-5.5, Claude Opus 4.7,
+  and Gemini 3.5 Flash — replacing the previous trio of mid-tier 7B–12B
+  open models in the headline numbers.
+- Bench harness (`bench/run_offline.py`):
+  - Raised `max_tokens` from 900 → 8192 to accommodate reasoning-heavy
+    models (GPT-5.5, Kimi K2.6, Claude Opus 4.7) that need room to emit
+    DIFF + TEST + EVIDENCE without hitting the length cap.
+  - Added a `reasoning` field fallback when `message.content` is null
+    (some providers return the answer under `reasoning` for thinking models).
+- README and `bench/results.md` refreshed with the new headline numbers.
+
+### Results (60 runs per side, 312 checks)
+- Overall: **40% → 95%** (+55 pts, +139% relative).
+- Per-model gains:
+  - Kimi K2.6: **36% → 100%** (+64 pts).
+  - GPT-5.5: **36% → 98%** (+62 pts).
+  - Gemini 3.5 Flash: **40% → 100%** (+60 pts).
+  - Claude Opus 4.7: **44% → 96%** (+52 pts).
+  - Qwen 3.7 Max: **42% → 92%** (+50 pts).
+  - DeepSeek V4 Pro: **40% → 88%** (+48 pts).
+- DIFF block presence: **33% → 95%**.
+- Target file mentioned: **0% → 98%**.
+- TEST block presence: **85% → 95%**.
+
+### Cost
+- Tokens / run: 1,566 → 2,686 (+71%) — reasoning-class models spend more
+  completion tokens when wrapped in the contract because they produce the
+  full DIFF + TEST + EVIDENCE the contract demands.
+- Wall-clock / run: 35.4s → 45.6s (+29%).
+- Trade-off: ~2× tokens, +55 pass-rate points and a 95% DIFF-block rate.
+
 ## [0.2.3] — 2026-05-26
 
 ### Changed (BREAKING)
