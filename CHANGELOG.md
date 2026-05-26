@@ -1,0 +1,44 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.2.0] — 2026-05-26
+
+### Added
+- Multi-model offline benchmark harness (`bench/run_offline.py`):
+  3 models · 10 cases · 156 checks · SVG charts (stdlib only).
+- Output-quality signals: DIFF block, TEST block, target-file mention,
+  criteria-keyword coverage, output length.
+- PyPI metadata: authors, license, classifiers, keywords, project URLs,
+  package-data for `simplicio/templates/*.md`.
+- PyPI badges and marketing hero in README with real numbers.
+- `.gitignore` entry for `.env`.
+
+### Changed
+- Bumped version `0.1.0` → `0.2.0`.
+- README: provider-agnostic install instructions (`pip install simplicio-cli`).
+- Benchmark results re-generated against working OpenRouter models
+  (qwen 2.5 7B, llama 3.1 8B, gemma 3 12B).
+
+### Results
+- Overall: **37% → 91%** (+54 pts, +145% relative) over 156 checks.
+- Llama 3.1 8B: **34% → 98%** (+64 pts).
+- Gemma 3 12B: **38% → 94%** (+56 pts).
+- Qwen 2.5 7B: **38% → 80%** (+42 pts).
+- DIFF block presence: **0% → 100%**.
+- Target file mentioned: **3% → 96%**.
+
+## [0.1.0] — 2026-05-25
+
+### Added
+- Initial release of `simplicio-cli`.
+- Pipeline: mapper → precedent → skill-router → 6-layer prompt → verify loop.
+- Content-hash embedding cache under `.simplicio/`.
+- Provider-agnostic LLM client (any OpenAI-compatible endpoint + Anthropic native).
+- CLI commands: `index`, `task`, `bench`, `smoke`.
+
+[0.2.0]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.0
+[0.1.0]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.1.0
