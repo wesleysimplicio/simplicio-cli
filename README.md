@@ -6,6 +6,8 @@
 [![Python](https://img.shields.io/pypi/pyversions/simplicio-cli.svg)](https://pypi.org/project/simplicio-cli/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+[![simplicio-cli pipeline hero: one-line task to verified code change](https://raw.githubusercontent.com/wesleysimplicio/simplicio-cli/master/output/imagegen/simplicio-cli-readme-hero-web.png)](output/imagegen/simplicio-cli-readme-hero.png)
+
 > *"hide the Delete button for non-admins"* → diff + test + applied + verified.
 > Works with **OpenRouter, OpenAI, Anthropic, GLM, DeepSeek, Ollama** — one env var.
 
