@@ -3,6 +3,7 @@ import argparse
 from .precedent import index_repo
 from .pipeline import run
 from .bench import run_bench
+from .providers import gerar, info
 
 def main():
     ap = argparse.ArgumentParser(prog="simplicio")
@@ -23,9 +24,16 @@ def main():
     pb.add_argument("--root", default="."); pb.add_argument("--stack", default="angular")
     pb.add_argument("--cases", default="bench/cases.json")
 
+
+    sub.add_parser("smoke", help="1 chamada de prova: conecta+gera (precisa SIMPLICIO_MODEL+KEY)")
+
     a = ap.parse_args()
     if a.cmd == "index":
         index_repo(a.root, a.stack)
+    elif a.cmd == "smoke":
+        print("provider:", info())
+        out = gerar("Responda exatamente: OK simplicio conectado.")
+        print("resposta do modelo:", out.strip()[:200])
     elif a.cmd == "bench":
         run_bench(a.root, a.stack, a.cases)
     else:
