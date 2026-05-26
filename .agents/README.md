@@ -26,6 +26,7 @@ Cada ferramenta resolve seu próprio caminho, mas todos convergem no conteúdo d
 ├── README.md                  # este arquivo
 ├── _template.agent.md         # base (opcional) pra criar agent novo
 ├── ralph-loop.agent.md        # Ralph Loop (executor autônomo padrão)
+├── simplicio-ralph.agent.md   # Ralph Loop + simplicio-cli (precedent + skill_router)
 ├── tdd.agent.md               # TDD Specialist
 ├── reviewer.agent.md          # Code Reviewer
 ├── architect.agent.md         # Software Architect

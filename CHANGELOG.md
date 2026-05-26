@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.7] — 2026-05-26
+
+### Added
+- Agent spec `.agents/simplicio-ralph.agent.md` — composição do padrão Ralph Loop
+  com o `simplicio-cli` como gerador de código no passo `execute`. Lido por
+  Claude Code, Codex CLI, GitHub Copilot, Cursor, Hermes, OpenClaw, Aider.
+- ADR-002 `.specs/architecture/ADR-002-simplicio-ralph-composition.md` —
+  registra a decisão arquitetural de **compor** com ralph-loop em vez de
+  inchar o CLI com `simplicio review`, `simplicio refactor`, etc. Documenta
+  alternativas avaliadas, trade-offs e critério de revisão (6 meses).
+- Doc `docs/agent-architecture.md` — visão única da arquitetura agentic
+  (4 camadas: orquestrador → roteamento → simplicio-cli → provedores LLM),
+  matriz de roteamento por tipo de task, fluxo end-to-end, invocação por
+  ferramenta, limitações conhecidas e como o orquestrador compensa.
+
+### Changed
+- `AGENTS.md` e `CLAUDE.md` (mirror) — entry novo na lista de "Custom agents
+  disponíveis" apontando para `simplicio-ralph.agent.md`.
+- `.agents/README.md` — diagrama de arquivos listados inclui o agent novo.
+
+### Notes
+- **Aditivo only.** Zero linha de código mexida em `simplicio/*.py`, `bench/`,
+  `README.md` ou `README.pt-BR.md`. Benchmarks publicados permanecem
+  reproduzíveis com a mesma versão do código.
+
 ## [0.2.6] — 2026-05-26
 
 ### Added
