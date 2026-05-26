@@ -38,13 +38,6 @@ pip install -e .          # from this repo
 
 Three env vars define the model. No provider list, no built-in model names.
 
-```bash
-export SIMPLICIO_MODEL="..."        # model id, exactly as your provider expects
-export SIMPLICIO_BASE_URL="..."     # any OpenAI-compatible endpoint
-export SIMPLICIO_API_KEY="..."      # your key (NEVER commit / paste in chat)
-export SIMPLICIO_TEST_CMD="ng test --watch=false"   # your real test command
-```
-
 Examples (verify model ids / endpoints against each vendor's current docs):
 
 | Provider | SIMPLICIO_MODEL | SIMPLICIO_BASE_URL |
