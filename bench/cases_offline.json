@@ -1,0 +1,44 @@
+[
+  {
+    "objetivo": "Hide the Delete button when the current user is not an admin.",
+    "stack": "angular",
+    "alvo": "src/app/screen/screen.component.html",
+    "criterios": "- without admin permission: button absent from DOM\n- with admin permission: button present in DOM",
+    "restricoes": "- do not change the save flow\n- build passes",
+    "checks": [
+      "screen\\.component\\.html",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "admin",
+      "(absent|hidden|removed|ngIf|not.*admin)"
+    ]
+  },
+  {
+    "objetivo": "Disable the email field unless the profile role is editor.",
+    "stack": "angular",
+    "alvo": "src/app/profile/profile.component.html",
+    "criterios": "- editor profile: email field enabled\n- any other profile: email field disabled",
+    "restricoes": "- build passes\n- do not change form submit",
+    "checks": [
+      "profile\\.component\\.html",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "editor",
+      "(disabled|\\[disabled\\]|isEditor)"
+    ]
+  },
+  {
+    "objetivo": "Only show the audit log link for users with role 'auditor'.",
+    "stack": "angular",
+    "alvo": "src/app/nav/nav.component.html",
+    "criterios": "- auditor role: link visible\n- non-auditor role: link absent from DOM",
+    "restricoes": "- build passes\n- do not touch routing config",
+    "checks": [
+      "nav\\.component\\.html",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "auditor",
+      "(ngIf|hidden|absent|visible)"
+    ]
+  }
+]

@@ -108,20 +108,45 @@ between seconds and sub-second per call.
 
 ## Benchmark — honest & reproducible
 
-This repo ships the **harness**, not pre-baked numbers. To compare *with* vs
-*without* the pipeline on **your** code:
+Two harnesses are shipped. Both are real, both are deterministic, no LLM
+judges the LLM.
+
+### Offline harness (no project required — stdlib only)
+
+`bench/run_offline.py` runs each case twice on the **same model**:
+**without** (raw one-line objective) vs **with simplicio** (the 6-layer
+contract: target, criteria, constraints, output shape). Scoring is a list
+of regex checks per case (target-file mention, DIFF block, TEST block,
+contract state words). No real Angular project needed.
+
+```bash
+OPENROUTER_API_KEY=… python3 bench/run_offline.py
+```
+
+Last run on this repo — `qwen/qwen-2.5-7b-instruct`, 3 cases, 15 checks:
+
+| # | Task | Without | With simplicio |
+|---|---|---|---|
+| 1 | Hide Delete button for non-admin | 2/5 | 2/5 |
+| 2 | Disable email field unless editor | 2/5 | 5/5 |
+| 3 | Show audit-log link only for auditor | 1/5 | 5/5 |
+
+**Overall:** without **5/15 (33%)** · with simplicio **12/15 (80%)** ·
+delta **+47 pts**. Full report (md / pdf):
+[`bench/results.md`](bench/results.md) · [`bench/results.pdf`](bench/results.pdf).
+Raw model outputs of each run are saved under `.simplicio/bench_runs/` so
+you can audit what the LLM actually produced on each side.
+
+### Full harness (your real project, your real tests)
 
 ```bash
 simplicio bench --cases bench/cases.json --stack angular
 ```
 
-It runs each case two ways — **without** (raw objective → LLM, baseline) and
-**with** (full pipeline) — runs your real test command on each output, and
-writes the true pass-rate to [`bench/results.md`](bench/results.md).
-
-**No numbers are claimed until you run it.** The point of the tool is removing
-guesswork; shipping invented benchmark figures would contradict that. Run it,
-and the table fills with results you can defend.
+Runs each case two ways and runs **your real test command** (e.g. `ng test
+--watch=false`) on each output. Writes the true pass-rate to
+[`bench/results.md`](bench/results.md). **No numbers are claimed until you
+run it on your repo.**
 
 ---
 
