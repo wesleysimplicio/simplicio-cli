@@ -1,7 +1,7 @@
 [project]
 name = "simplicio-cli"
-version = "0.2.1"
-description = "Portable task-to-code pipeline that works with any LLM. Turn a one-line task into a verified code change — diff + test + verify loop. +54 pts on a 156-check benchmark vs raw prompting."
+version = "0.2.2"
+description = "Portable task-to-code pipeline that works with any LLM. Turn a one-line task into a verified code change — diff + test + verify loop. +55 pts on a 156-check benchmark, 21% faster, ~same tokens."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"

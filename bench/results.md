@@ -13,9 +13,9 @@ same objetivo in simplicio's 6-layer contract.
 
 ## Headline
 
-- **Without simplicio:** 58/156 (37%)
-- **With simplicio:** 142/156 (91%)
-- **Delta:** **+54 points** (+145% relative)
+- **Without simplicio:** 55/156 (35%)
+- **With simplicio:** 141/156 (90%)
+- **Delta:** **+55 points** (+156% relative)
 
 ![pass rate by model](charts/overall.svg)
 
@@ -25,9 +25,9 @@ same objetivo in simplicio's 6-layer contract.
 
 | Model | Cases | Without | With | Delta (pts) | Relative gain |
 |---|---|---|---|---|---|
-| `qwen/qwen-2.5-7b-instruct` | 10 | 20/52 (38%) | 42/52 (80%) | **+42** | +110% |
-| `meta-llama/llama-3.1-8b-instruct` | 10 | 18/52 (34%) | 51/52 (98%) | **+64** | +183% |
-| `google/gemma-3-12b-it` | 10 | 20/52 (38%) | 49/52 (94%) | **+56** | +145% |
+| `qwen/qwen-2.5-7b-instruct` | 10 | 18/52 (34%) | 46/52 (88%) | **+54** | +156% |
+| `meta-llama/llama-3.1-8b-instruct` | 10 | 19/52 (36%) | 47/52 (90%) | **+54** | +147% |
+| `google/gemma-3-12b-it` | 10 | 18/52 (34%) | 48/52 (92%) | **+58** | +167% |
 
 ## Per-case (averaged across models)
 
@@ -36,15 +36,15 @@ same objetivo in simplicio's 6-layer contract.
 | # | Stack | Task | Without | With | Δ |
 |---|---|---|---|---|---|
 | 1 | `angular` | Hide the Delete button when the current user is not an admin | 40% | 73% | **+33** |
-| 2 | `angular` | Disable the email field unless the profile role is editor. | 40% | 80% | **+40** |
-| 3 | `angular` | Only show the audit log link for users with role 'auditor'. | 27% | 100% | **+73** |
+| 2 | `angular` | Disable the email field unless the profile role is editor. | 40% | 100% | **+60** |
+| 3 | `angular` | Only show the audit log link for users with role 'auditor'. | 20% | 93% | **+73** |
 | 4 | `angular` | Show 'Approve' button only when the order status is 'pending | 39% | 100% | **+61** |
-| 5 | `react` | Render the export menu item only for users in the 'analytics | 33% | 100% | **+67** |
-| 6 | `react` | Disable the 'Save Draft' button while the form is invalid OR | 50% | 100% | **+50** |
-| 7 | `react` | Show a 'No results' empty state when the search returns zero | 27% | 100% | **+73** |
-| 8 | `dotnet` | Require the 'CanApprove' policy on the Approve endpoint of t | 47% | 80% | **+33** |
+| 5 | `react` | Render the export menu item only for users in the 'analytics | 33% | 93% | **+60** |
+| 6 | `react` | Disable the 'Save Draft' button while the form is invalid OR | 50% | 94% | **+44** |
+| 7 | `react` | Show a 'No results' empty state when the search returns zero | 27% | 93% | **+67** |
+| 8 | `dotnet` | Require the 'CanApprove' policy on the Approve endpoint of t | 33% | 93% | **+60** |
 | 9 | `dotnet` | Restrict the GET /reports endpoint so only users in the Mana | 27% | 73% | **+47** |
-| 10 | `angular` | Show a warning banner if the user has unsaved changes and tr | 40% | 100% | **+60** |
+| 10 | `angular` | Show a warning banner if the user has unsaved changes and tr | 40% | 87% | **+47** |
 
 ## Per-stack
 
@@ -52,9 +52,9 @@ same objetivo in simplicio's 6-layer contract.
 
 | Stack | Without | With | Δ |
 |---|---|---|---|
-| `angular` | 37% | 91% | **+54** |
-| `dotnet` | 37% | 77% | **+40** |
-| `react` | 38% | 100% | **+62** |
+| `angular` | 36% | 91% | **+55** |
+| `dotnet` | 30% | 83% | **+53** |
+| `react` | 38% | 94% | **+56** |
 
 ## Output-quality signals (rate across all runs)
 
@@ -64,10 +64,32 @@ Each row = % of runs (cases × models) where the signal is present.
 | Signal | Without simplicio | With simplicio |
 |---|---|---|
 | DIFF block present | 0% (0/30) | 100% (30/30) |
-| TEST block present | 86% (26/30) | 93% (28/30) |
-| target file mentioned | 3% (1/30) | 96% (29/30) |
-| avg criteria-keywords hit / run | 9.4 | 9.5 |
-| avg output length (chars) | 3044 | 2106 |
+| TEST block present | 80% (24/30) | 96% (29/30) |
+| target file mentioned | 0% (0/30) | 96% (29/30) |
+| avg criteria-keywords hit / run | 9.5 | 9.6 |
+| avg output length (chars) | 3045 | 2111 |
+
+## Cost — tokens & wall-clock (measured, per run)
+
+Reported straight from the provider's `usage` field and `time.perf_counter()`. 
+*Per-run* = one model call (one case, one side). With simplicio uses more input 
+tokens (the 6-layer wrap) and fewer output tokens (model stops guessing earlier).
+
+| Model | Side | Avg prompt tok | Avg completion tok | Avg total tok | Avg latency |
+|---|---|---|---|---|---|
+| `qwen/qwen-2.5-7b-instruct` | without | 46 | 689 | 735 | 11871 ms |
+| `qwen/qwen-2.5-7b-instruct` | with    | 228 | 534 | 763 | 9129 ms |
+| `meta-llama/llama-3.1-8b-instruct` | without | 29 | 586 | 616 | 11451 ms |
+| `meta-llama/llama-3.1-8b-instruct` | with    | 213 | 470 | 683 | 10358 ms |
+| `google/gemma-3-12b-it` | without | 25 | 900 | 925 | 13983 ms |
+| `google/gemma-3-12b-it` | with    | 225 | 640 | 866 | 10341 ms |
+
+**Aggregate over the full bench** (30 runs per side):
+
+- without simplicio: 22,774 tokens total · 373.1s wall-clock · 759 tok/run · 12435 ms/run
+- with simplicio:    23,127 tokens total · 298.3s wall-clock · 770 tok/run · 9943 ms/run
+- token delta:       +353 (+1%)
+- time delta:        -74.8s (-21%)
 
 ## How to reproduce
 

@@ -23,18 +23,33 @@ Same model. Same task. Only the prompt changes. **Measured, reproducible, determ
 
 | Model | Without simplicio | With simplicio | Gain |
 |---|---|---|---|
-| **Llama 3.1 8B Instruct** | 34% | **98%** | **+64 pts** |
-| **Gemma 3 12B IT** | 38% | **94%** | **+56 pts** |
-| **Qwen 2.5 7B Instruct** | 38% | **80%** | **+42 pts** |
-| **Average across 3 models · 10 cases · 156 checks** | **37%** | **91%** | **+54 pts (+145%)** |
+| **Gemma 3 12B IT** | 34% | **92%** | **+58 pts** |
+| **Llama 3.1 8B Instruct** | 36% | **90%** | **+54 pts** |
+| **Qwen 2.5 7B Instruct** | 34% | **88%** | **+54 pts** |
+| **Average across 3 models · 10 cases · 156 checks** | **35%** | **90%** | **+55 pts (+156%)** |
 
 ### Output-quality signals (rate across all 30 runs)
 
 | Signal | Raw prompt | With simplicio |
 |---|---|---|
 | **DIFF block present** | 0% | **100%** |
-| Target file mentioned | 3% | **96%** |
-| TEST block present | 86% | **93%** |
+| Target file mentioned | 0% | **96%** |
+| TEST block present | 80% | **96%** |
+
+### Cost — tokens & wall-clock (measured, not estimated)
+
+Same provider, same models, same cases. Token counts pulled from the API
+`usage` field; latency from `time.perf_counter()` around each call.
+
+| Side | Tokens / run | Wall-clock / run | Total tokens (30 runs) | Total time |
+|---|---|---|---|---|
+| Raw prompt | 759 | 12.4s | 22,774 | 6m 13s |
+| With simplicio | **770** | **9.9s** | **23,127** | **4m 58s** |
+| Δ | **+1%** | **−21%** | +353 | **−75s** |
+
+simplicio wraps the objective in a 6-layer contract — more input tokens up
+front, fewer completion tokens because the model stops guessing. Net effect
+across 30 runs: roughly the same token bill, **21% faster, 90% pass-rate**.
 
 > A 7B-parameter open model wrapped in simplicio's 6-layer contract outperforms
 > the same model with raw prompting **by 42 to 64 points**. Without changing the

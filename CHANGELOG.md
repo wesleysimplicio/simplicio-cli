@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] — 2026-05-26
+
+### Added
+- Benchmark harness (`bench/run_offline.py`) now captures per-call token
+  usage (`usage.prompt_tokens` / `completion_tokens` / `total_tokens`) and
+  wall-clock latency (`time.perf_counter()`) for every model call.
+- `bench/results.md` gained a "Cost — tokens & wall-clock" section with a
+  per-model table and aggregate totals over 30 runs per side.
+- README now reports honest cost numbers alongside pass-rate.
+
+### Changed
+- Re-ran the full bench against OpenRouter; refreshed all numbers in
+  `README.md` and `bench/results.md`:
+  - Overall: **35% → 90%** (+55 pts, +156% relative) over 156 checks.
+  - Gemma 3 12B: **34% → 92%** (+58 pts).
+  - Llama 3.1 8B: **36% → 90%** (+54 pts).
+  - Qwen 2.5 7B: **34% → 88%** (+54 pts).
+- Wall-clock per run dropped from **12.4s → 9.9s (−21%)**; token cost per
+  run shifted from 759 → 770 (+1%). simplicio is faster *and* better at
+  ~same token bill.
+
+### Results
+- DIFF block presence: **0% → 100%**.
+- Target file mentioned: **0% → 96%**.
+- TEST block presence: **80% → 96%**.
+
 ## [0.2.1] — 2026-05-26
 
 ### Added
@@ -50,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provider-agnostic LLM client (any OpenAI-compatible endpoint + Anthropic native).
 - CLI commands: `index`, `task`, `bench`, `smoke`.
 
+[0.2.2]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.2
 [0.2.1]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.1
 [0.2.0]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.0
 [0.1.0]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.1.0

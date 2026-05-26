@@ -59,7 +59,7 @@ Return EXACTLY in this shape, nothing else:
 No prose, no preamble."""
 
 
-def llm_call(model: str, prompt: str, timeout: int = 120) -> str:
+def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
     if not API_KEY:
         raise SystemExit("set OPENROUTER_API_KEY (or BENCH_API_KEY)")
     body = json.dumps({
@@ -78,12 +78,29 @@ def llm_call(model: str, prompt: str, timeout: int = 120) -> str:
             "X-Title": "simplicio-cli bench",
         },
     )
+    t0 = time.perf_counter()
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             data = json.loads(r.read())
-        return data["choices"][0]["message"]["content"] or ""
+        elapsed_ms = int((time.perf_counter() - t0) * 1000)
+        usage = data.get("usage") or {}
+        return {
+            "text": data["choices"][0]["message"]["content"] or "",
+            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+            "completion_tokens": int(usage.get("completion_tokens", 0)),
+            "total_tokens": int(usage.get("total_tokens", 0)),
+            "elapsed_ms": elapsed_ms,
+            "error": None,
+        }
     except Exception as e:
-        return f"[BENCH_ERROR] {e}"
+        return {
+            "text": f"[BENCH_ERROR] {e}",
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+            "error": str(e),
+        }
 
 
 def score(output: str, checks: list[str]) -> list[bool]:
@@ -205,8 +222,10 @@ def run() -> int:
         sem_hits = com_hits = total = 0
         qsum_sem = {"len": 0, "has_diff_block": 0, "has_test_block": 0, "target_mentioned": 0, "criterios_keywords_hit": 0}
         qsum_com = dict(qsum_sem)
+        usage_sem = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "elapsed_ms": 0}
+        usage_com = dict(usage_sem)
         for i, c in enumerate(cases, 1):
-            sem_out = llm_call(model, c["objetivo"])
+            sem_res = llm_call(model, c["objetivo"])
             com_prompt = SIX_LAYER_TEMPLATE.format(
                 stack=c.get("stack", "angular"),
                 objetivo=c["objetivo"],
@@ -214,7 +233,9 @@ def run() -> int:
                 criterios=c["criterios"],
                 restricoes=c["restricoes"],
             )
-            com_out = llm_call(model, com_prompt)
+            com_res = llm_call(model, com_prompt)
+            sem_out = sem_res["text"]
+            com_out = com_res["text"]
 
             s_flags = score(sem_out, c["checks"])
             c_flags = score(com_out, c["checks"])
@@ -226,14 +247,24 @@ def run() -> int:
             for k in qsum_sem:
                 qsum_sem[k] += int(qs[k]) if isinstance(qs[k], bool) else qs[k]
                 qsum_com[k] += int(qc[k]) if isinstance(qc[k], bool) else qc[k]
+            for k in usage_sem:
+                usage_sem[k] += sem_res[k]
+                usage_com[k] += com_res[k]
 
             rows.append({
                 "objetivo": c["objetivo"], "stack": c["stack"],
                 "sem_hits": s_h, "com_hits": c_h, "total": t,
                 "sem_flags": s_flags, "com_flags": c_flags,
                 "sem_quality": qs, "com_quality": qc,
+                "sem_usage": {k: sem_res[k] for k in usage_sem},
+                "com_usage": {k: com_res[k] for k in usage_com},
             })
-            print(f"  [{i:02d}/{len(cases)}] {c['stack']:7s} sem {s_h}/{t}  com {c_h}/{t}  Δ{c_h-s_h:+d}")
+            print(
+                f"  [{i:02d}/{len(cases)}] {c['stack']:7s} "
+                f"sem {s_h}/{t} ({sem_res['total_tokens']}tok {sem_res['elapsed_ms']}ms)  "
+                f"com {c_h}/{t} ({com_res['total_tokens']}tok {com_res['elapsed_ms']}ms)  "
+                f"Δ{c_h-s_h:+d}"
+            )
 
             slug = model.replace("/", "_").replace(":", "_")
             outdir = ROOT / ".simplicio" / "bench_runs" / slug / f"case_{i:02d}"
@@ -247,6 +278,7 @@ def run() -> int:
             "sem_pct": 100 * sem_hits // max(total, 1),
             "com_pct": 100 * com_hits // max(total, 1),
             "quality_sem": qsum_sem, "quality_com": qsum_com,
+            "usage_sem": usage_sem, "usage_com": usage_com,
         }
 
     # ---- write artifacts ---- #
@@ -402,7 +434,49 @@ def run() -> int:
     c_len = sum(by_model[m]["quality_com"]["len"] for m in MODELS)
     md.append(f"| avg output length (chars) | {s_len//total_runs} | {c_len//total_runs} |")
 
+    # ---- token & latency cost ---- #
     md += [
+        "",
+        "## Cost — tokens & wall-clock (measured, per run)",
+        "",
+        "Reported straight from the provider's `usage` field and `time.perf_counter()`. ",
+        "*Per-run* = one model call (one case, one side). With simplicio uses more input ",
+        "tokens (the 6-layer wrap) and fewer output tokens (model stops guessing earlier).",
+        "",
+        "| Model | Side | Avg prompt tok | Avg completion tok | Avg total tok | Avg latency |",
+        "|---|---|---|---|---|---|",
+    ]
+    for m in MODELS:
+        b = by_model[m]
+        us = b["usage_sem"]; uc = b["usage_com"]
+        md.append(
+            f"| `{m}` | without | {us['prompt_tokens']//n_cases} | {us['completion_tokens']//n_cases} | "
+            f"{us['total_tokens']//n_cases} | {us['elapsed_ms']//n_cases} ms |"
+        )
+        md.append(
+            f"| `{m}` | with    | {uc['prompt_tokens']//n_cases} | {uc['completion_tokens']//n_cases} | "
+            f"{uc['total_tokens']//n_cases} | {uc['elapsed_ms']//n_cases} ms |"
+        )
+
+    # aggregate totals
+    agg_sem_p = sum(by_model[m]["usage_sem"]["prompt_tokens"] for m in MODELS)
+    agg_sem_c = sum(by_model[m]["usage_sem"]["completion_tokens"] for m in MODELS)
+    agg_sem_t = sum(by_model[m]["usage_sem"]["total_tokens"] for m in MODELS)
+    agg_sem_ms = sum(by_model[m]["usage_sem"]["elapsed_ms"] for m in MODELS)
+    agg_com_p = sum(by_model[m]["usage_com"]["prompt_tokens"] for m in MODELS)
+    agg_com_c = sum(by_model[m]["usage_com"]["completion_tokens"] for m in MODELS)
+    agg_com_t = sum(by_model[m]["usage_com"]["total_tokens"] for m in MODELS)
+    agg_com_ms = sum(by_model[m]["usage_com"]["elapsed_ms"] for m in MODELS)
+    md += [
+        "",
+        f"**Aggregate over the full bench** ({total_runs} runs per side):",
+        "",
+        f"- without simplicio: {agg_sem_t:,} tokens total · {agg_sem_ms/1000:.1f}s wall-clock · "
+        f"{agg_sem_t // total_runs} tok/run · {agg_sem_ms // total_runs} ms/run",
+        f"- with simplicio:    {agg_com_t:,} tokens total · {agg_com_ms/1000:.1f}s wall-clock · "
+        f"{agg_com_t // total_runs} tok/run · {agg_com_ms // total_runs} ms/run",
+        f"- token delta:       {agg_com_t - agg_sem_t:+,} ({(agg_com_t - agg_sem_t)*100//max(agg_sem_t,1):+d}%)",
+        f"- time delta:        {(agg_com_ms - agg_sem_ms)/1000:+.1f}s ({(agg_com_ms - agg_sem_ms)*100//max(agg_sem_ms,1):+d}%)",
         "",
         "## How to reproduce",
         "",
