@@ -1,10 +1,10 @@
 """
-skill_router.py — CAMADA 4.5. Seleciona A skill que casa com a tarefa.
-NAO injeta todas (ruido). Ranqueia por sentido, pega top-1.
+skill_router.py — LAYER 4.5. Picks THE skill that matches the task.
+Does NOT inject all of them (noise). Ranks by meaning, takes top-1.
 
-Fonte das skills: por padrao varre <root>/.mapper/skills/*.md ou
-SIMPLICIO_SKILLS_DIR. Cada skill = arquivo md com 1a linha = descricao.
-Reusa o mesmo cache de embeddings.
+Skill source: by default scans <root>/.mapper/skills/*.md or
+SIMPLICIO_SKILLS_DIR. Each skill = md file whose first line is the description.
+Reuses the same embedding cache.
 """
 import os, glob
 import numpy as np
@@ -14,7 +14,7 @@ def _skills_dir(root):
     return os.environ.get("SIMPLICIO_SKILLS_DIR",
                           os.path.join(root, ".mapper", "skills"))
 
-def _carregar_skills(root):
+def _load_skills(root):
     d = _skills_dir(root)
     out = []
     for fp in glob.glob(os.path.join(d, "*.md")):
@@ -23,26 +23,26 @@ def _carregar_skills(root):
         except Exception:
             continue
         desc = next((l.strip("# ").strip() for l in txt.splitlines() if l.strip()), "")
-        out.append({"nome": os.path.basename(fp), "desc": desc, "corpo": txt})
+        out.append({"name": os.path.basename(fp), "desc": desc, "body": txt})
     return out
 
-def montar_bloco_skill(root, tarefa, limiar=0.15):
-    skills = _carregar_skills(root)
+def build_skill_block(root, task, threshold=0.15):
+    skills = _load_skills(root)
     if not skills:
-        return ""  # sem skills -> camada some, sem ruido
+        return ""  # no skills -> layer disappears, no noise
     from .precedent import _embedder
     cache = EmbeddingCache(root)
     descs = [s["desc"] for s in skills]
-    faltam = cache.get_missing(descs)
-    if faltam:
-        cache.add(faltam, _embedder().encode(faltam, show_progress_bar=False))
+    missing = cache.get_missing(descs)
+    if missing:
+        cache.add(missing, _embedder().encode(missing, show_progress_bar=False))
         cache.save()
     vd = cache.lookup(descs)
-    vt = _embedder().encode([tarefa])[0]
+    vt = _embedder().encode([task])[0]
     scores = [float(np.dot(vt, v)/(np.linalg.norm(vt)*np.linalg.norm(v))) for v in vd]
     i = int(np.argmax(scores))
-    if scores[i] < limiar:
-        return ""  # nada casa o suficiente -> nao força skill irrelevante
+    if scores[i] < threshold:
+        return ""  # nothing matches enough -> don't force an irrelevant skill
     s = skills[i]
-    return (f"[SKILL RELEVANTE]\nO mapper tem um metodo que casa com esta tarefa "
-            f"(match {scores[i]:.2f}). Siga-o:\n# {s['nome']}\n{s['corpo'][:1200]}")
+    return (f"[RELEVANT SKILL]\nThe mapper has a method that matches this task "
+            f"(match {scores[i]:.2f}). Follow it:\n# {s['name']}\n{s['body'][:1200]}")

@@ -1,19 +1,20 @@
 """
-providers.py — agnostico de provider. NAO lista modelos especificos.
+providers.py — provider-agnostic. Does NOT list specific models.
 
-Voce define por env (ou flag --model/--base):
-  SIMPLICIO_MODEL     id do modelo, exatamente como o provider espera
-                      ex: "anthropic/claude-opus-4", "openai/gpt-4.1",
-                          "z-ai/glm-4.6", "deepseek/deepseek-chat", "qualquer/coisa"
-  SIMPLICIO_BASE_URL  endpoint OpenAI-compativel
-                      ex OpenRouter: https://openrouter.ai/api/v1
-                      ex GLM:        https://api.z.ai/api/paas/v4
-                      ex local:      http://localhost:11434/v1
-  SIMPLICIO_API_KEY   a chave (qualquer provider)
+Configure via env (or --model/--base flags):
+  SIMPLICIO_MODEL     model id, exactly as the provider expects
+                      e.g. "anthropic/claude-opus-4", "openai/gpt-4.1",
+                           "z-ai/glm-4.6", "deepseek/deepseek-chat", "any/thing"
+  SIMPLICIO_BASE_URL  OpenAI-compatible endpoint
+                      OpenRouter: https://openrouter.ai/api/v1
+                      GLM:        https://api.z.ai/api/paas/v4
+                      local:      http://localhost:11434/v1
+  SIMPLICIO_API_KEY   the key (any provider)
 
-Caminho nativo Anthropic (sem base_url): se SIMPLICIO_BASE_URL estiver vazio
-E a key for ANTHROPIC_API_KEY, usa o SDK anthropic. Senao, usa cliente
-OpenAI-compativel apontando pro base_url -> serve QUALQUER provider OAI-like.
+Native Anthropic path (no base_url): if SIMPLICIO_BASE_URL is empty AND the
+key is ANTHROPIC_API_KEY, the anthropic SDK is used. Otherwise an
+OpenAI-compatible client is used pointing at base_url — works for ANY
+OpenAI-like provider.
 """
 import os
 
@@ -30,17 +31,17 @@ def _msgs(prompt, feedback):
     m = [{"role": "user", "content": prompt}]
     if feedback:
         m.append({"role": "user",
-                  "content": f"O teste FALHOU:\n{feedback}\nCorrija. Mesmo formato."})
+                  "content": f"The test FAILED:\n{feedback}\nFix it. Same output format."})
     return m
 
-def gerar(prompt, feedback=None, max_tokens=4000):
+def generate(prompt, feedback=None, max_tokens=4000):
     c = _cfg()
     if not c["model"]:
-        raise SystemExit("defina SIMPLICIO_MODEL (id do modelo do seu provider)")
+        raise SystemExit("set SIMPLICIO_MODEL (model id for your provider)")
     if not c["key"]:
-        raise SystemExit("defina SIMPLICIO_API_KEY (ou OPENROUTER_/ANTHROPIC_API_KEY)")
+        raise SystemExit("set SIMPLICIO_API_KEY (or OPENROUTER_/ANTHROPIC_API_KEY)")
 
-    # caminho nativo Anthropic: sem base_url
+    # native Anthropic path: no base_url
     if not c["base"]:
         import anthropic
         cli = anthropic.Anthropic(api_key=c["key"])
@@ -48,7 +49,7 @@ def gerar(prompt, feedback=None, max_tokens=4000):
                                 messages=_msgs(prompt, feedback))
         return next((b.text for b in r.content if b.type == "text"), "")
 
-    # qualquer endpoint OpenAI-compativel (OpenRouter, GLM, DeepSeek, local...)
+    # any OpenAI-compatible endpoint (OpenRouter, GLM, DeepSeek, local...)
     from openai import OpenAI
     cli = OpenAI(base_url=c["base"], api_key=c["key"])
     r = cli.chat.completions.create(model=c["model"], max_tokens=max_tokens,
@@ -57,6 +58,6 @@ def gerar(prompt, feedback=None, max_tokens=4000):
 
 def info():
     c = _cfg()
-    return (f"model={c['model'] or '(nao definido)'} "
-            f"base={c['base'] or 'anthropic-nativo'} "
-            f"key={'set' if c['key'] else 'FALTA'}")
+    return (f"model={c['model'] or '(unset)'} "
+            f"base={c['base'] or 'anthropic-native'} "
+            f"key={'set' if c['key'] else 'MISSING'}")

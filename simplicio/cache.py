@@ -1,11 +1,11 @@
 """
-cache.py — cache de embeddings keyed por HASH do conteudo.
+cache.py — embedding cache keyed by content HASH.
 
-Por que por hash e nao por arquivo: se o bloco de codigo nao mudou, o hash
-e o mesmo -> reusa o vetor. Arquivo muda mas o trecho relevante nao? Ainda
-acerta o cache. Trecho muda -> hash novo -> re-embedda SO ele. Granular.
+Why hash, not file: if a code block didn't change, the hash is the same ->
+reuse the vector. File changes but the relevant snippet didn't? Still a
+cache hit. Snippet changes -> new hash -> only that one is re-embedded. Granular.
 
-Persistido em .simplicio/emb_cache.npz (vetores) + .json (indice hash->linha).
+Persisted in .simplicio/emb_cache.npz (vectors) + .json (hash->row index).
 """
 
 import os, json, hashlib
@@ -17,13 +17,13 @@ class EmbeddingCache:
         os.makedirs(self.dir, exist_ok=True)
         self.vec_path = os.path.join(self.dir, "emb_cache.npz")
         self.idx_path = os.path.join(self.dir, "emb_index.json")
-        self.index = {}        # hash -> posicao na matriz
+        self.index = {}        # hash -> row position in the matrix
         self.vectors = None    # np.ndarray [N, dim]
         self._load()
 
     @staticmethod
-    def h(texto):
-        return hashlib.sha1(texto.encode("utf-8")).hexdigest()
+    def h(text):
+        return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     def _load(self):
         if os.path.exists(self.idx_path) and os.path.exists(self.vec_path):
@@ -35,23 +35,23 @@ class EmbeddingCache:
         if self.vectors is not None:
             np.savez_compressed(self.vec_path, v=self.vectors)
 
-    def get_missing(self, textos):
-        """Retorna os textos que NAO estao no cache (precisam embeddar)."""
-        return [t for t in textos if self.h(t) not in self.index]
+    def get_missing(self, texts):
+        """Returns the texts NOT in the cache (need embedding)."""
+        return [t for t in texts if self.h(t) not in self.index]
 
-    def add(self, textos, vetores):
-        """Adiciona novos textos+vetores ao cache."""
-        if not textos:
+    def add(self, texts, vectors):
+        """Adds new texts+vectors to the cache."""
+        if not texts:
             return
-        vetores = np.asarray(vetores)
+        vectors = np.asarray(vectors)
         base = 0 if self.vectors is None else self.vectors.shape[0]
-        self.vectors = vetores if self.vectors is None else np.vstack([self.vectors, vetores])
-        for i, t in enumerate(textos):
+        self.vectors = vectors if self.vectors is None else np.vstack([self.vectors, vectors])
+        for i, t in enumerate(texts):
             self.index[self.h(t)] = base + i
 
-    def lookup(self, textos):
-        """Devolve matriz de vetores na ordem dos textos (todos ja no cache)."""
-        rows = [self.index[self.h(t)] for t in textos]
+    def lookup(self, texts):
+        """Returns a matrix of vectors in the texts' order (all already cached)."""
+        rows = [self.index[self.h(t)] for t in texts]
         return self.vectors[rows]
 
     def stats(self):

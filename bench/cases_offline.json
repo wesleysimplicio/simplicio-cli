@@ -1,10 +1,10 @@
 [
   {
-    "objetivo": "Hide the Delete button when the current user is not an admin.",
+    "goal": "Hide the Delete button when the current user is not an admin.",
     "stack": "angular",
-    "alvo": "src/app/screen/screen.component.html",
-    "criterios": "- without admin permission: button absent from DOM\n- with admin permission: button present in DOM",
-    "restricoes": "- do not change the save flow\n- build passes",
+    "target": "src/app/screen/screen.component.html",
+    "criteria": "- without admin permission: button absent from DOM\n- with admin permission: button present in DOM",
+    "constraints": "- do not change the save flow\n- build passes",
     "checks": [
       "screen\\.component\\.html",
       "(^|\\W)diff(\\W|:)",
@@ -14,11 +14,11 @@
     ]
   },
   {
-    "objetivo": "Disable the email field unless the profile role is editor.",
+    "goal": "Disable the email field unless the profile role is editor.",
     "stack": "angular",
-    "alvo": "src/app/profile/profile.component.html",
-    "criterios": "- editor profile: email field enabled\n- any other profile: email field disabled",
-    "restricoes": "- build passes\n- do not change form submit",
+    "target": "src/app/profile/profile.component.html",
+    "criteria": "- editor profile: email field enabled\n- any other profile: email field disabled",
+    "constraints": "- build passes\n- do not change form submit",
     "checks": [
       "profile\\.component\\.html",
       "(^|\\W)diff(\\W|:)",
@@ -28,11 +28,11 @@
     ]
   },
   {
-    "objetivo": "Only show the audit log link for users with role 'auditor'.",
+    "goal": "Only show the audit log link for users with role 'auditor'.",
     "stack": "angular",
-    "alvo": "src/app/nav/nav.component.html",
-    "criterios": "- auditor role: link visible\n- non-auditor role: link absent from DOM",
-    "restricoes": "- build passes\n- do not touch routing config",
+    "target": "src/app/nav/nav.component.html",
+    "criteria": "- auditor role: link visible\n- non-auditor role: link absent from DOM",
+    "constraints": "- build passes\n- do not touch routing config",
     "checks": [
       "nav\\.component\\.html",
       "(^|\\W)diff(\\W|:)",
@@ -42,11 +42,11 @@
     ]
   },
   {
-    "objetivo": "Show 'Approve' button only when the order status is 'pending' and the user has approver permission.",
+    "goal": "Show 'Approve' button only when the order status is 'pending' and the user has approver permission.",
     "stack": "angular",
-    "alvo": "src/app/orders/order-detail.component.html",
-    "criterios": "- status pending AND approver permission: button visible\n- status not pending: button hidden\n- approver permission false: button hidden",
-    "restricoes": "- build passes\n- do not call backend on render",
+    "target": "src/app/orders/order-detail.component.html",
+    "criteria": "- status pending AND approver permission: button visible\n- status not pending: button hidden\n- approver permission false: button hidden",
+    "constraints": "- build passes\n- do not call backend on render",
     "checks": [
       "order-detail\\.component\\.html",
       "(^|\\W)diff(\\W|:)",
@@ -57,11 +57,11 @@
     ]
   },
   {
-    "objetivo": "Render the export menu item only for users in the 'analytics' group.",
+    "goal": "Render the export menu item only for users in the 'analytics' group.",
     "stack": "react",
-    "alvo": "src/components/Menu.tsx",
-    "criterios": "- user in analytics group: export item rendered\n- user not in analytics group: export item NOT rendered",
-    "restricoes": "- build passes\n- no new package",
+    "target": "src/components/Menu.tsx",
+    "criteria": "- user in analytics group: export item rendered\n- user not in analytics group: export item NOT rendered",
+    "constraints": "- build passes\n- no new package",
     "checks": [
       "Menu\\.tsx",
       "(^|\\W)diff(\\W|:)",
@@ -71,11 +71,11 @@
     ]
   },
   {
-    "objetivo": "Disable the 'Save Draft' button while the form is invalid OR a save request is in-flight.",
+    "goal": "Disable the 'Save Draft' button while the form is invalid OR a save request is in-flight.",
     "stack": "react",
-    "alvo": "src/pages/PostEditor.tsx",
-    "criterios": "- form invalid: button disabled\n- save in-flight: button disabled\n- form valid AND not in-flight: button enabled",
-    "restricoes": "- build passes\n- no extra render",
+    "target": "src/pages/PostEditor.tsx",
+    "criteria": "- form invalid: button disabled\n- save in-flight: button disabled\n- form valid AND not in-flight: button enabled",
+    "constraints": "- build passes\n- no extra render",
     "checks": [
       "PostEditor\\.tsx",
       "(^|\\W)diff(\\W|:)",
@@ -86,11 +86,11 @@
     ]
   },
   {
-    "objetivo": "Show a 'No results' empty state when the search returns zero items AND the query is not empty.",
+    "goal": "Show a 'No results' empty state when the search returns zero items AND the query is not empty.",
     "stack": "react",
-    "alvo": "src/components/SearchList.tsx",
-    "criterios": "- query non-empty and results empty: empty state visible\n- query empty: empty state NOT visible\n- results non-empty: list renders, empty state hidden",
-    "restricoes": "- build passes\n- no new dep",
+    "target": "src/components/SearchList.tsx",
+    "criteria": "- query non-empty and results empty: empty state visible\n- query empty: empty state NOT visible\n- results non-empty: list renders, empty state hidden",
+    "constraints": "- build passes\n- no new dep",
     "checks": [
       "SearchList\\.tsx",
       "(^|\\W)diff(\\W|:)",
@@ -100,11 +100,11 @@
     ]
   },
   {
-    "objetivo": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
+    "goal": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
     "stack": "dotnet",
-    "alvo": "src/Web/Controllers/OrdersController.cs",
-    "criterios": "- request without policy: returns 403\n- request with policy: returns 200\n- attribute applied at action level",
-    "restricoes": "- build passes\n- do not change DTO",
+    "target": "src/Web/Controllers/OrdersController.cs",
+    "criteria": "- request without policy: returns 403\n- request with policy: returns 200\n- attribute applied at action level",
+    "constraints": "- build passes\n- do not change DTO",
     "checks": [
       "OrdersController\\.cs",
       "(^|\\W)diff(\\W|:)",
@@ -114,11 +114,11 @@
     ]
   },
   {
-    "objetivo": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
+    "goal": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
     "stack": "dotnet",
-    "alvo": "src/Web/Controllers/ReportsController.cs",
-    "criterios": "- non-Manager: returns 403\n- Manager: returns 200 with payload\n- attribute on the action, not whole controller",
-    "restricoes": "- build passes\n- do not change response shape",
+    "target": "src/Web/Controllers/ReportsController.cs",
+    "criteria": "- non-Manager: returns 403\n- Manager: returns 200 with payload\n- attribute on the action, not whole controller",
+    "constraints": "- build passes\n- do not change response shape",
     "checks": [
       "ReportsController\\.cs",
       "(^|\\W)diff(\\W|:)",
@@ -128,11 +128,11 @@
     ]
   },
   {
-    "objetivo": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
+    "goal": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
     "stack": "angular",
-    "alvo": "src/app/editor/editor.component.ts",
-    "criterios": "- unsaved changes AND navigation triggered: banner shown\n- no unsaved changes: navigation proceeds, no banner\n- user confirms leave: navigation proceeds",
-    "restricoes": "- build passes\n- use existing CanDeactivate pattern if present",
+    "target": "src/app/editor/editor.component.ts",
+    "criteria": "- unsaved changes AND navigation triggered: banner shown\n- no unsaved changes: navigation proceeds, no banner\n- user confirms leave: navigation proceeds",
+    "constraints": "- build passes\n- use existing CanDeactivate pattern if present",
     "checks": [
       "editor\\.component\\.ts",
       "(^|\\W)diff(\\W|:)",

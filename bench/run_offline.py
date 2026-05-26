@@ -2,9 +2,9 @@
 Standalone bench runner — no heavy deps, only stdlib + an HTTP key.
 
 Compares two prompts head-to-head on the *same* model(s):
-  SEM:  raw one-line objetivo (baseline)
-  COM:  same objetivo wrapped in simplicio's 6-layer contract (target,
-        criteria, constraints, output shape).
+  WITHOUT: raw one-line goal (baseline)
+  WITH:    same goal wrapped in simplicio's 6-layer contract (target,
+           criteria, constraints, output shape).
 
 Scoring is deterministic: each case lists hard regex checks the model
 output must satisfy. No LLM judging the LLM. Same model on both sides —
@@ -37,19 +37,19 @@ SIX_LAYER_TEMPLATE = """You are a senior engineer working IN THIS project.
 Stack: {stack}. Project conventions are LAW. Do not bring generic patterns.
 Do not invent files or libraries the project does not use.
 
-[OBJECTIVE]
-{objetivo}
+[GOAL]
+{goal}
 
 [TARGET]
 Touch ONLY this file:
-{alvo}
+{target}
 
 [CONTRACT]
 Done WHEN, and only when, ALL of the states below are true:
-{criterios}
+{criteria}
 
 Constraints (do not break):
-{restricoes}
+{constraints}
 
 [OUTPUT]
 Return EXACTLY in this shape, nothing else:
@@ -117,9 +117,9 @@ def quality_metrics(output: str, case: dict) -> dict:
         "len": len(out),
         "has_diff_block": bool(re.search(r"```diff|^---\s|^\+\+\+\s|@@", out, re.M)),
         "has_test_block": bool(re.search(r"```(ts|js|tsx|jsx|csharp|cs|python|typescript|javascript)\b|describe\(|it\(|test\(|\[Test\]|\[Fact\]", out, re.I | re.M)),
-        "target_mentioned": case["alvo"].split("/")[-1].lower() in out.lower(),
-        "criterios_keywords_hit": sum(
-            1 for kw in re.findall(r"[A-Za-z]{4,}", case["criterios"].lower())
+        "target_mentioned": case["target"].split("/")[-1].lower() in out.lower(),
+        "criteria_keywords_hit": sum(
+            1 for kw in re.findall(r"[A-Za-z]{4,}", case["criteria"].lower())
             if kw in out.lower()
         ),
     }
@@ -220,18 +220,18 @@ def run() -> int:
         print(f"\n=== model: {model} ===")
         rows = []
         sem_hits = com_hits = total = 0
-        qsum_sem = {"len": 0, "has_diff_block": 0, "has_test_block": 0, "target_mentioned": 0, "criterios_keywords_hit": 0}
+        qsum_sem = {"len": 0, "has_diff_block": 0, "has_test_block": 0, "target_mentioned": 0, "criteria_keywords_hit": 0}
         qsum_com = dict(qsum_sem)
         usage_sem = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "elapsed_ms": 0}
         usage_com = dict(usage_sem)
         for i, c in enumerate(cases, 1):
-            sem_res = llm_call(model, c["objetivo"])
+            sem_res = llm_call(model, c["goal"])
             com_prompt = SIX_LAYER_TEMPLATE.format(
                 stack=c.get("stack", "angular"),
-                objetivo=c["objetivo"],
-                alvo=c["alvo"],
-                criterios=c["criterios"],
-                restricoes=c["restricoes"],
+                goal=c["goal"],
+                target=c["target"],
+                criteria=c["criteria"],
+                constraints=c["constraints"],
             )
             com_res = llm_call(model, com_prompt)
             sem_out = sem_res["text"]
@@ -252,7 +252,7 @@ def run() -> int:
                 usage_com[k] += com_res[k]
 
             rows.append({
-                "objetivo": c["objetivo"], "stack": c["stack"],
+                "goal": c["goal"], "stack": c["stack"],
                 "sem_hits": s_h, "com_hits": c_h, "total": t,
                 "sem_flags": s_flags, "com_flags": c_flags,
                 "sem_quality": qs, "com_quality": qc,
@@ -345,8 +345,8 @@ def run() -> int:
         "Each check is a deterministic regex against the model output ",
         "(target-file mention, DIFF block, TEST block, contract-state words). ",
         "Same model on both sides — only the prompt structure changes. The ",
-        "*without* run is the raw one-line objetivo; the *with* run wraps the ",
-        "same objetivo in simplicio's 6-layer contract.",
+        "*without* run is the raw one-line goal; the *with* run wraps the ",
+        "same goal in simplicio's 6-layer contract.",
         "",
         "## Headline",
         "",
@@ -386,7 +386,7 @@ def run() -> int:
         s_avg = case_sem_avg[i-1]
         c_avg = case_com_avg[i-1]
         md.append(
-            f"| {i} | `{c['stack']}` | {c['objetivo'][:60]} | "
+            f"| {i} | `{c['stack']}` | {c['goal'][:60]} | "
             f"{s_avg:.0f}% | {c_avg:.0f}% | **{c_avg - s_avg:+.0f}** |"
         )
 
@@ -425,9 +425,9 @@ def run() -> int:
             f"| {label} | {100*s_count//total_runs}% ({s_count}/{total_runs}) | "
             f"{100*c_count//total_runs}% ({c_count}/{total_runs}) |"
         )
-    # avg criterios keyword hits
-    s_kw = sum(by_model[m]["quality_sem"]["criterios_keywords_hit"] for m in MODELS)
-    c_kw = sum(by_model[m]["quality_com"]["criterios_keywords_hit"] for m in MODELS)
+    # avg criteria keyword hits
+    s_kw = sum(by_model[m]["quality_sem"]["criteria_keywords_hit"] for m in MODELS)
+    c_kw = sum(by_model[m]["quality_com"]["criteria_keywords_hit"] for m in MODELS)
     md.append(f"| avg criteria-keywords hit / run | {s_kw/total_runs:.1f} | {c_kw/total_runs:.1f} |")
     # avg output length
     s_len = sum(by_model[m]["quality_sem"]["len"] for m in MODELS)

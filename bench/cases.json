@@ -1,16 +1,16 @@
 [
   {
-    "objetivo": "esconder botao Excluir quando usuario nao for admin",
-    "alvo": "src/app/tela/tela.component.html",
-    "criterios": "- sem perm admin: botao fora do DOM\n- com perm admin: botao presente",
-    "restricoes": "- nao mexer no salvar\n- build passa",
+    "goal": "hide the Delete button when the user is not admin",
+    "target": "src/app/screen/screen.component.html",
+    "criteria": "- without admin permission: button absent from DOM\n- with admin permission: button present",
+    "constraints": "- do not change the save flow\n- build passes",
     "test_cmd": "ng test --watch=false"
   },
   {
-    "objetivo": "habilitar campo email so para perfil editor",
-    "alvo": "src/app/perfil/perfil.component.html",
-    "criterios": "- perfil editor: campo habilitado\n- outro perfil: desabilitado",
-    "restricoes": "- build passa",
+    "goal": "enable the email field only for the editor profile",
+    "target": "src/app/profile/profile.component.html",
+    "criteria": "- editor profile: field enabled\n- other profile: disabled",
+    "constraints": "- build passes",
     "test_cmd": "ng test --watch=false"
   }
 ]

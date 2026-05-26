@@ -112,10 +112,10 @@ simplicio index --stack angular
 # run a task
 simplicio task "hide Delete button for non-admins" \
   --stack angular \
-  --alvo src/app/screen/screen.component.html \
-  --criterios "- no admin perm: button absent from DOM
+  --target src/app/screen/screen.component.html \
+  --criteria "- no admin perm: button absent from DOM
 - with admin perm: button present" \
-  --restricoes "- don't touch save flow
+  --constraints "- don't touch save flow
 - build passes"
 ```
 

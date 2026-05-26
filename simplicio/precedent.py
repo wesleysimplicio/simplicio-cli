@@ -1,5 +1,5 @@
 """
-precedent.py — acha PRECEDENTE usando o cache (so embedda bloco novo).
+precedent.py — finds PRECEDENT using the cache (only embeds new blocks).
 """
 import re, glob, os
 import numpy as np
@@ -26,7 +26,7 @@ EXT = {"angular": (".html", ".ts"), "react": (".tsx", ".jsx", ".ts"),
 SKIP = ("node_modules", "/.git/", "/dist/", "/bin/", "/obj/", "/.angular/", "/.simplicio/")
 
 
-def grep_candidatos(root, stack, janela=1):
+def grep_candidates(root, stack, window=1):
     pats = [re.compile(p) for p in PATTERNS[stack]]
     exts = EXT[stack]
     cands = []
@@ -34,39 +34,39 @@ def grep_candidatos(root, stack, janela=1):
         if not os.path.isfile(fp) or not fp.endswith(exts): continue
         if any(s in fp for s in SKIP): continue
         try:
-            linhas = open(fp, encoding="utf-8", errors="ignore").read().splitlines()
+            lines = open(fp, encoding="utf-8", errors="ignore").read().splitlines()
         except Exception:
             continue
-        for i, ln in enumerate(linhas):
+        for i, ln in enumerate(lines):
             if any(p.search(ln) for p in pats):
-                bloco = "\n".join(linhas[max(0, i - janela): i + janela + 1])
-                cands.append({"file": fp, "line": i + 1, "code": bloco})
+                block = "\n".join(lines[max(0, i - window): i + window + 1])
+                cands.append({"file": fp, "line": i + 1, "code": block})
     return cands
 
 
 def index_repo(root, stack, verbose=True):
-    """Indexa: embedda SO os blocos novos, salva cache. Retorna stats."""
+    """Index: embed ONLY new blocks, persist cache. Returns stats."""
     cache = EmbeddingCache(root)
-    cands = grep_candidatos(root, stack)
-    textos = list({c["code"] for c in cands})         # dedup
-    faltam = cache.get_missing(textos)
-    if faltam:
-        vetores = _embedder().encode(faltam, show_progress_bar=False)
-        cache.add(faltam, vetores)
+    cands = grep_candidates(root, stack)
+    texts = list({c["code"] for c in cands})         # dedup
+    missing = cache.get_missing(texts)
+    if missing:
+        vectors = _embedder().encode(missing, show_progress_bar=False)
+        cache.add(missing, vectors)
         cache.save()
     if verbose:
-        print(f"[index] candidatos={len(cands)} novos_embeddados={len(faltam)} "
+        print(f"[index] candidates={len(cands)} newly_embedded={len(missing)} "
               f"cache_total={cache.stats()['cached_blocks']}")
     return cache, cands
 
 
-def montar_bloco_precedente(root, stack, tarefa, k=2):
+def build_precedent_block(root, stack, task, k=2):
     cache, cands = index_repo(root, stack, verbose=False)
     if not cands:
-        return "[PRECEDENTE]\n(nenhum padrao similar no repo — gere do zero pela convencao da stack)"
-    textos = [c["code"] for c in cands]
-    vc = cache.lookup(textos)                          # do cache, sem re-embeddar
-    vt = _embedder().encode([tarefa])[0]               # so a tarefa (curta)
+        return "[PRECEDENT]\n(no similar pattern in repo — generate from scratch using stack convention)"
+    texts = [c["code"] for c in cands]
+    vc = cache.lookup(texts)                           # from cache, no re-embed
+    vt = _embedder().encode([task])[0]                 # only the task (short)
     for c, v in zip(cands, vc):
         c["score"] = float(np.dot(vt, v) / (np.linalg.norm(vt) * np.linalg.norm(v)))
     seen, out = set(), []
@@ -74,10 +74,10 @@ def montar_bloco_precedente(root, stack, tarefa, k=2):
         if c["code"] in seen: continue
         seen.add(c["code"]); out.append(c)
     tops = out[:k]
-    linhas = ["[PRECEDENTE]",
-              "Este projeto JA faz algo parecido. Siga ESTA convencao, nao invente:"]
+    lines = ["[PRECEDENT]",
+             "This project ALREADY does something similar. Follow THIS convention, don't invent:"]
     for c in tops:
         rel = os.path.relpath(c["file"], root)
-        linhas.append(f"\n# {rel}:{c['line']}  (similaridade {c['score']:.2f})")
-        linhas.append(c["code"])
-    return "\n".join(linhas)
+        lines.append(f"\n# {rel}:{c['line']}  (similarity {c['score']:.2f})")
+        lines.append(c["code"])
+    return "\n".join(lines)

@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] — 2026-05-26
+
+### Changed (BREAKING)
+- Translated the entire codebase to English: docstrings, comments, variable
+  names, function names, prompt template, and bench case data.
+- **CLI flag renames** (breaking for any saved invocations):
+  - `--alvo` → `--target`
+  - `--criterios` → `--criteria`
+  - `--restricoes` → `--constraints`
+  - positional `objetivo` → `goal`
+- **Internal function renames** (breaking for anyone importing `simplicio.*`):
+  - `prompt.montar` → `prompt.build_prompt`
+  - `providers.gerar` → `providers.generate`
+  - `precedent.montar_bloco_precedente` → `precedent.build_precedent_block`
+  - `precedent.grep_candidatos` → `precedent.grep_candidates`
+  - `skill_router.montar_bloco_skill` → `skill_router.build_skill_block`
+- **Bench JSON keys renamed** in `bench/cases.json` and
+  `bench/cases_offline.json`: `objetivo/alvo/criterios/restricoes` →
+  `goal/target/criteria/constraints`.
+- Prompt template slot renames: `{{OBJETIVO}}/{{ALVO}}/{{PRECEDENTE}}/{{CRITERIOS}}/{{RESTRICOES}}`
+  → `{{GOAL}}/{{TARGET}}/{{PRECEDENT}}/{{CRITERIA}}/{{CONSTRAINTS}}`.
+- Prompt template now emits `[GOAL] / [TARGET] / [CONTRACT] / [OUTPUT]`
+  blocks instead of the Portuguese `[OBJETIVO] / [ALVO] / [CONTRATO] / [SAIDA]`.
+
+### Why
+- Repo is intended for an international audience; mixed-language internals
+  hurt onboarding and review.
+- Aligns with the project's own English-first README, benchmark, and PyPI
+  copy that were already in place since v0.2.0.
+
 ## [0.2.2] — 2026-05-26
 
 ### Added
@@ -76,6 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provider-agnostic LLM client (any OpenAI-compatible endpoint + Anthropic native).
 - CLI commands: `index`, `task`, `bench`, `smoke`.
 
+[0.2.3]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.3
 [0.2.2]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.2
 [0.2.1]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.1
 [0.2.0]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.0
