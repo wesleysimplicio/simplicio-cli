@@ -8,8 +8,8 @@ Base: `https://openrouter.ai/api/v1`
 Each check is a deterministic regex against the model output 
 (target-file mention, DIFF block, TEST block, contract-state words). 
 Same model on both sides — only the prompt structure changes. The 
-*without* run is the raw one-line objetivo; the *with* run wraps the 
-same objetivo in simplicio's 6-layer contract.
+*without* run is the raw one-line goal; the *with* run wraps the 
+same goal in simplicio's 6-layer contract.
 
 ## Headline
 
