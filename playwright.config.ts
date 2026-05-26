@@ -34,7 +34,9 @@ export default defineConfig({
     baseURL: process.env.BASE_URL,
     trace: 'on',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    // Evidence is screenshots-only for now: specs capture explicit PNGs.
+    // Flip to 'retain-on-failure' (or 'on') to re-enable video evidence.
+    video: 'off',
     actionTimeout: 10_000,
     navigationTimeout: 15_000,
   },
