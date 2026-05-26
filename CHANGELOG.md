@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.9] — 2026-05-26
+
+### Added
+- Wider 4-quadrant run: 3 models × 10 cases (qwen partial 5/10),
+  max_iters=5 — `google/gemma-3-4b-it`, `meta-llama/llama-3.2-3b-instruct`,
+  `qwen/qwen-2.5-7b-instruct`. Aggregate over 25 observed (model × case)
+  tuples: Q1 = 0%, Q2 = 64%, Q3 = 44%, **Q4 = 76%**. All three falsifiable
+  hypotheses (loop-alone closes the gap, simplicio-alone is enough, gains
+  stack linearly) **rejected** at |Δ| ≥ 5 pts.
+- New report `bench/results_4quadrant_wide.md` + raw artefact
+  `bench/results_4quadrant_wide.json` reconstructed from the wide run log.
+- README "Run 2 — wider multi-model" subsection with per-model breakdown,
+  decomposition table and hypothesis verdicts.
+
+### Changed
+- `pyproject.toml` version bumped 0.2.8 → 0.2.9.
+- README "First run on record" subsection renamed to "Run 1 — focused
+  single-model" for symmetry with Run 2.
+
+### Notes
+- Wide run was killed mid-execution; `claude-3.5-haiku` not reached.
+  Reproduce command for the full intended run is documented in
+  `bench/results_4quadrant_wide.md`.
+
+## [0.2.8] — 2026-05-26
+
+### Added
+- 4-quadrant benchmark harness `bench/run_4quadrant.py` — isolates two
+  axes (prompt structure × execution model) on the same model, same cases,
+  same checks. Q1 raw 1-shot (baseline), Q2 simplicio 1-shot (current bench),
+  Q3 loop on raw goal, Q4 loop on simplicio goal (composition).
+- Methodology doc `docs/benchmark-4quadrant.md` — explains the matrix,
+  feedback shape, metrics, hypothesis decomposition (loop-alone /
+  simplicio-alone / linear-stacking falsification tests), cost model and
+  limitations.
+- README section "### 4-quadrant bench — agent × simplicio matrix" with
+  reproduce command and matrix decomposition formulas (Q2-Q1, Q3-Q1, Q4-Q3,
+  Q4-Q2, Q4-max(Q2,Q3), Q4-linear).
+- Optional dependency group `[project.optional-dependencies] bench`
+  shipping `fpdf2>=2.7` for the PDF report. Install via `pip install -e ".[bench]"`.
+- Outputs `bench/results_4quadrant.{md,pdf,json}`, charts under
+  `bench/charts/4q_*.svg`, raw per-iteration outputs under
+  `.simplicio/bench_4q/<model>/case_NN/q*_iter*.txt` for audit.
+
+### Changed
+- `pyproject.toml` version bumped 0.2.7 → 0.2.8.
+
 ## [0.2.7] — 2026-05-26
 
 ### Added

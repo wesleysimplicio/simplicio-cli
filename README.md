@@ -203,6 +203,86 @@ Runs each case two ways and runs **your real test command** (e.g. `ng test
 --watch=false`) on each output. Writes the true pass-rate to
 [`bench/results.md`](bench/results.md).
 
+### 4-quadrant bench — agent × simplicio matrix
+
+Adds the second axis: not just *"does the 6-layer wrap help one call?"* but
+*"does it still help inside a retry loop?"*. Same model, same cases — only
+the cell logic changes.
+
+|                         | **no simplicio**         | **with simplicio**       |
+| ----------------------- | ------------------------ | ------------------------ |
+| **no agent** (1 call)   | Q1 — baseline            | Q2 — current bench       |
+| **with agent** (loop)   | Q3 — loop only           | Q4 — composition         |
+
+```bash
+pip install -e ".[bench]"          # adds fpdf2 for PDF report
+OPENROUTER_API_KEY=… \
+  BENCH_MODELS="google/gemma-3-4b-it" \
+  BENCH_MAX_ITERS=3 \
+  python3 bench/run_4quadrant.py
+```
+
+Outputs `bench/results_4quadrant.{md,pdf,json}` + SVG charts under
+`bench/charts/4q_*.svg` + per-iteration raw outputs under
+`.simplicio/bench_4q/<model>/case_NN/q*_iter*.txt`. Methodology and
+hypothesis decomposition: [`docs/benchmark-4quadrant.md`](docs/benchmark-4quadrant.md).
+
+The matrix decomposes:
+
+- **Prompt effect alone**: Q2 − Q1
+- **Loop effect alone**: Q3 − Q1
+- **Prompt effect inside loop**: Q4 − Q3 (does simplicio still matter once you loop?)
+- **Composition gain over best single axis**: Q4 − max(Q2, Q3)
+- **Synergy vs linear stacking**: Q4 − (Q1 + (Q2−Q1) + (Q3−Q1))
+
+#### Run 1 — focused single-model, `google/gemma-3-4b-it`, 5 cases, max_iters=3 (2026-05-26)
+
+| Quadrant | Prompt | Execution | Pass rate | Avg iters | Tokens / pass |
+|---|---|---|---|---|---|
+| **Q1** | raw goal | 1-shot | **0/5 (0%)** | 1.00 | 4,683 |
+| **Q2** | simplicio 6-layer | 1-shot | **3/5 (60%)** | 1.00 | 800 |
+| **Q3** | raw goal | loop w/ feedback | **2/5 (40%)** | 3.00 | 3,135 |
+| **Q4** | simplicio 6-layer | loop w/ feedback | **4/5 (80%)** | 1.80 | 1,018 |
+
+Decomposition (rejection threshold `|Δ| ≥ 5 pts`):
+
+| Hypothesis | Δ | Verdict |
+|---|---|---|
+| Loop alone closes the gap (simplicio unnecessary once you loop) | Q4 − Q3 = **+40 pts** | **rejected** |
+| Simplicio alone is enough (loop is overkill) | Q4 − Q2 = **+20 pts** | **rejected** |
+| Gains stack linearly (no synergy) | Q4 − linear = **−20 pts** | **rejected** |
+
+Cost per passing case: Q1 = 4,683 tok / 236s — Q2 = **800 tok / 21s** — Q3 = 3,135 tok / 109s — Q4 = **1,018 tok / 20s**. Full table + charts in [`bench/results_4quadrant.md`](bench/results_4quadrant.md).
+
+#### Run 2 — wider multi-model, 3 models × 10 cases (partial), max_iters=5 (2026-05-26)
+
+Replicated the matrix across more models and more cases. `qwen-2.5-7b` covers only the first 5 of 10 cases (wide run was killed mid-execution); `claude-3.5-haiku` not reached. Aggregate counts every observed `(model × case × quadrant)` tuple as one observation:
+
+| Quadrant | Prompt | Execution | Pass rate | Avg iters | Tokens / pass | ms / pass |
+|---|---|---|---|---|---|---|
+| **Q1** | raw goal | 1-shot | **0/25 (0%)** | 1.00 | 22,387 | 817,437 |
+| **Q2** | simplicio 6-layer | 1-shot | **16/25 (64%)** | 1.00 | 1,093 | 14,797 |
+| **Q3** | raw goal | loop w/ feedback | **11/25 (44%)** | 4.00 | 7,154 | 106,382 |
+| **Q4** | simplicio 6-layer | loop w/ feedback | **19/25 (76%)** | 2.44 | 1,914 | 24,170 |
+
+Per-model breakdown:
+
+| Model | Cases | Q1 | Q2 | Q3 | Q4 |
+|---|---|---|---|---|---|
+| `google/gemma-3-4b-it` | 10/10 | 0/10 (0%) | 7/10 (70%) | 4/10 (40%) | **8/10 (80%)** |
+| `meta-llama/llama-3.2-3b-instruct` | 10/10 | 0/10 (0%) | 5/10 (50%) | 4/10 (40%) | **6/10 (60%)** |
+| `qwen/qwen-2.5-7b-instruct` | 5/10 | 0/5 (0%) | 4/5 (80%) | 3/5 (60%) | **5/5 (100%)** |
+
+Decomposition (rejection threshold `|Δ| ≥ 5 pts`):
+
+| Hypothesis | Δ | Verdict |
+|---|---|---|
+| Loop alone closes the gap (simplicio unnecessary once you loop) | Q4 − Q3 = **+32 pts** | **rejected** |
+| Simplicio alone is enough (loop is overkill) | Q4 − Q2 = **+12 pts** | **rejected** |
+| Gains stack linearly (no synergy) | Q4 − linear = **−32 pts** | **rejected** |
+
+Same picture at every scale: Q4 (composition) wins on pass-rate, **and** Q4 stays close to Q2 on cost (1.9k tok / 24s per pass vs. Q2's 1.1k / 15s) while Q3 burns 7.2k tok / 106s per pass for fewer passes. Full table + per-case breakdown in [`bench/results_4quadrant_wide.md`](bench/results_4quadrant_wide.md).
+
 ---
 
 ## Plug points (stubs marked in code)

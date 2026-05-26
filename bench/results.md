@@ -10,6 +10,10 @@ Same model on both sides — only the prompt structure changes. The
 *without* run is the raw one-line goal; the *with* run wraps the
 same goal in simplicio's 6-layer contract.
 
+See also — 4-quadrant matrix (adds the execution axis: 1-shot vs.
+loop with feedback): focused run [results_4quadrant.md](results_4quadrant.md),
+wider replication [results_4quadrant_wide.md](results_4quadrant_wide.md).
+
 **Three runs on record so far — 14 models in total:**
 
 | Run | Models tested | Pass-rate (without → with) | Δ pts |
