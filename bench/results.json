@@ -1,0 +1,1133 @@
+{
+  "qwen/qwen-2.5-7b-instruct": {
+    "rows": [
+      {
+        "objetivo": "Hide the Delete button when the current user is not an admin.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 2,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ],
+        "sem_quality": {
+          "len": 2961,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 6
+        },
+        "com_quality": {
+          "len": 1015,
+          "has_diff_block": true,
+          "has_test_block": false,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 0
+        }
+      },
+      {
+        "objetivo": "Disable the email field unless the profile role is editor.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 2,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ],
+        "sem_quality": {
+          "len": 2055,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 10
+        },
+        "com_quality": {
+          "len": 1019,
+          "has_diff_block": true,
+          "has_test_block": false,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 2
+        }
+      },
+      {
+        "objetivo": "Only show the audit log link for users with role 'auditor'.",
+        "stack": "angular",
+        "sem_hits": 1,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 920,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 6
+        },
+        "com_quality": {
+          "len": 1883,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 7
+        }
+      },
+      {
+        "objetivo": "Show 'Approve' button only when the order status is 'pending' and the user has approver permission.",
+        "stack": "angular",
+        "sem_hits": 3,
+        "com_hits": 6,
+        "total": 6,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3580,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 13
+        },
+        "com_quality": {
+          "len": 2087,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 14
+        }
+      },
+      {
+        "objetivo": "Render the export menu item only for users in the 'analytics' group.",
+        "stack": "react",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1016,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 10
+        },
+        "com_quality": {
+          "len": 1321,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 10
+        }
+      },
+      {
+        "objetivo": "Disable the 'Save Draft' button while the form is invalid OR a save request is in-flight.",
+        "stack": "react",
+        "sem_hits": 3,
+        "com_hits": 6,
+        "total": 6,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3684,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 12
+        },
+        "com_quality": {
+          "len": 2931,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 12
+        }
+      },
+      {
+        "objetivo": "Show a 'No results' empty state when the search returns zero items AND the query is not empty.",
+        "stack": "react",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 2892,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 16
+        },
+        "com_quality": {
+          "len": 1687,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 15
+        }
+      },
+      {
+        "objetivo": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
+        "stack": "dotnet",
+        "sem_hits": 2,
+        "com_hits": 3,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          true,
+          false
+        ],
+        "sem_quality": {
+          "len": 2850,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 5
+        },
+        "com_quality": {
+          "len": 2253,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 11
+        }
+      },
+      {
+        "objetivo": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
+        "stack": "dotnet",
+        "sem_hits": 1,
+        "com_hits": 3,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          false,
+          true,
+          false,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3435,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 4
+        },
+        "com_quality": {
+          "len": 1604,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 6
+        }
+      },
+      {
+        "objetivo": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3521,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 8
+        },
+        "com_quality": {
+          "len": 3573,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 8
+        }
+      }
+    ],
+    "sem_hits": 20,
+    "com_hits": 42,
+    "total": 52,
+    "sem_pct": 38,
+    "com_pct": 80,
+    "quality_sem": {
+      "len": 26914,
+      "has_diff_block": 0,
+      "has_test_block": 9,
+      "target_mentioned": 0,
+      "criterios_keywords_hit": 90
+    },
+    "quality_com": {
+      "len": 19373,
+      "has_diff_block": 10,
+      "has_test_block": 8,
+      "target_mentioned": 9,
+      "criterios_keywords_hit": 85
+    }
+  },
+  "meta-llama/llama-3.1-8b-instruct": {
+    "rows": [
+      {
+        "objetivo": "Hide the Delete button when the current user is not an admin.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 2207,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 8
+        },
+        "com_quality": {
+          "len": 1393,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 9
+        }
+      },
+      {
+        "objetivo": "Disable the email field unless the profile role is editor.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1729,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 9
+        },
+        "com_quality": {
+          "len": 1461,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 8
+        }
+      },
+      {
+        "objetivo": "Only show the audit log link for users with role 'auditor'.",
+        "stack": "angular",
+        "sem_hits": 1,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1738,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 6
+        },
+        "com_quality": {
+          "len": 3104,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 8
+        }
+      },
+      {
+        "objetivo": "Show 'Approve' button only when the order status is 'pending' and the user has approver permission.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 6,
+        "total": 6,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3133,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 12
+        },
+        "com_quality": {
+          "len": 1780,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 12
+        }
+      },
+      {
+        "objetivo": "Render the export menu item only for users in the 'analytics' group.",
+        "stack": "react",
+        "sem_hits": 1,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3753,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 10
+        },
+        "com_quality": {
+          "len": 1438,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 10
+        }
+      },
+      {
+        "objetivo": "Disable the 'Save Draft' button while the form is invalid OR a save request is in-flight.",
+        "stack": "react",
+        "sem_hits": 3,
+        "com_hits": 6,
+        "total": 6,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3087,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 12
+        },
+        "com_quality": {
+          "len": 2802,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 12
+        }
+      },
+      {
+        "objetivo": "Show a 'No results' empty state when the search returns zero items AND the query is not empty.",
+        "stack": "react",
+        "sem_hits": 1,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3099,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 16
+        },
+        "com_quality": {
+          "len": 2557,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 16
+        }
+      },
+      {
+        "objetivo": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
+        "stack": "dotnet",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 4504,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 8
+        },
+        "com_quality": {
+          "len": 2276,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 8
+        }
+      },
+      {
+        "objetivo": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
+        "stack": "dotnet",
+        "sem_hits": 2,
+        "com_hits": 4,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3220,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 4
+        },
+        "com_quality": {
+          "len": 1928,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 6
+        }
+      },
+      {
+        "objetivo": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 2940,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 12
+        },
+        "com_quality": {
+          "len": 2687,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 13
+        }
+      }
+    ],
+    "sem_hits": 18,
+    "com_hits": 51,
+    "total": 52,
+    "sem_pct": 34,
+    "com_pct": 98,
+    "quality_sem": {
+      "len": 29410,
+      "has_diff_block": 0,
+      "has_test_block": 8,
+      "target_mentioned": 0,
+      "criterios_keywords_hit": 97
+    },
+    "quality_com": {
+      "len": 21426,
+      "has_diff_block": 10,
+      "has_test_block": 10,
+      "target_mentioned": 10,
+      "criterios_keywords_hit": 102
+    }
+  },
+  "google/gemma-3-12b-it": {
+    "rows": [
+      {
+        "objetivo": "Hide the Delete button when the current user is not an admin.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 4,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3355,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 8
+        },
+        "com_quality": {
+          "len": 1457,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 5
+        }
+      },
+      {
+        "objetivo": "Disable the email field unless the profile role is editor.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3682,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 9
+        },
+        "com_quality": {
+          "len": 2518,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 9
+        }
+      },
+      {
+        "objetivo": "Only show the audit log link for users with role 'auditor'.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3244,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 8
+        },
+        "com_quality": {
+          "len": 2730,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 7
+        }
+      },
+      {
+        "objetivo": "Show 'Approve' button only when the order status is 'pending' and the user has approver permission.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 6,
+        "total": 6,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3508,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 12
+        },
+        "com_quality": {
+          "len": 2442,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 12
+        }
+      },
+      {
+        "objetivo": "Render the export menu item only for users in the 'analytics' group.",
+        "stack": "react",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3709,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 12
+        },
+        "com_quality": {
+          "len": 1556,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 10
+        }
+      },
+      {
+        "objetivo": "Disable the 'Save Draft' button while the form is invalid OR a save request is in-flight.",
+        "stack": "react",
+        "sem_hits": 3,
+        "com_hits": 6,
+        "total": 6,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3591,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 12
+        },
+        "com_quality": {
+          "len": 3089,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 11
+        }
+      },
+      {
+        "objetivo": "Show a 'No results' empty state when the search returns zero items AND the query is not empty.",
+        "stack": "react",
+        "sem_hits": 1,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3094,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 15
+        },
+        "com_quality": {
+          "len": 2084,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 16
+        }
+      },
+      {
+        "objetivo": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
+        "stack": "dotnet",
+        "sem_hits": 3,
+        "com_hits": 4,
+        "total": 5,
+        "sem_flags": [
+          true,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3689,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 5
+        },
+        "com_quality": {
+          "len": 2195,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 9
+        }
+      },
+      {
+        "objetivo": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
+        "stack": "dotnet",
+        "sem_hits": 1,
+        "com_hits": 4,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "sem_quality": {
+          "len": 3343,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 4
+        },
+        "com_quality": {
+          "len": 1948,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 8
+        }
+      },
+      {
+        "objetivo": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 3782,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criterios_keywords_hit": 9
+        },
+        "com_quality": {
+          "len": 2366,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criterios_keywords_hit": 12
+        }
+      }
+    ],
+    "sem_hits": 20,
+    "com_hits": 49,
+    "total": 52,
+    "sem_pct": 38,
+    "com_pct": 94,
+    "quality_sem": {
+      "len": 34997,
+      "has_diff_block": 0,
+      "has_test_block": 9,
+      "target_mentioned": 1,
+      "criterios_keywords_hit": 94
+    },
+    "quality_com": {
+      "len": 22385,
+      "has_diff_block": 10,
+      "has_test_block": 10,
+      "target_mentioned": 10,
+      "criterios_keywords_hit": 99
+    }
+  }
+}

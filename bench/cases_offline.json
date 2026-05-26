@@ -40,5 +40,105 @@
       "auditor",
       "(ngIf|hidden|absent|visible)"
     ]
+  },
+  {
+    "objetivo": "Show 'Approve' button only when the order status is 'pending' and the user has approver permission.",
+    "stack": "angular",
+    "alvo": "src/app/orders/order-detail.component.html",
+    "criterios": "- status pending AND approver permission: button visible\n- status not pending: button hidden\n- approver permission false: button hidden",
+    "restricoes": "- build passes\n- do not call backend on render",
+    "checks": [
+      "order-detail\\.component\\.html",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "approver",
+      "pending",
+      "(ngIf|\\*ngIf|hidden)"
+    ]
+  },
+  {
+    "objetivo": "Render the export menu item only for users in the 'analytics' group.",
+    "stack": "react",
+    "alvo": "src/components/Menu.tsx",
+    "criterios": "- user in analytics group: export item rendered\n- user not in analytics group: export item NOT rendered",
+    "restricoes": "- build passes\n- no new package",
+    "checks": [
+      "Menu\\.tsx",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "analytics",
+      "(&&|\\?\\s*<|usePermission|hasGroup)"
+    ]
+  },
+  {
+    "objetivo": "Disable the 'Save Draft' button while the form is invalid OR a save request is in-flight.",
+    "stack": "react",
+    "alvo": "src/pages/PostEditor.tsx",
+    "criterios": "- form invalid: button disabled\n- save in-flight: button disabled\n- form valid AND not in-flight: button enabled",
+    "restricoes": "- build passes\n- no extra render",
+    "checks": [
+      "PostEditor\\.tsx",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "(invalid|isValid)",
+      "(in-?flight|loading|isSaving|pending)",
+      "disabled"
+    ]
+  },
+  {
+    "objetivo": "Show a 'No results' empty state when the search returns zero items AND the query is not empty.",
+    "stack": "react",
+    "alvo": "src/components/SearchList.tsx",
+    "criterios": "- query non-empty and results empty: empty state visible\n- query empty: empty state NOT visible\n- results non-empty: list renders, empty state hidden",
+    "restricoes": "- build passes\n- no new dep",
+    "checks": [
+      "SearchList\\.tsx",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "(empty|no results|No results)",
+      "(length === 0|length == 0|isEmpty|!results\\.length)"
+    ]
+  },
+  {
+    "objetivo": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
+    "stack": "dotnet",
+    "alvo": "src/Web/Controllers/OrdersController.cs",
+    "criterios": "- request without policy: returns 403\n- request with policy: returns 200\n- attribute applied at action level",
+    "restricoes": "- build passes\n- do not change DTO",
+    "checks": [
+      "OrdersController\\.cs",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "(CanApprove|Authorize)",
+      "(\\[Authorize|HasPolicy|RequireClaim)"
+    ]
+  },
+  {
+    "objetivo": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
+    "stack": "dotnet",
+    "alvo": "src/Web/Controllers/ReportsController.cs",
+    "criterios": "- non-Manager: returns 403\n- Manager: returns 200 with payload\n- attribute on the action, not whole controller",
+    "restricoes": "- build passes\n- do not change response shape",
+    "checks": [
+      "ReportsController\\.cs",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "Manager",
+      "(\\[Authorize|Roles\\s*=|IsInRole)"
+    ]
+  },
+  {
+    "objetivo": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
+    "stack": "angular",
+    "alvo": "src/app/editor/editor.component.ts",
+    "criterios": "- unsaved changes AND navigation triggered: banner shown\n- no unsaved changes: navigation proceeds, no banner\n- user confirms leave: navigation proceeds",
+    "restricoes": "- build passes\n- use existing CanDeactivate pattern if present",
+    "checks": [
+      "editor\\.component\\.ts",
+      "(^|\\W)diff(\\W|:)",
+      "(^|\\W)test(\\W|:)",
+      "(unsaved|dirty|isDirty)",
+      "(canDeactivate|CanDeactivate|beforeunload|guard)"
+    ]
   }
 ]

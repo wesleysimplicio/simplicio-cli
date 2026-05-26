@@ -1,13 +1,68 @@
 [project]
 name = "simplicio-cli"
-version = "0.1.0"
-description = "Pipeline portavel: mapper + precedente + prompt em camadas + verify loop"
+version = "0.2.0"
+description = "Portable task-to-code pipeline that works with any LLM. Turn a one-line task into a verified code change — diff + test + verify loop. +54 pts on a 156-check benchmark vs raw prompting."
+readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.9"
-dependencies = ["sentence-transformers", "numpy", "anthropic", "openai"]
+authors = [{ name = "Wesley Simplicio", email = "wesleybob4@gmail.com" }]
+keywords = [
+  "llm",
+  "ai",
+  "agent",
+  "code-generation",
+  "prompt-engineering",
+  "openrouter",
+  "openai",
+  "anthropic",
+  "claude",
+  "developer-tools",
+  "cli",
+  "rag",
+  "embeddings",
+  "verify-loop",
+  "task-automation",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development",
+  "Topic :: Software Development :: Code Generators",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "sentence-transformers>=2.2",
+  "numpy>=1.23",
+  "anthropic>=0.30",
+  "openai>=1.30",
+]
+
+[project.urls]
+Homepage = "https://github.com/wesleysimplicio/simplicio-cli"
+Repository = "https://github.com/wesleysimplicio/simplicio-cli"
+Issues = "https://github.com/wesleysimplicio/simplicio-cli/issues"
+Changelog = "https://github.com/wesleysimplicio/simplicio-cli/releases"
 
 [project.scripts]
 simplicio = "simplicio.cli:main"
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["simplicio*"]
+
+[tool.setuptools.package-data]
+simplicio = ["templates/*.md"]
