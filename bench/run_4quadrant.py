@@ -31,7 +31,7 @@ Usage:
 See docs/benchmark-4quadrant.md for methodology.
 """
 from __future__ import annotations
-import json, os, re, sys, time, urllib.request
+import json, os, re, sys, time, urllib.error, urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -139,6 +139,19 @@ def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
             "total_tokens": int(usage.get("total_tokens", 0)),
             "elapsed_ms": elapsed_ms,
             "error": None,
+        }
+    except urllib.error.HTTPError as e:
+        # preserve response body so 429/4xx/5xx debugging does not need re-running with curl
+        try:
+            body = e.read().decode("utf-8", errors="replace")
+        except Exception:
+            body = ""
+        detail = f"HTTP {e.code}: {body[:500]}" if body else f"HTTP {e.code}"
+        return {
+            "text": f"[BENCH_ERROR] {detail}",
+            "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0,
+            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+            "error": detail,
         }
     except Exception as e:
         return {
@@ -467,8 +480,10 @@ def build_markdown(by_model: dict, cases: list, agg: dict) -> str:
     for i, c in enumerate(cases):
         row = [f"{i+1}", f"`{c['stack']}`", c["goal"][:50]]
         for q in QUADRANTS:
-            passed = sum(1 for m in by_model if by_model[m][q][i]["passed"])
-            row.append(f"{passed}/{n_models}")
+            # tolerate partial runs: a model may have fewer observations than len(cases)
+            observed = [m for m in by_model if i < len(by_model[m][q])]
+            passed = sum(1 for m in observed if by_model[m][q][i]["passed"])
+            row.append(f"{passed}/{len(observed) or n_models}")
         md.append("| " + " | ".join(row) + " |")
     md += [
         "",
@@ -624,8 +639,9 @@ def build_pdf(by_model: dict, cases: list, agg: dict) -> None:
     for i, c in enumerate(cases):
         row = [str(i+1), c["stack"], c["goal"][:55]]
         for q in QUADRANTS:
-            passed = sum(1 for m in by_model if by_model[m][q][i]["passed"])
-            row.append(f"{passed}/{n_models}")
+            observed = [m for m in by_model if i < len(by_model[m][q])]
+            passed = sum(1 for m in observed if by_model[m][q][i]["passed"])
+            row.append(f"{passed}/{len(observed) or n_models}")
         table_row(row, [10, 20, 80, 18, 18, 18, 18])
 
     pdf.ln(3)
@@ -673,8 +689,9 @@ def run() -> int:
     per_case_series = {q: [] for q in QUADRANTS}
     for i in range(len(cases)):
         for q in QUADRANTS:
-            passed = sum(1 for m in by_model if by_model[m][q][i]["passed"])
-            total = len(by_model)
+            observed = [m for m in by_model if i < len(by_model[m][q])]
+            passed = sum(1 for m in observed if by_model[m][q][i]["passed"])
+            total = len(observed) or len(by_model)
             per_case_series[q].append(100 * passed / max(total, 1))
 
     overall_labels = ["overall"]
