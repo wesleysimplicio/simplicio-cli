@@ -34,16 +34,37 @@ Relevant > complete — each layer injects the *right* context, never *all* of i
 pip install -e .          # from this repo
 ```
 
-## Configure
+## Configure — any LLM, nothing hardcoded
+
+Three env vars define the model. No provider list, no built-in model names.
 
 ```bash
-export SIMPLICIO_PROVIDER=claude     # claude | gpt | glm | deepseek
-export ANTHROPIC_API_KEY=sk-...      # or GLM_API_KEY / DEEPSEEK_API_KEY / OPENAI_API_KEY
+export SIMPLICIO_MODEL="..."        # model id, exactly as your provider expects
+export SIMPLICIO_BASE_URL="..."     # any OpenAI-compatible endpoint
+export SIMPLICIO_API_KEY="..."      # your key (NEVER commit / paste in chat)
 export SIMPLICIO_TEST_CMD="ng test --watch=false"   # your real test command
 ```
 
-> Provider model names / endpoints in `providers.py` follow each vendor's
-> public convention — **verify against current docs** before relying on them.
+Examples (verify model ids / endpoints against each vendor's current docs):
+
+| Provider | SIMPLICIO_MODEL | SIMPLICIO_BASE_URL |
+|---|---|---|
+| OpenRouter | `anthropic/claude-opus-4` | `https://openrouter.ai/api/v1` |
+| GLM (z.ai) | `glm-4.6` | `https://api.z.ai/api/paas/v4` |
+| DeepSeek | `deepseek-chat` | `https://api.deepseek.com` |
+| OpenAI | `gpt-4.1` | `https://api.openai.com/v1` |
+| Local (Ollama) | `llama3` | `http://localhost:11434/v1` |
+| Anthropic native | `claude-opus-4-7` | *(leave unset)* |
+
+If `SIMPLICIO_BASE_URL` is unset and the key is `ANTHROPIC_API_KEY`, it uses the
+native Anthropic SDK. Otherwise it uses an OpenAI-compatible client pointed at
+your `base_url` — so **any** OpenAI-like provider works without code changes.
+
+Quick check it connects:
+
+```bash
+simplicio smoke      # prints provider config + one test call
+```
 
 ## Use
 
