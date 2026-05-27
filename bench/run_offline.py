@@ -138,31 +138,36 @@ def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
             "X-Title": "simplicio-cli bench",
         },
     )
+    retries = int(os.environ.get("BENCH_HTTP_RETRIES", "4"))
     t0 = time.perf_counter()
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            data = json.loads(r.read())
-        elapsed_ms = int((time.perf_counter() - t0) * 1000)
-        usage = data.get("usage") or {}
-        msg = data["choices"][0].get("message") or {}
-        text = msg.get("content") or msg.get("reasoning") or ""
-        return {
-            "text": text,
-            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
-            "completion_tokens": int(usage.get("completion_tokens", 0)),
-            "total_tokens": int(usage.get("total_tokens", 0)),
-            "elapsed_ms": elapsed_ms,
-            "error": None,
-        }
-    except Exception as e:
-        return {
-            "text": f"[BENCH_ERROR] {e}",
-            "prompt_tokens": 0,
-            "completion_tokens": 0,
-            "total_tokens": 0,
-            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
-            "error": str(e),
-        }
+    last_err = None
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                data = json.loads(r.read())
+            usage = data.get("usage") or {}
+            msg = data["choices"][0].get("message") or {}
+            text = msg.get("content") or msg.get("reasoning") or ""
+            return {
+                "text": text,
+                "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+                "completion_tokens": int(usage.get("completion_tokens", 0)),
+                "total_tokens": int(usage.get("total_tokens", 0)),
+                "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+                "error": None,
+            }
+        except Exception as e:
+            last_err = e
+            if attempt < retries:
+                time.sleep(2 ** attempt)  # transient router/SSL hiccup: back off and retry
+    return {
+        "text": f"[BENCH_ERROR] {last_err}",
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+        "error": str(last_err),
+    }
 
 
 def score(output: str, checks: list[str]) -> list[bool]:
@@ -524,6 +529,11 @@ def run() -> int:
             "usage_sem": usage_sem, "usage_com": usage_com,
         }
 
+    build_reports(by_model, cases)
+    return 0
+
+
+def build_reports(by_model: dict, cases: list) -> int:
     # ---- write artifacts ---- #
     RESULTS_JSON.write_text(json.dumps(by_model, indent=2))
 
@@ -755,5 +765,19 @@ def pdf_only() -> int:
     return 0
 
 
+def report_only() -> int:
+    """Rebuild all reports (charts + md + pdf) from results.json, no model calls."""
+    global MODELS
+    by_model = json.loads(RESULTS_JSON.read_text())
+    cases = json.loads(CASES_PATH.read_text())
+    MODELS = list(by_model.keys())
+    return build_reports(by_model, cases)
+
+
 if __name__ == "__main__":
-    sys.exit(pdf_only() if "--pdf-only" in sys.argv else run())
+    if "--report-only" in sys.argv:
+        sys.exit(report_only())
+    elif "--pdf-only" in sys.argv:
+        sys.exit(pdf_only())
+    else:
+        sys.exit(run())

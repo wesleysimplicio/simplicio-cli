@@ -27,6 +27,28 @@ M1 MacBook (8 GB), five sub-4B tiny models, six frontier 2026 models, and three
 mid-tier 7B–12B open models. Every one gained at least **+14 points** when
 wrapped in simplicio's 6-layer contract.
 
+#### Hugging Face — Qwen2.5-Coder, re-run on 2026-05-27 (latest mapper, 10 cases/side, 156 checks)
+
+First batch of the smaller→larger re-benchmark against the latest
+`simplicio-mapper` artifacts. The 1.5B runs on CPU via `transformers`
+(Hugging Face Inference Providers does not serve it); the 3B and 7B run
+through the HF router (`https://router.huggingface.co/v1`).
+
+| Model | Without simplicio | With simplicio | Gain |
+|---|---|---|---|
+| **Qwen 2.5 Coder 7B** (`Qwen/Qwen2.5-Coder-7B-Instruct`) | 38% | **96%** | **+58 pts** |
+| **Qwen 2.5 Coder 3B** (`Qwen/Qwen2.5-Coder-3B-Instruct`) | 34% | **94%** | **+60 pts** |
+| **Qwen 2.5 Coder 1.5B** (`Qwen/Qwen2.5-Coder-1.5B-Instruct`, local CPU) | 30% | **92%** | **+62 pts** |
+| **HF avg (3 models · 10 cases · 156 checks)** | **34%** | **94%** | **+60 pts (+172%)** |
+
+> Monotonic from smaller to larger: pass-rate with simplicio climbs **92% →
+> 94% → 96%** as the model grows, while the raw-prompt baseline stays at
+> **30–38%**. The 1.5B model gains the most (**+62 pts**) — the contract does
+> the heaviest lifting where the model is weakest. Reproduce:
+> `BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=<hf-token>
+> BENCH_MODELS="local:Qwen/Qwen2.5-Coder-1.5B-Instruct,Qwen/Qwen2.5-Coder-3B-Instruct,Qwen/Qwen2.5-Coder-7B-Instruct"
+> python3 bench/run_offline.py`.
+
 #### Local offline — qwen2.5-coder on Ollama, M1 8 GB, run on 2026-05-27 (30 runs/side, 156 checks)
 
 | Model | Without simplicio | With simplicio | Gain |
