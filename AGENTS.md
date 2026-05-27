@@ -34,9 +34,9 @@ Agent checklist:
 - [ ] Generate screenshot/video/trace for UI or end-to-end flows.
 - [ ] Report blockers with the command, log excerpt and likely cause.
 
-> Master instruction file lido por **Claude Code**, **Codex CLI**, **GitHub Copilot**, **Hermes Agent** (Nous Research), **OpenClaw**, **Cursor**, **Aider** e qualquer outro agent que respeite o padrão `AGENTS.md`. É o contrato entre humano e IA neste repositório.
+> Master instruction file lido por **Claude Code**, **Codex CLI**, **GitHub Copilot**, **Cursor**, **Windsurf**, **Gemini CLI**, **Kiro**, **AntiGravity**, **OpenCode**, **Hermes Agent** (Nous Research), **OpenClaw**, **Aider** e qualquer outro agent que respeite o padrão `AGENTS.md`. É o contrato entre humano e IA neste repositório.
 >
-> Mudou algo aqui? Reflete em `CLAUDE.md` e `.github/copilot-instructions.md` (mantém os três alinhados ou usa symlink).
+> Mudou algo aqui? Reflete em `CLAUDE.md` e `.github/copilot-instructions.md` (cópias regulares — Claude/Copilot não seguem symlink). Os espelhos `GEMINI.md`, `.windsurf/rules/agents.md` e `.kiro/steering/agents.md` são **symlinks → `AGENTS.md`**, então acompanham automaticamente.
 
 Este arquivo dá ao agent **tudo que ele precisa saber pra entregar uma task** sem perguntar: stack, comandos, fluxo de trabalho, padrões, proibições, skills disponíveis e atalhos. Lê ele inteiro antes de escrever a primeira linha de código.
 
@@ -151,6 +151,7 @@ PR só faz merge quando **todos** os itens abaixo estão marcados:
 - [ ] E2E Playwright passa com **evidência anexada em TODA task** — `playwright-report/index.html` + `test-results/<spec>/trace.zip` + screenshots por cenário + video (when retry). Hard rule: sem evidência, sem merge.
 - [ ] Coverage do diff >= 80%
 - [ ] Acceptance Criteria da task: todos os checkboxes marcados
+- [ ] **Verificação independente/adversarial pós-verde** — depois do DoD verde, UMA passada *ortogonal* (não repetição da mesma checagem): AC relida lado a lado com o resultado, feature exercitada de verdade + 1 cenário de borda + 1 caminho de erro, resultado registrado. Verde no DoD ≠ feito. (`.skills/llm-verification/`)
 - [ ] PR template preenchido (link task + descrição + evidências)
 - [ ] Conventional commit no merge
 - [ ] ADR criado em `.specs/architecture/` se mudou decisão arquitetural
@@ -225,6 +226,7 @@ Estas três skills são **ativadas automaticamente em toda sessão** (via `.clau
 
 - **`playwright-e2e`** — como escrever teste Playwright neste projeto. Trigger: nova feature de UI ou fluxo end-to-end. Cobre fixtures, page objects, evidências (trace/screenshot/video) e padrões de assert.
 - **`conventional-commits`** — regras de commit (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `perf:`, `style:`, `ci:`, `build:`). Trigger: hora de commitar. Inclui exemplos, breaking changes (`!`/`BREAKING CHANGE:`) e scope.
+- **`llm-verification`** — passada de verificação independente/adversarial **depois** do DoD verde, antes de declarar "feito". Trigger: fechar task técnica, ou pergunta "deu ok?" / "verifica de novo". Operacionaliza o item de DoD "Verificação independente/adversarial pós-verde": uma passada *ortogonal* (não repetição), AC ⇄ resultado, feature rodada de verdade + borda + caminho de erro.
 - **`_template`** — base pra criar skill nova. Copia, renomeia pasta, preenche frontmatter (`name`, `description`, `trigger`, `steps`, `dod`).
 
 Detalhes completos: `.skills/README.md`.

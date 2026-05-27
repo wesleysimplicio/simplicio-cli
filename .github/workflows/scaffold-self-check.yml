@@ -32,6 +32,9 @@ jobs:
           required_files=(
             "AGENTS.md"
             "CLAUDE.md"
+            "GEMINI.md"
+            ".windsurf/rules/agents.md"
+            ".kiro/steering/agents.md"
             "INIT.md"
             "_BOOTSTRAP.md"
             "README.md"
