@@ -24,6 +24,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     decision and per tool call without access to the prompt.
   - "Disable / re-enable" matrix — env var, manual removal, dry-run, repair,
     skill-only path.
+  - "How you use it — pick your path" — upfront 2-path matrix (Claude Code
+    zero-key vs standalone CLI with API key), with end-to-end examples for
+    each path so the user can decide which one applies in 30 seconds.
+  - "The pipeline (both paths)" — clarifies that whichever entry point is
+    used, the underlying engine (precedent → skill → 6-layer → LLM → apply
+    → test → retry) is the same.
+  - "Common questions" FAQ — covers the four most asked questions: does it
+    work with a Claude Pro subscription alone, how to run it in CI without
+    Claude Code, the ChatGPT Plus / Codex CLI situation (not auto-wired),
+    when the skill actually fires, and how to turn it off.
+  - Tagline updated to lead with "Zero API key inside Claude Code" so the
+    PyPI / GitHub landing page makes the no-key-needed path obvious.
 - `tests/python/test_cli_autoinstall.py` — 5 tests covering the env opt-out,
   missing `~/.claude/`, `init`/`detect` subcommand exclusion, fresh install,
   and already-installed short-circuit.

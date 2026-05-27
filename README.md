@@ -9,7 +9,9 @@
 [![simplicio-cli pipeline hero: one-line task to verified code change](https://raw.githubusercontent.com/wesleysimplicio/simplicio-cli/master/output/imagegen/simplicio-cli-readme-hero-web.png)](output/imagegen/simplicio-cli-readme-hero.png)
 
 > *"hide the Delete button for non-admins"* → diff + test + applied + verified.
-> Works with **OpenRouter, OpenAI, Anthropic, GLM, DeepSeek, Ollama** — one env var.
+> **Zero API key inside Claude Code** (auto-installs, uses your subscription) — or
+> bring your own key for any provider: OpenRouter, OpenAI, Anthropic, GLM,
+> DeepSeek, Ollama.
 
 ```bash
 pip install simplicio-cli
@@ -126,7 +128,53 @@ pip install simplicio-cli           # from PyPI
 pip install -e .                    # from this repo
 ```
 
-### Auto-activation in Claude Code (often zero-step)
+---
+
+## How you use it — pick your path
+
+simplicio-cli has **two distinct entry points**. Same engine, different front door:
+
+| You have | Path | LLM call goes through | Need API key? |
+|---|---|---|---|
+| **Claude Code** (Pro / Max / Team / API) | Skill + hook auto-installed in `~/.claude/` | Claude Code itself, using your logged-in session | **No** |
+| **API key** for any provider (Anthropic, OpenAI, OpenRouter, GLM, DeepSeek, Ollama…) | `simplicio task` standalone CLI | The provider SDK directly | **Yes** — set `SIMPLICIO_API_KEY` |
+
+**Most users land on Path 1.** `pip install simplicio-cli` puts the binary on PATH; the first invocation auto-installs the skill + hook in `~/.claude/` (idempotent, opt-out via `SIMPLICIO_SKIP_AUTO_INIT=1`). From that moment, every code-edit prompt you type **inside Claude Code** is silently routed through simplicio's 6-layer contract — no extra config, no key, no cost beyond your existing Claude subscription.
+
+**Path 2 is for CI, scripts, batch jobs, or environments without Claude Code** — Codex CLI, Cursor, a server, a notebook. You bring the key, simplicio calls the provider directly. Cross-CLI shell-out (`claude -p`, `codex exec`) using a subscription instead of a key is on the roadmap but not shipped yet.
+
+### Path 1 example — inside Claude Code
+
+After `pip install simplicio-cli && simplicio smoke` (which triggers auto-bootstrap), just type your task in Claude Code:
+
+```
+hide the Delete button for non-admins in src/app/screen/screen.component.html
+```
+
+Claude Code sees the skill (semantic match) and the hook hint (`[SIMPLICIO_PROMPT_HINT]` on stderr — deterministic classifier). It runs simplicio's 6-layer contract under the hood. You see the diff + tests + verification — same as before, just dramatically more accurate.
+
+### Path 2 example — standalone with API key
+
+```bash
+export SIMPLICIO_API_KEY=sk-or-v1-…                      # OpenRouter key
+export SIMPLICIO_MODEL=anthropic/claude-opus-4
+export SIMPLICIO_BASE_URL=https://openrouter.ai/api/v1
+
+simplicio index --stack angular                           # one-time, builds embedding cache
+simplicio task "hide Delete button for non-admins" \
+  --stack angular \
+  --target src/app/screen/screen.component.html \
+  --criteria "- no admin perm: button absent from DOM
+- with admin perm: button present" \
+  --constraints "- don't touch save flow
+- build passes"
+```
+
+Provider-agnostic — see [Configure](#configure--any-llm-nothing-hardcoded) for the full matrix.
+
+---
+
+### Path 1 deep-dive — auto-activation in Claude Code
 
 `pip install` puts `simplicio` on your PATH. To make Claude Code
 **automatically** route code-edit tasks through simplicio, a skill + hook
@@ -202,7 +250,13 @@ user prompt. UserPromptSubmit is the right pre-hook for routing decisions.
 | Preview without writing | `simplicio init --dry-run` |
 | Skill-only (no hook) | Copy `.skills/simplicio-cli/SKILL.md` to `~/.claude/skills/simplicio-cli/SKILL.md` manually, skip `simplicio init` |
 
+---
+
 ## Configure — any LLM, nothing hardcoded
+
+> Applies to **Path 2** (standalone CLI). Path 1 users can skip this entire
+> section — Claude Code handles the LLM call with the model and key already
+> tied to your subscription.
 
 | Provider | SIMPLICIO_MODEL | SIMPLICIO_BASE_URL |
 |---|---|---|
@@ -221,25 +275,53 @@ your `base_url` — so **any** OpenAI-like provider works without code changes.
 simplicio smoke      # prints provider config + one test call
 ```
 
-## Use
+### The pipeline (both paths)
 
-```bash
-# index once (caches embeddings; re-run after big changes)
-simplicio index --stack angular
+Whichever entry point you use, each task runs through the same engine:
 
-# run a task
-simplicio task "hide Delete button for non-admins" \
-  --stack angular \
-  --target src/app/screen/screen.component.html \
-  --criteria "- no admin perm: button absent from DOM
-- with admin perm: button present" \
-  --constraints "- don't touch save flow
-- build passes"
+```
+precedent (from cache)
+  → skill match
+  → 6-layer prompt
+  → LLM generates diff + test + Playwright
+  → apply diff
+  → run SIMPLICIO_TEST_CMD
+  → pass?  done  :  send the error back → fix → retry (up to 3x)
 ```
 
-Each `task`: precedent (from cache) → skill match → 6 layers → LLM generates
-(diff + test + Playwright) → apply → run `SIMPLICIO_TEST_CMD` → pass? **done** :
-send the error back → fix → retry (up to 3x).
+The 6-layer contract is what moves pass-rate from 41% to 99% on frontier
+models (see [the numbers](#why-it-works--the-numbers) above). The retry loop
+is what catches the remaining edge cases — measured separately in the
+[4-quadrant bench](#4-quadrant-bench--agent--simplicio-matrix).
+
+### Common questions
+
+**"I have a Claude Pro subscription but no API key — does this work?"** Yes,
+on Path 1. Install simplicio-cli, open Claude Code, type your task as normal.
+Claude Code makes the LLM call with your subscription; simplicio shapes the
+prompt. No key needed.
+
+**"I want to run it in CI / a script / outside Claude Code."** Path 2. Get an
+API key from any of the providers above (OpenRouter is the cheapest way to
+try multiple models behind one key), set `SIMPLICIO_API_KEY` +
+`SIMPLICIO_MODEL` + optional `SIMPLICIO_BASE_URL`, run `simplicio task ...`.
+
+**"I have Codex CLI / ChatGPT Plus and don't want to pay for an API key."**
+Not auto-wired yet. Workarounds: (a) get an OpenRouter key (~$2 covers
+thousands of tasks at small-model rates), (b) wait for the shell-out provider
+that pipes through `claude -p` / `codex exec` using your subscription —
+tracked, not shipped.
+
+**"Will Claude Code use simplicio for *every* prompt now?"** No. The skill
+only triggers on prompts that look like code edits (the description is
+specific). The hook fires `simplicio detect` on every prompt but only emits
+a hint when the deterministic classifier scores ≥ 3 (verbs + file extensions
++ code nouns − read-only cues). "What does this function do?" gets no
+nudge. "Add a delete confirmation to UserList.tsx" does.
+
+**"How do I turn it off?"** See [Disable / re-enable](#disable--re-enable)
+above. Two ways: env var (`SIMPLICIO_SKIP_AUTO_INIT=1` before first call) or
+delete the hook entry from `~/.claude/settings.json`.
 
 ---
 
