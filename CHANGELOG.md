@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.10] — 2026-05-26
+
+### Added
+- Skill `simplicio-cli` (`.skills/simplicio-cli/SKILL.md` + global mirror at
+  `~/.claude/skills/simplicio-cli/SKILL.md`) — auto-triggers when the user asks
+  for a small/medium code edit on a known file. Maps the natural-language goal
+  to `simplicio task --stack <s> --target <f> --criteria <…> --constraints <…>`,
+  runs verify-loop, and reports diff + test result. Pushy trigger description
+  covers explicit invocations (`$simplicio`, "use simplicio") plus implicit
+  cues (small/local model, verify-loop / pass-rate / 6-layer keywords).
+- Registered the skill in `.skills/README.md` table.
+
 ## [0.2.9] — 2026-05-26
 
 ### Added
