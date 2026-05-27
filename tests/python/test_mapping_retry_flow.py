@@ -1,5 +1,6 @@
 import json
 
+from simplicio import bench
 from simplicio import pipeline
 from simplicio import prompt as prompt_module
 from simplicio.precedent import build_precedent_block
@@ -135,3 +136,29 @@ def test_retry_classification_and_pre_apply_validation():
     assert "pre-apply validation failed" in feedback
     assert "assertion" in feedback
     assert "attempt 2" in feedback
+
+
+def test_benchmark_writes_observability_log(tmp_path, monkeypatch):
+    cases = [
+        {
+            "goal": "avoid hallucinated files",
+            "target": "src/app.py",
+            "criteria": "- output captured",
+            "constraints": "- no hallucinated paths",
+            "test_cmd": "test -f .simplicio/bench_out.txt",
+        }
+    ]
+    cases_path = tmp_path / "cases.json"
+    cases_path.write_text(json.dumps(cases), encoding="utf-8")
+    monkeypatch.setattr(bench, "generate", lambda prompt, *args, **kwargs: "diff --git a/src/app.py b/src/app.py")
+    monkeypatch.setattr(bench, "build_prompt", lambda *args, **kwargs: "structured prompt")
+    monkeypatch.setenv("SIMPLICIO_PROMPT_VARIANT", "mapper-v1")
+
+    bench.run_bench(str(tmp_path), "python", str(cases_path))
+
+    run_log = tmp_path / ".simplicio" / "runs.jsonl"
+    assert run_log.exists()
+    events = [json.loads(line) for line in run_log.read_text(encoding="utf-8").splitlines()]
+    assert {event["mode"] for event in events} == {"baseline", "pipeline"}
+    assert all(event["prompt_variant"] == "mapper-v1" for event in events)
+    assert all("tokens_estimated" in event for event in events)
