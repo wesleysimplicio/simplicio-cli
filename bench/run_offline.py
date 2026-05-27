@@ -59,7 +59,66 @@ Return EXACTLY in this shape, nothing else:
 No prose, no preamble."""
 
 
+# ---------- local transformers backend (model id prefixed "local:") ---------- #
+# Used for weights that HF Inference Providers does not serve (e.g. the small
+# Qwen2.5-Coder-1.5B). Downloads from the Hub and runs greedy decoding on CPU.
+
+_LOCAL_MODELS: dict = {}
+
+
+def _load_local(model_id: str):
+    if model_id not in _LOCAL_MODELS:
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        tok = AutoTokenizer.from_pretrained(model_id)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_id, torch_dtype=torch.float32, low_cpu_mem_usage=True
+        )
+        model.eval()
+        _LOCAL_MODELS[model_id] = (tok, model)
+    return _LOCAL_MODELS[model_id]
+
+
+def local_call(model_id: str, prompt: str) -> dict:
+    import torch
+    max_new = int(os.environ.get("BENCH_LOCAL_MAX_TOKENS", "1024"))
+    t0 = time.perf_counter()
+    try:
+        tok, model = _load_local(model_id)
+        text = tok.apply_chat_template(
+            [{"role": "user", "content": prompt}],
+            tokenize=False, add_generation_prompt=True,
+        )
+        inputs = tok(text, return_tensors="pt")
+        prompt_tokens = int(inputs["input_ids"].shape[1])
+        with torch.no_grad():
+            out = model.generate(
+                **inputs, max_new_tokens=max_new,
+                do_sample=False, pad_token_id=tok.eos_token_id,
+            )
+        gen = out[0][prompt_tokens:]
+        completion = tok.decode(gen, skip_special_tokens=True)
+        completion_tokens = int(gen.shape[0])
+        return {
+            "text": completion,
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens,
+            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+            "error": None,
+        }
+    except Exception as e:
+        return {
+            "text": f"[BENCH_ERROR] {e}",
+            "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0,
+            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+            "error": str(e),
+        }
+
+
 def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
+    if model.startswith("local:"):
+        return local_call(model.split(":", 1)[1], prompt)
     if not API_KEY:
         raise SystemExit("set OPENROUTER_API_KEY (or BENCH_API_KEY)")
     body = json.dumps({
@@ -483,10 +542,15 @@ def run() -> int:
         "## How to reproduce",
         "",
         "```bash",
-        "OPENROUTER_API_KEY=… \\",
+        f'BENCH_BASE_URL="{BASE_URL}" \\',
+        "  BENCH_API_KEY=… \\",
         f'  BENCH_MODELS="{",".join(MODELS)}" \\',
         "  python3 bench/run_offline.py",
         "```",
+        "",
+        "Models prefixed `local:` run on CPU via `transformers` (downloaded from the ",
+        "Hugging Face Hub); all others go through the OpenAI-compatible endpoint at ",
+        "`BENCH_BASE_URL`. Cap local generation length with `BENCH_LOCAL_MAX_TOKENS`.",
         "",
         "Raw model outputs are saved under `.simplicio/bench_runs/<model>/case_NN/{sem,com}.txt` ",
         "so you can audit what the LLM actually produced on each side. Charts are ",
