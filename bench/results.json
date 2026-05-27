@@ -1,58 +1,58 @@
 {
-  "qwen2.5-coder:1.5b": {
+  "qwen2.5-coder:3b": {
     "rows": [
       {
         "goal": "Hide the Delete button when the current user is not an admin.",
         "stack": "angular",
-        "sem_hits": 2,
-        "com_hits": 0,
+        "sem_hits": 3,
+        "com_hits": 5,
         "total": 5,
         "sem_flags": [
           false,
           false,
-          false,
+          true,
           true,
           true
         ],
         "com_flags": [
-          false,
-          false,
-          false,
-          false,
-          false
+          true,
+          true,
+          true,
+          true,
+          true
         ],
         "sem_quality": {
-          "len": 1609,
+          "len": 3029,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 8
         },
         "com_quality": {
-          "len": 23,
-          "has_diff_block": false,
-          "has_test_block": false,
-          "target_mentioned": false,
-          "criteria_keywords_hit": 0
+          "len": 1520,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 5
         },
         "sem_usage": {
           "prompt_tokens": 42,
-          "completion_tokens": 355,
-          "total_tokens": 397,
-          "elapsed_ms": 9587
+          "completion_tokens": 665,
+          "total_tokens": 707,
+          "elapsed_ms": 35179
         },
         "com_usage": {
-          "prompt_tokens": 0,
-          "completion_tokens": 0,
-          "total_tokens": 0,
-          "elapsed_ms": 120019
+          "prompt_tokens": 221,
+          "completion_tokens": 332,
+          "total_tokens": 553,
+          "elapsed_ms": 15596
         }
       },
       {
         "goal": "Disable the email field unless the profile role is editor.",
         "stack": "angular",
         "sem_hits": 2,
-        "com_hits": 5,
+        "com_hits": 3,
         "total": 5,
         "sem_flags": [
           false,
@@ -62,37 +62,37 @@
           true
         ],
         "com_flags": [
+          false,
           true,
-          true,
-          true,
+          false,
           true,
           true
         ],
         "sem_quality": {
-          "len": 3391,
+          "len": 3808,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 9
         },
         "com_quality": {
-          "len": 3127,
+          "len": 1253,
           "has_diff_block": true,
           "has_test_block": true,
-          "target_mentioned": true,
-          "criteria_keywords_hit": 10
+          "target_mentioned": false,
+          "criteria_keywords_hit": 9
         },
         "sem_usage": {
           "prompt_tokens": 40,
-          "completion_tokens": 828,
-          "total_tokens": 868,
-          "elapsed_ms": 22404
+          "completion_tokens": 917,
+          "total_tokens": 957,
+          "elapsed_ms": 39600
         },
         "com_usage": {
           "prompt_tokens": 215,
-          "completion_tokens": 700,
-          "total_tokens": 915,
-          "elapsed_ms": 23104
+          "completion_tokens": 256,
+          "total_tokens": 471,
+          "elapsed_ms": 12062
         }
       },
       {
@@ -116,37 +116,37 @@
           true
         ],
         "sem_quality": {
-          "len": 42,
-          "has_diff_block": false,
-          "has_test_block": false,
-          "target_mentioned": false,
-          "criteria_keywords_hit": 4
-        },
-        "com_quality": {
-          "len": 1607,
+          "len": 1507,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 9
+          "criteria_keywords_hit": 6
+        },
+        "com_quality": {
+          "len": 2205,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 7
         },
         "sem_usage": {
           "prompt_tokens": 43,
-          "completion_tokens": 13,
-          "total_tokens": 56,
-          "elapsed_ms": 891
+          "completion_tokens": 349,
+          "total_tokens": 392,
+          "elapsed_ms": 15591
         },
         "com_usage": {
           "prompt_tokens": 220,
-          "completion_tokens": 398,
-          "total_tokens": 618,
-          "elapsed_ms": 12384
+          "completion_tokens": 498,
+          "total_tokens": 718,
+          "elapsed_ms": 21152
         }
       },
       {
         "goal": "Show 'Approve' button only when the order status is 'pending' and the user has approver permission.",
         "stack": "angular",
         "sem_hits": 2,
-        "com_hits": 6,
+        "com_hits": 4,
         "total": 6,
         "sem_flags": [
           false,
@@ -157,38 +157,38 @@
           false
         ],
         "com_flags": [
+          false,
           true,
-          true,
-          true,
+          false,
           true,
           true,
           true
         ],
         "sem_quality": {
-          "len": 1626,
+          "len": 2599,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 12
         },
         "com_quality": {
-          "len": 2452,
+          "len": 1739,
           "has_diff_block": true,
           "has_test_block": true,
-          "target_mentioned": true,
-          "criteria_keywords_hit": 15
+          "target_mentioned": false,
+          "criteria_keywords_hit": 12
         },
         "sem_usage": {
           "prompt_tokens": 52,
-          "completion_tokens": 383,
-          "total_tokens": 435,
-          "elapsed_ms": 10663
+          "completion_tokens": 595,
+          "total_tokens": 647,
+          "elapsed_ms": 24800
         },
         "com_usage": {
           "prompt_tokens": 240,
-          "completion_tokens": 587,
-          "total_tokens": 827,
-          "elapsed_ms": 16789
+          "completion_tokens": 345,
+          "total_tokens": 585,
+          "elapsed_ms": 14856
         }
       },
       {
@@ -212,14 +212,14 @@
           true
         ],
         "sem_quality": {
-          "len": 1264,
+          "len": 1823,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 10
         },
         "com_quality": {
-          "len": 2004,
+          "len": 1637,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -227,15 +227,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 44,
-          "completion_tokens": 286,
-          "total_tokens": 330,
-          "elapsed_ms": 8229
+          "completion_tokens": 404,
+          "total_tokens": 448,
+          "elapsed_ms": 16280
         },
         "com_usage": {
           "prompt_tokens": 222,
-          "completion_tokens": 511,
-          "total_tokens": 733,
-          "elapsed_ms": 14226
+          "completion_tokens": 425,
+          "total_tokens": 647,
+          "elapsed_ms": 17660
         }
       },
       {
@@ -261,14 +261,14 @@
           true
         ],
         "sem_quality": {
-          "len": 2186,
+          "len": 2501,
           "has_diff_block": false,
           "has_test_block": false,
           "target_mentioned": false,
           "criteria_keywords_hit": 13
         },
         "com_quality": {
-          "len": 2761,
+          "len": 2444,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -276,15 +276,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 49,
-          "completion_tokens": 476,
-          "total_tokens": 525,
-          "elapsed_ms": 13056
+          "completion_tokens": 560,
+          "total_tokens": 609,
+          "elapsed_ms": 24302
         },
         "com_usage": {
           "prompt_tokens": 232,
-          "completion_tokens": 678,
-          "total_tokens": 910,
-          "elapsed_ms": 18706
+          "completion_tokens": 650,
+          "total_tokens": 882,
+          "elapsed_ms": 27616
         }
       },
       {
@@ -308,37 +308,37 @@
           true
         ],
         "sem_quality": {
-          "len": 3350,
+          "len": 1749,
           "has_diff_block": false,
-          "has_test_block": false,
+          "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 15
         },
         "com_quality": {
-          "len": 2834,
+          "len": 2446,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 18
+          "criteria_keywords_hit": 17
         },
         "sem_usage": {
           "prompt_tokens": 50,
-          "completion_tokens": 628,
-          "total_tokens": 678,
-          "elapsed_ms": 19231
+          "completion_tokens": 366,
+          "total_tokens": 416,
+          "elapsed_ms": 18009
         },
         "com_usage": {
           "prompt_tokens": 239,
-          "completion_tokens": 691,
-          "total_tokens": 930,
-          "elapsed_ms": 22373
+          "completion_tokens": 619,
+          "total_tokens": 858,
+          "elapsed_ms": 25956
         }
       },
       {
         "goal": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
         "stack": "dotnet",
         "sem_hits": 1,
-        "com_hits": 5,
+        "com_hits": 3,
         "total": 5,
         "sem_flags": [
           false,
@@ -350,42 +350,42 @@
         "com_flags": [
           true,
           true,
+          false,
           true,
-          true,
-          true
+          false
         ],
         "sem_quality": {
-          "len": 1428,
+          "len": 4040,
           "has_diff_block": false,
           "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 6
+          "criteria_keywords_hit": 7
         },
         "com_quality": {
-          "len": 3406,
+          "len": 1711,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 9
         },
         "sem_usage": {
           "prompt_tokens": 47,
-          "completion_tokens": 289,
-          "total_tokens": 336,
-          "elapsed_ms": 8991
+          "completion_tokens": 902,
+          "total_tokens": 949,
+          "elapsed_ms": 38862
         },
         "com_usage": {
           "prompt_tokens": 236,
-          "completion_tokens": 697,
-          "total_tokens": 933,
-          "elapsed_ms": 21779
+          "completion_tokens": 351,
+          "total_tokens": 587,
+          "elapsed_ms": 20859
         }
       },
       {
         "goal": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
         "stack": "dotnet",
         "sem_hits": 1,
-        "com_hits": 5,
+        "com_hits": 3,
         "total": 5,
         "sem_flags": [
           false,
@@ -397,19 +397,19 @@
         "com_flags": [
           true,
           true,
+          false,
           true,
-          true,
-          true
+          false
         ],
         "sem_quality": {
-          "len": 1704,
+          "len": 2963,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 4
+          "criteria_keywords_hit": 5
         },
         "com_quality": {
-          "len": 2337,
+          "len": 1546,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -417,15 +417,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 47,
-          "completion_tokens": 392,
-          "total_tokens": 439,
-          "elapsed_ms": 12151
+          "completion_tokens": 661,
+          "total_tokens": 708,
+          "elapsed_ms": 38663
         },
         "com_usage": {
           "prompt_tokens": 240,
-          "completion_tokens": 476,
-          "total_tokens": 716,
-          "elapsed_ms": 14654
+          "completion_tokens": 346,
+          "total_tokens": 586,
+          "elapsed_ms": 20321
         }
       },
       {
@@ -449,63 +449,63 @@
           true
         ],
         "sem_quality": {
-          "len": 3214,
+          "len": 3103,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 9
+          "criteria_keywords_hit": 8
         },
         "com_quality": {
-          "len": 3131,
+          "len": 1868,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 12
+          "criteria_keywords_hit": 15
         },
         "sem_usage": {
           "prompt_tokens": 46,
-          "completion_tokens": 751,
-          "total_tokens": 797,
-          "elapsed_ms": 20591
+          "completion_tokens": 723,
+          "total_tokens": 769,
+          "elapsed_ms": 36200
         },
         "com_usage": {
           "prompt_tokens": 238,
-          "completion_tokens": 684,
-          "total_tokens": 922,
-          "elapsed_ms": 20057
+          "completion_tokens": 404,
+          "total_tokens": 642,
+          "elapsed_ms": 20535
         }
       }
     ],
-    "sem_hits": 17,
-    "com_hits": 46,
+    "sem_hits": 18,
+    "com_hits": 43,
     "total": 52,
-    "sem_pct": 32,
-    "com_pct": 88,
+    "sem_pct": 34,
+    "com_pct": 82,
     "quality_sem": {
-      "len": 19814,
+      "len": 27122,
       "has_diff_block": 0,
-      "has_test_block": 6,
+      "has_test_block": 8,
       "target_mentioned": 0,
-      "criteria_keywords_hit": 89
+      "criteria_keywords_hit": 93
     },
     "quality_com": {
-      "len": 23682,
-      "has_diff_block": 8,
-      "has_test_block": 9,
-      "target_mentioned": 8,
-      "criteria_keywords_hit": 100
+      "len": 18369,
+      "has_diff_block": 10,
+      "has_test_block": 10,
+      "target_mentioned": 7,
+      "criteria_keywords_hit": 102
     },
     "usage_sem": {
       "prompt_tokens": 460,
-      "completion_tokens": 4401,
-      "total_tokens": 4861,
-      "elapsed_ms": 125794
+      "completion_tokens": 6142,
+      "total_tokens": 6602,
+      "elapsed_ms": 287486
     },
     "usage_com": {
-      "prompt_tokens": 2082,
-      "completion_tokens": 5422,
-      "total_tokens": 7504,
-      "elapsed_ms": 284091
+      "prompt_tokens": 2303,
+      "completion_tokens": 4226,
+      "total_tokens": 6529,
+      "elapsed_ms": 196613
     }
   }
 }
