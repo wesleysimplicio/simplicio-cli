@@ -1,6 +1,6 @@
 [project]
 name = "simplicio-cli"
-version = "0.2.10"
+version = "0.2.11"
 description = "Portable task-to-code pipeline that works with any LLM. Turn a one-line task into a verified code change — diff + test + verify loop. +55 pts on a 156-check benchmark, 21% faster, ~same tokens."
 readme = "README.md"
 license = { text = "MIT" }
@@ -68,4 +68,8 @@ where = ["."]
 include = ["simplicio*"]
 
 [tool.setuptools.package-data]
-simplicio = ["templates/*.md"]
+simplicio = ["templates/*.md", "templates/*.sh"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests/python"]

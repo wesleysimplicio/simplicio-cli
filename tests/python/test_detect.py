@@ -1,0 +1,52 @@
+"""Tests for simplicio.detect — heuristic classifier."""
+from simplicio.detect import detect
+
+
+def test_code_task_with_file_and_verb():
+    r = detect("esconda o botão admin no Header.tsx para não-admins")
+    assert r.is_code_task is True
+    assert r.score >= 3
+    assert any(s.startswith("verb:") for s in r.signals)
+    assert any(s.startswith("file:") for s in r.signals)
+    assert "Header.tsx" in r.hint
+
+
+def test_code_task_english():
+    r = detect("add email validation to UserForm.tsx")
+    assert r.is_code_task is True
+    assert r.score >= 3
+    assert "UserForm.tsx" in r.hint
+
+
+def test_explicit_invocation_alone_wins():
+    r = detect("use simplicio for this")
+    assert r.is_code_task is True
+    assert "explicit_invocation" in r.signals
+
+
+def test_read_only_question_is_not_code_task():
+    r = detect("o que faz a função generate em providers.py?")
+    assert r.is_code_task is False
+    assert r.hint == ""
+
+
+def test_explain_english_is_not_code_task():
+    r = detect("explain how the verify loop works")
+    assert r.is_code_task is False
+
+
+def test_empty_prompt():
+    r = detect("")
+    assert r.is_code_task is False
+    assert r.score == 0
+
+
+def test_low_signal_prompt_below_threshold():
+    r = detect("the button component")
+    assert r.is_code_task is False
+
+
+def test_hint_includes_target_file_when_present():
+    r = detect("rename the prop in src/components/Modal.tsx")
+    assert r.is_code_task is True
+    assert "target = src/components/Modal.tsx" in r.hint

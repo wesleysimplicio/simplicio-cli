@@ -126,6 +126,31 @@ pip install simplicio-cli           # from PyPI
 pip install -e .                    # from this repo
 ```
 
+### Auto-activation in Claude Code (one extra step)
+
+`pip install` only puts the `simplicio` binary on your PATH. To make Claude
+Code **automatically** route code-edit tasks through simplicio, run once:
+
+```bash
+simplicio init
+```
+
+That installs **two** things into `~/.claude/`:
+
+| File | Purpose |
+|---|---|
+| `~/.claude/skills/simplicio-cli/SKILL.md` | Skill the agent matches by description when your prompt looks like a code edit |
+| `~/.claude/hooks/simplicio-userpromptsubmit.sh` + entry in `~/.claude/settings.json` | UserPromptSubmit hook that runs `simplicio detect` on every prompt and injects a hint when the heuristic catches a code-edit task the skill could miss |
+
+**Skill** = semantic match (Claude decides). **Hook** = deterministic fallback
+(always runs). Together they cover ~98% of code-edit prompts. Idempotent —
+re-run safely after upgrades. Backs up your previous `settings.json` to
+`settings.json.bak` before any merge. Add `--dry-run` to preview the changes.
+
+To skip the hook and keep only the skill, just copy this repo's
+`.skills/simplicio-cli/SKILL.md` to `~/.claude/skills/simplicio-cli/SKILL.md`
+manually.
+
 ## Configure — any LLM, nothing hardcoded
 
 | Provider | SIMPLICIO_MODEL | SIMPLICIO_BASE_URL |

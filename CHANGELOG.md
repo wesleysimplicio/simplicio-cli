@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.11] — 2026-05-26
+
+### Added
+- `simplicio init` — one-shot installer that drops the `simplicio-cli` skill
+  into `~/.claude/skills/simplicio-cli/SKILL.md` and merges a
+  `UserPromptSubmit` hook entry into `~/.claude/settings.json` (with a
+  `.bak` backup of the previous settings). Idempotent. `--dry-run` shows the
+  plan without writing.
+- `simplicio detect` — pure-Python heuristic (no LLM) that scores a prompt for
+  code-edit intent (verbs + file extension + code nouns + explicit invocation
+  cues, with a negative-cue list for read-only questions). Prints a
+  `[SIMPLICIO_PROMPT_HINT]` block to stderr when the score crosses the
+  threshold. `--json` for machine-readable output, `--quiet` to suppress the
+  hint.
+- Shipped templates: `simplicio/templates/SKILL.md` (skill body) and
+  `simplicio/templates/userpromptsubmit-hook.sh` (hook wrapper). Both packaged
+  in the wheel via `tool.setuptools.package-data`.
+- README section "Auto-activation in Claude Code" explaining the
+  two-mechanism (skill + hook) design and the single-command install flow.
+
+### Changed
+- `simplicio/cli.py` — heavy imports (numpy via `precedent`, providers SDKs)
+  are now lazy: `simplicio init`, `simplicio detect`, and `--help` start
+  instantly without paying for them.
+- `tool.setuptools.package-data` now includes `templates/*.sh`.
+
+### Notes
+- Skill-only path: when `simplicio` is not on PATH or the user never runs
+  `simplicio init`, behavior degrades gracefully — the hook script no-ops, and
+  the skill still triggers on description match when the project ships a copy
+  in `.skills/simplicio-cli/`. End-users without `simplicio init` get the
+  description-matching tier (~80% coverage); with `simplicio init` they get
+  the deterministic-fallback tier (~98%).
+
 ## [0.2.10] — 2026-05-26
 
 ### Added
