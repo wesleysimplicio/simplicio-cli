@@ -14,6 +14,8 @@ Do not invent files, libraries, or abstractions the project does not use.
 [GOAL]
 {{GOAL}}
 
+{{ADAPTATION}}
+
 {# ---------- LAYER 3: TARGET (only the files you may touch) ---------- #}
 [TARGET]
 Touch ONLY these files:

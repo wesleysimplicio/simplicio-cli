@@ -4,6 +4,7 @@ precedent.py — finds PRECEDENT using the cache (only embeds new blocks).
 import re, glob, os
 import numpy as np
 from .cache import EmbeddingCache
+from .mapper import rank_precedents
 
 _emb = None
 def _embedder():
@@ -61,6 +62,24 @@ def index_repo(root, stack, verbose=True):
 
 
 def build_precedent_block(root, stack, task, k=2):
+    indexed = rank_precedents(root, task, stack=stack, k=k)
+    if indexed:
+        lines = [
+            "[PRECEDENT]",
+            "Structured precedent-index candidates from simplicio-mapper. Prefer these before inventing a new convention:",
+        ]
+        for c in indexed:
+            rel = c.get("path", "(unknown)")
+            line = c.get("line", 1)
+            summary = c.get("summary") or c.get("change_type") or "similar code"
+            tags = ", ".join(str(t) for t in c.get("tags", [])[:8]) if isinstance(c.get("tags"), list) else ""
+            lines.append(f"\n# {rel}:{line}  ({summary})")
+            if tags:
+                lines.append(f"tags: {tags}")
+            if c.get("snippet"):
+                lines.append(str(c["snippet"])[:1200])
+        return "\n".join(lines)
+
     cache, cands = index_repo(root, stack, verbose=False)
     if not cands:
         return "[PRECEDENT]\n(no similar pattern in repo — generate from scratch using stack convention)"

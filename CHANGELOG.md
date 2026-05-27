@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-05-27
+
+### Added
+- Real mapper consumption for `.simplicio/project-map.json` and
+  `.simplicio/precedent-index.json`, including relevant files, architecture
+  signals, modules, recent changes, and fallback target inspection.
+- Structured precedent retrieval from the mapper `precedent-index.json` before
+  falling back to embedding-based grep candidates.
+- Model-adaptive prompt scaffolding plus lightweight task decomposition for
+  smaller/local models.
+- Pre-apply output validation, failure classification, and targeted retry
+  feedback for syntax, assertion, dependency, timeout, runtime, and unknown
+  failures.
+- Opt-in run observability at `.simplicio/runs.jsonl`, recording prompt
+  variant, model/provider, estimated tokens, modes, targets, attempts, and
+  failure class.
+
+### Changed
+- Benchmarks now log baseline/pipeline runs and report hallucinated-target
+  flags alongside pass rate.
+- Prompt template now injects a model adaptation/decomposition layer while
+  preserving the DIFF + TEST + EVIDENCE output contract.
+
 ## [0.2.12] — 2026-05-26
 
 ### Added

@@ -132,6 +132,26 @@ test          JUDGE   contract written as testable states
 verify        PROOF   ran it — did it actually pass? loop-fix up to 3x
 ```
 
+### Rich mapper integration
+
+When `simplicio-mapper` has generated `.simplicio/project-map.json` and
+`.simplicio/precedent-index.json`, `simplicio-cli` consumes them directly:
+
+- exact target file metadata, roles, imports and exports
+- entry points, test files, modules, entities and architecture signals
+- recent changes and changed-file context
+- precedent snippets ranked from `precedent-index.json`
+
+If those artifacts are missing, the CLI falls back to the older target-file
+inspection path, so existing projects keep working.
+
+### Adaptive retry and observability
+
+The retry loop now validates generated output before applying/testing it,
+classifies failures, and sends targeted retry feedback. Bench and pipeline runs
+can append lightweight JSONL records to `.simplicio/runs.jsonl` with prompt
+variant, model/provider, estimated tokens, target, mode and failure class.
+
 **The idea in one line: don't ask the model to guess — hand it the path.**
 Each layer terminates one decision the model would otherwise hallucinate.
 Relevant > complete — inject the *right* context, never *all* of it.
