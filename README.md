@@ -126,30 +126,81 @@ pip install simplicio-cli           # from PyPI
 pip install -e .                    # from this repo
 ```
 
-### Auto-activation in Claude Code (one extra step)
+### Auto-activation in Claude Code (often zero-step)
 
-`pip install` only puts the `simplicio` binary on your PATH. To make Claude
-Code **automatically** route code-edit tasks through simplicio, run once:
+`pip install` puts `simplicio` on your PATH. To make Claude Code
+**automatically** route code-edit tasks through simplicio, a skill + hook
+need to land in `~/.claude/`.
+
+**Zero-step path (recommended).** The first time you run *any* `simplicio`
+command after install, if Claude Code is present (`~/.claude/` exists) and
+the hook is missing, simplicio installs both for you and prints one stderr
+line. PEP 517 wheels can't execute code on `pip install`, so this is the
+closest equivalent that works on every machine.
 
 ```bash
-simplicio init
+pip install simplicio-cli
+simplicio smoke         # ← first call also installs skill + hook (idempotent)
+# stderr: "simplicio: auto-activation installed in Claude Code …"
 ```
 
-That installs **two** things into `~/.claude/`:
+Opt out before the first call:
+
+```bash
+export SIMPLICIO_SKIP_AUTO_INIT=1
+```
+
+**Explicit path.** Same effect, no auto-magic:
+
+```bash
+simplicio init                 # idempotent
+simplicio init --dry-run       # preview only
+simplicio init --claude-home <path>   # override target dir
+```
+
+Either way, two files land in `~/.claude/`:
 
 | File | Purpose |
 |---|---|
 | `~/.claude/skills/simplicio-cli/SKILL.md` | Skill the agent matches by description when your prompt looks like a code edit |
 | `~/.claude/hooks/simplicio-userpromptsubmit.sh` + entry in `~/.claude/settings.json` | UserPromptSubmit hook that runs `simplicio detect` on every prompt and injects a hint when the heuristic catches a code-edit task the skill could miss |
 
-**Skill** = semantic match (Claude decides). **Hook** = deterministic fallback
-(always runs). Together they cover ~98% of code-edit prompts. Idempotent —
-re-run safely after upgrades. Backs up your previous `settings.json` to
-`settings.json.bak` before any merge. Add `--dry-run` to preview the changes.
+A backup of your previous `settings.json` is written to `settings.json.bak`
+before any merge.
 
-To skip the hook and keep only the skill, just copy this repo's
-`.skills/simplicio-cli/SKILL.md` to `~/.claude/skills/simplicio-cli/SKILL.md`
-manually.
+### How it works at runtime
+
+After install, every prompt you type in Claude Code flows through two layers:
+
+1. **Skill layer (semantic).** Claude reads the SKILL.md description. When
+   your prompt looks like a programming task ("add X to Y.tsx", "fix the auth
+   bug in middleware.py"), Claude considers using `simplicio task` instead of
+   writing code directly.
+2. **Hook layer (deterministic).** Every prompt fires `simplicio detect` via
+   the UserPromptSubmit hook. The classifier scores the prompt (verbs + file
+   extensions + code nouns − read-only cues). Score ≥ 3 → it emits a
+   `[SIMPLICIO_PROMPT_HINT]` block on stderr. Claude sees the hint alongside
+   your prompt — a hard nudge toward `simplicio task <prompt> <repo>`.
+
+The layers are complementary. Skill = "Claude *might* pick simplicio". Hook
+= "Claude *sees* the hint regardless".
+
+### Why UserPromptSubmit and not PreToolUse
+
+UserPromptSubmit fires **once, before Claude decides which tool to call** —
+exactly when we want to steer. PreToolUse fires *after* the decision is made,
+and again for every tool call in the turn, with no access to the original
+user prompt. UserPromptSubmit is the right pre-hook for routing decisions.
+
+### Disable / re-enable
+
+| Goal | How |
+|---|---|
+| Block the auto-bootstrap | `export SIMPLICIO_SKIP_AUTO_INIT=1` before the first `simplicio` call |
+| Disable hook permanently | Delete `~/.claude/hooks/simplicio-userpromptsubmit.sh` and its entry in `~/.claude/settings.json` |
+| Re-install / repair | `simplicio init` (idempotent — won't double-write) |
+| Preview without writing | `simplicio init --dry-run` |
+| Skill-only (no hook) | Copy `.skills/simplicio-cli/SKILL.md` to `~/.claude/skills/simplicio-cli/SKILL.md` manually, skip `simplicio init` |
 
 ## Configure — any LLM, nothing hardcoded
 

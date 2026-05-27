@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.12] — 2026-05-26
+
+### Added
+- **Zero-step bootstrap**: the first time `simplicio` is invoked after
+  `pip install`, if `~/.claude/` exists and the hook is missing, the skill +
+  UserPromptSubmit hook are installed automatically. PEP 517 wheels can't run
+  code on `pip install`, so the bootstrap happens on first CLI use — the
+  closest equivalent that works on every machine. Idempotent. Subcommands
+  `init` and `detect` are excluded (no loops). All failure modes silently
+  no-op so the CLI never breaks because of auto-activation. Opt-out:
+  `export SIMPLICIO_SKIP_AUTO_INIT=1` before the first call.
+- README sections:
+  - "How it works at runtime" — explains the two layers (skill = semantic,
+    hook = deterministic) and what flows on every prompt.
+  - "Why UserPromptSubmit and not PreToolUse" — UserPromptSubmit fires once,
+    before tool decision, with the raw prompt; PreToolUse fires after the
+    decision and per tool call without access to the prompt.
+  - "Disable / re-enable" matrix — env var, manual removal, dry-run, repair,
+    skill-only path.
+- `tests/python/test_cli_autoinstall.py` — 5 tests covering the env opt-out,
+  missing `~/.claude/`, `init`/`detect` subcommand exclusion, fresh install,
+  and already-installed short-circuit.
+
+### Changed
+- `simplicio/cli.py`: new `maybe_autoinstall(cmd)` helper called once after
+  argparse, before dispatch. Errors are caught and logged to stderr without
+  raising. `from __future__ import annotations` added for Python 3.9
+  compatibility on the new type hints.
+
 ## [0.2.11] — 2026-05-26
 
 ### Added

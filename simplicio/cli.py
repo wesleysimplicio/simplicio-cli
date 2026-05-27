@@ -2,8 +2,52 @@
 
 Heavy imports (numpy, sentence-transformers, openai/anthropic SDKs) are lazy so
 that lightweight commands (`init`, `detect`, `--help`) don't pay for them.
+
+First-run auto-bootstrap: if Claude Code (`~/.claude/`) is present and the
+UserPromptSubmit hook is missing, the first `simplicio` invocation installs
+the skill + hook automatically. Opt-out via `SIMPLICIO_SKIP_AUTO_INIT=1`.
+PEP 517 wheels can't run code on `pip install`, so the bootstrap happens on
+first CLI use instead — the closest equivalent that works on every machine.
 """
+from __future__ import annotations
+
 import argparse
+import os
+import sys
+from pathlib import Path
+
+
+def maybe_autoinstall(cmd: str | None) -> bool:
+    """Install skill + hook on first run when Claude Code is detected.
+
+    Returns True iff install actually wrote files. Silent no-op on every
+    short-circuit so the CLI never breaks because of auto-activation.
+    """
+    if os.environ.get("SIMPLICIO_SKIP_AUTO_INIT"):
+        return False
+    if cmd in ("init", "detect"):
+        return False
+    claude_home = Path.home() / ".claude"
+    if not claude_home.is_dir():
+        return False
+    hook_path = claude_home / "hooks" / "simplicio-userpromptsubmit.sh"
+    if hook_path.exists():
+        return False
+    try:
+        from .init import install
+        report = install(claude_home=claude_home, dry_run=False)
+    except Exception as e:
+        print(f"simplicio: auto-activation skipped ({e})", file=sys.stderr)
+        return False
+    if report.skill_installed or report.hook_script_installed or report.settings_updated:
+        print(
+            "simplicio: auto-activation installed in Claude Code "
+            "(skill + UserPromptSubmit hook). "
+            "Disable next time with SIMPLICIO_SKIP_AUTO_INIT=1.",
+            file=sys.stderr,
+        )
+        return True
+    return False
 
 
 def main():
@@ -38,6 +82,7 @@ def main():
     p_det.add_argument("--json", action="store_true")
 
     a = ap.parse_args()
+    maybe_autoinstall(a.cmd)
     if a.cmd == "index":
         from .precedent import index_repo
         index_repo(a.root, a.stack)
