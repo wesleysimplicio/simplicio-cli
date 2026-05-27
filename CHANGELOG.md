@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.13] — 2026-05-27
+
+### Added
+- README "4-quadrant bench" gains **Run 3** — small models on OpenRouter
+  (`google/gemma-3-4b-it`, `meta-llama/llama-3.2-3b-instruct`,
+  `qwen/qwen-2.5-7b-instruct`), 3 models × 5 cases, `max_iters=3`. Headline:
+  Q1 (raw, 1-shot) **0%**, Q2 (simplicio, 1-shot) **73%** at **936 tok/pass**,
+  Q3 (loop only) **46%** at 4,844 tok/pass, Q4 (composition) **73%**. On this
+  small-model sweep the structured prompt is the dominant lever; the loop added
+  no pass-rate over simplicio-alone (Q4 − Q2 = 0) while costing 5× the tokens.
+- `.skills/llm-verification/` skill + Definition-of-Done item "independent /
+  adversarial verification after the DoD is green" (a green DoD measures
+  proxies, not intent). Mirrored across `AGENTS.md`, `CLAUDE.md`,
+  `.github/copilot-instructions.md`, and new `GEMINI.md` / `.windsurf` /
+  `.kiro` symlink mirrors so AGENTS.md-unaware tools inherit the rule.
+
+### Changed
+- Refreshed `bench/results_4quadrant.{md,json,pdf}` + `bench/charts/4q_*.svg`
+  from the 2026-05-27 OpenRouter run.
+
 ## [0.2.12] — 2026-05-26
 
 ### Added
@@ -346,6 +366,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provider-agnostic LLM client (any OpenAI-compatible endpoint + Anthropic native).
 - CLI commands: `index`, `task`, `bench`, `smoke`.
 
+[0.2.13]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.13
 [0.2.12]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.12
 [0.2.11]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.11
 [0.2.10]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.10

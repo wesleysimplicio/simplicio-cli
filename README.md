@@ -482,6 +482,43 @@ Decomposition (rejection threshold `|Δ| ≥ 5 pts`):
 
 Same picture at every scale: Q4 (composition) wins on pass-rate, **and** Q4 stays close to Q2 on cost (1.9k tok / 24s per pass vs. Q2's 1.1k / 15s) while Q3 burns 7.2k tok / 106s per pass for fewer passes. Full table + per-case breakdown in [`bench/results_4quadrant_wide.md`](bench/results_4quadrant_wide.md).
 
+#### Run 3 — small models on OpenRouter, 3 models × 5 cases, max_iters=3 (2026-05-27)
+
+Re-ran the full matrix on three small hosted models to isolate the prompt vs.
+loop axes on cheap models. Aggregate over all `(model × case × quadrant)` tuples:
+
+| Quadrant | Prompt | Execution | Pass rate | Avg iters | Tokens / pass |
+|---|---|---|---|---|---|
+| **Q1** | raw goal | 1-shot | **0/15 (0%)** | 1.00 | 13,396 |
+| **Q2** | simplicio 6-layer | 1-shot | **11/15 (73%)** | 1.00 | **936** |
+| **Q3** | raw goal | loop w/ feedback | **7/15 (46%)** | 2.53 | 4,844 |
+| **Q4** | simplicio 6-layer | loop w/ feedback | **11/15 (73%)** | 1.73 | 2,319 |
+
+Per-model breakdown:
+
+| Model | Q1 | Q2 | Q3 | Q4 |
+|---|---|---|---|---|
+| `google/gemma-3-4b-it` | 0/5 (0%) | **4/5 (80%)** | 0/5 (0%) | **4/5 (80%)** |
+| `meta-llama/llama-3.2-3b-instruct` | 0/5 (0%) | 2/5 (40%) | 2/5 (40%) | 2/5 (40%) |
+| `qwen/qwen-2.5-7b-instruct` | 0/5 (0%) | **5/5 (100%)** | **5/5 (100%)** | **5/5 (100%)** |
+
+Decomposition (rejection threshold `|Δ| ≥ 5 pts`):
+
+| Hypothesis | Δ | Verdict |
+|---|---|---|
+| Loop alone closes the gap (simplicio unnecessary once you loop) | Q4 − Q3 = **+27 pts** | **rejected** |
+| Simplicio alone is enough (loop is overkill) | Q4 − Q2 = **+0 pts** | **not rejected** |
+| Gains stack linearly (no synergy) | Q4 − linear = **−46 pts** | **rejected** |
+
+Honest read: on this small-model sweep the **structured prompt is the dominant
+lever** — Q2 alone reaches the same **73%** as Q4, at **936 tok/pass vs. the
+loop's 4,844 (Q3)**. The retry loop added no pass-rate over simplicio-alone here
+(Q4 − Q2 = 0): the 6-layer contract one-shots what these models can solve, so
+the loop only re-spends tokens. Raw goal one-shot (Q1) lands at **0%** — every
+output missed at least one contract check. This is a sweep (5 cases × 3 models =
+15 obs/quadrant), not a significance test. Full table + charts in
+[`bench/results_4quadrant.md`](bench/results_4quadrant.md).
+
 ---
 
 ## Plug points (stubs marked in code)
