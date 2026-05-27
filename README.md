@@ -132,16 +132,19 @@ pip install -e .                    # from this repo
 
 ## How you use it — pick your path
 
-simplicio-cli has **two distinct entry points**. Same engine, different front door:
+simplicio-cli has **three distinct entry points**. Same engine, three front doors — pick the one that matches what you already pay for:
 
 | You have | Path | LLM call goes through | Need API key? |
 |---|---|---|---|
 | **Claude Code** (Pro / Max / Team / API) | Skill + hook auto-installed in `~/.claude/` | Claude Code itself, using your logged-in session | **No** |
+| **Claude Code OAuth or Codex CLI / ChatGPT Plus** | `simplicio task` with `SIMPLICIO_MODEL=claude-cli/<m>` or `codex-cli/<m>` | Shell-out to `claude -p` / `codex exec` (subprocess uses your existing login) | **No** |
 | **API key** for any provider (Anthropic, OpenAI, OpenRouter, GLM, DeepSeek, Ollama…) | `simplicio task` standalone CLI | The provider SDK directly | **Yes** — set `SIMPLICIO_API_KEY` |
 
 **Most users land on Path 1.** `pip install simplicio-cli` puts the binary on PATH; the first invocation auto-installs the skill + hook in `~/.claude/` (idempotent, opt-out via `SIMPLICIO_SKIP_AUTO_INIT=1`). From that moment, every code-edit prompt you type **inside Claude Code** is silently routed through simplicio's 6-layer contract — no extra config, no key, no cost beyond your existing Claude subscription.
 
-**Path 2 is for CI, scripts, batch jobs, or environments without Claude Code** — Codex CLI, Cursor, a server, a notebook. You bring the key, simplicio calls the provider directly. Cross-CLI shell-out (`claude -p`, `codex exec`) using a subscription instead of a key is on the roadmap but not shipped yet.
+**Path 2 — subscription shell-out (zero key).** If you have a Claude Pro/Max session (`claude login`) or a ChatGPT Plus + Codex CLI session (`codex login`) and want to drive simplicio from CI, scripts, or any context **outside** Claude Code, set `SIMPLICIO_MODEL=claude-cli/<model>` or `codex-cli/<model>`. simplicio spawns the CLI as a subprocess; the call rides your existing OAuth session — no API key required. A recursion guard (`SIMPLICIO_HOOK_GUARD=1`) is injected so the inner CLI does not re-fire simplicio's own hook.
+
+**Path 3 is for environments without any logged-in CLI** — a remote server, a build runner, a notebook, a different LLM provider. You bring an API key (Anthropic, OpenRouter, OpenAI, GLM, DeepSeek, Ollama…), simplicio calls the provider directly.
 
 ### Path 1 example — inside Claude Code
 
@@ -153,7 +156,27 @@ hide the Delete button for non-admins in src/app/screen/screen.component.html
 
 Claude Code sees the skill (semantic match) and the hook hint (`[SIMPLICIO_PROMPT_HINT]` on stderr — deterministic classifier). It runs simplicio's 6-layer contract under the hood. You see the diff + tests + verification — same as before, just dramatically more accurate.
 
-### Path 2 example — standalone with API key
+### Path 2 example — subscription shell-out, zero key
+
+You already pay for Claude Pro/Max or ChatGPT Plus + Codex CLI. simplicio
+piggybacks on that login — no extra bill, no key to manage.
+
+```bash
+# Option A — Claude Code subscription (run `claude login` once)
+export SIMPLICIO_MODEL=claude-cli/sonnet     # or claude-cli/opus, claude-cli/default
+unset  SIMPLICIO_API_KEY                     # explicitly: no key needed
+
+simplicio task "hide Delete button for non-admins" --stack angular \
+  --target src/app/screen/screen.component.html
+
+# Option B — Codex CLI subscription (run `codex login` once)
+export SIMPLICIO_MODEL=codex-cli/gpt-5       # or codex-cli/default
+simplicio task "..." --stack angular --target ...
+```
+
+How it works: simplicio shells out to `claude -p "<prompt>"` (or `codex exec "<prompt>"`) as a subprocess, captures stdout, runs the test loop. The inner CLI authenticates via your existing OAuth session in `~/.claude/` or `~/.codex/`. simplicio sets `SIMPLICIO_HOOK_GUARD=1` in the subprocess env so the inner Claude Code session does **not** re-fire simplicio's own UserPromptSubmit hook (no infinite recursion).
+
+### Path 3 example — standalone with API key
 
 ```bash
 export SIMPLICIO_API_KEY=sk-or-v1-…                      # OpenRouter key

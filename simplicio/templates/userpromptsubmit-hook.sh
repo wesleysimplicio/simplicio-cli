@@ -9,6 +9,14 @@
 # Installed by `simplicio init`. Safe to delete to disable.
 set -u
 
+# Recursion guard: when simplicio shells out to `claude -p` / `codex exec`
+# (provider mode `claude-cli/<model>` or `codex-cli/<model>`), it injects
+# SIMPLICIO_HOOK_GUARD=1 into the subprocess so this hook does not re-fire
+# inside the inner CLI session and recurse indefinitely.
+if [ -n "${SIMPLICIO_HOOK_GUARD:-}" ]; then
+  exit 0
+fi
+
 prompt="${CLAUDE_USER_PROMPT:-}"
 if [ -z "$prompt" ]; then
   exit 0
