@@ -22,9 +22,26 @@ pip install simplicio-cli
 ## Why it works — the numbers
 
 Same model. Same task. Only the prompt changes. **Measured, reproducible, deterministic.**
-**Fourteen models tested across three runs** — five sub-4B tiny models, six
-frontier 2026 models, and three mid-tier 7B–12B open models. Every one gained
-at least **+14 points** when wrapped in simplicio's 6-layer contract.
+**Seventeen models tested across four runs** — three local Ollama models on an
+M1 MacBook (8 GB), five sub-4B tiny models, six frontier 2026 models, and three
+mid-tier 7B–12B open models. Every one gained at least **+14 points** when
+wrapped in simplicio's 6-layer contract.
+
+#### Local offline — qwen2.5-coder on Ollama, M1 8 GB, run on 2026-05-27 (30 runs/side, 156 checks)
+
+| Model | Without simplicio | With simplicio | Gain |
+|---|---|---|---|
+| **Qwen 2.5 Coder 7B** (`qwen2.5-coder:7b`) | 36% | **92%** | **+56 pts** |
+| **Qwen 2.5 Coder 3B** (`qwen2.5-coder:3b`) | 34% | **82%** | **+48 pts** |
+| **Qwen 2.5 Coder 1.5B** (`qwen2.5-coder:1.5b`) | 32% | **88%** | **+56 pts** |
+| **Local avg (3 models · 10 cases · 156 checks)** | **34%** | **87%** | **+53 pts (+156%)** |
+
+> **Zero API key, zero network.** Bench ran fully offline against
+> `http://localhost:11434/v1` (Ollama's OpenAI-compatible endpoint). A
+> 1.5B-param model running on a 4-year-old laptop reaches **88%** pass-rate
+> with simplicio's contract — same hardware, same model, raw prompt = 32%.
+> Reproduce: `BENCH_BASE_URL=http://localhost:11434/v1 BENCH_API_KEY=ollama
+> BENCH_MODELS="qwen2.5-coder:7b" python3 bench/run_offline.py`.
 
 #### Tiny models — sub-4B, run on 2026-05-26 (50 runs/side, 260 checks)
 
@@ -63,11 +80,12 @@ at least **+14 points** when wrapped in simplicio's 6-layer contract.
 | **Qwen 2.5 7B** (`qwen/qwen-2.5-7b-instruct`) | 34% | **88%** | **+54 pts** |
 | **Mid-tier avg (3 models · 10 cases · 156 checks)** | **35%** | **90%** | **+55 pts (+156%)** |
 
-> **Across all 14 models tested across three runs**, the average gain is **+51
+> **Across all 17 models tested across four runs**, the average gain is **+51
 > points**. Smallest: **+14 pts** (Llama 3.2 1B — the contract still moves a
-> 1B-param model). Largest: **+62 pts** (GPT-5.5). The contract helps tiny
-> sub-4B models, frontier reasoning models, and mid-tier 7B–12B alike — five
-> of the six frontier models hit **100% pass-rate**.
+> 1B-param model). Largest: **+62 pts** (GPT-5.5). The contract helps local
+> Ollama models on a 4-year-old laptop, tiny sub-4B models, frontier reasoning
+> models, and mid-tier 7B–12B alike — five of the six frontier models hit
+> **100% pass-rate**.
 
 ### Output-quality signals (rate across all 60 frontier runs)
 
