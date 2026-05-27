@@ -99,6 +99,7 @@ PR só faz merge quando todos os itens abaixo estão marcados:
 - [ ] E2E Playwright passa **com evidência anexada em TODA task** — `playwright-report/index.html` + `test-results/<spec>/trace.zip` + screenshots por cenário + video. Hard rule: sem evidência, sem merge.
 - [ ] Coverage do diff >= 80%
 - [ ] Acceptance Criteria todos marcados
+- [ ] **Verificação independente/adversarial pós-verde** — uma passada *ortogonal* (não repetição): AC ⇄ resultado, feature rodada de verdade + 1 borda + 1 caminho de erro. Verde ≠ feito. (`.skills/llm-verification/`)
 - [ ] PR template preenchido (link task + descrição + evidências)
 - [ ] Conventional commit no merge
 - [ ] ADR criado se mudou decisão arquitetural
