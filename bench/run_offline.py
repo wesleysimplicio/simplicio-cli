@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CASES_PATH = ROOT / "bench" / "cases_offline.json"
 RESULTS_MD = ROOT / "bench" / "results.md"
 RESULTS_JSON = ROOT / "bench" / "results.json"
+RESULTS_PDF = ROOT / "bench" / "results.pdf"
 CHART_DIR = ROOT / "bench" / "charts"
 
 MODELS = [m.strip() for m in os.environ.get(
@@ -267,6 +268,106 @@ def _svg_delta(title: str, labels: list[str], deltas: list[float]) -> str:
         parts.append(f'<text x="{cx}" y="{pad_t + plot_h + 16}" transform="rotate(-25 {cx} {pad_t + plot_h + 16})" text-anchor="end" fill="#222">{lbl}</text>')
     parts.append("</svg>")
     return "".join(parts)
+
+
+# ---------- PDF report (fpdf2) ---------- #
+
+def _lat1(s) -> str:
+    """Core PDF fonts are latin-1 only; drop anything outside it."""
+    return str(s).encode("latin-1", "replace").decode("latin-1")
+
+
+def build_pdf(by_model: dict, cases: list) -> None:
+    try:
+        from fpdf import FPDF
+    except ImportError:
+        print("[warn] fpdf2 not installed; skipping PDF. install via `pip install fpdf2`.")
+        return
+
+    models = list(by_model.keys())
+    n_cases = len(cases)
+    stacks = sorted({c["stack"] for c in cases})
+    grand_sem = sum(by_model[m]["sem_hits"] for m in models)
+    grand_com = sum(by_model[m]["com_hits"] for m in models)
+    grand_total = sum(by_model[m]["total"] for m in models)
+    gsp = 100 * grand_sem // max(grand_total, 1)
+    gcp = 100 * grand_com // max(grand_total, 1)
+
+    pdf = FPDF(unit="mm", format="A4")
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_margins(15, 15, 15)
+
+    def h1(t):
+        pdf.set_font("Helvetica", "B", 18); pdf.multi_cell(0, 9, _lat1(t)); pdf.ln(2)
+
+    def h2(t):
+        pdf.set_font("Helvetica", "B", 13); pdf.multi_cell(0, 7, _lat1(t)); pdf.ln(1)
+
+    def p(t):
+        pdf.set_font("Helvetica", "", 10); pdf.multi_cell(0, 5, _lat1(t)); pdf.ln(1)
+
+    def th(cols, widths):
+        pdf.set_font("Helvetica", "B", 9); pdf.set_fill_color(230, 230, 230)
+        for c, w in zip(cols, widths):
+            pdf.cell(w, 6, _lat1(c), border=1, fill=True)
+        pdf.ln()
+
+    def tr(cells, widths):
+        pdf.set_font("Helvetica", "", 9)
+        for c, w in zip(cells, widths):
+            pdf.cell(w, 6, _lat1(c), border=1)
+        pdf.ln()
+
+    # cover + headline
+    pdf.add_page()
+    h1("simplicio-cli - Benchmark (without vs with)")
+    p(f"Date: {time.strftime('%Y-%m-%d')}")
+    p(f"Models: {', '.join(models)}")
+    p(f"Cases: {n_cases} across stacks: {', '.join(stacks)}")
+    p(f"Base: {BASE_URL}")
+    pdf.ln(2)
+    h2("Headline")
+    th(["Side", "Checks passed", "Rate"], [70, 55, 35])
+    tr(["Without simplicio", f"{grand_sem}/{grand_total}", f"{gsp}%"], [70, 55, 35])
+    tr(["With simplicio", f"{grand_com}/{grand_total}", f"{gcp}%"], [70, 55, 35])
+    tr(["Delta", f"{grand_com - grand_sem:+d} checks", f"{gcp - gsp:+d} pts"], [70, 55, 35])
+
+    # per-model
+    pdf.add_page()
+    h1("Per-model breakdown")
+    th(["Model", "Without", "With", "Delta(pts)", "Rel.gain"], [78, 28, 28, 24, 24])
+    for m in models:
+        b = by_model[m]
+        rel = 100 * (b["com_hits"] - b["sem_hits"]) / max(b["sem_hits"], 1)
+        tr([m, f"{b['sem_hits']}/{b['total']} ({b['sem_pct']}%)",
+            f"{b['com_hits']}/{b['total']} ({b['com_pct']}%)",
+            f"{b['com_pct'] - b['sem_pct']:+d}", f"{rel:+.0f}%"], [78, 28, 28, 24, 24])
+
+    # per-case (averaged across models)
+    pdf.ln(3)
+    h2("Per-case (avg across models)")
+    th(["#", "Stack", "Goal", "Without", "With", "Delta"], [10, 22, 84, 20, 20, 20])
+    for i, c in enumerate(cases):
+        s_pcts = [100 * by_model[m]["rows"][i]["sem_hits"] / max(by_model[m]["rows"][i]["total"], 1) for m in models]
+        c_pcts = [100 * by_model[m]["rows"][i]["com_hits"] / max(by_model[m]["rows"][i]["total"], 1) for m in models]
+        s_avg = sum(s_pcts) / len(s_pcts)
+        c_avg = sum(c_pcts) / len(c_pcts)
+        tr([str(i + 1), c["stack"], c["goal"][:50],
+            f"{s_avg:.0f}%", f"{c_avg:.0f}%", f"{c_avg - s_avg:+.0f}"], [10, 22, 84, 20, 20, 20])
+
+    # cost
+    pdf.add_page()
+    h1("Cost - tokens & latency (avg per run)")
+    th(["Model", "Side", "Prompt", "Compl", "Total", "Latency"], [60, 22, 24, 24, 24, 26])
+    for m in models:
+        us = by_model[m]["usage_sem"]; uc = by_model[m]["usage_com"]
+        tr([m, "without", f"{us['prompt_tokens']//n_cases}", f"{us['completion_tokens']//n_cases}",
+            f"{us['total_tokens']//n_cases}", f"{us['elapsed_ms']//n_cases} ms"], [60, 22, 24, 24, 24, 26])
+        tr([m, "with", f"{uc['prompt_tokens']//n_cases}", f"{uc['completion_tokens']//n_cases}",
+            f"{uc['total_tokens']//n_cases}", f"{uc['elapsed_ms']//n_cases} ms"], [60, 22, 24, 24, 24, 26])
+
+    pdf.output(str(RESULTS_PDF))
+    print(f"-> {RESULTS_PDF}")
 
 
 # ---------- main runner ---------- #
@@ -559,10 +660,19 @@ def run() -> int:
     ]
     RESULTS_MD.write_text("\n".join(md))
     print(f"\n-> {RESULTS_MD}")
+    build_pdf(by_model, cases)
     print(f"grand: without {grand_sem_pct}% · with {grand_com_pct}% · delta {grand_com_pct - grand_sem_pct:+d} pts "
           f"(over {grand_total} checks, {n_cases} cases × {len(MODELS)} models)")
     return 0
 
 
+def pdf_only() -> int:
+    """Rebuild only the PDF from an existing results.json (no model calls)."""
+    by_model = json.loads(RESULTS_JSON.read_text())
+    cases = json.loads(CASES_PATH.read_text())
+    build_pdf(by_model, cases)
+    return 0
+
+
 if __name__ == "__main__":
-    sys.exit(run())
+    sys.exit(pdf_only() if "--pdf-only" in sys.argv else run())
