@@ -80,8 +80,12 @@ Constraints (do not break):
 {constraints}
 
 [OUTPUT]
-Return EXACTLY in this shape, nothing else:
-1. DIFF: unified diff, target file only.
+Return EXACTLY in this shape - produce ALL THREE sections, in order, even if
+brief. Never stop after the DIFF.
+1. DIFF: a fenced ```diff block for the target file. Start it with the file
+   path (e.g. `--- src/app/foo/bar.component.html`), then the changed lines
+   with + / - prefixes plus a little context. Do NOT write @@ hunk headers or
+   line numbers.
 2. TEST: test code asserting each contract state (true AND false case).
 3. EVIDENCE: Playwright snippet capturing the UI states, or "N/A".
 No prose, no preamble."""
