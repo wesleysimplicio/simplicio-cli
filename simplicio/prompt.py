@@ -1,16 +1,28 @@
 """prompt.py — stacks the prompt layers."""
-import os, re
+import os
+import re
+from functools import lru_cache
+
 from .adaptive import build_adaptation_block
 from .mapper import build_mapper_context
 from .precedent import build_precedent_block
 from .skill_router import build_skill_block
 
+
+@lru_cache(maxsize=4)
+def _load_template(path: str) -> str:
+    """Read the template once per process; it is a static file on disk."""
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+
 def _mapper(root, target, goal=""):
     return build_mapper_context(root, target, goal=goal)
 
+
 def build_prompt(root, stack, goal, target, criteria, constraints):
     tpl_path = os.path.join(os.path.dirname(__file__), "templates", "simplicio_prompt.md")
-    tpl = open(tpl_path, encoding="utf-8").read()
+    tpl = _load_template(tpl_path)
     prec = build_precedent_block(root, stack, goal, k=2)
     skill = build_skill_block(root, goal)
     target_block = f"{target}\n\nTarget context:\n{_mapper(root, target, goal=goal)}"

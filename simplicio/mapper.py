@@ -6,11 +6,12 @@ that only have source files.
 """
 from __future__ import annotations
 
-import json
 import os
 import re
 from pathlib import Path
 from typing import Any
+
+from .utils.serialization import loads
 
 
 PROJECT_MAP_CANDIDATES = (
@@ -27,8 +28,8 @@ PRECEDENT_INDEX_CANDIDATES = (
 
 def _safe_json(path: Path) -> dict[str, Any] | None:
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        data = loads(path.read_bytes())
+    except (OSError, ValueError):
         return None
     return data if isinstance(data, dict) else None
 

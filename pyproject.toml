@@ -47,6 +47,9 @@ dependencies = [
   "openai>=1.30",
   "simplicio-mapper>=0.5.0",
   "simplicio-prompt>=1.7.0",
+  "httpx>=0.27",
+  "orjson>=3.10",
+  "diskcache>=5.6",
 ]
 
 [project.optional-dependencies]
