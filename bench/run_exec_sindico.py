@@ -42,6 +42,35 @@ MODELS = [m.strip() for m in os.environ.get("BENCH_MODELS", "").split(",") if m.
 PHPUNIT_TIMEOUT = int(os.environ.get("BENCH_PHPUNIT_TIMEOUT", "60"))
 INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "1").strip() not in ("0", "false", "False")
 
+# Per-model endpoint routing: lets one batch mix HuggingFace router models
+# (Qwen Coder series, served from the HF inference network) with OpenRouter
+# models in the same run. Each entry overrides BENCH_BASE_URL + BENCH_API_KEY
+# from run_offline for the duration of that model's loop.
+MODEL_ROUTING: dict[str, dict] = {
+    "Qwen/Qwen2.5-Coder-3B-Instruct": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+    "Qwen/Qwen2.5-Coder-7B-Instruct": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+}
+
+
+def _route_for(model: str) -> None:
+    """Point run_offline.llm_call at the right endpoint for the given model.
+    Defaults (OpenRouter via OPENROUTER_API_KEY / BENCH_API_KEY) win when the
+    model is not in MODEL_ROUTING."""
+    cfg = MODEL_ROUTING.get(model)
+    if cfg is None:
+        ro.BASE_URL = os.environ.get("BENCH_BASE_URL", "https://openrouter.ai/api/v1")
+        ro.API_KEY = (os.environ.get("OPENROUTER_API_KEY")
+                      or os.environ.get("BENCH_API_KEY"))
+        return
+    ro.BASE_URL = cfg["base_url"]
+    ro.API_KEY = os.environ.get(cfg["env_key"])
+    if not ro.API_KEY:
+        raise SystemExit(f"missing env var {cfg['env_key']} for model {model}")
+
 
 def _load_sp_runtime() -> str:
     """Load the simplicio-prompt runtime template (lazy: called only when sp is on).
@@ -100,19 +129,17 @@ Constraints (do not break):
 Return ONLY the complete updated contents of {target}. PHP only, no prose, no fences."""
 
 
+# The sp side is a COMPOSITION, not a standalone alternative: the
+# simplicio-prompt runtime template wraps the simplicio-cli 6-layer contract
+# as the task that user input X represents. We are measuring whether the
+# Tuple-Space + Yool runtime ADDS value on top of an already-sharp 6-layer
+# prompt — not whether the runtime alone beats raw goal text.
 SP_PROMPT = """{sp_runtime}
 
 ---
 
 [USER INPUT - task X]
-{goal}
-
-Target file ({target}) current content:
-```php
-{file_content}
-```
-
-Output the COMPLETE updated contents of {target}. PHP only, no prose, no fences."""
+{cli_contract}"""
 
 
 def setup_workspace() -> dict:
@@ -193,21 +220,24 @@ def run() -> int:
     print(f"exec target: sistema-sindico ({WORK})\nmodels: {MODELS}\ncases: {n}\n")
     by_model = {}
     for model in MODELS:
-        print(f"=== {model} ===")
+        _route_for(model)
+        print(f"=== {model} (endpoint: {ro.BASE_URL}) ===")
         rows = []
         sem_pass = com_pass = sp_pass = 0
         for c in CASES:
             content = (SINDICO_SRC / c["target"]).read_text(encoding="utf-8")
             ctx = {**c, "file_content": content}
+            cli_contract = CONTRACT_PROMPT.format(**ctx)
             s = one(model, c, RAW_PROMPT.format(**ctx), snaps)
-            w = one(model, c, CONTRACT_PROMPT.format(**ctx), snaps)
+            w = one(model, c, cli_contract, snaps)
             sem_pass += int(s["passed"]); com_pass += int(w["passed"])
             row = {"id": c["id"], "sem": s, "com": w}
             sp_msg = ""
             if INCLUDE_SP:
-                p = one(model, c, SP_PROMPT.format(sp_runtime=SP_RUNTIME, **ctx), snaps)
+                p = one(model, c, SP_PROMPT.format(
+                    sp_runtime=SP_RUNTIME, cli_contract=cli_contract), snaps)
                 sp_pass += int(p["passed"]); row["sp"] = p
-                sp_msg = f"  sp {'PASS' if p['passed'] else 'fail'}"
+                sp_msg = f"  cli+sp {'PASS' if p['passed'] else 'fail'}"
             rows.append(row)
             print(f"  {c['id']:25s} baseline {'PASS' if s['passed'] else 'fail'}  "
                   f"cli {'PASS' if w['passed'] else 'fail'}{sp_msg}")
@@ -258,9 +288,12 @@ def write_reports(by_model: dict) -> None:
         "target, criteria as testable states, constraints, output shape)"
     )
     if with_sp:
-        sides_blurb += ("\n- **simplicio-prompt**: the Tuple-Space + Yool "
-                        "runtime template from the simplicio-prompt package, "
-                        "with the task injected as user input X")
+        sides_blurb += ("\n- **simplicio-cli + simplicio-prompt (composition)**: "
+                        "the Tuple-Space + Yool runtime template from "
+                        "simplicio-prompt wrapping the simplicio-cli 6-layer "
+                        "contract as user input X. Measures whether the "
+                        "runtime adds value ON TOP of an already-sharp "
+                        "6-layer prompt — not whether sp alone beats raw goal.")
     md = [
         "# Execution benchmark — real project, real tasks, real test suite",
         "",
@@ -309,11 +342,12 @@ def write_reports(by_model: dict) -> None:
     if with_sp:
         g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
         gpp = 100 * g_sp // max(g_tot, 1)
-        md.append(f"- **simplicio-prompt (Yool runtime):** {g_sp}/{g_tot} ({gpp}%) "
-                  f"— **{gpp - gsp:+d} pts vs baseline**")
+        md.append(f"- **simplicio-cli + simplicio-prompt (composition):** "
+                  f"{g_sp}/{g_tot} ({gpp}%) "
+                  f"— **{gpp - gsp:+d} pts vs baseline · {gpp - gcp:+d} pts vs cli alone**")
     md += ["", "## Per-model (pass = full PHPUnit suite green)", ""]
     if with_sp:
-        md += ["| Model | Baseline | simplicio-cli | simplicio-prompt | D cli | D sp |",
+        md += ["| Model | Baseline | cli alone | cli + sp | D cli | D (cli+sp) |",
                "|---|---|---|---|---|---|"]
         for m in models:
             b = by_model[m]
@@ -334,7 +368,7 @@ def write_reports(by_model: dict) -> None:
                 f"{b['com_pass']}/{b['n']} ({b['com_pct']}%) | "
                 f"**{b['com_pct'] - b['sem_pct']:+d}** |"
             )
-    md += ["", f"## Per-task × model ({'baseline / cli / sp' if with_sp else 'baseline / cli'})", "",
+    md += ["", f"## Per-task × model ({'baseline / cli / cli+sp' if with_sp else 'baseline / cli'})", "",
            "| Task | " + " | ".join(m.split("/")[-1] for m in models) + " |",
            "|---|" + "|".join("---" for _ in models) + "|"]
     for i, cid in enumerate(case_ids):
@@ -407,7 +441,9 @@ def _pdf(by_model: dict) -> None:
              "Variables: baseline = raw goal; cli = the simplicio-cli 6-layer "
              "task contract")
     if with_sp:
-        blurb += "; sp = the simplicio-prompt Tuple-Space + Yool runtime template."
+        blurb += ("; cli+sp = the simplicio-prompt Tuple-Space + Yool runtime "
+                  "wrapping the cli 6-layer contract as user input X "
+                  "(composition, not substitution).")
     else:
         blurb += "."
     p(blurb)
@@ -415,16 +451,16 @@ def _pdf(by_model: dict) -> None:
     h2("Headline")
     th(["Side", "Passed", "Rate", "vs baseline"], [60, 30, 30, 40])
     tr(["Baseline", f"{g_sem}/{g_tot}", f"{100*g_sem//max(g_tot,1)}%", "-"], [60, 30, 30, 40])
-    tr(["simplicio-cli (6-layer)", f"{g_com}/{g_tot}", f"{100*g_com//max(g_tot,1)}%",
+    tr(["cli alone (6-layer)", f"{g_com}/{g_tot}", f"{100*g_com//max(g_tot,1)}%",
         f"{100*g_com//max(g_tot,1) - 100*g_sem//max(g_tot,1):+d} pts"], [60, 30, 30, 40])
     if with_sp:
         g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
-        tr(["simplicio-prompt (Yool)", f"{g_sp}/{g_tot}", f"{100*g_sp//max(g_tot,1)}%",
+        tr(["cli + sp (composition)", f"{g_sp}/{g_tot}", f"{100*g_sp//max(g_tot,1)}%",
             f"{100*g_sp//max(g_tot,1) - 100*g_sem//max(g_tot,1):+d} pts"], [60, 30, 30, 40])
     pdf.ln(2)
     h2("Per-model (pass = full PHPUnit suite green)")
     if with_sp:
-        th(["Model", "Baseline", "cli", "sp", "D cli", "D sp"], [70, 24, 24, 24, 18, 18])
+        th(["Model", "Baseline", "cli", "cli+sp", "D cli", "D cli+sp"], [70, 24, 24, 24, 18, 18])
         for m in models:
             b = by_model[m]
             tr([m, f"{b['sem_pass']}/{b['n']} ({b['sem_pct']}%)",
@@ -441,7 +477,7 @@ def _pdf(by_model: dict) -> None:
                 f"{b['com_pass']}/{b['n']} ({b['com_pct']}%)",
                 f"{b['com_pct']-b['sem_pct']:+d}"], [86, 30, 30, 30])
     pdf.ln(2)
-    h2(f"Per-task x model ({'base / cli / sp' if with_sp else 'base / cli'})")
+    h2(f"Per-task x model ({'base / cli / cli+sp' if with_sp else 'base / cli'})")
     case_ids = [r["id"] for r in sample_rows]
     th(["Task"] + [m.split("/")[-1] for m in models],
        [40] + [(140 // max(len(models), 1))] * len(models))
