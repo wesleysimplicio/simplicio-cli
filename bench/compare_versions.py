@@ -33,24 +33,24 @@ GROUPS = [
         ("Qwen 2.5 Coder 1.5B", 32, 88, "local:Qwen/Qwen2.5-Coder-1.5B-Instruct"),
     ]),
     ("Tiny models - sub-4B", [
-        ("Gemma 3 4B",    38, 96, "google/gemma-3-4b-it"),
-        ("Llama 3.2 3B",  28, 73, "meta-llama/llama-3.2-3b-instruct"),
-        ("Gemma 3n e4B",  44, 88, "google/gemma-3n-E4B-it"),
-        ("Phi-4 mini",    36, 73, "microsoft/phi-4-mini-instruct"),
-        ("Llama 3.2 1B",  26, 40, "meta-llama/Llama-3.2-1B-Instruct"),
+        ("Gemma 3 4B",    38, 96, ["google/gemma-3-4b-it"]),
+        ("Llama 3.2 3B",  28, 73, ["meta-llama/llama-3.2-3b-instruct"]),
+        ("Gemma 3n e4B",  44, 88, ["google/gemma-3n-E4B-it", "google/gemma-3n-e4b-it"]),
+        ("Phi-4 mini",    36, 73, ["microsoft/phi-4-mini-instruct"]),
+        ("Llama 3.2 1B",  26, 40, ["meta-llama/Llama-3.2-1B-Instruct", "meta-llama/llama-3.2-1b-instruct"]),
     ]),
     ("Frontier 2026 models", [
-        ("GPT-5.5",          38, 100, "openai/gpt-5.5"),
-        ("Kimi K2.6",        40, 100, "moonshotai/Kimi-K2.6"),
-        ("Gemini 3.5 Flash", 42, 100, "google/gemini-3.5-flash"),
-        ("Qwen 3.7 Max",     44, 100, "qwen/qwen3.7-max"),
-        ("Claude Opus 4.7",  42, 98,  "anthropic/claude-opus-4.7"),
-        ("DeepSeek V4 Pro",  44, 96,  "deepseek-ai/DeepSeek-V4-Pro"),
+        ("GPT-5.5",          38, 100, ["openai/gpt-5.5"]),
+        ("Kimi K2.6",        40, 100, ["moonshotai/Kimi-K2.6", "moonshotai/kimi-k2.6"]),
+        ("Gemini 3.5 Flash", 42, 100, ["google/gemini-3.5-flash"]),
+        ("Qwen 3.7 Max",     44, 100, ["qwen/qwen3.7-max"]),
+        ("Claude Opus 4.7",  42, 98,  ["anthropic/claude-opus-4.7"]),
+        ("DeepSeek V4 Pro",  44, 96,  ["deepseek-ai/DeepSeek-V4-Pro", "deepseek/deepseek-v4-pro"]),
     ]),
     ("Mid-tier 7B-12B open models", [
-        ("Gemma 3 12B",  34, 92, "google/gemma-3-12b-it"),
-        ("Llama 3.1 8B", 36, 90, "meta-llama/Llama-3.1-8B-Instruct"),
-        ("Qwen 2.5 7B",  34, 88, "Qwen/Qwen2.5-7B-Instruct"),
+        ("Gemma 3 12B",  34, 92, ["google/gemma-3-12b-it"]),
+        ("Llama 3.1 8B", 36, 90, ["meta-llama/Llama-3.1-8B-Instruct", "meta-llama/llama-3.1-8b-instruct"]),
+        ("Qwen 2.5 7B",  34, 88, ["Qwen/Qwen2.5-7B-Instruct", "qwen/qwen-2.5-7b-instruct"]),
     ]),
 ]
 
@@ -68,11 +68,20 @@ def merge_new(coder: str, hf: str, ortr: str) -> dict:
     return merged
 
 
-def _new_pct(new: dict, key: str):
-    b = new.get(key)
-    if not b:
-        return None, None
-    return b.get("sem_pct"), b.get("com_pct")
+def _new_pct(new: dict, keys):
+    """Pick the first candidate model id that has data in `new` (str or list-of-str).
+
+    HF Inference Providers uses HF-style ids (e.g. meta-llama/Llama-3.2-1B-Instruct)
+    while OpenRouter uses lowercase ids. Each README row can list both so the
+    comparison still finds the model regardless of which endpoint was used.
+    """
+    if isinstance(keys, str):
+        keys = [keys]
+    for k in keys:
+        b = new.get(k)
+        if b:
+            return b.get("sem_pct"), b.get("com_pct")
+    return None, None
 
 
 def _lat1(s) -> str:
