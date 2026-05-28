@@ -279,11 +279,14 @@ The install ships **three Simplicio packages** that play distinct roles:
   receipt cache, jittered backoff and a circuit breaker. *On one-shot code
   tasks it's net-neutral and not the right tool (use simplicio-cli for
   those); on orchestrated multi-step / fan-out work it's the engine.*
-  A direct fan-out benchmark (`bench/run_fanout.py`) confirms the 64
-  default is a real sweet spot: at N=64 modal consensus reaches ~80% (51/64
-  subagents converge on the same code); N=200 doesn't improve consensus
-  further (78%). Full numbers in
-  [`bench/results_fanout.md`](bench/results_fanout.md) ·
+  A direct fan-out benchmark (`bench/run_fanout.py`) measures both real
+  PHPUnit pass-rate and a structural regex check on every subagent at
+  N ∈ {64, 200, 600}. Partial data on Qwen2.5-Coder-3B shows the right N
+  depends heavily on task difficulty: easy tasks saturate at N=64
+  (per-attempt 100%, fan-out adds nothing); some hard tasks where every
+  attempt at N=64 fails benefit dramatically from N=600 (e.g. `env_get_int`
+  jumps from `0/64` to `478/600` real-PHPUnit passes). Full ongoing
+  numbers in [`bench/results_fanout.md`](bench/results_fanout.md) ·
   [`bench/results_fanout.pdf`](bench/results_fanout.pdf).
 
 Each is independently published on PyPI; ship them as a set so the CLI's
