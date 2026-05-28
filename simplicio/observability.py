@@ -1,11 +1,12 @@
 """Lightweight opt-in run logging for benchmarks and retry loops."""
 from __future__ import annotations
 
-import json
 import os
 import time
 from pathlib import Path
 from typing import Any
+
+from .utils.serialization import dumps_str
 
 
 def estimate_tokens(text: str | None) -> int:
@@ -27,5 +28,5 @@ def log_run(root: str, event: dict[str, Any]) -> Path | None:
         **event,
     }
     with out.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(payload, sort_keys=True) + "\n")
+        f.write(dumps_str(payload) + "\n")
     return out
