@@ -40,14 +40,14 @@ from sindico_cases import CASES
 
 MODELS = [m.strip() for m in os.environ.get("BENCH_MODELS", "").split(",") if m.strip()]
 PHPUNIT_TIMEOUT = int(os.environ.get("BENCH_PHPUNIT_TIMEOUT", "60"))
+INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "0").strip() not in ("", "0", "false", "False")
 
 
 def _load_sp_runtime() -> str:
-    """Load the simplicio-prompt runtime template.
+    """Load the simplicio-prompt runtime template (lazy: called only when sp is on).
 
     Order: explicit env, the simplicio-prompt clone at /tmp/prompt_check, a
-    sibling npm install. The PyPI package ships only the kernel, not the .md,
-    so we resolve to a file we can read.
+    sibling npm install. The PyPI package ships only the kernel, not the .md.
     """
     candidates = [
         os.environ.get("BENCH_SIMPLICIO_PROMPT_PATH"),
@@ -58,13 +58,13 @@ def _load_sp_runtime() -> str:
         if c and Path(c).is_file():
             return Path(c).read_text(encoding="utf-8")
     raise SystemExit(
-        "simplicio-prompt runtime template not found. "
+        "simplicio-prompt runtime template not found (needed when BENCH_INCLUDE_SP=1). "
         "Set BENCH_SIMPLICIO_PROMPT_PATH, or clone "
         "https://github.com/wesleysimplicio/simplicio-prompt to /tmp/prompt_check."
     )
 
 
-SP_RUNTIME = _load_sp_runtime()
+SP_RUNTIME = _load_sp_runtime() if INCLUDE_SP else ""
 
 
 RAW_PROMPT = """{goal}
@@ -187,40 +187,62 @@ def run() -> int:
             ctx = {**c, "file_content": content}
             s = one(model, c, RAW_PROMPT.format(**ctx), snaps)
             w = one(model, c, CONTRACT_PROMPT.format(**ctx), snaps)
-            p = one(model, c, SP_PROMPT.format(sp_runtime=SP_RUNTIME, **ctx), snaps)
-            sem_pass += int(s["passed"]); com_pass += int(w["passed"]); sp_pass += int(p["passed"])
-            rows.append({"id": c["id"], "sem": s, "com": w, "sp": p})
+            sem_pass += int(s["passed"]); com_pass += int(w["passed"])
+            row = {"id": c["id"], "sem": s, "com": w}
+            sp_msg = ""
+            if INCLUDE_SP:
+                p = one(model, c, SP_PROMPT.format(sp_runtime=SP_RUNTIME, **ctx), snaps)
+                sp_pass += int(p["passed"]); row["sp"] = p
+                sp_msg = f"  sp {'PASS' if p['passed'] else 'fail'}"
+            rows.append(row)
             print(f"  {c['id']:25s} baseline {'PASS' if s['passed'] else 'fail'}  "
-                  f"cli {'PASS' if w['passed'] else 'fail'}  "
-                  f"sp {'PASS' if p['passed'] else 'fail'}")
-        by_model[model] = {"rows": rows, "n": n,
-            "sem_pass": sem_pass, "com_pass": com_pass, "sp_pass": sp_pass,
-            "sem_pct": 100*sem_pass//n, "com_pct": 100*com_pass//n,
-            "sp_pct": 100*sp_pass//n}
+                  f"cli {'PASS' if w['passed'] else 'fail'}{sp_msg}")
+        entry = {"rows": rows, "n": n,
+            "sem_pass": sem_pass, "com_pass": com_pass,
+            "sem_pct": 100*sem_pass//n, "com_pct": 100*com_pass//n}
+        if INCLUDE_SP:
+            entry["sp_pass"] = sp_pass; entry["sp_pct"] = 100*sp_pass//n
+        by_model[model] = entry
+        tail = f" | sp {sp_pass}/{n} ({100*sp_pass//n}%)" if INCLUDE_SP else ""
         print(f"  -> baseline {sem_pass}/{n} ({by_model[model]['sem_pct']}%) "
-              f" cli {com_pass}/{n} ({by_model[model]['com_pct']}%) "
-              f" sp {sp_pass}/{n} ({by_model[model]['sp_pct']}%)\n")
+              f"| cli {com_pass}/{n} ({by_model[model]['com_pct']}%){tail}\n")
     RESULTS_JSON.write_text(json.dumps(by_model, indent=2))
     write_reports(by_model)
     g_sem = sum(b["sem_pass"] for b in by_model.values())
     g_com = sum(b["com_pass"] for b in by_model.values())
-    g_sp = sum(b["sp_pass"] for b in by_model.values())
     g_tot = sum(b["n"] for b in by_model.values())
-    print(f"grand: baseline {100*g_sem//g_tot}% | cli {100*g_com//g_tot}% | "
-          f"sp {100*g_sp//g_tot}% (real phpunit, {g_tot} runs/side)")
+    sp_tail = ""
+    if INCLUDE_SP:
+        g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
+        sp_tail = f" | sp {100*g_sp//g_tot}%"
+    print(f"grand: baseline {100*g_sem//g_tot}% | cli {100*g_com//g_tot}%"
+          f"{sp_tail} (real phpunit, {g_tot} runs/side)")
     return 0
+
+
+def _has_sp(by_model: dict) -> bool:
+    """True iff any model carries simplicio-prompt data in its rows."""
+    return any("sp" in r for b in by_model.values() for r in b.get("rows", []))
 
 
 def write_reports(by_model: dict) -> None:
     models = list(by_model.keys())
     case_ids = [c["id"] for c in CASES]
+    with_sp = _has_sp(by_model)
     g_sem = sum(b.get("sem_pass", 0) for b in by_model.values())
     g_com = sum(b.get("com_pass", 0) for b in by_model.values())
-    g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
     g_tot = sum(b["n"] for b in by_model.values())
     gsp = 100 * g_sem // max(g_tot, 1)
     gcp = 100 * g_com // max(g_tot, 1)
-    gpp = 100 * g_sp // max(g_tot, 1)
+    sides_blurb = (
+        "- **baseline**: raw goal + current file content\n"
+        "- **simplicio-cli**: the 6-layer task contract (role/stack, goal, "
+        "target, criteria as testable states, constraints, output shape)"
+    )
+    if with_sp:
+        sides_blurb += ("\n- **simplicio-prompt**: the Tuple-Space + Yool "
+                        "runtime template from the simplicio-prompt package, "
+                        "with the task injected as user input X")
     md = [
         "# Execution benchmark — sistema-sindico (real PHPUnit)",
         "",
@@ -234,46 +256,56 @@ def write_reports(by_model: dict) -> None:
         "a **hidden PHPUnit test** (never shown to the model, asserting true "
         "AND false states) is added under `tests/unit/Core/Hidden/`, and the "
         "ENTIRE suite is run. **Pass = every existing test + the hidden test "
-        "go green.** All three sides emit the complete file; the only variable "
-        "is the wrapping prompt:",
+        "go green.** All sides emit the complete file; the only variable is "
+        "the wrapping prompt:",
         "",
-        "- **baseline**: raw goal + current file content",
-        "- **simplicio-cli**: the 6-layer task contract (role/stack, goal, "
-        "target, criteria as testable states, constraints, output shape)",
-        "- **simplicio-prompt**: the Tuple-Space + Yool runtime template from "
-        "the simplicio-prompt package, with the task injected as user input X",
+        sides_blurb,
         "",
         "## Headline",
         "",
         f"- **Baseline:** {g_sem}/{g_tot} ({gsp}%)",
         f"- **simplicio-cli (6-layer):** {g_com}/{g_tot} ({gcp}%) — **{gcp - gsp:+d} pts vs baseline**",
-        f"- **simplicio-prompt (Yool runtime):** {g_sp}/{g_tot} ({gpp}%) — **{gpp - gsp:+d} pts vs baseline**",
-        "",
-        "## Per-model (pass = full PHPUnit suite green)",
-        "",
-        "| Model | Baseline | simplicio-cli | simplicio-prompt | D cli | D sp |",
-        "|---|---|---|---|---|---|",
     ]
-    for m in models:
-        b = by_model[m]
-        md.append(
-            f"| `{m}` | {b['sem_pass']}/{b['n']} ({b['sem_pct']}%) | "
-            f"{b['com_pass']}/{b['n']} ({b['com_pct']}%) | "
-            f"{b.get('sp_pass', 0)}/{b['n']} ({b.get('sp_pct', 0)}%) | "
-            f"**{b['com_pct'] - b['sem_pct']:+d}** | "
-            f"**{b.get('sp_pct', 0) - b['sem_pct']:+d}** |"
-        )
-    md += ["", "## Per-task × model (baseline / cli / sp)", "",
+    if with_sp:
+        g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
+        gpp = 100 * g_sp // max(g_tot, 1)
+        md.append(f"- **simplicio-prompt (Yool runtime):** {g_sp}/{g_tot} ({gpp}%) "
+                  f"— **{gpp - gsp:+d} pts vs baseline**")
+    md += ["", "## Per-model (pass = full PHPUnit suite green)", ""]
+    if with_sp:
+        md += ["| Model | Baseline | simplicio-cli | simplicio-prompt | D cli | D sp |",
+               "|---|---|---|---|---|---|"]
+        for m in models:
+            b = by_model[m]
+            md.append(
+                f"| `{m}` | {b['sem_pass']}/{b['n']} ({b['sem_pct']}%) | "
+                f"{b['com_pass']}/{b['n']} ({b['com_pct']}%) | "
+                f"{b.get('sp_pass', 0)}/{b['n']} ({b.get('sp_pct', 0)}%) | "
+                f"**{b['com_pct'] - b['sem_pct']:+d}** | "
+                f"**{b.get('sp_pct', 0) - b['sem_pct']:+d}** |"
+            )
+    else:
+        md += ["| Model | Baseline | simplicio-cli | Delta (pts) |",
+               "|---|---|---|---|"]
+        for m in models:
+            b = by_model[m]
+            md.append(
+                f"| `{m}` | {b['sem_pass']}/{b['n']} ({b['sem_pct']}%) | "
+                f"{b['com_pass']}/{b['n']} ({b['com_pct']}%) | "
+                f"**{b['com_pct'] - b['sem_pct']:+d}** |"
+            )
+    md += ["", f"## Per-task × model ({'baseline / cli / sp' if with_sp else 'baseline / cli'})", "",
            "| Task | " + " | ".join(m.split("/")[-1] for m in models) + " |",
            "|---|" + "|".join("---" for _ in models) + "|"]
     for i, cid in enumerate(case_ids):
         cells = []
         for m in models:
             r = by_model[m]["rows"][i]
-            sp = r.get("sp", {"passed": False})
-            cells.append(f"{'P' if r['sem']['passed'] else '.'}/"
-                         f"{'P' if r['com']['passed'] else '.'}/"
-                         f"{'P' if sp.get('passed') else '.'}")
+            base = f"{'P' if r['sem']['passed'] else '.'}/{'P' if r['com']['passed'] else '.'}"
+            if with_sp:
+                sp = r.get("sp", {"passed": False})
+                base += f"/{'P' if sp.get('passed') else '.'}"
+            cells.append(base)
         md.append(f"| {cid} | " + " | ".join(cells) + " |")
     md += ["", "Raw counts above are real `vendor/bin/phpunit` exit codes against "
            "`sistema-sindico`. `results_exec_sindico.json` holds per-case "
@@ -290,9 +322,9 @@ def _pdf(by_model: dict) -> None:
         print("[warn] fpdf2 not installed; skipping exec sindico PDF.")
         return
     models = list(by_model.keys())
+    with_sp = _has_sp(by_model)
     g_sem = sum(b.get("sem_pass", 0) for b in by_model.values())
     g_com = sum(b.get("com_pass", 0) for b in by_model.values())
-    g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
     g_tot = sum(b["n"] for b in by_model.values())
     pdf = FPDF(unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=15); pdf.set_margins(15, 15, 15)
@@ -317,32 +349,46 @@ def _pdf(by_model: dict) -> None:
     pdf.add_page()
     h1("Execution benchmark - sistema-sindico (real PHPUnit, not regex)")
     p(f"Date: {time.strftime('%Y-%m-%d')}   Tasks: {len(CASES)} additive PHP modifications")
-    p("Three prompt variants per task, all emitting the complete file. Pass = "
-      "the full PHPUnit suite (existing + hidden test) goes green: the new method "
-      "works AND nothing else broke. Variables: baseline = raw goal; cli = the "
-      "simplicio-cli 6-layer task contract; sp = the simplicio-prompt "
-      "Tuple-Space + Yool runtime template with the task as user input X.")
+    blurb = ("Each prompt variant emits the complete file. Pass = the full "
+             "PHPUnit suite (existing + hidden test) goes green: the new method "
+             "works AND nothing else broke. Variables: baseline = raw goal; "
+             "cli = the simplicio-cli 6-layer task contract")
+    if with_sp:
+        blurb += "; sp = the simplicio-prompt Tuple-Space + Yool runtime template."
+    else:
+        blurb += "."
+    p(blurb)
     pdf.ln(1)
     h2("Headline")
     th(["Side", "Passed", "Rate", "vs baseline"], [60, 30, 30, 40])
     tr(["Baseline", f"{g_sem}/{g_tot}", f"{100*g_sem//max(g_tot,1)}%", "-"], [60, 30, 30, 40])
     tr(["simplicio-cli (6-layer)", f"{g_com}/{g_tot}", f"{100*g_com//max(g_tot,1)}%",
         f"{100*g_com//max(g_tot,1) - 100*g_sem//max(g_tot,1):+d} pts"], [60, 30, 30, 40])
-    tr(["simplicio-prompt (Yool)", f"{g_sp}/{g_tot}", f"{100*g_sp//max(g_tot,1)}%",
-        f"{100*g_sp//max(g_tot,1) - 100*g_sem//max(g_tot,1):+d} pts"], [60, 30, 30, 40])
+    if with_sp:
+        g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
+        tr(["simplicio-prompt (Yool)", f"{g_sp}/{g_tot}", f"{100*g_sp//max(g_tot,1)}%",
+            f"{100*g_sp//max(g_tot,1) - 100*g_sem//max(g_tot,1):+d} pts"], [60, 30, 30, 40])
     pdf.ln(2)
     h2("Per-model (pass = full PHPUnit suite green)")
-    th(["Model", "Baseline", "cli", "sp", "D cli", "D sp"], [70, 24, 24, 24, 18, 18])
-    for m in models:
-        b = by_model[m]
-        tr([m, f"{b['sem_pass']}/{b['n']} ({b['sem_pct']}%)",
-            f"{b['com_pass']}/{b['n']} ({b['com_pct']}%)",
-            f"{b.get('sp_pass',0)}/{b['n']} ({b.get('sp_pct',0)}%)",
-            f"{b['com_pct']-b['sem_pct']:+d}",
-            f"{b.get('sp_pct',0)-b['sem_pct']:+d}"],
-            [70, 24, 24, 24, 18, 18])
+    if with_sp:
+        th(["Model", "Baseline", "cli", "sp", "D cli", "D sp"], [70, 24, 24, 24, 18, 18])
+        for m in models:
+            b = by_model[m]
+            tr([m, f"{b['sem_pass']}/{b['n']} ({b['sem_pct']}%)",
+                f"{b['com_pass']}/{b['n']} ({b['com_pct']}%)",
+                f"{b.get('sp_pass',0)}/{b['n']} ({b.get('sp_pct',0)}%)",
+                f"{b['com_pct']-b['sem_pct']:+d}",
+                f"{b.get('sp_pct',0)-b['sem_pct']:+d}"],
+                [70, 24, 24, 24, 18, 18])
+    else:
+        th(["Model", "Baseline", "simplicio-cli", "Delta(pts)"], [86, 30, 30, 30])
+        for m in models:
+            b = by_model[m]
+            tr([m, f"{b['sem_pass']}/{b['n']} ({b['sem_pct']}%)",
+                f"{b['com_pass']}/{b['n']} ({b['com_pct']}%)",
+                f"{b['com_pct']-b['sem_pct']:+d}"], [86, 30, 30, 30])
     pdf.ln(2)
-    h2("Per-task x model (base / cli / sp)")
+    h2(f"Per-task x model ({'base / cli / sp' if with_sp else 'base / cli'})")
     case_ids = [c["id"] for c in CASES]
     th(["Task"] + [m.split("/")[-1] for m in models],
        [40] + [(140 // max(len(models), 1))] * len(models))
@@ -350,10 +396,11 @@ def _pdf(by_model: dict) -> None:
         row = [cid]
         for m in models:
             r = by_model[m]["rows"][i]
-            sp = r.get("sp", {"passed": False})
-            row.append(f"{'P' if r['sem']['passed'] else '.'}/"
-                       f"{'P' if r['com']['passed'] else '.'}/"
-                       f"{'P' if sp.get('passed') else '.'}")
+            cell = f"{'P' if r['sem']['passed'] else '.'}/{'P' if r['com']['passed'] else '.'}"
+            if with_sp:
+                sp = r.get("sp", {"passed": False})
+                cell += f"/{'P' if sp.get('passed') else '.'}"
+            row.append(cell)
         tr(row, [40] + [(140 // max(len(models), 1))] * len(models))
     pdf.output(str(RESULTS_PDF))
     print(f"-> {RESULTS_PDF}")

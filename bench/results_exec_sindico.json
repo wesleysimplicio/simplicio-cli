@@ -16,13 +16,6 @@
           "ms": 1851,
           "tail": " | ERRORS! | Tests: 15, Assertions: 21, Errors: 5.",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2631,
-          "ms": 2733,
-          "tail": " | ERRORS! | Tests: 15, Assertions: 15, Errors: 8.",
-          "error": null
         }
       },
       {
@@ -39,13 +32,6 @@
           "tokens": 831,
           "ms": 1572,
           "tail": " | ERRORS! | Tests: 12, Assertions: 19, Errors: 2, Failures: 3.",
-          "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 10313,
-          "ms": 48479,
-          "tail": " | ERRORS! | Tests: 12, Assertions: 15, Errors: 5.",
           "error": null
         }
       },
@@ -64,13 +50,6 @@
           "ms": 3434,
           "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 10303,
-          "ms": 76152,
-          "tail": "PHP Parse error:  syntax error, unexpected token \"`\" in /tmp/sindico_work_bench/src/Core/Env.php on line 2",
-          "error": null
         }
       },
       {
@@ -88,23 +67,14 @@
           "ms": 3655,
           "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 4479,
-          "ms": 21261,
-          "tail": "PHP Parse error:  syntax error, unexpected identifier \"are\" in /tmp/sindico_work_bench/src/Core/Env.php on line 8",
-          "error": null
         }
       }
     ],
     "n": 4,
     "sem_pass": 0,
     "com_pass": 0,
-    "sp_pass": 0,
     "sem_pct": 0,
-    "com_pct": 0,
-    "sp_pct": 0
+    "com_pct": 0
   },
   "google/gemma-3n-E4B-it": {
     "rows": [
@@ -121,13 +91,6 @@
           "passed": false,
           "tokens": 0,
           "ms": 15759,
-          "tail": " | ERRORS! | Tests: 15, Assertions: 15, Errors: 8.",
-          "error": "HTTP Error 403: Forbidden"
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15945,
           "tail": " | ERRORS! | Tests: 15, Assertions: 15, Errors: 8.",
           "error": "HTTP Error 403: Forbidden"
         }
@@ -147,13 +110,6 @@
           "ms": 15812,
           "tail": " | ERRORS! | Tests: 12, Assertions: 15, Errors: 5.",
           "error": "HTTP Error 403: Forbidden"
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 16055,
-          "tail": " | ERRORS! | Tests: 12, Assertions: 15, Errors: 5.",
-          "error": "HTTP Error 400: Bad Request"
         }
       },
       {
@@ -169,13 +125,6 @@
           "passed": false,
           "tokens": 0,
           "ms": 15817,
-          "tail": "PHP Parse error:  syntax error, unexpected identifier \"HTTP\" in /tmp/sindico_work_bench/src/Core/Env.php on line 2",
-          "error": "HTTP Error 400: Bad Request"
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15555,
           "tail": "PHP Parse error:  syntax error, unexpected identifier \"HTTP\" in /tmp/sindico_work_bench/src/Core/Env.php on line 2",
           "error": "HTTP Error 400: Bad Request"
         }
@@ -195,23 +144,14 @@
           "ms": 15597,
           "tail": "PHP Parse error:  syntax error, unexpected identifier \"HTTP\" in /tmp/sindico_work_bench/src/Core/Env.php on line 2",
           "error": "HTTP Error 400: Bad Request"
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15891,
-          "tail": "PHP Parse error:  syntax error, unexpected identifier \"HTTP\" in /tmp/sindico_work_bench/src/Core/Env.php on line 2",
-          "error": "HTTP Error 400: Bad Request"
         }
       }
     ],
     "n": 4,
     "sem_pass": 0,
     "com_pass": 0,
-    "sp_pass": 0,
     "sem_pct": 0,
-    "com_pct": 0,
-    "sp_pct": 0
+    "com_pct": 0
   },
   "google/gemma-3-4b-it": {
     "rows": [
@@ -230,13 +170,6 @@
           "ms": 7484,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 3011,
-          "ms": 6964,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
-          "error": null
         }
       },
       {
@@ -252,13 +185,6 @@
           "passed": false,
           "tokens": 1151,
           "ms": 7059,
-          "tail": " | ERRORS! | Tests: 12, Assertions: 22, Errors: 2.",
-          "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2956,
-          "ms": 6815,
           "tail": " | ERRORS! | Tests: 12, Assertions: 22, Errors: 2.",
           "error": null
         }
@@ -278,13 +204,6 @@
           "ms": 6948,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2932,
-          "ms": 23196,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
-          "error": null
         }
       },
       {
@@ -302,23 +221,14 @@
           "ms": 20042,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2986,
-          "ms": 17541,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
-          "error": null
         }
       }
     ],
     "n": 4,
     "sem_pass": 0,
     "com_pass": 3,
-    "sp_pass": 0,
     "sem_pct": 0,
-    "com_pct": 75,
-    "sp_pct": 0
+    "com_pct": 75
   },
   "qwen/qwen-2.5-7b-instruct": {
     "rows": [
@@ -337,13 +247,6 @@
           "ms": 5600,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2533,
-          "ms": 4307,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
-          "error": null
         }
       },
       {
@@ -361,13 +264,6 @@
           "ms": 5917,
           "tail": " | FAILURES! | Tests: 12, Assertions: 26, Failures: 2.",
           "error": null
-        },
-        "sp": {
-          "passed": true,
-          "tokens": 2522,
-          "ms": 6030,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
-          "error": null
         }
       },
       {
@@ -383,13 +279,6 @@
           "passed": false,
           "tokens": 948,
           "ms": 4788,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
-          "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2489,
-          "ms": 6437,
           "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
           "error": null
         }
@@ -409,23 +298,14 @@
           "ms": 6119,
           "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2487,
-          "ms": 3380,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
-          "error": null
         }
       }
     ],
     "n": 4,
     "sem_pass": 0,
     "com_pass": 1,
-    "sp_pass": 1,
     "sem_pct": 0,
-    "com_pct": 25,
-    "sp_pct": 25
+    "com_pct": 25
   },
   "meta-llama/Llama-3.1-8B-Instruct": {
     "rows": [
@@ -444,13 +324,6 @@
           "ms": 8087,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2674,
-          "ms": 7593,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
-          "error": null
         }
       },
       {
@@ -467,13 +340,6 @@
           "tokens": 948,
           "ms": 5909,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
-          "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2669,
-          "ms": 8908,
-          "tail": " | FAILURES! | Tests: 12, Assertions: 22, Failures: 4.",
           "error": null
         }
       },
@@ -492,13 +358,6 @@
           "ms": 5932,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2643,
-          "ms": 5603,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
-          "error": null
         }
       },
       {
@@ -516,23 +375,14 @@
           "ms": 5981,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2678,
-          "ms": 5542,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 36, Failures: 1.",
-          "error": null
         }
       }
     ],
     "n": 4,
     "sem_pass": 2,
     "com_pass": 4,
-    "sp_pass": 0,
     "sem_pct": 50,
-    "com_pct": 100,
-    "sp_pct": 0
+    "com_pct": 100
   },
   "google/gemma-3-12b-it": {
     "rows": [
@@ -551,13 +401,6 @@
           "ms": 14882,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 3126,
-          "ms": 22927,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 2.",
-          "error": null
         }
       },
       {
@@ -574,13 +417,6 @@
           "tokens": 1116,
           "ms": 11789,
           "tail": " | FAILURES! | Tests: 12, Assertions: 26, Failures: 2.",
-          "error": null
-        },
-        "sp": {
-          "passed": true,
-          "tokens": 2994,
-          "ms": 14061,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
           "error": null
         }
       },
@@ -599,13 +435,6 @@
           "ms": 16155,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2913,
-          "ms": 10197,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
-          "error": null
         }
       },
       {
@@ -623,23 +452,14 @@
           "ms": 18556,
           "tail": "Time: 00:00.010, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 3043,
-          "ms": 18836,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 33, Failures: 2.",
-          "error": null
         }
       }
     ],
     "n": 4,
     "sem_pass": 2,
     "com_pass": 3,
-    "sp_pass": 1,
     "sem_pct": 50,
-    "com_pct": 75,
-    "sp_pct": 25
+    "com_pct": 75
   },
   "google/gemini-3.5-flash": {
     "rows": [
@@ -658,13 +478,6 @@
           "ms": 9933,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 5901,
-          "ms": 21573,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 1.",
-          "error": null
         }
       },
       {
@@ -680,13 +493,6 @@
           "passed": true,
           "tokens": 2935,
           "ms": 11200,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
-          "error": null
-        },
-        "sp": {
-          "passed": true,
-          "tokens": 4977,
-          "ms": 13913,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
           "error": null
         }
@@ -706,13 +512,6 @@
           "ms": 23663,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 4360,
-          "ms": 10453,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
-          "error": null
         }
       },
       {
@@ -730,23 +529,14 @@
           "ms": 22785,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 5052,
-          "ms": 14696,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 36, Failures: 1.",
-          "error": null
         }
       }
     ],
     "n": 4,
     "sem_pass": 3,
     "com_pass": 4,
-    "sp_pass": 1,
     "sem_pct": 75,
-    "com_pct": 100,
-    "sp_pct": 25
+    "com_pct": 100
   },
   "anthropic/claude-opus-4.7": {
     "rows": [
@@ -765,13 +555,6 @@
           "ms": 6134,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 4580,
-          "ms": 10465,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 1.",
-          "error": null
         }
       },
       {
@@ -789,13 +572,6 @@
           "ms": 6176,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 4455,
-          "ms": 8079,
-          "tail": " | FAILURES! | Tests: 12, Assertions: 24, Failures: 2.",
-          "error": null
         }
       },
       {
@@ -811,13 +587,6 @@
           "passed": true,
           "tokens": 1454,
           "ms": 6303,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
-          "error": null
-        },
-        "sp": {
-          "passed": true,
-          "tokens": 4227,
-          "ms": 5846,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
           "error": null
         }
@@ -837,23 +606,14 @@
           "ms": 6609,
           "tail": "Time: 00:00.009, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": true,
-          "tokens": 4312,
-          "ms": 6594,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
-          "error": null
         }
       }
     ],
     "n": 4,
     "sem_pass": 2,
     "com_pass": 4,
-    "sp_pass": 2,
     "sem_pct": 50,
-    "com_pct": 100,
-    "sp_pct": 50
+    "com_pct": 100
   },
   "openai/gpt-5.5": {
     "rows": [
@@ -870,13 +630,6 @@
           "passed": true,
           "tokens": 1199,
           "ms": 9836,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
-          "error": null
-        },
-        "sp": {
-          "passed": true,
-          "tokens": 2880,
-          "ms": 12826,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
         }
@@ -896,13 +649,6 @@
           "ms": 6963,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": true,
-          "tokens": 2645,
-          "ms": 7892,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
-          "error": null
         }
       },
       {
@@ -919,13 +665,6 @@
           "tokens": 1343,
           "ms": 12812,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
-          "error": null
-        },
-        "sp": {
-          "passed": false,
-          "tokens": 2534,
-          "ms": 5983,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
           "error": null
         }
       },
@@ -944,22 +683,13 @@
           "ms": 13404,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
           "error": null
-        },
-        "sp": {
-          "passed": true,
-          "tokens": 2699,
-          "ms": 9517,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
-          "error": null
         }
       }
     ],
     "n": 4,
     "sem_pass": 3,
     "com_pass": 4,
-    "sp_pass": 3,
     "sem_pct": 75,
-    "com_pct": 100,
-    "sp_pct": 75
+    "com_pct": 100
   }
 }

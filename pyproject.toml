@@ -46,7 +46,6 @@ dependencies = [
   "anthropic>=0.30",
   "openai>=1.30",
   "simplicio-mapper>=0.5.0",
-  "simplicio-prompt>=1.5.0",
 ]
 
 [project.optional-dependencies]

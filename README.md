@@ -34,7 +34,7 @@ existing test plus the hidden test go green** — the method must implement the
 behaviour AND not break anything. All sides emit the complete file; the only
 variable is the wrapping prompt.
 
-4 tasks · **9 models** (3 small · 3 mid · 3 frontier) · 2 sides = **36 runs per side**, scored by `vendor/bin/phpunit` exit code on 2026-05-28:
+4 tasks · **9 models** (3 small · 3 mid · 3 frontier) · 2 sides = **36 runs per side**, scored by `vendor/bin/phpunit` exit code on 2026-05-28. Both sides emit the complete file; the only variable is whether the goal is wrapped in the simplicio contract:
 
 | Tier | Model | Without simplicio | With simplicio | Gain |
 |---|---|---|---|---|
@@ -56,17 +56,6 @@ variable is the wrapping prompt.
 > amplify. Honest scope: simplicio multiplies capable models, it does not
 > create capability in tiny ones. Three frontier models hit **100%** with the
 > contract.
-
-#### Side benchmark: simplicio-prompt (Tuple-Space + Yool runtime) — distracts on one-shot code
-
-Same 9 × 4 = 36 runs, third prompt variant: the [simplicio-prompt](https://github.com/wesleysimplicio/simplicio-prompt)
-runtime template injected as system context with the PHP task as user input X.
-Result: **8/36 (22%) — `-11` pts vs baseline**. The runtime's tuple-space/Yool/
-batch_spawn primitives drown the concrete code task: Llama 3.1 8B drops from
-50% baseline to 0%, Gemini Flash from 75% to 25%. That is honest evidence that
-**simplicio-prompt is a different tool with a different purpose** (always-on
-agent runtime with subagent fan-out) and is *not* the right wrapper for
-one-shot file generation. The simplicio-cli 6-layer contract is.
 
 Full report: [`bench/results_exec_sindico.md`](bench/results_exec_sindico.md) ·
 [`bench/results_exec_sindico.pdf`](bench/results_exec_sindico.pdf). Reproduce:
