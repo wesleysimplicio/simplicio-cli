@@ -285,17 +285,41 @@ def run() -> int:
     print(f"fanout benchmark: temp=0.7 N={ns} "
           f"models={len(models)} tasks={len(tasks)}", flush=True)
 
+    # Resume from a checkpoint: skip (model, task, N) tuples already in
+    # results_fanout.json so a killed/restarted matrix doesn't redo paid work.
     rows: list[dict] = []
+    if RESULTS_JSON.exists():
+        try:
+            saved = json.loads(RESULTS_JSON.read_text()).get("rows", [])
+            rows = [r for r in saved
+                    if r.get("model") in models
+                    and r.get("task") in {c["id"] for c in tasks}
+                    and r.get("n") in ns]
+            if rows:
+                print(f"resuming: {len(rows)} fanouts already in checkpoint, "
+                      f"skipping those", flush=True)
+        except Exception as e:
+            print(f"checkpoint unreadable ({e}), starting fresh", flush=True)
+
+    done = {(r["model"], r["task"], r["n"]) for r in rows}
+
     for model_id in models:
+        if all((model_id, c["id"], n) in done for c in tasks for n in ns):
+            print(f"\n##### MODEL: {model_id} (all done, skipping) #####", flush=True)
+            continue
         print(f"\n##### MODEL: {model_id} #####", flush=True)
         runtime = make_runtime(model_id)
         for case in tasks:
+            if all((model_id, case["id"], n) in done for n in ns):
+                continue
             print(f"\n=== task: {case['id']} ===", flush=True)
             file_content = install_case(case)
             for n in ns:
+                if (model_id, case["id"], n) in done:
+                    print(f"  N={n:<4d} {case['id']:<33s} [skip - already in checkpoint]",
+                          flush=True)
+                    continue
                 rows.append(fanout_at(n, case, runtime, file_content, model_id))
-                # checkpoint after every fanout invocation so a mid-run crash
-                # never loses the matrix data we already paid for
                 RESULTS_JSON.write_text(json.dumps({"rows": rows}, indent=2))
 
     write_reports(models, tasks, ns, rows)
