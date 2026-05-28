@@ -307,3 +307,95 @@ CASES = [
         ),
     },
 ]
+
+
+# ---------------------------------------------------------------------------
+# Structural regex checks per task — used by run_fanout.py as a CHEAP shape
+# check on every subagent's generated file (complement to the real PHPUnit
+# functional scoring). Each list is a small set of patterns that SHOULD appear
+# in a correct solution; a subagent's "regex score" is the fraction matched.
+#
+# The whole point of also reporting this metric is to compare it directly
+# against the PHPUnit (functional) pass-rate: where they AGREE, regex is a
+# cheap proxy; where they DISAGREE (regex says PASS but phpunit says FAIL),
+# regex is a misleading metric and the criticism that "regex doesn't mean
+# the code works" is correct.
+# ---------------------------------------------------------------------------
+REGEX_CHECKS_BY_TASK: dict[str, list[str]] = {
+    "password_strength": [
+        r"function\s+strength\s*\(",
+        r"['\"]weak['\"]",
+        r"['\"]medium['\"]",
+        r"['\"]strong['\"]",
+        r"violations\s*\(",
+    ],
+    "password_require_symbol": [
+        r"function\s+requireSymbol\s*\(",
+        r"\[!@#\$%\^&\*\]",
+        r"['\"]symbol['\"]",
+    ],
+    "env_get_int": [
+        r"function\s+getInt\s*\(",
+        r"\$_ENV|getenv\s*\(",
+        r"is_numeric|\(int\)|intval",
+        r"\$default",
+    ],
+    "env_get_bool": [
+        r"function\s+getBool\s*\(",
+        r"\$_ENV|getenv\s*\(",
+        r"strtolower",
+        r"['\"]true['\"]|['\"]yes['\"]",
+        r"['\"]false['\"]|['\"]no['\"]",
+    ],
+    "admin_only_allowed_roles": [
+        r"function\s+allowedRoles\s*\(",
+        r"\bstatic\b",
+        r"['\"]admin['\"]",
+        r"['\"]sindico['\"]",
+        r"return\s+\[",
+    ],
+    "rate_limit_bucket_key": [
+        r"function\s+bucketKey\s*\(",
+        r"['\"]ratelimit:['\"]",
+        r"strtolower",
+        r"trim",
+    ],
+    "base_repository_build_where_sql": [
+        r"function\s+buildWhereSql\s*\(",
+        r"InvalidArgumentException",
+        r"preg_match",
+        r"implode",
+    ],
+    "router_has": [
+        r"function\s+has\s*\(",
+        r"\$this->routes",
+        r"foreach",
+        r"preg_match",
+    ],
+    "bugfix_password_policy_lowercase": [
+        r"!\s*preg_match\s*\(\s*['\"]/?\[a-z\]/?['\"]",
+        r"MIN_LENGTH",
+        r"function\s+isValid",
+        r"function\s+describe",
+    ],
+    "password_assess": [
+        r"function\s+assess\s*\(",
+        r"['\"]valid['\"]",
+        r"['\"]violations['\"]",
+        r"['\"]length['\"]",
+        r"isValid|self::violations",
+    ],
+    "base_repository_build_update_sql": [
+        r"function\s+buildUpdateSql\s*\(",
+        r"\bUPDATE\b",
+        r"WHERE\s+id",
+        r"InvalidArgumentException",
+        r"implode",
+    ],
+    "router_extract_params": [
+        r"function\s+extractParams\s*\(",
+        r"preg_match",
+        r"\{[a-zA-Z_]|preg_replace_callback",
+        r"\?\s*array|null",
+    ],
+}

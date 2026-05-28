@@ -44,7 +44,50 @@ RESULTS_PDF = ROOT / "bench" / "results_fanout.pdf"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_offline as ro  # _lat1
-from sindico_cases import CASES
+from sindico_cases import CASES, REGEX_CHECKS_BY_TASK
+
+# ---- model -> endpoint table (HF for the served Qwen Coders, OR for the rest) ---- #
+# Each entry: provider preset, env var holding the API key, optional base_url
+# override (for the generic OpenAI-compatible HF route).
+MODEL_ENDPOINTS: dict[str, dict] = {
+    "Qwen/Qwen2.5-Coder-3B-Instruct": {
+        "preset": None, "base_url": "https://router.huggingface.co/v1",
+        "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
+    },
+    "Qwen/Qwen2.5-Coder-7B-Instruct": {
+        "preset": None, "base_url": "https://router.huggingface.co/v1",
+        "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
+    },
+    "meta-llama/llama-3.1-8b-instruct": {
+        "preset": "openrouter", "base_url": None,
+        "env_key": "OPENROUTER_API_KEY", "prompt_cost": 0.06, "completion_cost": 0.06,
+    },
+    "google/gemini-3.5-flash": {
+        "preset": "openrouter", "base_url": None,
+        "env_key": "OPENROUTER_API_KEY", "prompt_cost": 0.075, "completion_cost": 0.30,
+    },
+}
+
+
+def make_runtime(model_id: str) -> SubagentRuntime:
+    """Build a SubagentRuntime for the given model id, picking the right endpoint."""
+    cfg = MODEL_ENDPOINTS.get(model_id)
+    if cfg is None:
+        raise SystemExit(f"unknown model: {model_id}; add it to MODEL_ENDPOINTS")
+    api_key = os.environ.get(cfg["env_key"])
+    if not api_key:
+        raise SystemExit(f"missing env var {cfg['env_key']} for model {model_id}")
+    overrides = {
+        "api_key": api_key,
+        "model": model_id,
+        "prompt_cost_per_mtok": cfg["prompt_cost"],
+        "completion_cost_per_mtok": cfg["completion_cost"],
+    }
+    if cfg["base_url"]:
+        overrides["base_url"] = cfg["base_url"]
+    config = resolve_provider_config(cfg["preset"], **overrides)
+    return SubagentRuntime(LLMProvider(config), temperature=0.7, max_tokens=4096)
+
 
 # ---- prompt builder uses the same simplicio-cli 6-layer wrap as our other benches ---- #
 
@@ -53,6 +96,14 @@ CLI_SYSTEM = (
     "composer + PHPUnit. Project conventions are LAW. Do not invent files "
     "or libraries the project does not use."
 )
+
+
+def regex_score(code: str, patterns: list[str]) -> tuple[int, int]:
+    """Return (matched, total) for the list of regex checks against `code`."""
+    if not patterns:
+        return 0, 0
+    matched = sum(1 for p in patterns if re.search(p, code, re.IGNORECASE | re.MULTILINE))
+    return matched, len(patterns)
 
 
 def build_prompt(case: dict, file_content: str) -> str:
@@ -152,41 +203,66 @@ def majority(codes: list[str]) -> tuple[str | None, int]:
 
 # ---- main runner ---- #
 
-def fanout_at(n: int, case: dict, runtime: SubagentRuntime, file_content: str) -> dict:
+def fanout_at(n: int, case: dict, runtime: SubagentRuntime,
+              file_content: str, model_id: str) -> dict:
     user_prompt = build_prompt(case, file_content)
     prompts = [{"system": CLI_SYSTEM, "prompt": user_prompt} for _ in range(n)]
-    # use_cache=False: every subagent must be an independent provider call.
-    # With cache on, the kernel's ReceiptCache deduplicates identical prompts
-    # and replays the cached response, which collapses the modal distribution
-    # we're trying to measure (modal counts cluster around the same numbers
-    # across tasks, exposing the dedup).
+    # use_cache=False so every subagent is an independent provider call (the
+    # kernel's ReceiptCache otherwise replays identical-prompt responses and
+    # collapses the modal distribution we're measuring).
     report = runtime.run(task=f"impl {case['id']}", subagents=n, prompts=prompts,
                          use_cache=False)
     codes = [extract_php(r.text) for r in report.results if r.ok]
-    passes = sum(run_phpunit(case["target"], c) for c in codes)
+    # functional scoring: real phpunit on every subagent's solution
+    fn_passes = sum(run_phpunit(case["target"], c) for c in codes)
+    # regex scoring: structural pattern match on each output (cheap proxy)
+    rx_patterns = REGEX_CHECKS_BY_TASK.get(case["id"], [])
+    rx_full_pass = 0  # subagents where EVERY regex pattern matched
+    rx_match_total = 0  # sum of matched-pattern count across subagents
+    for c in codes:
+        m, t = regex_score(c, rx_patterns)
+        if t > 0 and m == t:
+            rx_full_pass += 1
+        rx_match_total += m
+    rx_denom = max(len(codes) * max(len(rx_patterns), 1), 1)
+    # modal vote
     maj_code, maj_count = majority(codes)
-    maj_pass = run_phpunit(case["target"], maj_code) if maj_code else False
+    maj_fn_pass = run_phpunit(case["target"], maj_code) if maj_code else False
+    if maj_code:
+        m, t = regex_score(maj_code, rx_patterns)
+        maj_rx_full_pass = (t > 0 and m == t)
+        maj_rx_pct = 100 * m // max(t, 1)
+    else:
+        maj_rx_full_pass, maj_rx_pct = False, 0
     uniques = len({code_hash(c) for c in codes})
     out = {
-        "task": case["id"],
-        "n": n,
-        "completed": report.completed,
-        "failed": report.failed,
-        "per_attempt_pass": passes,
-        "per_attempt_rate": (100 * passes // max(report.completed, 1)),
+        "model": model_id, "task": case["id"], "n": n,
+        "completed": report.completed, "failed": report.failed,
+        # functional metric (real phpunit)
+        "fn_per_attempt_pass": fn_passes,
+        "fn_per_attempt_rate": 100 * fn_passes // max(report.completed, 1),
+        "fn_majority_pass": maj_fn_pass,
+        # regex metric (structural shape check)
+        "rx_full_pass": rx_full_pass,
+        "rx_full_pass_rate": 100 * rx_full_pass // max(report.completed, 1),
+        "rx_match_pct": 100 * rx_match_total // rx_denom,
+        "rx_majority_full_pass": maj_rx_full_pass,
+        "rx_majority_pct": maj_rx_pct,
+        # diagnostics
         "unique_outputs": uniques,
         "majority_count": maj_count,
-        "majority_pass": maj_pass,
         "tokens": report.usage.total_tokens,
         "cost_usd": float(report.usage.cost_usd),
         "elapsed_s": report.elapsed_s,
     }
     print(
-        f"  N={n:<4d} {case['id']:<33s} per-attempt {passes}/{report.completed} "
-        f"({out['per_attempt_rate']:>3d}%) | uniq {uniques:>2d} | modal "
-        f"{maj_count:>3d}/{report.completed} -> {'PASS' if maj_pass else 'fail'} | "
-        f"{report.usage.total_tokens:>7,} tok | ${report.usage.cost_usd:.4f} | "
-        f"{report.elapsed_s:>5.1f}s",
+        f"  N={n:<4d} {case['id']:<33s} "
+        f"fn {fn_passes:>3d}/{report.completed} ({out['fn_per_attempt_rate']:>3d}%) "
+        f"modal {'P' if maj_fn_pass else '.'} | "
+        f"rx {rx_full_pass:>3d}/{report.completed} ({out['rx_full_pass_rate']:>3d}%) "
+        f"modal {'P' if maj_rx_full_pass else '.'} | "
+        f"uniq {uniques:>3d} | {report.usage.total_tokens:>7,} tok | "
+        f"${report.usage.cost_usd:.4f} | {report.elapsed_s:>5.1f}s",
         flush=True,
     )
     return out
@@ -195,36 +271,34 @@ def fanout_at(n: int, case: dict, runtime: SubagentRuntime, file_content: str) -
 def run() -> int:
     if not SINDICO_SRC.exists():
         raise SystemExit(f"sindico source not found at {SINDICO_SRC}")
-    if not os.environ.get("OPENROUTER_API_KEY"):
-        raise SystemExit("set OPENROUTER_API_KEY")
 
     setup_workspace_base()
-    config = resolve_provider_config(
-        "openrouter",
-        api_key=os.environ["OPENROUTER_API_KEY"],
-        model=os.environ.get("BENCH_FANOUT_MODEL",
-                             "meta-llama/llama-3.1-8b-instruct"),
-        prompt_cost_per_mtok=0.06,
-        completion_cost_per_mtok=0.06,
+    models_str = os.environ.get(
+        "BENCH_FANOUT_MODELS",
+        ",".join(MODEL_ENDPOINTS.keys()),
     )
-    provider = LLMProvider(config)
-    runtime = SubagentRuntime(provider, temperature=0.7, max_tokens=4096)
-
-    ns_str = os.environ.get("BENCH_FANOUT_NS", "64,200")
+    models = [m.strip() for m in models_str.split(",") if m.strip()]
+    ns_str = os.environ.get("BENCH_FANOUT_NS", "64,200,600")
     ns = [int(x) for x in ns_str.split(",") if x.strip()]
     task_filter = os.environ.get("BENCH_FANOUT_TASKS", "").strip()
     tasks = CASES if not task_filter else [c for c in CASES if c["id"] in task_filter.split(",")]
-    print(f"fanout benchmark: model={config.model} temp=0.7 N={ns} tasks={[c['id'] for c in tasks]}")
+    print(f"fanout benchmark: temp=0.7 N={ns} "
+          f"models={len(models)} tasks={len(tasks)}", flush=True)
 
-    rows = []
-    for case in tasks:
-        print(f"\n=== task: {case['id']} ===", flush=True)
-        file_content = install_case(case)
-        for n in ns:
-            rows.append(fanout_at(n, case, runtime, file_content))
+    rows: list[dict] = []
+    for model_id in models:
+        print(f"\n##### MODEL: {model_id} #####", flush=True)
+        runtime = make_runtime(model_id)
+        for case in tasks:
+            print(f"\n=== task: {case['id']} ===", flush=True)
+            file_content = install_case(case)
+            for n in ns:
+                rows.append(fanout_at(n, case, runtime, file_content, model_id))
+                # checkpoint after every fanout invocation so a mid-run crash
+                # never loses the matrix data we already paid for
+                RESULTS_JSON.write_text(json.dumps({"rows": rows}, indent=2))
 
-    RESULTS_JSON.write_text(json.dumps({"model": config.model, "rows": rows}, indent=2))
-    write_reports(config.model, rows)
+    write_reports(models, tasks, ns, rows)
     return 0
 
 
@@ -235,96 +309,161 @@ def _group_by_task(rows: list[dict]) -> dict:
     return out
 
 
-def write_reports(model: str, rows: list[dict]) -> None:
+def _filter(rows: list[dict], *, model=None, n=None, task=None) -> list[dict]:
+    out = rows
+    if model is not None: out = [r for r in out if r["model"] == model]
+    if n is not None: out = [r for r in out if r["n"] == n]
+    if task is not None: out = [r for r in out if r["task"] == task]
+    return out
+
+
+def _agg(rows: list[dict]) -> dict:
+    """Aggregate fn + rx metrics over a subset of rows."""
+    completed = sum(r["completed"] for r in rows)
+    fn_pass = sum(r["fn_per_attempt_pass"] for r in rows)
+    rx_full = sum(r["rx_full_pass"] for r in rows)
+    fn_modal = sum(1 for r in rows if r["fn_majority_pass"])
+    rx_modal = sum(1 for r in rows if r["rx_majority_full_pass"])
+    tokens = sum(r["tokens"] for r in rows)
+    cost = sum(r["cost_usd"] for r in rows)
+    elapsed = sum(r["elapsed_s"] for r in rows)
+    return {
+        "rows": len(rows), "completed": completed,
+        "fn_pass": fn_pass, "fn_pct": 100 * fn_pass // max(completed, 1),
+        "rx_full": rx_full, "rx_pct": 100 * rx_full // max(completed, 1),
+        "fn_modal": fn_modal, "rx_modal": rx_modal,
+        "tokens": tokens, "cost": cost, "elapsed": elapsed,
+    }
+
+
+def write_reports(models: list[str], tasks: list[dict], ns: list[int],
+                  rows: list[dict]) -> None:
     by_task = _group_by_task(rows)
-    ns = sorted({r["n"] for r in rows})
     n_tasks = len(by_task)
+    task_ids = [c["id"] for c in tasks]
 
     md = [
-        "# Fan-out benchmark — does simplicio-prompt's subagent kernel help?",
+        "# Fan-out benchmark — regex vs functional, 4 models × N ∈ {64, 200, 600}",
         "",
         f"Date: **{time.strftime('%Y-%m-%d')}**  ",
-        f"Model: `{model}` · temperature **0.7** (induces real per-call variance)  ",
-        f"Engine: `kernel.subagent_runtime.SubagentRuntime` from simplicio-prompt "
-        "v1.7.0 (PyPI), real parallel calls through `LaneWorkerPool`.  ",
-        f"Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico) — real PHP 8 condominium system.  ",
-        f"Tasks: **{n_tasks}** real engineering changes across `src/Core/`, "
-        "`src/Middleware/`, `src/Repositories/`, and routing.  ",
-        f"N values tested: " + ", ".join(f"**{n}**" + (" *(sp default)*" if n == 64 else "") for n in ns),
+        f"Engine: `kernel.subagent_runtime.SubagentRuntime` from "
+        "simplicio-prompt v1.7.0 (PyPI) · `use_cache=False` (every subagent "
+        "is an independent provider call) · `temperature=0.7` (induces real "
+        "per-call variance).  ",
+        f"Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico) "
+        "— real PHP 8 condominium system on GitHub.  ",
+        f"Models: " + ", ".join(f"`{m}`" for m in models) + "  ",
+        f"N values: " + ", ".join(f"**{n}**" + (" *(sp default)*" if n == 64 else "") for n in ns) + "  ",
+        f"Tasks: **{n_tasks}** real engineering changes across "
+        "`src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing "
+        "(includes one bug-fix task that scores against the existing "
+        "`PasswordPolicyTest`, not a new hidden test).",
         "",
         "## Methodology",
         "",
-        "For each (task, N), the simplicio-prompt **kernel** launches N real "
-        "parallel LLM calls on the same prompt (simplicio-cli 6-layer wrap of "
-        "the task) at `temperature=0.7`. Every returned solution.php is written "
-        "into a working copy of `sistema-sindico` and scored by **real PHPUnit** "
-        "(`vendor/bin/phpunit` exit code 0). The **majority-vote outcome** is "
-        "computed by sha256-hashing the normalized code, picking the most "
-        "frequent variant, and re-running phpunit on it.",
+        "For each (model, task, N), the simplicio-prompt **kernel** launches "
+        "N real parallel LLM calls on the same prompt (simplicio-cli 6-layer "
+        "wrap of the task). Every returned solution is scored TWO ways:",
         "",
-        "**This is the real engagement of simplicio-prompt's value prop**: the "
-        "kernel actually executes the fan-out (LaneWorkerPool, bounded "
-        "concurrency, receipt cache, jittered backoff, circuit breaker), not "
-        "just embeds the runtime as prompt text. The question is: **does sp's "
-        "default N=64 buy more than a smaller N? does N=200 buy more than 64?**",
+        "1. **Functional (real PHPUnit)** — write the solution to the target "
+        "file in a working copy of sistema-sindico, install the hidden test "
+        "for the case (or just keep the existing suite for the bug-fix task), "
+        "run `vendor/bin/phpunit --configuration phpunit.xml.dist`. Pass = "
+        "exit code 0.",
+        "2. **Regex (cheap structural proxy)** — match a small set of patterns "
+        "against the solution text (method declared? right keywords? uses the "
+        "expected APIs?). Per-task patterns in "
+        "`sindico_cases.REGEX_CHECKS_BY_TASK`.",
         "",
-        "## Headline — per N (aggregate across tasks)",
+        "**The point of carrying both metrics**: where they AGREE, regex is a "
+        "reasonable cheap proxy; where they DISAGREE (especially regex-PASS "
+        "while phpunit-FAIL), regex is misleading and the criticism that "
+        "'regex doesn't mean the code works' is correct.",
         "",
-        "| N | Tasks | Per-attempt pass (sum) | Modal-vote pass | Tokens (sum) | Cost (USD, sum) | Avg elapsed |",
-        "|---|---|---|---|---|---|---|",
+        "## Headline — per (model, N) aggregate across tasks",
+        "",
+        "| Model | N | fn per-attempt | rx per-attempt | fn modal | rx modal | Tokens | Cost | Avg s |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
-    for n in ns:
-        ngroup = [r for r in rows if r["n"] == n]
-        tot_attempts = sum(r["completed"] for r in ngroup)
-        tot_passes = sum(r["per_attempt_pass"] for r in ngroup)
-        tot_modal = sum(1 for r in ngroup if r["majority_pass"])
-        tot_tokens = sum(r["tokens"] for r in ngroup)
-        tot_cost = sum(r["cost_usd"] for r in ngroup)
-        avg_elapsed = sum(r["elapsed_s"] for r in ngroup) / max(len(ngroup), 1)
-        md.append(
-            f"| **{n}**{' *(sp default)*' if n == 64 else ''} | {len(ngroup)} | "
-            f"{tot_passes}/{tot_attempts} ({100*tot_passes//max(tot_attempts,1)}%) | "
-            f"{tot_modal}/{len(ngroup)} | "
-            f"{tot_tokens:,} | ${tot_cost:.4f} | {avg_elapsed:.1f}s |"
-        )
-
-    md += ["", "## Per-task breakdown", "",
-           "| Task | N | Per-attempt | Uniq | Modal | Tokens | Cost | Elapsed |",
-           "|---|---|---|---|---|---|---|---|"]
-    for task, trows in by_task.items():
-        for r in trows:
+    for m in models:
+        for n in ns:
+            sub = _filter(rows, model=m, n=n)
+            if not sub:
+                continue
+            a = _agg(sub)
+            label = f"**{n}**" + (" *(default)*" if n == 64 else "")
             md.append(
-                f"| `{task}` | **{r['n']}** | "
-                f"{r['per_attempt_pass']}/{r['completed']} ({r['per_attempt_rate']}%) | "
-                f"{r['unique_outputs']} | "
-                f"{'PASS' if r['majority_pass'] else 'fail'} ({r['majority_count']}/{r['completed']}) | "
-                f"{r['tokens']:,} | ${r['cost_usd']:.4f} | {r['elapsed_s']:.1f}s |"
+                f"| `{m}` | {label} | "
+                f"{a['fn_pass']}/{a['completed']} ({a['fn_pct']}%) | "
+                f"{a['rx_full']}/{a['completed']} ({a['rx_pct']}%) | "
+                f"{a['fn_modal']}/{a['rows']} | "
+                f"{a['rx_modal']}/{a['rows']} | "
+                f"{a['tokens']:,} | ${a['cost']:.4f} | "
+                f"{a['elapsed']/max(a['rows'],1):.1f}s |"
             )
 
-    md += ["", "## Interpretation", "",
-           "- **Per-attempt pass** is the noise floor at `temperature=0.7`. "
-           "A single call lands roughly at this rate.",
-           "- **Unique outputs** measures real diversity per task at this "
-           "temperature; if every subagent produces the same file, fan-out "
-           "adds nothing.",
-           "- **Modal (majority-vote)** is the value test: does picking the "
-           "most frequent answer recover correctness when single calls are "
-           "noisy?",
-           "- **N=64 vs N=200**: the central comparison. If 200 doesn't beat "
-           "64 on modal pass rate, sp's default is at the sweet spot.",
-           "- **Cost** scales linearly with N (tokens are proportional). "
-           "**Elapsed** grows much slower because `LaneWorkerPool` runs calls "
-           "in parallel.",
+    md += ["", "## Per N (aggregate across all models)", "",
+           "| N | fn per-attempt | rx per-attempt | fn-vs-rx gap | fn modal | rx modal |",
+           "|---|---|---|---|---|---|"]
+    for n in ns:
+        a = _agg(_filter(rows, n=n))
+        gap = a["rx_pct"] - a["fn_pct"]
+        md.append(
+            f"| **{n}**{' *(default)*' if n == 64 else ''} | "
+            f"{a['fn_pass']}/{a['completed']} ({a['fn_pct']}%) | "
+            f"{a['rx_full']}/{a['completed']} ({a['rx_pct']}%) | "
+            f"**{gap:+d}** | "
+            f"{a['fn_modal']}/{a['rows']} | "
+            f"{a['rx_modal']}/{a['rows']} |"
+        )
+
+    md += ["",
+           "## Regex-vs-functional disagreement (per task, averaged across models × N)",
            "",
-           "Raw per-subagent data in `results_fanout.json`. Re-run with "
-           "`BENCH_FANOUT_NS=...` or `BENCH_FANOUT_TASKS=...` to focus.",
+           "When the regex score is much higher than phpunit (positive gap), "
+           "regex is a **false positive** — the code looks right but doesn't "
+           "actually pass. When phpunit is higher, regex misses real wins.",
+           "",
+           "| Task | fn per-attempt | rx per-attempt | gap (rx − fn) |",
+           "|---|---|---|---|"]
+    for tid in task_ids:
+        a = _agg(_filter(rows, task=tid))
+        gap = a["rx_pct"] - a["fn_pct"]
+        flag = ""
+        if gap >= 20: flag = " ⚠️ regex inflates"
+        elif gap <= -20: flag = " ⚠️ regex misses"
+        md.append(f"| `{tid}` | {a['fn_pct']}% | {a['rx_pct']}% | **{gap:+d}**{flag} |")
+
+    md += ["",
+           "## Per-task × model × N detail",
+           "",
+           "Format: `fn% / rx% / fn-modal-pass`. P = phpunit modal PASS, . = fail.",
            ""]
+    for tid in task_ids:
+        md += [f"### `{tid}`", "",
+               "| Model \\\\ N | " + " | ".join(str(n) for n in ns) + " |",
+               "|---|" + "|".join("---" for _ in ns) + "|"]
+        for m in models:
+            cells = []
+            for n in ns:
+                sub = _filter(rows, model=m, n=n, task=tid)
+                if not sub:
+                    cells.append("—")
+                    continue
+                r = sub[0]
+                fnp = "P" if r["fn_majority_pass"] else "."
+                cells.append(f"{r['fn_per_attempt_rate']:>3d}% / "
+                             f"{r['rx_full_pass_rate']:>3d}% / {fnp}")
+            md.append(f"| `{m.split('/')[-1]}` | " + " | ".join(cells) + " |")
+        md.append("")
+
     RESULTS_MD.write_text("\n".join(md))
     print(f"\n-> {RESULTS_MD}")
-    _pdf(model, rows)
+    _pdf(models, tasks, ns, rows)
 
 
-def _pdf(model: str, rows: list[dict]) -> None:
+def _pdf(models: list[str], tasks: list[dict], ns: list[int],
+         rows: list[dict]) -> None:
     try:
         from fpdf import FPDF
     except ImportError:
@@ -346,55 +485,66 @@ def _pdf(model: str, rows: list[dict]) -> None:
         for c, x in zip(cells, w): pdf.cell(x, 6, L(c), border=1)
         pdf.ln()
 
-    by_task = _group_by_task(rows)
-    ns = sorted({r["n"] for r in rows})
+    task_ids = [c["id"] for c in tasks]
 
     pdf.add_page()
-    h1("Fan-out benchmark - simplicio-prompt kernel on sistema-sindico")
-    p(f"Date: {time.strftime('%Y-%m-%d')}   Model: {model}   temperature: 0.7   "
-      f"Tasks: {len(by_task)}   N values: {', '.join(str(n) for n in ns)}")
-    p("Engine: kernel.subagent_runtime.SubagentRuntime (PyPI simplicio-prompt 1.7.0). "
-      "For each (task, N) the kernel launches N real parallel LLM calls through "
-      "LaneWorkerPool on the same prompt; each output is scored by real PHPUnit; "
-      "the majority-vote outcome (sha256-mode of normalized code) is re-scored. "
-      "Central question: does N=64 (sp default) help vs lower N? does N=200 help vs 64?")
+    h1("Fan-out - regex vs functional on sistema-sindico")
+    p(f"Date: {time.strftime('%Y-%m-%d')}   Models: {len(models)}   "
+      f"Tasks: {len(tasks)}   N values: {', '.join(str(n) for n in ns)}   "
+      f"temperature: 0.7   use_cache: False")
+    p("Engine: kernel.subagent_runtime.SubagentRuntime (PyPI simplicio-prompt "
+      "1.7.0). For each (model, task, N), N real parallel LLM calls through "
+      "LaneWorkerPool; each output scored TWO ways: real PHPUnit (functional) "
+      "and a regex pattern match (structural cheap proxy). The comparison "
+      "shows where regex agrees with phpunit (cheap proxy works) and where "
+      "regex inflates a pass that phpunit fails (regex is misleading).")
     pdf.ln(1)
-    h2("Headline - per N (aggregate across tasks)")
-    th(["N", "Tasks", "Per-attempt", "Modal pass", "Tokens", "Cost (USD)", "Avg elapsed"],
-       [18, 16, 36, 28, 28, 22, 28])
-    for n in ns:
-        ngroup = [r for r in rows if r["n"] == n]
-        tot_a = sum(r["completed"] for r in ngroup)
-        tot_p = sum(r["per_attempt_pass"] for r in ngroup)
-        tot_m = sum(1 for r in ngroup if r["majority_pass"])
-        tot_t = sum(r["tokens"] for r in ngroup)
-        tot_c = sum(r["cost_usd"] for r in ngroup)
-        avg_e = sum(r["elapsed_s"] for r in ngroup) / max(len(ngroup), 1)
-        label = f"{n}{' (default)' if n == 64 else ''}"
-        tr([label, str(len(ngroup)),
-            f"{tot_p}/{tot_a} ({100*tot_p//max(tot_a,1)}%)",
-            f"{tot_m}/{len(ngroup)}",
-            f"{tot_t:,}", f"${tot_c:.4f}", f"{avg_e:.1f}s"],
-           [18, 16, 36, 28, 28, 22, 28])
+
+    h2("Per (model, N) headline")
+    th(["Model", "N", "fn per-att", "rx per-att", "fn modal", "rx modal", "Cost"],
+       [56, 14, 30, 30, 22, 22, 22])
+    for m in models:
+        for n in ns:
+            sub = _filter(rows, model=m, n=n)
+            if not sub: continue
+            a = _agg(sub)
+            tr([m, str(n),
+                f"{a['fn_pct']}%", f"{a['rx_pct']}%",
+                f"{a['fn_modal']}/{a['rows']}", f"{a['rx_modal']}/{a['rows']}",
+                f"${a['cost']:.4f}"], [56, 14, 30, 30, 22, 22, 22])
     pdf.ln(2)
-    h2("Per-task")
-    th(["Task", "N", "Per-attempt", "Uniq", "Modal", "Tokens", "Cost"],
-       [40, 14, 32, 14, 28, 24, 24])
-    for task, trows in by_task.items():
-        for r in trows:
-            tr([task, str(r["n"]),
-                f"{r['per_attempt_pass']}/{r['completed']} ({r['per_attempt_rate']}%)",
-                str(r["unique_outputs"]),
-                f"{'P' if r['majority_pass'] else '.'} {r['majority_count']}/{r['completed']}",
-                f"{r['tokens']:,}", f"${r['cost_usd']:.4f}"],
-               [40, 14, 32, 14, 28, 24, 24])
+
+    h2("Per N (all models)")
+    th(["N", "fn per-att", "rx per-att", "gap", "fn modal", "rx modal"],
+       [22, 32, 32, 22, 32, 32])
+    for n in ns:
+        a = _agg(_filter(rows, n=n))
+        gap = a["rx_pct"] - a["fn_pct"]
+        tr([str(n), f"{a['fn_pct']}%", f"{a['rx_pct']}%", f"{gap:+d}",
+            f"{a['fn_modal']}/{a['rows']}", f"{a['rx_modal']}/{a['rows']}"],
+           [22, 32, 32, 22, 32, 32])
+    pdf.ln(2)
+
+    h2("Regex vs phpunit gap per task")
+    th(["Task", "fn", "rx", "gap (rx-fn)", "verdict"], [60, 22, 22, 28, 50])
+    for tid in task_ids:
+        a = _agg(_filter(rows, task=tid))
+        gap = a["rx_pct"] - a["fn_pct"]
+        if gap >= 20: verdict = "regex INFLATES (false positive)"
+        elif gap <= -20: verdict = "regex misses real wins"
+        else: verdict = "regex agrees with phpunit"
+        tr([tid, f"{a['fn_pct']}%", f"{a['rx_pct']}%", f"{gap:+d}", verdict],
+           [60, 22, 22, 28, 50])
+
     pdf.ln(2)
     h2("Interpretation")
-    p("Per-attempt pass = noise floor at temp=0.7 (single-call equivalent). "
-      "Modal-vote = does picking the most frequent answer recover correctness? "
-      "If N=200 doesn't beat N=64 on modal pass-rate, the sp default is the "
-      "sweet spot. Cost scales linearly with N for tokens; wall-clock grows "
-      "sub-linearly because calls run in parallel through LaneWorkerPool.")
+    p("Functional (fn) = real phpunit exit code 0 on the FULL sindico suite "
+      "including the per-case hidden test (or, for the bug-fix task, the "
+      "existing PasswordPolicyTest). Regex (rx) = 'every structural pattern "
+      "matched' on the generated file (per-task patterns in "
+      "REGEX_CHECKS_BY_TASK). Where rx >> fn the regex metric inflates "
+      "results -- code looks right but doesn't run; where they agree, regex "
+      "is a usable cheap proxy.")
     pdf.output(str(RESULTS_PDF))
     print(f"-> {RESULTS_PDF}")
 
