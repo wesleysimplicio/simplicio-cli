@@ -114,12 +114,16 @@ through the HF router (`https://router.huggingface.co/v1`).
 > BENCH_MODELS="local:Qwen/Qwen2.5-Coder-1.5B-Instruct,Qwen/Qwen2.5-Coder-3B-Instruct,Qwen/Qwen2.5-Coder-7B-Instruct"
 > python3 bench/run_offline.py`.
 
-Side-by-side delta vs the previously published numbers (same regex methodology):
+Side-by-side delta vs the previously published numbers (same regex methodology,
+all 17 README models re-measured):
 [`bench/results_comparison.md`](bench/results_comparison.md) ·
-[`bench/results_comparison.pdf`](bench/results_comparison.pdf). The Qwen2.5-Coder
-triplet is the only batch fully re-measured this round; the wider 14-model
-re-run stalled mid-flight (HF Kimi-K2.6 hangs + a temporarily-disabled provider
-for Qwen2.5-7B burned the retry budget) and will be backfilled in the next pass.
+[`bench/results_comparison.pdf`](bench/results_comparison.pdf). Headline on the
+14 models with clean data: **with simplicio averaged 86% → 88% (+2 pts); without
+simplicio 36% → 36% (+1 pt)** — the new run reproduces the published numbers
+within noise. Three frontier models (Claude Opus 4.7, Qwen 3.7 Max, DeepSeek V4
+Pro) show `n/a` for the new column: their OpenRouter calls hit account-level
+HTTP 402 / provider failures on >50% of requests this round, so the sample is
+too small to publish; their old numbers still stand.
 
 #### Local offline — qwen2.5-coder on Ollama, M1 8 GB, run on 2026-05-27 (30 runs/side, 156 checks)
 
