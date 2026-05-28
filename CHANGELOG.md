@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] — 2026-05-28
+
+### Added
+- **Dependency-update policy and enforcement** (closes #21):
+  - `.specs/workflow/DEPENDENCY_POLICY.md` — ecosystem version policy:
+    semver, floor-pinning (`>=`), 15-day floor-bump rule after upstream
+    release, no cyclic deps, release-sync checklist.
+  - `.github/workflows/check-deps.yml` — daily CI (and on every PR
+    touching `pyproject.toml`) that compares pinned floors against the
+    latest published version of every ecosystem dependency on PyPI and
+    fails the build with `::error::` annotations when one is at least
+    a minor behind.
+  - `.github/dependabot.yml` — weekly grouped updates for `pip`
+    (ecosystem packages grouped), `cargo` (`rust/simplicio-core`), and
+    `github-actions`. Patches auto-merge, minor/major wait for review.
+
+### Changed
+- `simplicio-mapper>=0.5.0` → `>=0.6.0` (catch up with upstream 0.6.0).
+- `simplicio-prompt>=1.7.0` → `>=1.9.0` (catch up with upstream 1.9.0).
+
+Both bumps validated locally: `pytest tests/python` stays 38/38 green
+with the new versions installed.
+
 ## [0.4.0] — 2026-05-28
 
 ### Added
