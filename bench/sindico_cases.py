@@ -9,6 +9,8 @@ states. Pass == entire suite green.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 CASES = [
     {
         "id": "password_strength",
@@ -190,6 +192,117 @@ CASES = [
             "- additive: keep get/post/put/patch/delete/group/dispatch and "
             "the private normalize/invoke/notFound helpers unchanged\n"
             "- INSTANCE method (uses $this->routes), not static\n"
+            "- final class, namespace App\\Core, strict_types"
+        ),
+    },
+    # ------------------------------------------------------------------------
+    # Day-to-day style tasks (more PR-realistic than pure utility additions):
+    # bug fix, method composition, repo SQL builder, router param extraction.
+    # ------------------------------------------------------------------------
+    {
+        "id": "bugfix_password_policy_lowercase",
+        "target": "src/Core/PasswordPolicy.php",
+        "seed_content": (Path(__file__).parent / "sindico_hidden" /
+                         "_seed_PasswordPolicy_bug.php").read_text(encoding="utf-8"),
+        # No new hidden test: the existing PasswordPolicyTest must pass after the fix.
+        "goal": (
+            "There is a bug in `App\\Core\\PasswordPolicy::violations()`. The "
+            "EXISTING test `tests/unit/Core/PasswordPolicyTest.php` is failing "
+            "because `violations('SenhaForte123')` returns `['lowercase']` when "
+            "it should return `[]`. Find the bug and fix it so the existing "
+            "test passes."
+        ),
+        "criteria": (
+            "- after the fix, `violations('SenhaForte123')` returns `[]`\n"
+            "- the lowercase rule actually checks for lowercase letters (regex "
+            "/[a-z]/), not uppercase\n"
+            "- all other rules (min_length, uppercase, digit) keep their "
+            "current behaviour"
+        ),
+        "constraints": (
+            "- minimal fix: change ONLY the broken regex; do not refactor or "
+            "rename anything\n"
+            "- keep MIN_LENGTH, isValid(), describe() exactly as they are\n"
+            "- final class, namespace App\\Core, strict_types"
+        ),
+    },
+    {
+        "id": "password_assess",
+        "target": "src/Core/PasswordPolicy.php",
+        "hidden_test": "PasswordAssessTest.php",
+        "goal": (
+            "Add a NEW public static method `assess(string $password): array` "
+            "to App\\Core\\PasswordPolicy that returns a summary report: "
+            "`['valid' => bool, 'violations' => array, 'length' => int]`. "
+            "It composes the existing API."
+        ),
+        "criteria": (
+            "- result['valid'] mirrors `isValid($password)`\n"
+            "- result['violations'] mirrors `violations($password)` (same "
+            "array, same order)\n"
+            "- result['length'] is `strlen($password)`\n"
+            "- works for the empty string (returns invalid, length 0)"
+        ),
+        "constraints": (
+            "- additive: keep MIN_LENGTH, violations(), isValid(), describe() "
+            "exactly as they are; assess() must call the existing methods "
+            "rather than re-implement them\n"
+            "- final class, namespace App\\Core, strict_types"
+        ),
+    },
+    {
+        "id": "base_repository_build_update_sql",
+        "target": "src/Repositories/BaseRepository.php",
+        "hidden_test": "BaseRepositoryBuildUpdateSqlTest.php",
+        "goal": (
+            "Add a NEW public static method "
+            "`buildUpdateSql(string $table, int $id, array $set): array` to "
+            "App\\Repositories\\BaseRepository that builds a parameterized "
+            "UPDATE statement for a single row."
+        ),
+        "criteria": (
+            "- returns `[$sql, $params]` where $sql is `'UPDATE <table> SET "
+            "col1 = :col1, col2 = :col2 WHERE id = :id'` and $params is an "
+            "associative array of `col => value` plus `'id' => $id`\n"
+            "- `buildUpdateSql('users', 42, ['name'=>'alice','email'=>'a@b.com'])` "
+            "-> `['UPDATE users SET name = :name, email = :email WHERE id = :id', "
+            "['name'=>'alice','email'=>'a@b.com','id'=>42]]`\n"
+            "- column names must match `/^[a-zA-Z_][a-zA-Z0-9_]*$/`; invalid "
+            "column or empty $set throws `InvalidArgumentException`"
+        ),
+        "constraints": (
+            "- additive: keep __construct, find(), all() and the private "
+            "assertColumnName/sanitizeOrderBy helpers unchanged\n"
+            "- static method (no instance state used)\n"
+            "- abstract class, namespace App\\Repositories, strict_types"
+        ),
+    },
+    {
+        "id": "router_extract_params",
+        "target": "src/Core/Router.php",
+        "hidden_test": "RouterExtractParamsTest.php",
+        "goal": (
+            "Add a NEW public INSTANCE method "
+            "`extractParams(string $pattern, string $path): ?array` to "
+            "App\\Core\\Router that, given a route pattern like "
+            "`/users/{id}/posts/{slug}` and a concrete path, returns an "
+            "associative array of param-name -> captured value, or null if "
+            "the path doesn't match the pattern."
+        ),
+        "criteria": (
+            "- `extractParams('/users/{id}', '/users/42')` -> `['id' => '42']`\n"
+            "- `extractParams('/posts/{id}/comments/{slug}', "
+            "'/posts/7/comments/hello-world')` -> "
+            "`['id' => '7', 'slug' => 'hello-world']`\n"
+            "- pattern with no params: `extractParams('/health', '/health')` "
+            "-> `[]` (empty array, NOT null)\n"
+            "- mismatched path: returns `null`"
+        ),
+        "constraints": (
+            "- additive: keep get/post/put/patch/delete/group/dispatch/has and "
+            "the private helpers unchanged\n"
+            "- INSTANCE method (may use the same regex-compilation pattern "
+            "the existing `add()` uses internally), not static\n"
             "- final class, namespace App\\Core, strict_types"
         ),
     },

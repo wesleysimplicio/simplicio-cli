@@ -116,19 +116,28 @@ Output the COMPLETE updated contents of {target}. PHP only, no prose, no fences.
 
 
 def setup_workspace() -> dict:
-    """Fresh copy of sindico into WORK; return {target -> original content} snapshot."""
+    """Fresh copy of sindico into WORK; return {case_id -> starting content} snapshot.
+
+    Pure-additive tasks snapshot the pristine sindico source. Bug-fix tasks
+    (those that set `seed_content`) snapshot the seeded broken state, so a
+    reset returns the target file to the broken starting point the case
+    declares, not to the pristine source.
+    """
     if WORK.exists():
         shutil.rmtree(WORK)
     shutil.copytree(SINDICO_SRC, WORK)
     (WORK / "tests" / "unit" / "Core" / "Hidden").mkdir(parents=True, exist_ok=True)
     snaps: dict[str, str] = {}
     for c in CASES:
-        snaps[c["target"]] = (SINDICO_SRC / c["target"]).read_text(encoding="utf-8")
+        if c.get("seed_content"):
+            snaps[c["id"]] = c["seed_content"]
+        else:
+            snaps[c["id"]] = (SINDICO_SRC / c["target"]).read_text(encoding="utf-8")
     return snaps
 
 
-def reset_target(target: str, snaps: dict) -> None:
-    (WORK / target).write_text(snaps[target], encoding="utf-8")
+def reset_target(case: dict, snaps: dict) -> None:
+    (WORK / case["target"]).write_text(snaps[case["id"]], encoding="utf-8")
 
 
 def extract_php(text: str) -> str:
@@ -154,16 +163,21 @@ def run_phpunit() -> tuple[bool, str]:
 
 
 def one(model: str, case: dict, prompt: str, snaps: dict) -> dict:
-    reset_target(case["target"], snaps)
+    reset_target(case, snaps)
     res = ro.llm_call(model, prompt)
     code = extract_php(res["text"])
     (WORK / case["target"]).write_text(code, encoding="utf-8")
-    hidden_dst = WORK / "tests" / "unit" / "Core" / "Hidden" / case["hidden_test"]
-    hidden_dst.write_text((HIDDEN_TPL / case["hidden_test"]).read_text(encoding="utf-8"),
-                           encoding="utf-8")
+    hidden_dst = None
+    if case.get("hidden_test"):
+        hidden_dst = WORK / "tests" / "unit" / "Core" / "Hidden" / case["hidden_test"]
+        hidden_dst.write_text(
+            (HIDDEN_TPL / case["hidden_test"]).read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
     passed, tail = run_phpunit()
-    hidden_dst.unlink(missing_ok=True)
-    reset_target(case["target"], snaps)
+    if hidden_dst is not None:
+        hidden_dst.unlink(missing_ok=True)
+    reset_target(case, snaps)
     return {"passed": passed, "tokens": res.get("total_tokens", 0),
             "ms": res.get("elapsed_ms", 0), "tail": tail,
             "error": res.get("error")}

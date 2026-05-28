@@ -102,18 +102,29 @@ def setup_workspace_base() -> None:
 
 
 def install_case(case: dict) -> str:
-    """Reset target file + install ONLY this case's hidden test. Return target content."""
+    """Reset target file + install ONLY this case's hidden test (if any).
+
+    Bug-fix tasks set `seed_content` to a deliberately broken version of the
+    target; the model is asked to fix it so the EXISTING test suite passes.
+    Pure-additive tasks leave seed_content unset and use the pristine sindico
+    source as the starting state.
+    """
     target_path = WORK / case["target"]
-    original = (SINDICO_SRC / case["target"]).read_text(encoding="utf-8")
-    target_path.write_text(original, encoding="utf-8")
+    if case.get("seed_content"):
+        # buggy seed — write the case's starting state directly
+        content = case["seed_content"]
+    else:
+        content = (SINDICO_SRC / case["target"]).read_text(encoding="utf-8")
+    target_path.write_text(content, encoding="utf-8")
     hidden_dir = WORK / "tests" / "unit" / "Core" / "Hidden"
     for old in hidden_dir.glob("*Test.php"):
         old.unlink()
-    src_test = ROOT / "bench" / "sindico_hidden" / case["hidden_test"]
-    (hidden_dir / case["hidden_test"]).write_text(
-        src_test.read_text(encoding="utf-8"), encoding="utf-8"
-    )
-    return original
+    if case.get("hidden_test"):
+        src_test = ROOT / "bench" / "sindico_hidden" / case["hidden_test"]
+        (hidden_dir / case["hidden_test"]).write_text(
+            src_test.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+    return content
 
 
 def run_phpunit(target_rel: str, code: str) -> bool:
