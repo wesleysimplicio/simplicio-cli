@@ -18,39 +18,36 @@ For context, the simplicio-cli 6-layer task contract is shown on the right as a 
 
 ## Headline
 
-- **WITHOUT simplicio-prompt** (baseline): 4/16 (25%)
-- **WITH simplicio-prompt** (v1.7.0): 4/16 (25%) — **+0 pts vs baseline**
-- *Context — simplicio-cli (6-layer):* 11/16 (68%) — *+43 pts vs baseline*
+- **WITHOUT simplicio-prompt** (baseline): 17/36 (47%)
+- **WITH simplicio-prompt** (v1.7.0): 16/36 (44%) — **-3 pts vs baseline**
+- *Context — simplicio-cli (6-layer):* 27/36 (75%) — *+28 pts vs baseline*
 
-2 of 3 models contributed clean data (16 runs/side). Excluded 1 model(s) for API/provider failure (see Data quality below).
+3 of 3 models contributed clean data (36 runs/side). 
 
 ## Per-model — WITH vs WITHOUT simplicio-prompt
 
 | Model | WITHOUT (baseline) | WITH simplicio-prompt | Delta (pts) | *cli ref* |
 |---|---|---|---|---|
-| `google/gemma-3-4b-it` | 2/8 (25%) | 2/8 (25%) | **+0** | *6/8 (75%)* |
-| `meta-llama/llama-3.1-8b-instruct` | 2/8 (25%) | 2/8 (25%) | **+0** | *5/8 (62%)* |
-| `google/gemini-3.5-flash` | n/a | n/a | n/a | n/a |  *API failure on all 8 calls (excluded from totals)*
+| `google/gemma-3-4b-it` | 4/12 (33%) | 4/12 (33%) | **+0** | *8/12 (66%)* |
+| `meta-llama/llama-3.1-8b-instruct` | 5/12 (41%) | 4/12 (33%) | **-8** | *7/12 (58%)* |
+| `google/gemini-3.5-flash` | 8/12 (66%) | 8/12 (66%) | **+0** | *12/12 (100%)* |
 
 ## Per-task × model (WITHOUT / WITH simplicio-prompt)
 
-| Task | gemma-3-4b-it | llama-3.1-8b-instruct |
-|---|---|---|
-| password_strength | . / . | . / . |
-| password_require_symbol | . / . | . / . |
-| env_get_int | . / . | . / . |
-| env_get_bool | . / . | . / . |
-| admin_only_allowed_roles | P / P | P / P |
-| rate_limit_bucket_key | . / . | . / . |
-| base_repository_build_where_sql | . / . | . / . |
-| router_has | P / P | P / P |
-
-## Data quality
-
-Models excluded from the totals because their calls did not return a usable model result this round:
-
-- `google/gemini-3.5-flash` — API failure on all 8 calls (excluded from totals)
-
+| Task | gemma-3-4b-it | llama-3.1-8b-instruct | gemini-3.5-flash |
+|---|---|---|---|
+| password_strength | . / . | . / . | P / P |
+| password_require_symbol | . / . | P / . | P / . |
+| env_get_int | . / . | . / . | . / . |
+| env_get_bool | . / . | . / . | . / . |
+| admin_only_allowed_roles | P / P | P / P | P / P |
+| rate_limit_bucket_key | . / . | . / . | . / P |
+| base_repository_build_where_sql | . / . | . / . | . / . |
+| router_has | P / P | P / P | P / P |
+| bugfix_password_policy_lowercase | P / P | P / P | P / P |
+| password_assess | P / P | P / P | P / P |
+| base_repository_build_update_sql | . / . | . / . | P / P |
+| router_extract_params | . / . | . / . | P / P |
 ## Interpretation
 
 simplicio-prompt v1.7.0 is **net-neutral vs the raw baseline** on the models with clean data this round — no regression, no improvement. The earlier catastrophic regressions on this exact benchmark (Llama-3.1-8B 0/4 vs 2/4 baseline; Gemini Flash 1/4 vs 3/4 baseline) are resolved by the mode-selection rewrite (template split, `agent-runtime-execution-prompt.md` trimmed from 289 to 102 lines, code-focused persona, output-shape examples).
