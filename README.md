@@ -21,6 +21,55 @@ pip install simplicio-cli
 
 ## Why it works — the numbers
 
+Two complementary benchmarks measure different things. Read them in order.
+
+### 1. Execution benchmark — real PHPUnit on a real codebase (the "does it work" answer)
+
+Run on `wesleysimplicio/sistema-sindico` (PHP 8 + PHPUnit 11). Each task asks the
+model to **add a new method** to an existing `src/Core/` class. The generated
+file is written into a working copy, a **hidden PHPUnit test** (never shown to
+the model, asserting true AND false states) is dropped under
+`tests/unit/Core/Hidden/`, and the **entire suite** runs. **Pass = every
+existing test plus the hidden test go green** — the method must implement the
+behaviour AND not break anything. Both sides emit the complete file; the only
+variable is whether the goal is wrapped in the simplicio contract.
+
+4 tasks · 5 models · 2 sides = **20 runs per side**, scored by `vendor/bin/phpunit` exit code on 2026-05-28:
+
+| Model | Without simplicio | With simplicio | Gain |
+|---|---|---|---|
+| **Claude Opus 4.7** (`anthropic/claude-opus-4.7`) | 50% | **100%** | **+50 pts** |
+| **Gemini 3.5 Flash** (`google/gemini-3.5-flash`) | 50% | **100%** | **+50 pts** |
+| **Llama 3.1 8B** (`meta-llama/Llama-3.1-8B-Instruct`) | 75% | **100%** | **+25 pts** |
+| **Gemma 3n e4B** (`google/gemma-3n-E4B-it`) | 0% | 0% | 0 pts |
+| **Llama 3.2 1B** (`meta-llama/Llama-3.2-1B-Instruct`) | 0% | 0% | 0 pts |
+| **Headline (5 models · 4 tasks · 20 runs/side)** | **35%** | **60%** | **+25 pts** |
+
+> The contract gives **+25 to +50 points** on every model that has the baseline
+> capability to produce valid PHP. **Sub-4B models go 0% on both sides** —
+> they can't emit a parseable PHP file with the right namespace/strict_types,
+> let alone implement the method, so the contract has nothing to amplify.
+> The floor is real, and it's honest to publish: simplicio is a force
+> multiplier on capable models, not a magic wand on tiny ones.
+
+Full report: [`bench/results_exec_sindico.md`](bench/results_exec_sindico.md) ·
+[`bench/results_exec_sindico.pdf`](bench/results_exec_sindico.pdf). Reproduce:
+clone `sistema-sindico` (public), `composer install`, then
+`BENCH_BASE_URL=… BENCH_API_KEY=… BENCH_MODELS=…
+python3 bench/run_exec_sindico.py`. Hidden tests live under
+`bench/sindico_hidden/`; harness in `bench/run_exec_sindico.py`.
+
+### 2. Contract-adherence benchmark — structural checks across many models
+
+The tables below measure something **narrower and complementary**: did the
+model produce **the right shape of actionable output** (target-file mention +
+DIFF block + TEST block + contract-state keywords) on a raw one-line prompt
+vs. the simplicio contract. Scoring is via **deterministic regex** on the
+output — it's not a proof that the code compiles or passes runtime tests.
+That's what the execution benchmark above is for. The two answer different
+questions: this one measures *contract adherence at scale across many models*;
+the execution one measures *runtime correctness on a real codebase*.
+
 Same model. Same task. Only the prompt changes. **Measured, reproducible, deterministic.**
 **Seventeen models tested across four runs** — three local Ollama models on an
 M1 MacBook (8 GB), five sub-4B tiny models, six frontier 2026 models, and three
