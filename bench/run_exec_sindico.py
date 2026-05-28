@@ -227,7 +227,11 @@ def _has_sp(by_model: dict) -> bool:
 
 def write_reports(by_model: dict) -> None:
     models = list(by_model.keys())
-    case_ids = [c["id"] for c in CASES]
+    # Drive the report off rows actually present in the data, not the static
+    # CASES list, so regenerating from a partial run shows what was measured.
+    sample_rows = next(iter(by_model.values())).get("rows", []) if by_model else []
+    case_ids = [r["id"] for r in sample_rows]
+    n_tasks = len(case_ids)
     with_sp = _has_sp(by_model)
     g_sem = sum(b.get("sem_pass", 0) for b in by_model.values())
     g_com = sum(b.get("com_pass", 0) for b in by_model.values())
@@ -244,20 +248,42 @@ def write_reports(by_model: dict) -> None:
                         "runtime template from the simplicio-prompt package, "
                         "with the task injected as user input X")
     md = [
-        "# Execution benchmark — sistema-sindico (real PHPUnit)",
+        "# Execution benchmark — real project, real tasks, real test suite",
         "",
         f"Date: **{time.strftime('%Y-%m-%d')}**  ",
-        f"Target project: `wesleysimplicio/sistema-sindico` (PHP 8 + PHPUnit 11)  ",
+        f"Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico)"
+        f" — a real condominium-management system in pure PHP 8 (public on GitHub, PHPUnit 11)  ",
         f"Models: " + ", ".join(f"`{m}`" for m in models) + "  ",
-        f"Tasks: **{len(CASES)}** additive modifications to `src/Core/` classes.",
+        f"Tasks: **{n_tasks}** additive real-engineering changes across "
+        "`src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing.",
         "",
-        "Each task asks the model to add a new method to a real file in the "
-        "sindico codebase. The generated file is written into a working copy, "
-        "a **hidden PHPUnit test** (never shown to the model, asserting true "
-        "AND false states) is added under `tests/unit/Core/Hidden/`, and the "
-        "ENTIRE suite is run. **Pass = every existing test + the hidden test "
-        "go green.** All sides emit the complete file; the only variable is "
-        "the wrapping prompt:",
+        "## Methodology — what \"pass\" actually means",
+        "",
+        "**This is NOT regex pattern-matching on model output. This is NOT a "
+        "synthetic toy unit-test harness in isolation.** The benchmark runs "
+        "against an actual published PHP project using the project's real "
+        "PHPUnit suite (`vendor/bin/phpunit --configuration phpunit.xml.dist`).",
+        "",
+        "For each task:",
+        "",
+        "1. The model is asked for a real engineering change — add a new method "
+        "to an existing production class (permission helper, env parser, "
+        "rate-limit key builder, repository SQL builder, route introspection, "
+        "etc.).",
+        "2. Its generated file replaces the original in a working copy of the "
+        "real repo (with `composer install` deps already in place).",
+        "3. A **hidden PHPUnit test** (never shown to the model, asserting "
+        "BOTH true and false states of the required behaviour) is dropped into "
+        "`tests/unit/Core/Hidden/`.",
+        "4. The **ENTIRE production suite** runs — every pre-existing test of "
+        "the real codebase plus the hidden one. The model's change must be "
+        "**correct** (the new test passes) AND must **not break existing "
+        "behaviour** (every prior test still passes).",
+        "5. **Pass = `phpunit` exit code 0** — the same green/red signal the "
+        "project's CI would use to merge a PR.",
+        "",
+        "All sides emit the complete file (identical output shape); the only "
+        "variable is the wrapping prompt:",
         "",
         sides_blurb,
         "",
@@ -346,13 +372,26 @@ def _pdf(by_model: dict) -> None:
             pdf.cell(x, 6, L(c), border=1)
         pdf.ln()
 
+    sample_rows = next(iter(by_model.values())).get("rows", []) if by_model else []
+    n_tasks = len(sample_rows)
     pdf.add_page()
-    h1("Execution benchmark - sistema-sindico (real PHPUnit, not regex)")
-    p(f"Date: {time.strftime('%Y-%m-%d')}   Tasks: {len(CASES)} additive PHP modifications")
-    blurb = ("Each prompt variant emits the complete file. Pass = the full "
-             "PHPUnit suite (existing + hidden test) goes green: the new method "
-             "works AND nothing else broke. Variables: baseline = raw goal; "
-             "cli = the simplicio-cli 6-layer task contract")
+    h1("Execution benchmark - real project, real tasks, real test suite")
+    p(f"Date: {time.strftime('%Y-%m-%d')}   "
+      f"Target: wesleysimplicio/sistema-sindico (real PHP 8 condominium system, "
+      f"public on GitHub)   Tasks: {n_tasks} additive engineering changes "
+      f"across Core / Middleware / Repository / Router.")
+    h2("Methodology - what 'pass' actually means")
+    p("NOT regex on model output. NOT a toy harness in isolation. The model's "
+      "generated file replaces the real source file in a working copy of the "
+      "real repo; a hidden PHPUnit test (never shown to the model, asserting "
+      "TRUE and FALSE states) is added to tests/unit/Core/Hidden/; the FULL "
+      "production suite runs (existing tests + hidden). Pass = vendor/bin/phpunit "
+      "exit code 0 - same green/red the project's CI would use to merge a PR. "
+      "The model's change must be correct AND must not break any pre-existing "
+      "test of the real codebase.")
+    blurb = ("All sides emit the complete file (identical output shape). "
+             "Variables: baseline = raw goal; cli = the simplicio-cli 6-layer "
+             "task contract")
     if with_sp:
         blurb += "; sp = the simplicio-prompt Tuple-Space + Yool runtime template."
     else:
@@ -389,7 +428,7 @@ def _pdf(by_model: dict) -> None:
                 f"{b['com_pct']-b['sem_pct']:+d}"], [86, 30, 30, 30])
     pdf.ln(2)
     h2(f"Per-task x model ({'base / cli / sp' if with_sp else 'base / cli'})")
-    case_ids = [c["id"] for c in CASES]
+    case_ids = [r["id"] for r in sample_rows]
     th(["Task"] + [m.split("/")[-1] for m in models],
        [40] + [(140 // max(len(models), 1))] * len(models))
     for i, cid in enumerate(case_ids):

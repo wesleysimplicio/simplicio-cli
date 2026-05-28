@@ -23,16 +23,27 @@ pip install simplicio-cli
 
 Two complementary benchmarks measure different things. Read them in order.
 
-### 1. Execution benchmark — real PHPUnit on a real codebase (the "does it work" answer)
+### 1. Execution benchmark — real project, real tasks, real test suite (the "does it work" answer)
 
-Run on `wesleysimplicio/sistema-sindico` (PHP 8 + PHPUnit 11). Each task asks the
-model to **add a new method** to an existing `src/Core/` class. The generated
-file is written into a working copy, a **hidden PHPUnit test** (never shown to
-the model, asserting true AND false states) is dropped under
-`tests/unit/Core/Hidden/`, and the **entire suite** runs. **Pass = every
-existing test plus the hidden test go green** — the method must implement the
-behaviour AND not break anything. All sides emit the complete file; the only
-variable is the wrapping prompt.
+**This is not regex pattern-matching. This is not a synthetic toy harness in
+isolation.** Run against [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico)
+— a real condominium-management system in pure PHP 8, public on GitHub, with a
+real PHPUnit suite (`vendor/bin/phpunit --configuration phpunit.xml.dist`).
+
+For each task the model is asked for a **real engineering change** — add a new
+method to an existing production class (permission helper, env parser,
+rate-limit key builder, repository SQL builder, route introspection, etc.).
+The generated file replaces the original in a working copy of the real repo;
+a **hidden PHPUnit test** (never shown to the model, asserting BOTH true and
+false states of the required behaviour) is dropped into
+`tests/unit/Core/Hidden/`; the **entire production suite runs** (every
+pre-existing test of the real codebase plus the hidden one). **Pass =
+`phpunit` exit code 0** — the same green/red signal the project's CI would use
+to merge a PR. The model's change must be *correct* (the new test passes) AND
+must *not break existing behaviour* (every prior test still passes).
+
+All sides emit the complete file (identical output shape); the only variable
+is the wrapping prompt.
 
 4 tasks · **9 models** (3 small · 3 mid · 3 frontier) · 2 sides = **36 runs per side**, scored by `vendor/bin/phpunit` exit code on 2026-05-28. Both sides emit the complete file; the only variable is whether the goal is wrapped in the simplicio contract:
 
