@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CASES_PATH = ROOT / "bench" / "cases_offline.json"
 RESULTS_MD = ROOT / "bench" / "results.md"
 RESULTS_JSON = ROOT / "bench" / "results.json"
+RESULTS_PDF = ROOT / "bench" / "results.pdf"
 CHART_DIR = ROOT / "bench" / "charts"
 
 MODELS = [m.strip() for m in os.environ.get(
@@ -137,31 +138,36 @@ def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
             "X-Title": "simplicio-cli bench",
         },
     )
+    retries = int(os.environ.get("BENCH_HTTP_RETRIES", "4"))
     t0 = time.perf_counter()
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            data = json.loads(r.read())
-        elapsed_ms = int((time.perf_counter() - t0) * 1000)
-        usage = data.get("usage") or {}
-        msg = data["choices"][0].get("message") or {}
-        text = msg.get("content") or msg.get("reasoning") or ""
-        return {
-            "text": text,
-            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
-            "completion_tokens": int(usage.get("completion_tokens", 0)),
-            "total_tokens": int(usage.get("total_tokens", 0)),
-            "elapsed_ms": elapsed_ms,
-            "error": None,
-        }
-    except Exception as e:
-        return {
-            "text": f"[BENCH_ERROR] {e}",
-            "prompt_tokens": 0,
-            "completion_tokens": 0,
-            "total_tokens": 0,
-            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
-            "error": str(e),
-        }
+    last_err = None
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                data = json.loads(r.read())
+            usage = data.get("usage") or {}
+            msg = data["choices"][0].get("message") or {}
+            text = msg.get("content") or msg.get("reasoning") or ""
+            return {
+                "text": text,
+                "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+                "completion_tokens": int(usage.get("completion_tokens", 0)),
+                "total_tokens": int(usage.get("total_tokens", 0)),
+                "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+                "error": None,
+            }
+        except Exception as e:
+            last_err = e
+            if attempt < retries:
+                time.sleep(2 ** attempt)  # transient router/SSL hiccup: back off and retry
+    return {
+        "text": f"[BENCH_ERROR] {last_err}",
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+        "error": str(last_err),
+    }
 
 
 def score(output: str, checks: list[str]) -> list[bool]:
@@ -269,6 +275,187 @@ def _svg_delta(title: str, labels: list[str], deltas: list[float]) -> str:
     return "".join(parts)
 
 
+# ---------- PDF report (fpdf2) ---------- #
+
+def _lat1(s) -> str:
+    """Core PDF fonts are latin-1 only; drop anything outside it."""
+    return str(s).encode("latin-1", "replace").decode("latin-1")
+
+
+def build_pdf(by_model: dict, cases: list) -> None:
+    try:
+        from fpdf import FPDF
+    except ImportError:
+        print("[warn] fpdf2 not installed; skipping PDF. install via `pip install fpdf2`.")
+        return
+
+    models = list(by_model.keys())
+    n_cases = len(cases)
+    stacks = sorted({c["stack"] for c in cases})
+    grand_sem = sum(by_model[m]["sem_hits"] for m in models)
+    grand_com = sum(by_model[m]["com_hits"] for m in models)
+    grand_total = sum(by_model[m]["total"] for m in models)
+    gsp = 100 * grand_sem // max(grand_total, 1)
+    gcp = 100 * grand_com // max(grand_total, 1)
+
+    pdf = FPDF(unit="mm", format="A4")
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_margins(15, 15, 15)
+
+    def h1(t):
+        pdf.set_font("Helvetica", "B", 18); pdf.multi_cell(0, 9, _lat1(t)); pdf.ln(2)
+
+    def h2(t):
+        pdf.set_font("Helvetica", "B", 13); pdf.multi_cell(0, 7, _lat1(t)); pdf.ln(1)
+
+    def p(t):
+        pdf.set_font("Helvetica", "", 10); pdf.multi_cell(0, 5, _lat1(t)); pdf.ln(1)
+
+    def th(cols, widths):
+        pdf.set_font("Helvetica", "B", 9); pdf.set_fill_color(230, 230, 230)
+        for c, w in zip(cols, widths):
+            pdf.cell(w, 6, _lat1(c), border=1, fill=True)
+        pdf.ln()
+
+    def tr(cells, widths):
+        pdf.set_font("Helvetica", "", 9)
+        for c, w in zip(cells, widths):
+            pdf.cell(w, 6, _lat1(c), border=1)
+        pdf.ln()
+
+    rel_grand = 100 * (grand_com - grand_sem) / max(grand_sem, 1)
+    total_runs = n_cases * max(len(models), 1)
+
+    # ---- page 1: cover + methodology + headline ---- #
+    pdf.add_page()
+    h1("simplicio-cli - Benchmark")
+    p(f"Date: {time.strftime('%Y-%m-%d')}")
+    p(f"Models ({len(models)}): {', '.join(models)}")
+    p(f"Cases: {n_cases} across stacks: {', '.join(stacks)}")
+    p(f"Base: {BASE_URL}")
+    p(f"Checks: {grand_total} total ({n_cases} cases x {len(models)} models)")
+    pdf.ln(2)
+    h2("Method")
+    p("Same model on both sides; only the prompt structure changes. The WITHOUT "
+      "run sends the raw one-line goal; the WITH run wraps the same goal in "
+      "simplicio's 6-layer contract (role/stack, goal, target, precedent, "
+      "contract states, output shape). Each check is a deterministic regex "
+      "against the model output (target-file mention, DIFF block, TEST block, "
+      "contract-state words). No LLM judges the LLM. Models prefixed 'local:' "
+      "run on CPU via transformers; the rest go through the OpenAI-compatible "
+      "endpoint at the base URL above.")
+    pdf.ln(1)
+    h2("Headline")
+    th(["Side", "Checks passed", "Rate"], [70, 55, 35])
+    tr(["Without simplicio", f"{grand_sem}/{grand_total}", f"{gsp}%"], [70, 55, 35])
+    tr(["With simplicio", f"{grand_com}/{grand_total}", f"{gcp}%"], [70, 55, 35])
+    tr(["Delta", f"{grand_com - grand_sem:+d} checks",
+        f"{gcp - gsp:+d} pts ({rel_grand:+.0f}%)"], [70, 55, 35])
+
+    # ---- page 2: per-model + per-case ---- #
+    pdf.add_page()
+    h1("Per-model breakdown")
+    th(["Model", "Without", "With", "Delta(pts)", "Rel.gain"], [78, 28, 28, 24, 24])
+    for m in models:
+        b = by_model[m]
+        rel = 100 * (b["com_hits"] - b["sem_hits"]) / max(b["sem_hits"], 1)
+        tr([m, f"{b['sem_hits']}/{b['total']} ({b['sem_pct']}%)",
+            f"{b['com_hits']}/{b['total']} ({b['com_pct']}%)",
+            f"{b['com_pct'] - b['sem_pct']:+d}", f"{rel:+.0f}%"], [78, 28, 28, 24, 24])
+
+    pdf.ln(3)
+    h2("Per-case (avg across models)")
+    th(["#", "Stack", "Goal", "Without", "With", "Delta"], [10, 22, 84, 20, 20, 20])
+    for i, c in enumerate(cases):
+        s_pcts = [100 * by_model[m]["rows"][i]["sem_hits"] / max(by_model[m]["rows"][i]["total"], 1) for m in models]
+        c_pcts = [100 * by_model[m]["rows"][i]["com_hits"] / max(by_model[m]["rows"][i]["total"], 1) for m in models]
+        s_avg = sum(s_pcts) / len(s_pcts)
+        c_avg = sum(c_pcts) / len(c_pcts)
+        tr([str(i + 1), c["stack"], c["goal"][:50],
+            f"{s_avg:.0f}%", f"{c_avg:.0f}%", f"{c_avg - s_avg:+.0f}"], [10, 22, 84, 20, 20, 20])
+
+    # ---- page 3: per-stack + output-quality signals ---- #
+    pdf.add_page()
+    h1("Per-stack")
+    th(["Stack", "Without", "With", "Delta(pts)"], [60, 40, 40, 40])
+    for stk in stacks:
+        idxs = [i for i, c in enumerate(cases) if c["stack"] == stk]
+        s = sum(by_model[m]["rows"][i]["sem_hits"] for m in models for i in idxs)
+        cc = sum(by_model[m]["rows"][i]["com_hits"] for m in models for i in idxs)
+        t = sum(by_model[m]["rows"][i]["total"] for m in models for i in idxs)
+        sp = 100 * s / max(t, 1); cp = 100 * cc / max(t, 1)
+        tr([stk, f"{sp:.0f}%", f"{cp:.0f}%", f"{cp - sp:+.0f}"], [60, 40, 40, 40])
+
+    pdf.ln(3)
+    h2("Output-quality signals (rate across all runs)")
+    th(["Signal", "Without simplicio", "With simplicio"], [80, 50, 50])
+    for key, label in (("has_diff_block", "DIFF block present"),
+                       ("has_test_block", "TEST block present"),
+                       ("target_mentioned", "Target file mentioned")):
+        s_count = sum(by_model[m]["quality_sem"][key] for m in models)
+        c_count = sum(by_model[m]["quality_com"][key] for m in models)
+        tr([label, f"{100*s_count//total_runs}% ({s_count}/{total_runs})",
+            f"{100*c_count//total_runs}% ({c_count}/{total_runs})"], [80, 50, 50])
+    s_kw = sum(by_model[m]["quality_sem"]["criteria_keywords_hit"] for m in models)
+    c_kw = sum(by_model[m]["quality_com"]["criteria_keywords_hit"] for m in models)
+    tr(["Avg criteria-keywords / run", f"{s_kw/total_runs:.1f}", f"{c_kw/total_runs:.1f}"], [80, 50, 50])
+    s_len = sum(by_model[m]["quality_sem"]["len"] for m in models)
+    c_len = sum(by_model[m]["quality_com"]["len"] for m in models)
+    tr(["Avg output length (chars)", f"{s_len//total_runs}", f"{c_len//total_runs}"], [80, 50, 50])
+
+    # ---- page 4: cost ---- #
+    pdf.add_page()
+    h1("Cost - tokens & latency")
+    h2("Per-model, average per run")
+    th(["Model", "Side", "Prompt", "Compl", "Total", "Latency"], [56, 22, 24, 24, 26, 28])
+    for m in models:
+        us = by_model[m]["usage_sem"]; uc = by_model[m]["usage_com"]
+        tr([m, "without", f"{us['prompt_tokens']//n_cases}", f"{us['completion_tokens']//n_cases}",
+            f"{us['total_tokens']//n_cases}", f"{us['elapsed_ms']//n_cases} ms"], [56, 22, 24, 24, 26, 28])
+        tr([m, "with", f"{uc['prompt_tokens']//n_cases}", f"{uc['completion_tokens']//n_cases}",
+            f"{uc['total_tokens']//n_cases}", f"{uc['elapsed_ms']//n_cases} ms"], [56, 22, 24, 24, 26, 28])
+
+    agg_sem_t = sum(by_model[m]["usage_sem"]["total_tokens"] for m in models)
+    agg_com_t = sum(by_model[m]["usage_com"]["total_tokens"] for m in models)
+    agg_sem_ms = sum(by_model[m]["usage_sem"]["elapsed_ms"] for m in models)
+    agg_com_ms = sum(by_model[m]["usage_com"]["elapsed_ms"] for m in models)
+    tok_d = agg_com_t - agg_sem_t
+    ms_d = agg_com_ms - agg_sem_ms
+    pdf.ln(3)
+    h2(f"Aggregate over the full bench ({total_runs} runs / side)")
+    th(["Side", "Total tokens", "Wall-clock", "Tok / run", "ms / run"], [40, 38, 36, 32, 30])
+    tr(["without", f"{agg_sem_t:,}", f"{agg_sem_ms/1000:.1f}s",
+        f"{agg_sem_t//total_runs}", f"{agg_sem_ms//total_runs}"], [40, 38, 36, 32, 30])
+    tr(["with", f"{agg_com_t:,}", f"{agg_com_ms/1000:.1f}s",
+        f"{agg_com_t//total_runs}", f"{agg_com_ms//total_runs}"], [40, 38, 36, 32, 30])
+    tr(["delta", f"{tok_d:+,} ({tok_d*100//max(agg_sem_t,1):+d}%)",
+        f"{ms_d/1000:+.1f}s ({ms_d*100//max(agg_sem_ms,1):+d}%)", "", ""], [40, 38, 36, 32, 30])
+
+    # ---- page 5: appendix - per-model x per-case detail ---- #
+    pdf.add_page()
+    h1("Appendix - per-model x per-case checks")
+    for m in models:
+        h2(m)
+        th(["#", "Stack", "Without", "With", "Delta"], [12, 26, 36, 36, 30])
+        for i, c in enumerate(cases):
+            r = by_model[m]["rows"][i]
+            tr([str(i + 1), c["stack"], f"{r['sem_hits']}/{r['total']}",
+                f"{r['com_hits']}/{r['total']}", f"{r['com_hits'] - r['sem_hits']:+d}"], [12, 26, 36, 36, 30])
+        pdf.ln(2)
+
+    # ---- reproduce ---- #
+    pdf.ln(1)
+    h2("How to reproduce")
+    p(f"BENCH_BASE_URL={BASE_URL} BENCH_API_KEY=... "
+      f"BENCH_MODELS=\"{','.join(models)}\" python3 bench/run_offline.py")
+    p("Raw model outputs per case/side are saved under "
+      ".simplicio/bench_runs/<model>/case_NN/{sem,com}.txt for audit. "
+      "Charts are SVG under bench/charts/; aggregated data under bench/results.json.")
+
+    pdf.output(str(RESULTS_PDF))
+    print(f"-> {RESULTS_PDF}")
+
+
 # ---------- main runner ---------- #
 
 def run() -> int:
@@ -342,6 +529,11 @@ def run() -> int:
             "usage_sem": usage_sem, "usage_com": usage_com,
         }
 
+    build_reports(by_model, cases)
+    return 0
+
+
+def build_reports(by_model: dict, cases: list) -> int:
     # ---- write artifacts ---- #
     RESULTS_JSON.write_text(json.dumps(by_model, indent=2))
 
@@ -559,10 +751,33 @@ def run() -> int:
     ]
     RESULTS_MD.write_text("\n".join(md))
     print(f"\n-> {RESULTS_MD}")
+    build_pdf(by_model, cases)
     print(f"grand: without {grand_sem_pct}% · with {grand_com_pct}% · delta {grand_com_pct - grand_sem_pct:+d} pts "
           f"(over {grand_total} checks, {n_cases} cases × {len(MODELS)} models)")
     return 0
 
 
+def pdf_only() -> int:
+    """Rebuild only the PDF from an existing results.json (no model calls)."""
+    by_model = json.loads(RESULTS_JSON.read_text())
+    cases = json.loads(CASES_PATH.read_text())
+    build_pdf(by_model, cases)
+    return 0
+
+
+def report_only() -> int:
+    """Rebuild all reports (charts + md + pdf) from results.json, no model calls."""
+    global MODELS
+    by_model = json.loads(RESULTS_JSON.read_text())
+    cases = json.loads(CASES_PATH.read_text())
+    MODELS = list(by_model.keys())
+    return build_reports(by_model, cases)
+
+
 if __name__ == "__main__":
-    sys.exit(run())
+    if "--report-only" in sys.argv:
+        sys.exit(report_only())
+    elif "--pdf-only" in sys.argv:
+        sys.exit(pdf_only())
+    else:
+        sys.exit(run())

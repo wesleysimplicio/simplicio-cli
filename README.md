@@ -21,11 +21,109 @@ pip install simplicio-cli
 
 ## Why it works — the numbers
 
+Two complementary benchmarks measure different things. Read them in order.
+
+### 1. Execution benchmark — real project, real tasks, real test suite (the "does it work" answer)
+
+**This is not regex pattern-matching. This is not a synthetic toy harness in
+isolation.** Run against [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico)
+— a real condominium-management system in pure PHP 8, public on GitHub, with a
+real PHPUnit suite (`vendor/bin/phpunit --configuration phpunit.xml.dist`).
+
+For each task the model is asked for a **real engineering change** — add a new
+method to an existing production class (permission helper, env parser,
+rate-limit key builder, repository SQL builder, route introspection, etc.).
+The generated file replaces the original in a working copy of the real repo;
+a **hidden PHPUnit test** (never shown to the model, asserting BOTH true and
+false states of the required behaviour) is dropped into
+`tests/unit/Core/Hidden/`; the **entire production suite runs** (every
+pre-existing test of the real codebase plus the hidden one). **Pass =
+`phpunit` exit code 0** — the same green/red signal the project's CI would use
+to merge a PR. The model's change must be *correct* (the new test passes) AND
+must *not break existing behaviour* (every prior test still passes).
+
+All sides emit the complete file (identical output shape); the only variable
+is the wrapping prompt.
+
+4 tasks · **9 models** (3 small · 3 mid · 3 frontier) · 2 sides = **36 runs per side**, scored by `vendor/bin/phpunit` exit code on 2026-05-28. Both sides emit the complete file; the only variable is whether the goal is wrapped in the simplicio contract:
+
+| Tier | Model | Without simplicio | With simplicio | Gain |
+|---|---|---|---|---|
+| small | **Llama 3.2 1B** (`meta-llama/Llama-3.2-1B-Instruct`) | 0% | 0% | 0 pts |
+| small | **Gemma 3n e4B** (`google/gemma-3n-E4B-it`) | 0% | 0% | 0 pts |
+| small | **Gemma 3 4B** (`google/gemma-3-4b-it`) | 0% | **75%** | **+75 pts** |
+| mid | **Qwen 2.5 7B** (`qwen/qwen-2.5-7b-instruct`) | 0% | **25%** | **+25 pts** |
+| mid | **Llama 3.1 8B** (`meta-llama/Llama-3.1-8B-Instruct`) | 50% | **100%** | **+50 pts** |
+| mid | **Gemma 3 12B** (`google/gemma-3-12b-it`) | 50% | **75%** | **+25 pts** |
+| frontier | **Gemini 3.5 Flash** (`google/gemini-3.5-flash`) | 75% | **100%** | **+25 pts** |
+| frontier | **Claude Opus 4.7** (`anthropic/claude-opus-4.7`) | 50% | **100%** | **+50 pts** |
+| frontier | **GPT-5.5** (`openai/gpt-5.5`) | 75% | **100%** | **+25 pts** |
+| **Headline (9 models · 4 tasks · 36 runs/side)** | | **33%** | **64%** | **+31 pts** |
+
+> Every model with baseline capability to emit valid PHP gains **+25 to +75
+> points** when the task is wrapped in the simplicio contract. The **two
+> sub-2B/4B-MoE models score 0% on both sides** — they can't produce a
+> parseable PHP file regardless of prompt — so the contract has nothing to
+> amplify. Honest scope: simplicio multiplies capable models, it does not
+> create capability in tiny ones. Three frontier models hit **100%** with the
+> contract.
+
+Full report: [`bench/results_exec_sindico.md`](bench/results_exec_sindico.md) ·
+[`bench/results_exec_sindico.pdf`](bench/results_exec_sindico.pdf). Reproduce:
+clone `sistema-sindico` (public), `composer install`, then
+`BENCH_BASE_URL=… BENCH_API_KEY=… BENCH_MODELS=…
+python3 bench/run_exec_sindico.py`. Hidden tests live under
+`bench/sindico_hidden/`; harness in `bench/run_exec_sindico.py`.
+
+### 2. Contract-adherence benchmark — structural checks across many models
+
+The tables below measure something **narrower and complementary**: did the
+model produce **the right shape of actionable output** (target-file mention +
+DIFF block + TEST block + contract-state keywords) on a raw one-line prompt
+vs. the simplicio contract. Scoring is via **deterministic regex** on the
+output — it's not a proof that the code compiles or passes runtime tests.
+That's what the execution benchmark above is for. The two answer different
+questions: this one measures *contract adherence at scale across many models*;
+the execution one measures *runtime correctness on a real codebase*.
+
 Same model. Same task. Only the prompt changes. **Measured, reproducible, deterministic.**
 **Seventeen models tested across four runs** — three local Ollama models on an
 M1 MacBook (8 GB), five sub-4B tiny models, six frontier 2026 models, and three
 mid-tier 7B–12B open models. Every one gained at least **+14 points** when
 wrapped in simplicio's 6-layer contract.
+
+#### Hugging Face — Qwen2.5-Coder, re-run on 2026-05-27 (latest mapper, 10 cases/side, 156 checks)
+
+First batch of the smaller→larger re-benchmark against the latest
+`simplicio-mapper` artifacts. The 1.5B runs on CPU via `transformers`
+(Hugging Face Inference Providers does not serve it); the 3B and 7B run
+through the HF router (`https://router.huggingface.co/v1`).
+
+| Model | Without simplicio | With simplicio | Gain |
+|---|---|---|---|
+| **Qwen 2.5 Coder 7B** (`Qwen/Qwen2.5-Coder-7B-Instruct`) | 38% | **96%** | **+58 pts** |
+| **Qwen 2.5 Coder 3B** (`Qwen/Qwen2.5-Coder-3B-Instruct`) | 34% | **94%** | **+60 pts** |
+| **Qwen 2.5 Coder 1.5B** (`Qwen/Qwen2.5-Coder-1.5B-Instruct`, local CPU) | 30% | **92%** | **+62 pts** |
+| **HF avg (3 models · 10 cases · 156 checks)** | **34%** | **94%** | **+60 pts (+172%)** |
+
+> Monotonic from smaller to larger: pass-rate with simplicio climbs **92% →
+> 94% → 96%** as the model grows, while the raw-prompt baseline stays at
+> **30–38%**. The 1.5B model gains the most (**+62 pts**) — the contract does
+> the heaviest lifting where the model is weakest. Reproduce:
+> `BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=<hf-token>
+> BENCH_MODELS="local:Qwen/Qwen2.5-Coder-1.5B-Instruct,Qwen/Qwen2.5-Coder-3B-Instruct,Qwen/Qwen2.5-Coder-7B-Instruct"
+> python3 bench/run_offline.py`.
+
+Side-by-side delta vs the previously published numbers (same regex methodology,
+all 17 README models re-measured):
+[`bench/results_comparison.md`](bench/results_comparison.md) ·
+[`bench/results_comparison.pdf`](bench/results_comparison.pdf). Headline on the
+14 models with clean data: **with simplicio averaged 86% → 88% (+2 pts); without
+simplicio 36% → 36% (+1 pt)** — the new run reproduces the published numbers
+within noise. Three frontier models (Claude Opus 4.7, Qwen 3.7 Max, DeepSeek V4
+Pro) show `n/a` for the new column: their OpenRouter calls hit account-level
+HTTP 402 / provider failures on >50% of requests this round, so the sample is
+too small to publish; their old numbers still stand.
 
 #### Local offline — qwen2.5-coder on Ollama, M1 8 GB, run on 2026-05-27 (30 runs/side, 156 checks)
 
@@ -161,10 +259,38 @@ Relevant > complete — inject the *right* context, never *all* of it.
 ## Install
 
 ```bash
-pip install simplicio-cli           # from PyPI
+pip install simplicio-cli           # from PyPI (pulls simplicio-mapper + simplicio-prompt)
 # or
 pip install -e .                    # from this repo
 ```
+
+The install ships **three Simplicio packages** that play distinct roles:
+
+- **`simplicio-cli`** (this repo) — the 6-layer task contract + verify loop.
+  The default wrapper for one-shot code edits. *Headline: +31 pts vs raw
+  baseline on real PHPUnit (see Section 1).*
+- **`simplicio-mapper`** — emits `.simplicio/project-map.json` and
+  `precedent-index.json` so the CLI can target the right file/precedent
+  without guessing.
+- **`simplicio-prompt`** (≥1.7.0) — the Tuple-Space + Yool agent runtime
+  kernel (`kernel.subagent_runtime.SubagentRuntime`) for orchestrated work:
+  real parallel subagent fan-out on any OpenAI-compatible provider, with
+  bounded lane concurrency, a receipt cache, jittered backoff and a
+  circuit breaker. *On one-shot code tasks it's net-neutral and not the
+  right tool (use simplicio-cli for those); on orchestrated multi-step /
+  fan-out work it's the engine.* Our chosen fan-out default for this
+  project is **N=200** subagents — the level where harder tasks start to
+  recover from per-call noise (partial Qwen2.5-Coder-3B data:
+  `env_get_int` at N=64 → 0 PHPUnit passes of 64; at higher N some tasks
+  flip to passing). The fan-out benchmark
+  (`bench/run_fanout.py`) measures both real PHPUnit pass-rate and a
+  structural regex check on every subagent and surfaces the gap; full
+  ongoing numbers in [`bench/results_fanout.md`](bench/results_fanout.md) ·
+  [`bench/results_fanout.pdf`](bench/results_fanout.pdf).
+
+Each is independently published on PyPI; ship them as a set so the CLI's
+mapper-rich precedent ranking, contract-shaped prompts, and (when called
+for) real subagent fan-out all work out of the box without extra setup.
 
 ---
 
