@@ -144,7 +144,13 @@ def majority(codes: list[str]) -> tuple[str | None, int]:
 def fanout_at(n: int, case: dict, runtime: SubagentRuntime, file_content: str) -> dict:
     user_prompt = build_prompt(case, file_content)
     prompts = [{"system": CLI_SYSTEM, "prompt": user_prompt} for _ in range(n)]
-    report = runtime.run(task=f"impl {case['id']}", subagents=n, prompts=prompts)
+    # use_cache=False: every subagent must be an independent provider call.
+    # With cache on, the kernel's ReceiptCache deduplicates identical prompts
+    # and replays the cached response, which collapses the modal distribution
+    # we're trying to measure (modal counts cluster around the same numbers
+    # across tasks, exposing the dedup).
+    report = runtime.run(task=f"impl {case['id']}", subagents=n, prompts=prompts,
+                         use_cache=False)
     codes = [extract_php(r.text) for r in report.results if r.ok]
     passes = sum(run_phpunit(case["target"], c) for c in codes)
     maj_code, maj_count = majority(codes)
