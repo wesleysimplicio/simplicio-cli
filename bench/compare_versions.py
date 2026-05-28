@@ -86,8 +86,13 @@ def build_markdown(new: dict) -> str:
         f"Date: **{time.strftime('%Y-%m-%d')}**  ",
         "Old = pass-rate published in the README. New = re-run on the latest "
         "version (Qwen2.5-Coder + HF-served models via the HF router; the rest "
-        "via OpenRouter). Same 10 cases/side, deterministic regex checks. "
-        "`n/a` = not reproducible in this environment.",
+        "via OpenRouter). Same 10 cases/side, deterministic regex checks "
+        "(same methodology as the README tables). `n/a` rows mean the new run "
+        "did not complete for that model in this session - the multi-batch "
+        "re-run stalled mid-way (Kimi-K2.6 + a temporarily-disabled provider "
+        "for Qwen2.5-7B burned the retry budget), so only the Qwen2.5-Coder "
+        "triplet finished cleanly. Old numbers still stand; the new column "
+        "is honest about what was actually re-measured this round.",
         "",
     ]
     g_old_w = g_old_c = g_new_w = g_new_c = g_n = 0
