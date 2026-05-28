@@ -274,19 +274,18 @@ The install ships **three Simplicio packages** that play distinct roles:
   without guessing.
 - **`simplicio-prompt`** (≥1.7.0) — the Tuple-Space + Yool agent runtime
   kernel (`kernel.subagent_runtime.SubagentRuntime`) for orchestrated work:
-  real parallel subagent fan-out (default **64**, configurable up to 600+)
-  on any OpenAI-compatible provider, with bounded lane concurrency, a
-  receipt cache, jittered backoff and a circuit breaker. *On one-shot code
-  tasks it's net-neutral and not the right tool (use simplicio-cli for
-  those); on orchestrated multi-step / fan-out work it's the engine.*
-  A direct fan-out benchmark (`bench/run_fanout.py`) measures both real
-  PHPUnit pass-rate and a structural regex check on every subagent at
-  N ∈ {64, 200, 600}. Partial data on Qwen2.5-Coder-3B shows the right N
-  depends heavily on task difficulty: easy tasks saturate at N=64
-  (per-attempt 100%, fan-out adds nothing); some hard tasks where every
-  attempt at N=64 fails benefit dramatically from N=600 (e.g. `env_get_int`
-  jumps from `0/64` to `478/600` real-PHPUnit passes). Full ongoing
-  numbers in [`bench/results_fanout.md`](bench/results_fanout.md) ·
+  real parallel subagent fan-out on any OpenAI-compatible provider, with
+  bounded lane concurrency, a receipt cache, jittered backoff and a
+  circuit breaker. *On one-shot code tasks it's net-neutral and not the
+  right tool (use simplicio-cli for those); on orchestrated multi-step /
+  fan-out work it's the engine.* Our chosen fan-out default for this
+  project is **N=200** subagents — the level where harder tasks start to
+  recover from per-call noise (partial Qwen2.5-Coder-3B data:
+  `env_get_int` at N=64 → 0 PHPUnit passes of 64; at higher N some tasks
+  flip to passing). The fan-out benchmark
+  (`bench/run_fanout.py`) measures both real PHPUnit pass-rate and a
+  structural regex check on every subagent and surfaces the gap; full
+  ongoing numbers in [`bench/results_fanout.md`](bench/results_fanout.md) ·
   [`bench/results_fanout.pdf`](bench/results_fanout.pdf).
 
 Each is independently published on PyPI; ship them as a set so the CLI's

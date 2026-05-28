@@ -278,7 +278,7 @@ def run() -> int:
         ",".join(MODEL_ENDPOINTS.keys()),
     )
     models = [m.strip() for m in models_str.split(",") if m.strip()]
-    ns_str = os.environ.get("BENCH_FANOUT_NS", "64,200,600")
+    ns_str = os.environ.get("BENCH_FANOUT_NS", "200")
     ns = [int(x) for x in ns_str.split(",") if x.strip()]
     task_filter = os.environ.get("BENCH_FANOUT_TASKS", "").strip()
     tasks = CASES if not task_filter else [c for c in CASES if c["id"] in task_filter.split(",")]
