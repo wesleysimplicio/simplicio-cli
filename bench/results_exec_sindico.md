@@ -2,8 +2,8 @@
 
 Date: **2026-05-28**  
 Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico) — a real condominium-management system in pure PHP 8 (public on GitHub, PHPUnit 11)  
-Models: `meta-llama/Llama-3.2-1B-Instruct`, `google/gemma-3n-E4B-it`, `google/gemma-3-4b-it`, `qwen/qwen-2.5-7b-instruct`, `meta-llama/Llama-3.1-8B-Instruct`, `google/gemma-3-12b-it`, `google/gemini-3.5-flash`, `anthropic/claude-opus-4.7`, `openai/gpt-5.5`  
-Tasks: **4** additive real-engineering changes across `src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing.
+Models: `google/gemma-3-4b-it`, `meta-llama/llama-3.1-8b-instruct`, `google/gemini-3.5-flash`  
+Tasks: **12** additive real-engineering changes across `src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing.
 
 ## Methodology — what "pass" actually means
 
@@ -21,33 +21,37 @@ All sides emit the complete file (identical output shape); the only variable is 
 
 - **baseline**: raw goal + current file content
 - **simplicio-cli**: the 6-layer task contract (role/stack, goal, target, criteria as testable states, constraints, output shape)
+- **simplicio-prompt**: the Tuple-Space + Yool runtime template from the simplicio-prompt package, with the task injected as user input X
 
 ## Headline
 
-- **Baseline:** 12/36 (33%)
-- **simplicio-cli (6-layer):** 23/36 (63%) — **+30 pts vs baseline**
+- **Baseline:** 17/36 (47%)
+- **simplicio-cli (6-layer):** 27/36 (75%) — **+28 pts vs baseline**
+- **simplicio-prompt (Yool runtime):** 16/36 (44%) — **-3 pts vs baseline**
 
 ## Per-model (pass = full PHPUnit suite green)
 
-| Model | Baseline | simplicio-cli | Delta (pts) |
+| Model | Baseline | simplicio-cli | simplicio-prompt | D cli | D sp |
+|---|---|---|---|---|---|
+| `google/gemma-3-4b-it` | 4/12 (33%) | 8/12 (66%) | 4/12 (33%) | **+33** | **+0** |
+| `meta-llama/llama-3.1-8b-instruct` | 5/12 (41%) | 7/12 (58%) | 4/12 (33%) | **+17** | **-8** |
+| `google/gemini-3.5-flash` | 8/12 (66%) | 12/12 (100%) | 8/12 (66%) | **+34** | **+0** |
+
+## Per-task × model (baseline / cli / sp)
+
+| Task | gemma-3-4b-it | llama-3.1-8b-instruct | gemini-3.5-flash |
 |---|---|---|---|
-| `meta-llama/Llama-3.2-1B-Instruct` | 0/4 (0%) | 0/4 (0%) | **+0** |
-| `google/gemma-3n-E4B-it` | 0/4 (0%) | 0/4 (0%) | **+0** |
-| `google/gemma-3-4b-it` | 0/4 (0%) | 3/4 (75%) | **+75** |
-| `qwen/qwen-2.5-7b-instruct` | 0/4 (0%) | 1/4 (25%) | **+25** |
-| `meta-llama/Llama-3.1-8B-Instruct` | 2/4 (50%) | 4/4 (100%) | **+50** |
-| `google/gemma-3-12b-it` | 2/4 (50%) | 3/4 (75%) | **+25** |
-| `google/gemini-3.5-flash` | 3/4 (75%) | 4/4 (100%) | **+25** |
-| `anthropic/claude-opus-4.7` | 2/4 (50%) | 4/4 (100%) | **+50** |
-| `openai/gpt-5.5` | 3/4 (75%) | 4/4 (100%) | **+25** |
-
-## Per-task × model (baseline / cli)
-
-| Task | Llama-3.2-1B-Instruct | gemma-3n-E4B-it | gemma-3-4b-it | qwen-2.5-7b-instruct | Llama-3.1-8B-Instruct | gemma-3-12b-it | gemini-3.5-flash | claude-opus-4.7 | gpt-5.5 |
-|---|---|---|---|---|---|---|---|---|---|
-| password_strength | ./. | ./. | ./P | ./P | P/P | ./P | P/P | ./P | P/P |
-| password_require_symbol | ./. | ./. | ./. | ./. | P/P | P/. | P/P | ./P | P/P |
-| env_get_int | ./. | ./. | ./P | ./. | ./P | ./P | ./P | P/P | ./P |
-| env_get_bool | ./. | ./. | ./P | ./. | ./P | P/P | P/P | P/P | P/P |
+| password_strength | ./P/. | ./P/. | P/P/P |
+| password_require_symbol | ././. | P/P/. | P/P/. |
+| env_get_int | ./P/. | ././. | ./P/. |
+| env_get_bool | ./P/. | ././. | ./P/. |
+| admin_only_allowed_roles | P/P/P | P/P/P | P/P/P |
+| rate_limit_bucket_key | ./P/. | ./P/. | ./P/P |
+| base_repository_build_where_sql | ././. | ././. | ./P/. |
+| router_has | P/P/P | P/P/P | P/P/P |
+| bugfix_password_policy_lowercase | P/P/P | P/P/P | P/P/P |
+| password_assess | P/P/P | P/P/P | P/P/P |
+| base_repository_build_update_sql | ././. | ././. | P/P/P |
+| router_extract_params | ././. | ././. | P/P/P |
 
 Raw counts above are real `vendor/bin/phpunit` exit codes against `sistema-sindico`. `results_exec_sindico.json` holds per-case pass/fail, tokens, latency and a phpunit tail for every side.
