@@ -31,26 +31,42 @@ file is written into a working copy, a **hidden PHPUnit test** (never shown to
 the model, asserting true AND false states) is dropped under
 `tests/unit/Core/Hidden/`, and the **entire suite** runs. **Pass = every
 existing test plus the hidden test go green** — the method must implement the
-behaviour AND not break anything. Both sides emit the complete file; the only
-variable is whether the goal is wrapped in the simplicio contract.
+behaviour AND not break anything. All sides emit the complete file; the only
+variable is the wrapping prompt.
 
-4 tasks · 5 models · 2 sides = **20 runs per side**, scored by `vendor/bin/phpunit` exit code on 2026-05-28:
+4 tasks · **9 models** (3 small · 3 mid · 3 frontier) · 2 sides = **36 runs per side**, scored by `vendor/bin/phpunit` exit code on 2026-05-28:
 
-| Model | Without simplicio | With simplicio | Gain |
-|---|---|---|---|
-| **Claude Opus 4.7** (`anthropic/claude-opus-4.7`) | 50% | **100%** | **+50 pts** |
-| **Gemini 3.5 Flash** (`google/gemini-3.5-flash`) | 50% | **100%** | **+50 pts** |
-| **Llama 3.1 8B** (`meta-llama/Llama-3.1-8B-Instruct`) | 75% | **100%** | **+25 pts** |
-| **Gemma 3n e4B** (`google/gemma-3n-E4B-it`) | 0% | 0% | 0 pts |
-| **Llama 3.2 1B** (`meta-llama/Llama-3.2-1B-Instruct`) | 0% | 0% | 0 pts |
-| **Headline (5 models · 4 tasks · 20 runs/side)** | **35%** | **60%** | **+25 pts** |
+| Tier | Model | Without simplicio | With simplicio | Gain |
+|---|---|---|---|---|
+| small | **Llama 3.2 1B** (`meta-llama/Llama-3.2-1B-Instruct`) | 0% | 0% | 0 pts |
+| small | **Gemma 3n e4B** (`google/gemma-3n-E4B-it`) | 0% | 0% | 0 pts |
+| small | **Gemma 3 4B** (`google/gemma-3-4b-it`) | 0% | **75%** | **+75 pts** |
+| mid | **Qwen 2.5 7B** (`qwen/qwen-2.5-7b-instruct`) | 0% | **25%** | **+25 pts** |
+| mid | **Llama 3.1 8B** (`meta-llama/Llama-3.1-8B-Instruct`) | 50% | **100%** | **+50 pts** |
+| mid | **Gemma 3 12B** (`google/gemma-3-12b-it`) | 50% | **75%** | **+25 pts** |
+| frontier | **Gemini 3.5 Flash** (`google/gemini-3.5-flash`) | 75% | **100%** | **+25 pts** |
+| frontier | **Claude Opus 4.7** (`anthropic/claude-opus-4.7`) | 50% | **100%** | **+50 pts** |
+| frontier | **GPT-5.5** (`openai/gpt-5.5`) | 75% | **100%** | **+25 pts** |
+| **Headline (9 models · 4 tasks · 36 runs/side)** | | **33%** | **64%** | **+31 pts** |
 
-> The contract gives **+25 to +50 points** on every model that has the baseline
-> capability to produce valid PHP. **Sub-4B models go 0% on both sides** —
-> they can't emit a parseable PHP file with the right namespace/strict_types,
-> let alone implement the method, so the contract has nothing to amplify.
-> The floor is real, and it's honest to publish: simplicio is a force
-> multiplier on capable models, not a magic wand on tiny ones.
+> Every model with baseline capability to emit valid PHP gains **+25 to +75
+> points** when the task is wrapped in the simplicio contract. The **two
+> sub-2B/4B-MoE models score 0% on both sides** — they can't produce a
+> parseable PHP file regardless of prompt — so the contract has nothing to
+> amplify. Honest scope: simplicio multiplies capable models, it does not
+> create capability in tiny ones. Three frontier models hit **100%** with the
+> contract.
+
+#### Side benchmark: simplicio-prompt (Tuple-Space + Yool runtime) — distracts on one-shot code
+
+Same 9 × 4 = 36 runs, third prompt variant: the [simplicio-prompt](https://github.com/wesleysimplicio/simplicio-prompt)
+runtime template injected as system context with the PHP task as user input X.
+Result: **8/36 (22%) — `-11` pts vs baseline**. The runtime's tuple-space/Yool/
+batch_spawn primitives drown the concrete code task: Llama 3.1 8B drops from
+50% baseline to 0%, Gemini Flash from 75% to 25%. That is honest evidence that
+**simplicio-prompt is a different tool with a different purpose** (always-on
+agent runtime with subagent fan-out) and is *not* the right wrapper for
+one-shot file generation. The simplicio-cli 6-layer contract is.
 
 Full report: [`bench/results_exec_sindico.md`](bench/results_exec_sindico.md) ·
 [`bench/results_exec_sindico.pdf`](bench/results_exec_sindico.pdf). Reproduce:
