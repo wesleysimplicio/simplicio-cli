@@ -259,10 +259,36 @@ Relevant > complete — inject the *right* context, never *all* of it.
 ## Install
 
 ```bash
-pip install simplicio-cli           # from PyPI
+pip install simplicio-cli           # from PyPI (pulls simplicio-mapper + simplicio-prompt)
 # or
 pip install -e .                    # from this repo
 ```
+
+The install ships **three Simplicio packages** that play distinct roles:
+
+- **`simplicio-cli`** (this repo) — the 6-layer task contract + verify loop.
+  The default wrapper for one-shot code edits. *Headline: +31 pts vs raw
+  baseline on real PHPUnit (see Section 1).*
+- **`simplicio-mapper`** — emits `.simplicio/project-map.json` and
+  `precedent-index.json` so the CLI can target the right file/precedent
+  without guessing.
+- **`simplicio-prompt`** (≥1.7.0) — the Tuple-Space + Yool agent runtime
+  kernel (`kernel.subagent_runtime.SubagentRuntime`) for orchestrated work:
+  real parallel subagent fan-out (default **64**, configurable up to 600+)
+  on any OpenAI-compatible provider, with bounded lane concurrency, a
+  receipt cache, jittered backoff and a circuit breaker. *On one-shot code
+  tasks it's net-neutral and not the right tool (use simplicio-cli for
+  those); on orchestrated multi-step / fan-out work it's the engine.*
+  A direct fan-out benchmark (`bench/run_fanout.py`) confirms the 64
+  default is a real sweet spot: at N=64 modal consensus reaches ~80% (51/64
+  subagents converge on the same code); N=200 doesn't improve consensus
+  further (78%). Full numbers in
+  [`bench/results_fanout.md`](bench/results_fanout.md) ·
+  [`bench/results_fanout.pdf`](bench/results_fanout.pdf).
+
+Each is independently published on PyPI; ship them as a set so the CLI's
+mapper-rich precedent ranking, contract-shaped prompts, and (when called
+for) real subagent fan-out all work out of the box without extra setup.
 
 ---
 

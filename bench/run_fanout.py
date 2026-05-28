@@ -44,30 +44,9 @@ RESULTS_PDF = ROOT / "bench" / "results_fanout.pdf"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_offline as ro  # _lat1
+from sindico_cases import CASES
 
-# ---- task + prompt (same simplicio-cli 6-layer wrap our other benches use) ---- #
-
-TASK_ID = "password_strength"
-TARGET = "src/Core/PasswordPolicy.php"
-
-GOAL = (
-    "Add a NEW public static method `strength(string $password): string` to "
-    "App\\Core\\PasswordPolicy that classifies the password as 'weak', "
-    "'medium' or 'strong'."
-)
-CRITERIA = (
-    "- if violations(password) is not empty -> return 'weak'\n"
-    "- otherwise, if strlen(password) >= 12 AND password contains at least "
-    "one character from the set !@#$%^&* -> return 'strong'\n"
-    "- otherwise -> return 'medium'\n"
-    "- exact return values, lowercase: 'weak' | 'medium' | 'strong'"
-)
-CONSTRAINTS = (
-    "- additive change: keep existing MIN_LENGTH, violations(), isValid(), "
-    "describe() exactly as they are\n"
-    "- pure function, no I/O\n"
-    "- final class, namespace App\\Core, strict_types"
-)
+# ---- prompt builder uses the same simplicio-cli 6-layer wrap as our other benches ---- #
 
 CLI_SYSTEM = (
     "You are a senior engineer working IN THIS project. Stack: PHP 8 + "
@@ -75,15 +54,14 @@ CLI_SYSTEM = (
     "or libraries the project does not use."
 )
 
-# ---- helpers ---- #
 
-def build_prompt(file_content: str) -> str:
+def build_prompt(case: dict, file_content: str) -> str:
     return (
-        f"[GOAL]\n{GOAL}\n\n[TARGET]\nTouch ONLY this file: {TARGET}\n"
+        f"[GOAL]\n{case['goal']}\n\n[TARGET]\nTouch ONLY this file: {case['target']}\n"
         f"Current content:\n```php\n{file_content}\n```\n\n"
         f"[CONTRACT]\nDone WHEN, and only when, ALL of the states below are true:\n"
-        f"{CRITERIA}\n\nConstraints (do not break):\n{CONSTRAINTS}\n\n"
-        f"[OUTPUT]\nReturn ONLY the complete updated contents of {TARGET}. "
+        f"{case['criteria']}\n\nConstraints (do not break):\n{case['constraints']}\n\n"
+        f"[OUTPUT]\nReturn ONLY the complete updated contents of {case['target']}. "
         f"PHP only, no prose, no fences."
     )
 
@@ -115,22 +93,32 @@ def code_hash(code: str) -> str:
     return hashlib.sha256(normalize(code).encode()).hexdigest()[:12]
 
 
-def setup_workspace() -> str:
-    """Fresh copy of sindico into WORK. Return original target file content."""
+def setup_workspace_base() -> None:
+    """Fresh copy of sindico into WORK; create the Hidden test dir."""
     if WORK.exists():
         shutil.rmtree(WORK)
     shutil.copytree(SINDICO_SRC, WORK)
     (WORK / "tests" / "unit" / "Core" / "Hidden").mkdir(parents=True, exist_ok=True)
-    shutil.copy(
-        ROOT / "bench" / "sindico_hidden" / "PasswordStrengthTest.php",
-        WORK / "tests" / "unit" / "Core" / "Hidden" / "PasswordStrengthTest.php",
+
+
+def install_case(case: dict) -> str:
+    """Reset target file + install ONLY this case's hidden test. Return target content."""
+    target_path = WORK / case["target"]
+    original = (SINDICO_SRC / case["target"]).read_text(encoding="utf-8")
+    target_path.write_text(original, encoding="utf-8")
+    hidden_dir = WORK / "tests" / "unit" / "Core" / "Hidden"
+    for old in hidden_dir.glob("*Test.php"):
+        old.unlink()
+    src_test = ROOT / "bench" / "sindico_hidden" / case["hidden_test"]
+    (hidden_dir / case["hidden_test"]).write_text(
+        src_test.read_text(encoding="utf-8"), encoding="utf-8"
     )
-    return (SINDICO_SRC / TARGET).read_text(encoding="utf-8")
+    return original
 
 
-def run_phpunit(code: str) -> bool:
+def run_phpunit(target_rel: str, code: str) -> bool:
     """Write code to target, run the full phpunit suite. Pass = exit 0."""
-    (WORK / TARGET).write_text(code, encoding="utf-8")
+    (WORK / target_rel).write_text(code, encoding="utf-8")
     try:
         p = subprocess.run(
             ["vendor/bin/phpunit", "--configuration", "phpunit.xml.dist"],
@@ -153,22 +141,17 @@ def majority(codes: list[str]) -> tuple[str | None, int]:
 
 # ---- main runner ---- #
 
-def fanout_at(n: int, runtime: SubagentRuntime, file_content: str) -> dict:
-    user_prompt = build_prompt(file_content)
+def fanout_at(n: int, case: dict, runtime: SubagentRuntime, file_content: str) -> dict:
+    user_prompt = build_prompt(case, file_content)
     prompts = [{"system": CLI_SYSTEM, "prompt": user_prompt} for _ in range(n)]
-    print(f"\n=== N={n} subagents ===", flush=True)
-    report = runtime.run(task=f"impl {TASK_ID}", subagents=n, prompts=prompts)
+    report = runtime.run(task=f"impl {case['id']}", subagents=n, prompts=prompts)
     codes = [extract_php(r.text) for r in report.results if r.ok]
-    # score every subagent output (real phpunit)
-    per_attempt = []
-    for c in codes:
-        per_attempt.append(run_phpunit(c))
-    passes = sum(per_attempt)
-    # majority-vote outcome
+    passes = sum(run_phpunit(case["target"], c) for c in codes)
     maj_code, maj_count = majority(codes)
-    maj_pass = run_phpunit(maj_code) if maj_code else False
+    maj_pass = run_phpunit(case["target"], maj_code) if maj_code else False
     uniques = len({code_hash(c) for c in codes})
     out = {
+        "task": case["id"],
         "n": n,
         "completed": report.completed,
         "failed": report.failed,
@@ -182,11 +165,11 @@ def fanout_at(n: int, runtime: SubagentRuntime, file_content: str) -> dict:
         "elapsed_s": report.elapsed_s,
     }
     print(
-        f"  completed {report.completed}/{n} | per-attempt {passes}/{report.completed} "
-        f"({out['per_attempt_rate']}%) | unique outputs {uniques} | "
-        f"modal {maj_count}/{report.completed} -> {'PASS' if maj_pass else 'fail'} | "
-        f"{report.usage.total_tokens:,} tok | ${report.usage.cost_usd:.4f} | "
-        f"{report.elapsed_s:.1f}s",
+        f"  N={n:<4d} {case['id']:<33s} per-attempt {passes}/{report.completed} "
+        f"({out['per_attempt_rate']:>3d}%) | uniq {uniques:>2d} | modal "
+        f"{maj_count:>3d}/{report.completed} -> {'PASS' if maj_pass else 'fail'} | "
+        f"{report.usage.total_tokens:>7,} tok | ${report.usage.cost_usd:.4f} | "
+        f"{report.elapsed_s:>5.1f}s",
         flush=True,
     )
     return out
@@ -198,7 +181,7 @@ def run() -> int:
     if not os.environ.get("OPENROUTER_API_KEY"):
         raise SystemExit("set OPENROUTER_API_KEY")
 
-    file_content = setup_workspace()
+    setup_workspace_base()
     config = resolve_provider_config(
         "openrouter",
         api_key=os.environ["OPENROUTER_API_KEY"],
@@ -210,70 +193,114 @@ def run() -> int:
     provider = LLMProvider(config)
     runtime = SubagentRuntime(provider, temperature=0.7, max_tokens=4096)
 
-    ns_str = os.environ.get("BENCH_FANOUT_NS", "1,8,32,64,200")
+    ns_str = os.environ.get("BENCH_FANOUT_NS", "64,200")
     ns = [int(x) for x in ns_str.split(",") if x.strip()]
-    print(f"fanout benchmark: model={config.model} temp=0.7 N={ns}")
+    task_filter = os.environ.get("BENCH_FANOUT_TASKS", "").strip()
+    tasks = CASES if not task_filter else [c for c in CASES if c["id"] in task_filter.split(",")]
+    print(f"fanout benchmark: model={config.model} temp=0.7 N={ns} tasks={[c['id'] for c in tasks]}")
 
-    rows = [fanout_at(n, runtime, file_content) for n in ns]
+    rows = []
+    for case in tasks:
+        print(f"\n=== task: {case['id']} ===", flush=True)
+        file_content = install_case(case)
+        for n in ns:
+            rows.append(fanout_at(n, case, runtime, file_content))
+
     RESULTS_JSON.write_text(json.dumps({"model": config.model, "rows": rows}, indent=2))
-
     write_reports(config.model, rows)
     return 0
 
 
+def _group_by_task(rows: list[dict]) -> dict:
+    out: dict = {}
+    for r in rows:
+        out.setdefault(r["task"], []).append(r)
+    return out
+
+
 def write_reports(model: str, rows: list[dict]) -> None:
+    by_task = _group_by_task(rows)
+    ns = sorted({r["n"] for r in rows})
+    n_tasks = len(by_task)
+
     md = [
         "# Fan-out benchmark — does simplicio-prompt's subagent kernel help?",
         "",
         f"Date: **{time.strftime('%Y-%m-%d')}**  ",
         f"Model: `{model}` · temperature **0.7** (induces real per-call variance)  ",
-        f"Task: `{TASK_ID}` (add PHP method to {TARGET})  ",
-        "Engine: `kernel.subagent_runtime.SubagentRuntime` from simplicio-prompt "
-        "v1.7.0 (PyPI), real parallel calls through `LaneWorkerPool`.",
+        f"Engine: `kernel.subagent_runtime.SubagentRuntime` from simplicio-prompt "
+        "v1.7.0 (PyPI), real parallel calls through `LaneWorkerPool`.  ",
+        f"Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico) — real PHP 8 condominium system.  ",
+        f"Tasks: **{n_tasks}** real engineering changes across `src/Core/`, "
+        "`src/Middleware/`, `src/Repositories/`, and routing.  ",
+        f"N values tested: " + ", ".join(f"**{n}**" + (" *(sp default)*" if n == 64 else "") for n in ns),
         "",
         "## Methodology",
         "",
-        "For each N, the simplicio-prompt **kernel** launches N real parallel "
-        "LLM calls on the SAME prompt (simplicio-cli 6-layer wrap of the task) "
-        "at `temperature=0.7`. Every returned solution.php is written into a "
-        "working copy of `sistema-sindico` and scored by **real PHPUnit** "
+        "For each (task, N), the simplicio-prompt **kernel** launches N real "
+        "parallel LLM calls on the same prompt (simplicio-cli 6-layer wrap of "
+        "the task) at `temperature=0.7`. Every returned solution.php is written "
+        "into a working copy of `sistema-sindico` and scored by **real PHPUnit** "
         "(`vendor/bin/phpunit` exit code 0). The **majority-vote outcome** is "
         "computed by sha256-hashing the normalized code, picking the most "
         "frequent variant, and re-running phpunit on it.",
         "",
         "**This is the real engagement of simplicio-prompt's value prop**: the "
-        "kernel actually executes the fan-out, unlike the prompt-as-text "
-        "benchmark in `results_exec_sindico.md`. The question answered here is: "
-        "does sp's default 64 buy you anything over a single call? does 200 "
-        "buy you more than 64?",
+        "kernel actually executes the fan-out (LaneWorkerPool, bounded "
+        "concurrency, receipt cache, jittered backoff, circuit breaker), not "
+        "just embeds the runtime as prompt text. The question is: **does sp's "
+        "default N=64 buy more than a smaller N? does N=200 buy more than 64?**",
         "",
-        "## Headline",
+        "## Headline — per N (aggregate across tasks)",
         "",
-        "| N | Per-attempt pass | Unique outputs | Majority-vote pass | Tokens | Cost (USD) | Elapsed |",
+        "| N | Tasks | Per-attempt pass (sum) | Modal-vote pass | Tokens (sum) | Cost (USD, sum) | Avg elapsed |",
         "|---|---|---|---|---|---|---|",
     ]
-    for r in rows:
+    for n in ns:
+        ngroup = [r for r in rows if r["n"] == n]
+        tot_attempts = sum(r["completed"] for r in ngroup)
+        tot_passes = sum(r["per_attempt_pass"] for r in ngroup)
+        tot_modal = sum(1 for r in ngroup if r["majority_pass"])
+        tot_tokens = sum(r["tokens"] for r in ngroup)
+        tot_cost = sum(r["cost_usd"] for r in ngroup)
+        avg_elapsed = sum(r["elapsed_s"] for r in ngroup) / max(len(ngroup), 1)
         md.append(
-            f"| **{r['n']}** | {r['per_attempt_pass']}/{r['completed']} "
-            f"({r['per_attempt_rate']}%) | {r['unique_outputs']} | "
-            f"{'PASS' if r['majority_pass'] else 'fail'} "
-            f"({r['majority_count']}/{r['completed']}) | "
-            f"{r['tokens']:,} | ${r['cost_usd']:.4f} | {r['elapsed_s']:.1f}s |"
+            f"| **{n}**{' *(sp default)*' if n == 64 else ''} | {len(ngroup)} | "
+            f"{tot_passes}/{tot_attempts} ({100*tot_passes//max(tot_attempts,1)}%) | "
+            f"{tot_modal}/{len(ngroup)} | "
+            f"{tot_tokens:,} | ${tot_cost:.4f} | {avg_elapsed:.1f}s |"
         )
+
+    md += ["", "## Per-task breakdown", "",
+           "| Task | N | Per-attempt | Uniq | Modal | Tokens | Cost | Elapsed |",
+           "|---|---|---|---|---|---|---|---|"]
+    for task, trows in by_task.items():
+        for r in trows:
+            md.append(
+                f"| `{task}` | **{r['n']}** | "
+                f"{r['per_attempt_pass']}/{r['completed']} ({r['per_attempt_rate']}%) | "
+                f"{r['unique_outputs']} | "
+                f"{'PASS' if r['majority_pass'] else 'fail'} ({r['majority_count']}/{r['completed']}) | "
+                f"{r['tokens']:,} | ${r['cost_usd']:.4f} | {r['elapsed_s']:.1f}s |"
+            )
+
     md += ["", "## Interpretation", "",
-           "- **Per-attempt pass** is the noise floor at `temperature=0.7`. A "
-           "single call hits roughly this rate.",
-           "- **Unique outputs** measures real diversity at this temperature; if "
-           "every subagent produces the same file, fan-out adds nothing.",
-           "- **Majority-vote** is the value test: does picking the most "
-           "frequent answer recover correctness when single calls are noisy?",
-           "- **Cost** and **elapsed** scale linearly with N. The kernel runs "
-           "calls in parallel (LaneWorkerPool), so wall-clock should grow much "
-           "slower than total tokens.",
+           "- **Per-attempt pass** is the noise floor at `temperature=0.7`. "
+           "A single call lands roughly at this rate.",
+           "- **Unique outputs** measures real diversity per task at this "
+           "temperature; if every subagent produces the same file, fan-out "
+           "adds nothing.",
+           "- **Modal (majority-vote)** is the value test: does picking the "
+           "most frequent answer recover correctness when single calls are "
+           "noisy?",
+           "- **N=64 vs N=200**: the central comparison. If 200 doesn't beat "
+           "64 on modal pass rate, sp's default is at the sweet spot.",
+           "- **Cost** scales linearly with N (tokens are proportional). "
+           "**Elapsed** grows much slower because `LaneWorkerPool` runs calls "
+           "in parallel.",
            "",
            "Raw per-subagent data in `results_fanout.json`. Re-run with "
-           "`BENCH_FANOUT_NS=...` to test other N values, or "
-           "`BENCH_FANOUT_MODEL=...` to swap models.",
+           "`BENCH_FANOUT_NS=...` or `BENCH_FANOUT_TASKS=...` to focus.",
            ""]
     RESULTS_MD.write_text("\n".join(md))
     print(f"\n-> {RESULTS_MD}")
@@ -302,34 +329,55 @@ def _pdf(model: str, rows: list[dict]) -> None:
         for c, x in zip(cells, w): pdf.cell(x, 6, L(c), border=1)
         pdf.ln()
 
+    by_task = _group_by_task(rows)
+    ns = sorted({r["n"] for r in rows})
+
     pdf.add_page()
-    h1("Fan-out benchmark - real simplicio-prompt kernel on sistema-sindico")
+    h1("Fan-out benchmark - simplicio-prompt kernel on sistema-sindico")
     p(f"Date: {time.strftime('%Y-%m-%d')}   Model: {model}   temperature: 0.7   "
-      f"Task: {TASK_ID}")
+      f"Tasks: {len(by_task)}   N values: {', '.join(str(n) for n in ns)}")
     p("Engine: kernel.subagent_runtime.SubagentRuntime (PyPI simplicio-prompt 1.7.0). "
-      "For each N, the kernel launches N real parallel LLM calls through "
+      "For each (task, N) the kernel launches N real parallel LLM calls through "
       "LaneWorkerPool on the same prompt; each output is scored by real PHPUnit; "
       "the majority-vote outcome (sha256-mode of normalized code) is re-scored. "
-      "Question: does the sp-default 64 help vs single? does 200 help vs 64?")
+      "Central question: does N=64 (sp default) help vs lower N? does N=200 help vs 64?")
     pdf.ln(1)
-    h2("Headline")
-    th(["N", "Per-attempt", "Uniq", "Majority", "Tokens", "Cost", "Elapsed"],
-       [15, 35, 18, 35, 25, 22, 25])
-    for r in rows:
-        tr([str(r["n"]),
-            f"{r['per_attempt_pass']}/{r['completed']} ({r['per_attempt_rate']}%)",
-            str(r["unique_outputs"]),
-            f"{'PASS' if r['majority_pass'] else 'fail'} ({r['majority_count']}/{r['completed']})",
-            f"{r['tokens']:,}",
-            f"${r['cost_usd']:.4f}",
-            f"{r['elapsed_s']:.1f}s"], [15, 35, 18, 35, 25, 22, 25])
+    h2("Headline - per N (aggregate across tasks)")
+    th(["N", "Tasks", "Per-attempt", "Modal pass", "Tokens", "Cost (USD)", "Avg elapsed"],
+       [18, 16, 36, 28, 28, 22, 28])
+    for n in ns:
+        ngroup = [r for r in rows if r["n"] == n]
+        tot_a = sum(r["completed"] for r in ngroup)
+        tot_p = sum(r["per_attempt_pass"] for r in ngroup)
+        tot_m = sum(1 for r in ngroup if r["majority_pass"])
+        tot_t = sum(r["tokens"] for r in ngroup)
+        tot_c = sum(r["cost_usd"] for r in ngroup)
+        avg_e = sum(r["elapsed_s"] for r in ngroup) / max(len(ngroup), 1)
+        label = f"{n}{' (default)' if n == 64 else ''}"
+        tr([label, str(len(ngroup)),
+            f"{tot_p}/{tot_a} ({100*tot_p//max(tot_a,1)}%)",
+            f"{tot_m}/{len(ngroup)}",
+            f"{tot_t:,}", f"${tot_c:.4f}", f"{avg_e:.1f}s"],
+           [18, 16, 36, 28, 28, 22, 28])
+    pdf.ln(2)
+    h2("Per-task")
+    th(["Task", "N", "Per-attempt", "Uniq", "Modal", "Tokens", "Cost"],
+       [40, 14, 32, 14, 28, 24, 24])
+    for task, trows in by_task.items():
+        for r in trows:
+            tr([task, str(r["n"]),
+                f"{r['per_attempt_pass']}/{r['completed']} ({r['per_attempt_rate']}%)",
+                str(r["unique_outputs"]),
+                f"{'P' if r['majority_pass'] else '.'} {r['majority_count']}/{r['completed']}",
+                f"{r['tokens']:,}", f"${r['cost_usd']:.4f}"],
+               [40, 14, 32, 14, 28, 24, 24])
     pdf.ln(2)
     h2("Interpretation")
     p("Per-attempt pass = noise floor at temp=0.7 (single-call equivalent). "
-      "Unique outputs = real diversity at this temperature (if all equal, "
-      "fan-out adds nothing). Majority-vote = does picking the most frequent "
-      "answer recover correctness? Cost / elapsed scale linearly with N for "
-      "tokens; wall-clock grows slower because calls run in parallel.")
+      "Modal-vote = does picking the most frequent answer recover correctness? "
+      "If N=200 doesn't beat N=64 on modal pass-rate, the sp default is the "
+      "sweet spot. Cost scales linearly with N for tokens; wall-clock grows "
+      "sub-linearly because calls run in parallel through LaneWorkerPool.")
     pdf.output(str(RESULTS_PDF))
     print(f"-> {RESULTS_PDF}")
 
