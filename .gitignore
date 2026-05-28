@@ -13,3 +13,6 @@ node_modules/
 playwright-report/
 test-results/
 .runtime-logs/
+
+# Rust build artifacts
+rust/*/target/
