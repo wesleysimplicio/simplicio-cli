@@ -103,6 +103,13 @@ through the HF router (`https://router.huggingface.co/v1`).
 > BENCH_MODELS="local:Qwen/Qwen2.5-Coder-1.5B-Instruct,Qwen/Qwen2.5-Coder-3B-Instruct,Qwen/Qwen2.5-Coder-7B-Instruct"
 > python3 bench/run_offline.py`.
 
+Side-by-side delta vs the previously published numbers (same regex methodology):
+[`bench/results_comparison.md`](bench/results_comparison.md) ·
+[`bench/results_comparison.pdf`](bench/results_comparison.pdf). The Qwen2.5-Coder
+triplet is the only batch fully re-measured this round; the wider 14-model
+re-run stalled mid-flight (HF Kimi-K2.6 hangs + a temporarily-disabled provider
+for Qwen2.5-7B burned the retry budget) and will be backfilled in the next pass.
+
 #### Local offline — qwen2.5-coder on Ollama, M1 8 GB, run on 2026-05-27 (30 runs/side, 156 checks)
 
 | Model | Without simplicio | With simplicio | Gain |
