@@ -1,0 +1,48 @@
+"""_pipeline_adapter.py — bridge between scratch.executor (which iterates
+plan tasks) and simplicio.pipeline (which runs the cli verify-loop on one
+task at a time).
+
+The existing simplicio.pipeline.run() signature is
+  run(root, stack, goal, target, criteria, constraints)
+plus it reads SIMPLICIO_TEST_CMD from the environment. We adapt one Task
+from the plan into one pipeline.run invocation, with SIMPLICIO_TEST_CMD
+temporarily set to the per-task verify command.
+"""
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+from .plan_schema import Task
+from .stack_registry import Stack
+
+
+def run_task(task: Task, project_dir: Path, stack: Stack) -> tuple[bool, str]:
+    """Run one plan task through simplicio.pipeline.run.
+    Returns (passed, log_tail)."""
+    from ..pipeline import run as pipeline_run
+
+    # Per-task verify command supersedes any global SIMPLICIO_TEST_CMD
+    prev_test_cmd = os.environ.get("SIMPLICIO_TEST_CMD")
+    os.environ["SIMPLICIO_TEST_CMD"] = task.verify
+    try:
+        stack_label = stack.language
+        if stack.framework:
+            stack_label = f"{stack.language} + {stack.framework}"
+
+        output = pipeline_run(
+            root=str(project_dir),
+            stack=stack_label,
+            goal=task.goal,
+            target=task.target,
+            criteria=task.criteria,
+            constraints=task.constraints,
+        )
+    finally:
+        if prev_test_cmd is None:
+            os.environ.pop("SIMPLICIO_TEST_CMD", None)
+        else:
+            os.environ["SIMPLICIO_TEST_CMD"] = prev_test_cmd
+
+    passed = output is not None
+    return passed, (output or "(pipeline returned None — task did not converge)")[:1500]

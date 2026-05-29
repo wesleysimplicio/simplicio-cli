@@ -1,0 +1,7 @@
+{
+  "install": "pnpm install",
+  "test": "pnpm vitest run",
+  "test_runner": "vitest",
+  "lint": "pnpm eslint .",
+  "e2e": "pnpm playwright test"
+}
