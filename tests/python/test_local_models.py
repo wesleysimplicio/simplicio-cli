@@ -21,11 +21,13 @@ from simplicio.local_models import (
     (32, 24, False, "gpu-large"),   # 24 GB VRAM
     (32, 16, False, "gpu-mid"),
     (16, 0, False, "cpu-small"),
+    (15.7, 0, False, "cpu-small"),  # OS-reserved memory: 16 GB nominal → 15.7 reported
     (4, 0, False, "cpu-tiny"),
     # Apple Silicon: unified memory, key on RAM
     (64, 0, True, "gpu-xlarge"),
     (32, 0, True, "gpu-large"),
     (18, 0, True, "gpu-mid"),
+    (15.7, 0, True, "gpu-mid"),     # 16 GB Mac reports ~15.7 too
     (8, 0, True, "cpu-small"),
     (4, 0, True, "cpu-tiny"),
 ])

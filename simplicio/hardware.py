@@ -162,25 +162,31 @@ def pick_tier(ram_gb: float, vram_gb: float, apple_silicon: bool) -> str:
     For Apple Silicon, unified memory means RAM doubles as VRAM, so we
     pick on RAM directly. For NVIDIA, we pick on VRAM and trust the user
     to have enough system RAM for the model + KV cache overhead.
+
+    Thresholds are deliberately ~5% looser than the marketing number
+    (e.g. "16 GB" → threshold 15.0) because the OS always reserves a
+    chunk for itself and /proc/meminfo reports the user-available number,
+    not the slot capacity. A 16 GB machine that shows 15.7 GB should
+    still pick up the 8-16 GB tier.
     """
     if apple_silicon:
-        if ram_gb >= 48:
+        if ram_gb >= 46:
             return "gpu-xlarge"
-        if ram_gb >= 24:
+        if ram_gb >= 23:
             return "gpu-large"
-        if ram_gb >= 16:
+        if ram_gb >= 15:
             return "gpu-mid"
-        if ram_gb >= 8:
+        if ram_gb >= 7.5:
             return "cpu-small"
         return "cpu-tiny"
 
-    if vram_gb >= 32:
+    if vram_gb >= 30:
         return "gpu-xlarge"
-    if vram_gb >= 20:
+    if vram_gb >= 19:
         return "gpu-large"
-    if vram_gb >= 12:
+    if vram_gb >= 11:
         return "gpu-mid"
-    if ram_gb >= 16:
+    if ram_gb >= 15:
         return "cpu-small"
     return "cpu-tiny"
 
