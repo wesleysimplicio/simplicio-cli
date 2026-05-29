@@ -510,8 +510,10 @@ def _pdf(models: list[str], tasks: list[dict], ns: list[int],
          rows: list[dict]) -> None:
     try:
         from fpdf import FPDF
-    except ImportError:
-        print("[warn] fpdf2 not installed; skipping PDF")
+    except BaseException as e:
+        # fpdf2 transitively imports cryptography which can panic on
+        # mis-linked native bindings (PyO3 PanicException is BaseException).
+        print(f"[warn] fpdf2 unavailable ({type(e).__name__}); skipping PDF.")
         return
     pdf = FPDF(unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=15); pdf.set_margins(15, 15, 15)
