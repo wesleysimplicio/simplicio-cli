@@ -27,7 +27,8 @@ def maybe_autoinstall(cmd: str | None) -> bool:
         return False
     if cmd in ("init", "detect"):
         return False
-    claude_home = Path.home() / ".claude"
+    home = Path(os.environ["HOME"]) if os.environ.get("HOME") else Path.home()
+    claude_home = home / ".claude"
     if not claude_home.is_dir():
         return False
     hook_path = claude_home / "hooks" / "simplicio-userpromptsubmit.sh"

@@ -12,8 +12,9 @@ only the prompt structure changes. Runs across multiple models so the
 result is a property of the *method*, not of one model.
 
 Usage:
-  OPENROUTER_API_KEY=... \\
-    BENCH_MODELS="qwen/qwen-2.5-7b-instruct,meta-llama/llama-3.1-8b-instruct,mistralai/mistral-7b-instruct" \\
+  HF_TOKEN=... \\
+    BENCH_BASE_URL=https://router.huggingface.co/v1 \\
+    BENCH_MODELS="Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next" \\
     python3 bench/run_offline.py
 """
 from __future__ import annotations
@@ -29,10 +30,14 @@ CHART_DIR = ROOT / "bench" / "charts"
 
 MODELS = [m.strip() for m in os.environ.get(
     "BENCH_MODELS",
-    "qwen/qwen-2.5-7b-instruct"
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next"
 ).split(",") if m.strip()]
-BASE_URL = os.environ.get("BENCH_BASE_URL", "https://openrouter.ai/api/v1")
-API_KEY = os.environ.get("BENCH_API_KEY") or os.environ.get("OPENROUTER_API_KEY")
+BASE_URL = os.environ.get("BENCH_BASE_URL", "https://router.huggingface.co/v1")
+API_KEY = (
+    os.environ.get("BENCH_API_KEY")
+    or os.environ.get("HF_TOKEN")
+    or os.environ.get("OPENROUTER_API_KEY")
+)
 
 SIX_LAYER_TEMPLATE = """You are a senior engineer working IN THIS project.
 Stack: {stack}. Project conventions are LAW. Do not bring generic patterns.
@@ -61,8 +66,9 @@ No prose, no preamble."""
 
 
 # ---------- local transformers backend (model id prefixed "local:") ---------- #
-# Used for weights that HF Inference Providers does not serve (e.g. the small
-# Qwen2.5-Coder-1.5B). Downloads from the Hub and runs greedy decoding on CPU.
+# Use Qwen3 Coder GGUF/OpenAI-compatible servers when the hardware can host the
+# MoE defaults. The local transformers path remains for small legacy weights
+# that hosted providers do not serve (for example Qwen2.5-Coder-1.5B).
 
 _LOCAL_MODELS: dict = {}
 
@@ -121,7 +127,7 @@ def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
     if model.startswith("local:"):
         return local_call(model.split(":", 1)[1], prompt)
     if not API_KEY:
-        raise SystemExit("set OPENROUTER_API_KEY (or BENCH_API_KEY)")
+        raise SystemExit("set BENCH_API_KEY, HF_TOKEN, or OPENROUTER_API_KEY")
     body = json.dumps({
         "model": model,
         "max_tokens": 8192,

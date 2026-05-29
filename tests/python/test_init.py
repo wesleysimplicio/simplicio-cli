@@ -1,5 +1,6 @@
 """Tests for simplicio.init — skill + hook installer."""
 import json
+import os
 
 from simplicio.init import HOOK_MARKER, install
 
@@ -18,8 +19,9 @@ def test_install_fresh_claude_home(tmp_path):
     skill_text = report.skill_path.read_text(encoding="utf-8")
     assert "name: simplicio-cli" in skill_text
 
-    mode = report.hook_script_path.stat().st_mode
-    assert mode & 0o111
+    if os.name != "nt":
+        mode = report.hook_script_path.stat().st_mode
+        assert mode & 0o111
     hook_text = report.hook_script_path.read_text(encoding="utf-8")
     assert "simplicio detect" in hook_text
     assert "CLAUDE_USER_PROMPT" in hook_text
