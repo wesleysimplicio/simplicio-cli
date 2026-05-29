@@ -49,6 +49,43 @@ MODELS = [
 ]
 PHPUNIT_TIMEOUT = int(os.environ.get("BENCH_PHPUNIT_TIMEOUT", "60"))
 INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "1").strip() not in ("0", "false", "False")
+INCLUDE_AGENTS = os.environ.get("BENCH_INCLUDE_AGENTS", "1").strip() not in ("0", "false", "False")
+AGENTS_MAX_ATTEMPTS = int(os.environ.get("BENCH_AGENTS_MAX_ATTEMPTS", "3"))
+
+# Per-model endpoint routing: lets one batch mix HuggingFace router models
+# (Qwen Coder series, served from the HF inference network) with OpenRouter
+# models in the same run. Each entry overrides BENCH_BASE_URL + BENCH_API_KEY
+# from run_offline for the duration of that model's loop.
+MODEL_ROUTING: dict[str, dict] = {
+    "Qwen/Qwen2.5-Coder-3B-Instruct": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+    "Qwen/Qwen2.5-Coder-7B-Instruct": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+    "Qwen/Qwen3-Coder-Next": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+}
+
+
+def _route_for(model: str) -> None:
+    """Point run_offline.llm_call at the right endpoint for the given model.
+    Defaults (OpenRouter via OPENROUTER_API_KEY / BENCH_API_KEY) win when the
+    model is not in MODEL_ROUTING."""
+    cfg = MODEL_ROUTING.get(model)
+    if cfg is None:
+        ro.BASE_URL = os.environ.get("BENCH_BASE_URL", "https://openrouter.ai/api/v1")
+        ro.API_KEY = (os.environ.get("OPENROUTER_API_KEY")
+                      or os.environ.get("BENCH_API_KEY"))
+        return
+    ro.BASE_URL = cfg["base_url"]
+    ro.API_KEY = os.environ.get(cfg["env_key"])
+    if not ro.API_KEY:
+        raise SystemExit(f"missing env var {cfg['env_key']} for model {model}")
 
 
 def _load_sp_runtime() -> str:
@@ -108,19 +145,60 @@ Constraints (do not break):
 Return ONLY the complete updated contents of {target}. PHP only, no prose, no fences."""
 
 
+# The sp side is a COMPOSITION, not a standalone alternative: the
+# simplicio-prompt runtime template wraps the simplicio-cli 6-layer contract
+# as the task that user input X represents. We are measuring whether the
+# Tuple-Space + Yool runtime ADDS value on top of an already-sharp 6-layer
+# prompt — not whether the runtime alone beats raw goal text.
 SP_PROMPT = """{sp_runtime}
 
 ---
 
 [USER INPUT - task X]
-{goal}
+{cli_contract}"""
 
-Target file ({target}) current content:
+
+# The agents side is the simplicio verify-loop: generate → run phpunit →
+# on fail, classify the failure + feed the tail back as feedback → regenerate.
+# Up to AGENTS_MAX_ATTEMPTS iterations. The retry template mirrors
+# simplicio.pipeline.build_retry_feedback() so this measures the same loop
+# that ships in `simplicio task --verify`.
+AGENTS_RETRY_PROMPT = """Retry feedback for attempt {attempt}:
+failure_class={failure_class}
+{guidance}
+
+PHPUnit tail (real output from the project's full test suite):
+{phpunit_tail}
+
+Your previous attempt was:
 ```php
-{file_content}
+{previous_code}
 ```
 
-Output the COMPLETE updated contents of {target}. PHP only, no prose, no fences."""
+Apply the SMALLEST correction so the suite goes green. Output the COMPLETE corrected contents of {target}. PHP only, no prose, no fences."""
+
+
+def _classify_phpunit_failure(tail: str) -> tuple[str, str]:
+    """Light port of simplicio.pipeline.classify_failure to PHPUnit output.
+    Returns (failure_class, guidance) matching the cli's retry-feedback shape."""
+    t = (tail or "").lower()
+    if "parse error" in t or "syntax error" in t:
+        return ("syntax",
+                "Fix the PHP syntax first; keep the patch minimal and rerun.")
+    if "fatal error" in t and ("undefined" in t or "must implement" in t or "cannot redeclare" in t):
+        return ("runtime",
+                "Resolve the fatal error at the reported callsite.")
+    if "failures!" in t:
+        return ("assertion",
+                "The test ran but behaviour is wrong; re-read the criteria.")
+    if "errors!" in t:
+        return ("runtime",
+                "Resolve the exception raised by the production code path.")
+    if "no tests" in t or "no test" in t:
+        return ("test-missing",
+                "PHPUnit did not see the expected test class; check naming.")
+    return ("unknown",
+            "Re-read the contract; produce a smaller, directly testable change.")
 
 
 def setup_workspace() -> dict:
@@ -170,6 +248,49 @@ def run_phpunit() -> tuple[bool, str]:
     return p.returncode == 0, " | ".join(tail)
 
 
+def agents_iterate(model: str, case: dict, cli_contract: str, snaps: dict) -> dict:
+    """Verify-loop: generate → phpunit → on fail, feed tail back, regenerate.
+    Mirrors simplicio.pipeline.run() with AGENTS_MAX_ATTEMPTS retries.
+    Returns the cumulative metrics; passed = pass on ANY attempt."""
+    prompt = cli_contract
+    total_tokens = 0
+    total_ms = 0
+    last_tail = ""
+    last_code = ""
+    final_passed = False
+    attempts_used = 0
+    for t in range(1, AGENTS_MAX_ATTEMPTS + 1):
+        attempts_used = t
+        reset_target(case, snaps)
+        res = ro.llm_call(model, prompt)
+        total_tokens += res.get("total_tokens", 0)
+        total_ms += res.get("elapsed_ms", 0)
+        last_code = extract_php(res["text"])
+        (WORK / case["target"]).write_text(last_code, encoding="utf-8")
+        hidden_dst = None
+        if case.get("hidden_test"):
+            hidden_dst = WORK / "tests" / "unit" / "Core" / "Hidden" / case["hidden_test"]
+            hidden_dst.write_text(
+                (HIDDEN_TPL / case["hidden_test"]).read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+        passed, last_tail = run_phpunit()
+        if hidden_dst is not None:
+            hidden_dst.unlink(missing_ok=True)
+        if passed:
+            final_passed = True
+            break
+        kind, guidance = _classify_phpunit_failure(last_tail)
+        prompt = AGENTS_RETRY_PROMPT.format(
+            attempt=t + 1, failure_class=kind, guidance=guidance,
+            phpunit_tail=last_tail[-1600:], previous_code=last_code,
+            target=case["target"],
+        )
+    reset_target(case, snaps)
+    return {"passed": final_passed, "tokens": total_tokens, "ms": total_ms,
+            "tail": last_tail, "attempts": attempts_used, "error": None}
+
+
 def one(model: str, case: dict, prompt: str, snaps: dict) -> dict:
     reset_target(case, snaps)
     res = ro.llm_call(model, prompt)
@@ -201,31 +322,43 @@ def run() -> int:
     print(f"exec target: sistema-sindico ({WORK})\nmodels: {MODELS}\ncases: {n}\n")
     by_model = {}
     for model in MODELS:
-        print(f"=== {model} ===")
+        _route_for(model)
+        print(f"=== {model} (endpoint: {ro.BASE_URL}) ===")
         rows = []
-        sem_pass = com_pass = sp_pass = 0
+        sem_pass = com_pass = sp_pass = ag_pass = 0
         for c in CASES:
             content = (SINDICO_SRC / c["target"]).read_text(encoding="utf-8")
             ctx = {**c, "file_content": content}
+            cli_contract = CONTRACT_PROMPT.format(**ctx)
             s = one(model, c, RAW_PROMPT.format(**ctx), snaps)
-            w = one(model, c, CONTRACT_PROMPT.format(**ctx), snaps)
+            w = one(model, c, cli_contract, snaps)
             sem_pass += int(s["passed"]); com_pass += int(w["passed"])
             row = {"id": c["id"], "sem": s, "com": w}
             sp_msg = ""
             if INCLUDE_SP:
-                p = one(model, c, SP_PROMPT.format(sp_runtime=SP_RUNTIME, **ctx), snaps)
+                p = one(model, c, SP_PROMPT.format(
+                    sp_runtime=SP_RUNTIME, cli_contract=cli_contract), snaps)
                 sp_pass += int(p["passed"]); row["sp"] = p
-                sp_msg = f"  sp {'PASS' if p['passed'] else 'fail'}"
+                sp_msg = f"  cli+sp {'PASS' if p['passed'] else 'fail'}"
+            ag_msg = ""
+            if INCLUDE_AGENTS:
+                a = agents_iterate(model, c, cli_contract, snaps)
+                ag_pass += int(a["passed"]); row["ag"] = a
+                ag_msg = (f"  cli+ag {'PASS' if a['passed'] else 'fail'}"
+                          f"({a['attempts']}/{AGENTS_MAX_ATTEMPTS})")
             rows.append(row)
             print(f"  {c['id']:25s} baseline {'PASS' if s['passed'] else 'fail'}  "
-                  f"cli {'PASS' if w['passed'] else 'fail'}{sp_msg}")
+                  f"cli {'PASS' if w['passed'] else 'fail'}{sp_msg}{ag_msg}")
         entry = {"rows": rows, "n": n,
             "sem_pass": sem_pass, "com_pass": com_pass,
             "sem_pct": 100*sem_pass//n, "com_pct": 100*com_pass//n}
         if INCLUDE_SP:
             entry["sp_pass"] = sp_pass; entry["sp_pct"] = 100*sp_pass//n
+        if INCLUDE_AGENTS:
+            entry["ag_pass"] = ag_pass; entry["ag_pct"] = 100*ag_pass//n
         by_model[model] = entry
         tail = f" | sp {sp_pass}/{n} ({100*sp_pass//n}%)" if INCLUDE_SP else ""
+        tail += f" | ag {ag_pass}/{n} ({100*ag_pass//n}%)" if INCLUDE_AGENTS else ""
         print(f"  -> baseline {sem_pass}/{n} ({by_model[model]['sem_pct']}%) "
               f"| cli {com_pass}/{n} ({by_model[model]['com_pct']}%){tail}\n")
     RESULTS_JSON.write_text(json.dumps(by_model, indent=2))
@@ -233,18 +366,26 @@ def run() -> int:
     g_sem = sum(b["sem_pass"] for b in by_model.values())
     g_com = sum(b["com_pass"] for b in by_model.values())
     g_tot = sum(b["n"] for b in by_model.values())
-    sp_tail = ""
+    sp_tail = ag_tail = ""
     if INCLUDE_SP:
         g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
-        sp_tail = f" | sp {100*g_sp//g_tot}%"
+        sp_tail = f" | cli+sp {100*g_sp//g_tot}%"
+    if INCLUDE_AGENTS:
+        g_ag = sum(b.get("ag_pass", 0) for b in by_model.values())
+        ag_tail = f" | cli+ag {100*g_ag//g_tot}%"
     print(f"grand: baseline {100*g_sem//g_tot}% | cli {100*g_com//g_tot}%"
-          f"{sp_tail} (real phpunit, {g_tot} runs/side)")
+          f"{sp_tail}{ag_tail} (real phpunit, {g_tot} runs/side)")
     return 0
 
 
 def _has_sp(by_model: dict) -> bool:
     """True iff any model carries simplicio-prompt data in its rows."""
     return any("sp" in r for b in by_model.values() for r in b.get("rows", []))
+
+
+def _has_ag(by_model: dict) -> bool:
+    """True iff any model carries the agents verify-loop data in its rows."""
+    return any("ag" in r for b in by_model.values() for r in b.get("rows", []))
 
 
 def write_reports(by_model: dict) -> None:
@@ -255,6 +396,7 @@ def write_reports(by_model: dict) -> None:
     case_ids = [r["id"] for r in sample_rows]
     n_tasks = len(case_ids)
     with_sp = _has_sp(by_model)
+    with_ag = _has_ag(by_model)
     g_sem = sum(b.get("sem_pass", 0) for b in by_model.values())
     g_com = sum(b.get("com_pass", 0) for b in by_model.values())
     g_tot = sum(b["n"] for b in by_model.values())
@@ -266,9 +408,20 @@ def write_reports(by_model: dict) -> None:
         "target, criteria as testable states, constraints, output shape)"
     )
     if with_sp:
-        sides_blurb += ("\n- **simplicio-prompt**: the Tuple-Space + Yool "
-                        "runtime template from the simplicio-prompt package, "
-                        "with the task injected as user input X")
+        sides_blurb += ("\n- **simplicio-cli + simplicio-prompt (composition)**: "
+                        "the Tuple-Space + Yool runtime template from "
+                        "simplicio-prompt wrapping the simplicio-cli 6-layer "
+                        "contract as user input X. Measures whether the "
+                        "runtime adds value ON TOP of an already-sharp "
+                        "6-layer prompt — not whether sp alone beats raw goal.")
+    if with_ag:
+        sides_blurb += ("\n- **simplicio-cli + agents (verify-loop)**: same "
+                        "6-layer contract, but on failure the harness feeds "
+                        "the PHPUnit tail back as classified retry feedback "
+                        "(syntax/assertion/runtime/etc.) and re-prompts up "
+                        f"to {AGENTS_MAX_ATTEMPTS} attempts — the exact loop "
+                        "shipped in `simplicio task --verify` "
+                        "(`simplicio/pipeline.py`).")
     md = [
         "# Execution benchmark — real project, real tasks, real test suite",
         "",
@@ -317,32 +470,44 @@ def write_reports(by_model: dict) -> None:
     if with_sp:
         g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
         gpp = 100 * g_sp // max(g_tot, 1)
-        md.append(f"- **simplicio-prompt (Yool runtime):** {g_sp}/{g_tot} ({gpp}%) "
-                  f"— **{gpp - gsp:+d} pts vs baseline**")
+        md.append(f"- **simplicio-cli + simplicio-prompt (composition):** "
+                  f"{g_sp}/{g_tot} ({gpp}%) "
+                  f"— **{gpp - gsp:+d} pts vs baseline · {gpp - gcp:+d} pts vs cli alone**")
+    if with_ag:
+        g_ag = sum(b.get("ag_pass", 0) for b in by_model.values())
+        gap = 100 * g_ag // max(g_tot, 1)
+        md.append(f"- **simplicio-cli + agents (verify-loop):** "
+                  f"{g_ag}/{g_tot} ({gap}%) "
+                  f"— **{gap - gsp:+d} pts vs baseline · {gap - gcp:+d} pts vs cli alone**")
     md += ["", "## Per-model (pass = full PHPUnit suite green)", ""]
-    if with_sp:
-        md += ["| Model | Baseline | simplicio-cli | simplicio-prompt | D cli | D sp |",
-               "|---|---|---|---|---|---|"]
-        for m in models:
-            b = by_model[m]
-            md.append(
-                f"| `{m}` | {b['sem_pass']}/{b['n']} ({b['sem_pct']}%) | "
-                f"{b['com_pass']}/{b['n']} ({b['com_pct']}%) | "
-                f"{b.get('sp_pass', 0)}/{b['n']} ({b.get('sp_pct', 0)}%) | "
-                f"**{b['com_pct'] - b['sem_pct']:+d}** | "
-                f"**{b.get('sp_pct', 0) - b['sem_pct']:+d}** |"
-            )
-    else:
-        md += ["| Model | Baseline | simplicio-cli | Delta (pts) |",
-               "|---|---|---|---|"]
-        for m in models:
-            b = by_model[m]
-            md.append(
-                f"| `{m}` | {b['sem_pass']}/{b['n']} ({b['sem_pct']}%) | "
-                f"{b['com_pass']}/{b['n']} ({b['com_pct']}%) | "
-                f"**{b['com_pct'] - b['sem_pct']:+d}** |"
-            )
-    md += ["", f"## Per-task × model ({'baseline / cli / sp' if with_sp else 'baseline / cli'})", "",
+    cols = ["Model", "Baseline", "cli alone"]
+    if with_sp: cols.append("cli + sp")
+    if with_ag: cols.append("cli + ag")
+    cols += ["D cli"]
+    if with_sp: cols.append("D (cli+sp)")
+    if with_ag: cols.append("D (cli+ag)")
+    md += ["| " + " | ".join(cols) + " |", "|" + "|".join("---" for _ in cols) + "|"]
+    for m in models:
+        b = by_model[m]
+        cells = [
+            f"`{m}`",
+            f"{b['sem_pass']}/{b['n']} ({b['sem_pct']}%)",
+            f"{b['com_pass']}/{b['n']} ({b['com_pct']}%)",
+        ]
+        if with_sp:
+            cells.append(f"{b.get('sp_pass', 0)}/{b['n']} ({b.get('sp_pct', 0)}%)")
+        if with_ag:
+            cells.append(f"{b.get('ag_pass', 0)}/{b['n']} ({b.get('ag_pct', 0)}%)")
+        cells.append(f"**{b['com_pct'] - b['sem_pct']:+d}**")
+        if with_sp:
+            cells.append(f"**{b.get('sp_pct', 0) - b['sem_pct']:+d}**")
+        if with_ag:
+            cells.append(f"**{b.get('ag_pct', 0) - b['sem_pct']:+d}**")
+        md.append("| " + " | ".join(cells) + " |")
+    label = "baseline / cli"
+    if with_sp: label += " / cli+sp"
+    if with_ag: label += " / cli+ag"
+    md += ["", f"## Per-task × model ({label})", "",
            "| Task | " + " | ".join(m.split("/")[-1] for m in models) + " |",
            "|---|" + "|".join("---" for _ in models) + "|"]
     for i, cid in enumerate(case_ids):
@@ -353,8 +518,16 @@ def write_reports(by_model: dict) -> None:
             if with_sp:
                 sp = r.get("sp", {"passed": False})
                 base += f"/{'P' if sp.get('passed') else '.'}"
+            if with_ag:
+                ag = r.get("ag", {"passed": False, "attempts": 0})
+                base += f"/{'P' if ag.get('passed') else '.'}({ag.get('attempts',0)})"
             cells.append(base)
         md.append(f"| {cid} | " + " | ".join(cells) + " |")
+    if with_ag:
+        md += ["",
+               "Format suffix `(N)` on cli+ag is the number of verify-loop "
+               "attempts consumed (1–3). Lower is better; 1 means it passed "
+               "on the first try, no feedback needed."]
     md += ["", "Raw counts above are real `vendor/bin/phpunit` exit codes against "
            "`sistema-sindico`. `results_exec_sindico.json` holds per-case "
            "pass/fail, tokens, latency and a phpunit tail for every side.", ""]
@@ -366,8 +539,11 @@ def write_reports(by_model: dict) -> None:
 def _pdf(by_model: dict) -> None:
     try:
         from fpdf import FPDF
-    except ImportError:
-        print("[warn] fpdf2 not installed; skipping exec sindico PDF.")
+    except BaseException as e:
+        # fpdf2 transitively imports cryptography which can panic when its
+        # native bindings are mis-linked (PyO3 PanicException is BaseException,
+        # not Exception). Skip the PDF rather than abort the whole batch.
+        print(f"[warn] fpdf2 unavailable ({type(e).__name__}); skipping PDF.")
         return
     models = list(by_model.keys())
     with_sp = _has_sp(by_model)
@@ -415,41 +591,63 @@ def _pdf(by_model: dict) -> None:
              "Variables: baseline = raw goal; cli = the simplicio-cli 6-layer "
              "task contract")
     if with_sp:
-        blurb += "; sp = the simplicio-prompt Tuple-Space + Yool runtime template."
-    else:
-        blurb += "."
+        blurb += ("; cli+sp = the simplicio-prompt Tuple-Space + Yool runtime "
+                  "wrapping the cli 6-layer contract as user input X "
+                  "(composition, not substitution)")
+    if with_ag:
+        blurb += ("; cli+ag = the simplicio verify-loop (cli 6-layer contract "
+                  "with classified PHPUnit-tail feedback fed back over up to "
+                  f"{AGENTS_MAX_ATTEMPTS} attempts, mirrors simplicio.pipeline)")
+    blurb += "."
     p(blurb)
     pdf.ln(1)
     h2("Headline")
     th(["Side", "Passed", "Rate", "vs baseline"], [60, 30, 30, 40])
     tr(["Baseline", f"{g_sem}/{g_tot}", f"{100*g_sem//max(g_tot,1)}%", "-"], [60, 30, 30, 40])
-    tr(["simplicio-cli (6-layer)", f"{g_com}/{g_tot}", f"{100*g_com//max(g_tot,1)}%",
+    tr(["cli alone (6-layer)", f"{g_com}/{g_tot}", f"{100*g_com//max(g_tot,1)}%",
         f"{100*g_com//max(g_tot,1) - 100*g_sem//max(g_tot,1):+d} pts"], [60, 30, 30, 40])
     if with_sp:
         g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
-        tr(["simplicio-prompt (Yool)", f"{g_sp}/{g_tot}", f"{100*g_sp//max(g_tot,1)}%",
+        tr(["cli + sp (composition)", f"{g_sp}/{g_tot}", f"{100*g_sp//max(g_tot,1)}%",
             f"{100*g_sp//max(g_tot,1) - 100*g_sem//max(g_tot,1):+d} pts"], [60, 30, 30, 40])
+    if with_ag:
+        g_ag = sum(b.get("ag_pass", 0) for b in by_model.values())
+        tr(["cli + ag (verify-loop)", f"{g_ag}/{g_tot}", f"{100*g_ag//max(g_tot,1)}%",
+            f"{100*g_ag//max(g_tot,1) - 100*g_sem//max(g_tot,1):+d} pts"], [60, 30, 30, 40])
     pdf.ln(2)
     h2("Per-model (pass = full PHPUnit suite green)")
+    headers = ["Model", "Baseline", "cli"]
+    widths = [62, 22, 22]
     if with_sp:
-        th(["Model", "Baseline", "cli", "sp", "D cli", "D sp"], [70, 24, 24, 24, 18, 18])
-        for m in models:
-            b = by_model[m]
-            tr([m, f"{b['sem_pass']}/{b['n']} ({b['sem_pct']}%)",
-                f"{b['com_pass']}/{b['n']} ({b['com_pct']}%)",
-                f"{b.get('sp_pass',0)}/{b['n']} ({b.get('sp_pct',0)}%)",
-                f"{b['com_pct']-b['sem_pct']:+d}",
-                f"{b.get('sp_pct',0)-b['sem_pct']:+d}"],
-                [70, 24, 24, 24, 18, 18])
-    else:
-        th(["Model", "Baseline", "simplicio-cli", "Delta(pts)"], [86, 30, 30, 30])
-        for m in models:
-            b = by_model[m]
-            tr([m, f"{b['sem_pass']}/{b['n']} ({b['sem_pct']}%)",
-                f"{b['com_pass']}/{b['n']} ({b['com_pct']}%)",
-                f"{b['com_pct']-b['sem_pct']:+d}"], [86, 30, 30, 30])
+        headers.append("cli+sp"); widths.append(22)
+    if with_ag:
+        headers.append("cli+ag"); widths.append(22)
+    headers.append("D cli"); widths.append(16)
+    if with_sp:
+        headers.append("D cli+sp"); widths.append(16)
+    if with_ag:
+        headers.append("D cli+ag"); widths.append(16)
+    th(headers, widths)
+    for m in models:
+        b = by_model[m]
+        cells = [m,
+                 f"{b['sem_pass']}/{b['n']} ({b['sem_pct']}%)",
+                 f"{b['com_pass']}/{b['n']} ({b['com_pct']}%)"]
+        if with_sp:
+            cells.append(f"{b.get('sp_pass',0)}/{b['n']} ({b.get('sp_pct',0)}%)")
+        if with_ag:
+            cells.append(f"{b.get('ag_pass',0)}/{b['n']} ({b.get('ag_pct',0)}%)")
+        cells.append(f"{b['com_pct']-b['sem_pct']:+d}")
+        if with_sp:
+            cells.append(f"{b.get('sp_pct',0)-b['sem_pct']:+d}")
+        if with_ag:
+            cells.append(f"{b.get('ag_pct',0)-b['sem_pct']:+d}")
+        tr(cells, widths)
     pdf.ln(2)
-    h2(f"Per-task x model ({'base / cli / sp' if with_sp else 'base / cli'})")
+    label = "base / cli"
+    if with_sp: label += " / cli+sp"
+    if with_ag: label += " / cli+ag"
+    h2(f"Per-task x model ({label})")
     case_ids = [r["id"] for r in sample_rows]
     th(["Task"] + [m.split("/")[-1] for m in models],
        [40] + [(140 // max(len(models), 1))] * len(models))
@@ -461,6 +659,9 @@ def _pdf(by_model: dict) -> None:
             if with_sp:
                 sp = r.get("sp", {"passed": False})
                 cell += f"/{'P' if sp.get('passed') else '.'}"
+            if with_ag:
+                ag = r.get("ag", {"passed": False})
+                cell += f"/{'P' if ag.get('passed') else '.'}"
             row.append(cell)
         tr(row, [40] + [(140 // max(len(models), 1))] * len(models))
     pdf.output(str(RESULTS_PDF))

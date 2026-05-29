@@ -1,7 +1,7 @@
 # Benchmark — simplicio-cli (offline harness)
 
-Date: **2026-05-27**  
-Models: `local:Qwen/Qwen2.5-Coder-1.5B-Instruct`, `Qwen/Qwen2.5-Coder-3B-Instruct`, `Qwen/Qwen2.5-Coder-7B-Instruct`  
+Date: **2026-05-29**  
+Models: `Qwen/Qwen3-Coder-30B-A3B-Instruct`, `Qwen/Qwen3-Coder-Next`  
 Cases: **10** across stacks: `angular`, `dotnet`, `react`  
 Base: `https://router.huggingface.co/v1`
 
@@ -13,9 +13,9 @@ same goal in simplicio's 6-layer contract.
 
 ## Headline
 
-- **Without simplicio:** 54/156 (34%)
-- **With simplicio:** 147/156 (94%)
-- **Delta:** **+60 points** (+172% relative)
+- **Without simplicio:** 42/104 (40%)
+- **With simplicio:** 99/104 (95%)
+- **Delta:** **+55 points** (+136% relative)
 
 ![pass rate by model](charts/overall.svg)
 
@@ -25,9 +25,8 @@ same goal in simplicio's 6-layer contract.
 
 | Model | Cases | Without | With | Delta (pts) | Relative gain |
 |---|---|---|---|---|---|
-| `local:Qwen/Qwen2.5-Coder-1.5B-Instruct` | 10 | 16/52 (30%) | 48/52 (92%) | **+62** | +200% |
-| `Qwen/Qwen2.5-Coder-3B-Instruct` | 10 | 18/52 (34%) | 49/52 (94%) | **+60** | +172% |
-| `Qwen/Qwen2.5-Coder-7B-Instruct` | 10 | 20/52 (38%) | 50/52 (96%) | **+58** | +150% |
+| `Qwen/Qwen3-Coder-30B-A3B-Instruct` | 10 | 19/52 (36%) | 47/52 (90%) | **+54** | +147% |
+| `Qwen/Qwen3-Coder-Next` | 10 | 23/52 (44%) | 52/52 (100%) | **+56** | +126% |
 
 ## Per-case (averaged across models)
 
@@ -35,16 +34,16 @@ same goal in simplicio's 6-layer contract.
 
 | # | Stack | Task | Without | With | Δ |
 |---|---|---|---|---|---|
-| 1 | `angular` | Hide the Delete button when the current user is not an admin | 40% | 93% | **+53** |
-| 2 | `angular` | Disable the email field unless the profile role is editor. | 33% | 93% | **+60** |
-| 3 | `angular` | Only show the audit log link for users with role 'auditor'. | 20% | 100% | **+80** |
-| 4 | `angular` | Show 'Approve' button only when the order status is 'pending | 33% | 94% | **+61** |
-| 5 | `react` | Render the export menu item only for users in the 'analytics | 27% | 93% | **+67** |
-| 6 | `react` | Disable the 'Save Draft' button while the form is invalid OR | 50% | 100% | **+50** |
-| 7 | `react` | Show a 'No results' empty state when the search returns zero | 40% | 93% | **+53** |
-| 8 | `dotnet` | Require the 'CanApprove' policy on the Approve endpoint of t | 27% | 93% | **+67** |
-| 9 | `dotnet` | Restrict the GET /reports endpoint so only users in the Mana | 33% | 87% | **+53** |
-| 10 | `angular` | Show a warning banner if the user has unsaved changes and tr | 40% | 93% | **+53** |
+| 1 | `angular` | Hide the Delete button when the current user is not an admin | 40% | 100% | **+60** |
+| 2 | `angular` | Disable the email field unless the profile role is editor. | 40% | 90% | **+50** |
+| 3 | `angular` | Only show the audit log link for users with role 'auditor'. | 20% | 90% | **+70** |
+| 4 | `angular` | Show 'Approve' button only when the order status is 'pending | 42% | 92% | **+50** |
+| 5 | `react` | Render the export menu item only for users in the 'analytics | 40% | 100% | **+60** |
+| 6 | `react` | Disable the 'Save Draft' button while the form is invalid OR | 50% | 92% | **+42** |
+| 7 | `react` | Show a 'No results' empty state when the search returns zero | 50% | 90% | **+40** |
+| 8 | `dotnet` | Require the 'CanApprove' policy on the Approve endpoint of t | 50% | 100% | **+50** |
+| 9 | `dotnet` | Restrict the GET /reports endpoint so only users in the Mana | 30% | 100% | **+70** |
+| 10 | `angular` | Show a warning banner if the user has unsaved changes and tr | 40% | 100% | **+60** |
 
 ## Per-stack
 
@@ -52,9 +51,9 @@ same goal in simplicio's 6-layer contract.
 
 | Stack | Without | With | Δ |
 |---|---|---|---|
-| `angular` | 33% | 95% | **+62** |
-| `dotnet` | 30% | 90% | **+60** |
-| `react` | 40% | 96% | **+56** |
+| `angular` | 37% | 94% | **+58** |
+| `dotnet` | 40% | 100% | **+60** |
+| `react` | 47% | 94% | **+47** |
 
 ## Output-quality signals (rate across all runs)
 
@@ -63,11 +62,11 @@ Each row = % of runs (cases × models) where the signal is present.
 
 | Signal | Without simplicio | With simplicio |
 |---|---|---|
-| DIFF block present | 0% (0/30) | 100% (30/30) |
-| TEST block present | 73% (22/30) | 100% (30/30) |
-| target file mentioned | 0% (0/30) | 100% (30/30) |
-| avg criteria-keywords hit / run | 8.8 | 9.9 |
-| avg output length (chars) | 2047 | 2466 |
+| DIFF block present | 25% (5/20) | 100% (20/20) |
+| TEST block present | 95% (19/20) | 100% (20/20) |
+| target file mentioned | 0% (0/20) | 75% (15/20) |
+| avg criteria-keywords hit / run | 8.9 | 10.3 |
+| avg output length (chars) | 3286 | 2562 |
 
 ## Cost — tokens & wall-clock (measured, per run)
 
@@ -77,26 +76,24 @@ tokens (the 6-layer wrap) and fewer output tokens (model stops guessing earlier)
 
 | Model | Side | Avg prompt tok | Avg completion tok | Avg total tok | Avg latency |
 |---|---|---|---|---|---|
-| `local:Qwen/Qwen2.5-Coder-1.5B-Instruct` | without | 46 | 412 | 458 | 90727 ms |
-| `local:Qwen/Qwen2.5-Coder-1.5B-Instruct` | with    | 230 | 674 | 904 | 152316 ms |
-| `Qwen/Qwen2.5-Coder-3B-Instruct` | without | 46 | 443 | 489 | 4699 ms |
-| `Qwen/Qwen2.5-Coder-3B-Instruct` | with    | 230 | 533 | 763 | 5216 ms |
-| `Qwen/Qwen2.5-Coder-7B-Instruct` | without | 46 | 513 | 559 | 8117 ms |
-| `Qwen/Qwen2.5-Coder-7B-Instruct` | with    | 230 | 477 | 707 | 7605 ms |
+| `Qwen/Qwen3-Coder-30B-A3B-Instruct` | without | 25 | 613 | 638 | 4838 ms |
+| `Qwen/Qwen3-Coder-30B-A3B-Instruct` | with    | 209 | 565 | 774 | 4432 ms |
+| `Qwen/Qwen3-Coder-Next` | without | 25 | 947 | 972 | 6475 ms |
+| `Qwen/Qwen3-Coder-Next` | with    | 209 | 661 | 871 | 4043 ms |
 
-**Aggregate over the full bench** (30 runs per side):
+**Aggregate over the full bench** (20 runs per side):
 
-- without simplicio: 15,077 tokens total · 1035.4s wall-clock · 502 tok/run · 34514 ms/run
-- with simplicio:    23,749 tokens total · 1651.4s wall-clock · 791 tok/run · 55045 ms/run
-- token delta:       +8,672 (+57%)
-- time delta:        +615.9s (+59%)
+- without simplicio: 16,111 tokens total · 113.1s wall-clock · 805 tok/run · 5656 ms/run
+- with simplicio:    16,457 tokens total · 84.8s wall-clock · 822 tok/run · 4237 ms/run
+- token delta:       +346 (+2%)
+- time delta:        -28.4s (-26%)
 
 ## How to reproduce
 
 ```bash
 BENCH_BASE_URL="https://router.huggingface.co/v1" \
   BENCH_API_KEY=… \
-  BENCH_MODELS="local:Qwen/Qwen2.5-Coder-1.5B-Instruct,Qwen/Qwen2.5-Coder-3B-Instruct,Qwen/Qwen2.5-Coder-7B-Instruct" \
+  BENCH_MODELS="Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next" \
   python3 bench/run_offline.py
 ```
 

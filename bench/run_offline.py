@@ -38,6 +38,77 @@ API_KEY = (
     or os.environ.get("HF_TOKEN")
     or os.environ.get("OPENROUTER_API_KEY")
 )
+INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "0").strip() not in ("0", "false", "False")
+INCLUDE_AGENTS = os.environ.get("BENCH_INCLUDE_AGENTS", "0").strip() not in ("0", "false", "False")
+AGENTS_MAX_ATTEMPTS = int(os.environ.get("BENCH_AGENTS_MAX_ATTEMPTS", "3"))
+
+# Per-model endpoint routing (mirrors bench/run_exec_sindico.py). Lets one
+# batch mix HuggingFace router models with OpenRouter models — `_route_for()`
+# swaps BASE_URL + API_KEY before each model loop. The module-level BASE_URL
+# above stays as the fallback for models not listed here.
+MODEL_ROUTING: dict[str, dict] = {
+    "Qwen/Qwen2.5-Coder-3B-Instruct": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+    "Qwen/Qwen2.5-Coder-7B-Instruct": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+    "Qwen/Qwen3-Coder-Next": {
+        "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
+    },
+}
+
+
+def _route_for(model: str) -> None:
+    """Update module globals BASE_URL + API_KEY for this model's endpoint."""
+    global BASE_URL, API_KEY
+    cfg = MODEL_ROUTING.get(model)
+    if cfg is None:
+        BASE_URL = os.environ.get("BENCH_BASE_URL", "https://router.huggingface.co/v1")
+        API_KEY = (os.environ.get("BENCH_API_KEY")
+                   or os.environ.get("HF_TOKEN")
+                   or os.environ.get("OPENROUTER_API_KEY"))
+        return
+    BASE_URL = cfg["base_url"]
+    API_KEY = os.environ.get(cfg["env_key"])
+    if not API_KEY:
+        raise SystemExit(f"missing env var {cfg['env_key']} for model {model}")
+
+
+def _load_sp_runtime() -> str:
+    """Mirror of bench/run_exec_sindico._load_sp_runtime."""
+    candidates = [
+        os.environ.get("BENCH_SIMPLICIO_PROMPT_PATH"),
+        "/tmp/prompt_check/prompts/agent-runtime-execution-prompt.md",
+        "node_modules/simplicio-prompt/prompts/agent-runtime-execution-prompt.md",
+    ]
+    for cand in candidates:
+        if cand and Path(cand).is_file():
+            return Path(cand).read_text(encoding="utf-8")
+    raise SystemExit(
+        "simplicio-prompt runtime template not found (needed when "
+        "BENCH_INCLUDE_SP=1). Set BENCH_SIMPLICIO_PROMPT_PATH."
+    )
+
+
+SP_RUNTIME = _load_sp_runtime() if INCLUDE_SP else ""
+
+SP_PROMPT_REGEX = """{sp_runtime}
+
+---
+
+[USER INPUT - task X]
+{cli_contract}"""
+
+AGENTS_RETRY_PROMPT_REGEX = """Retry feedback for attempt {attempt}:
+
+Your previous attempt missed these required structural patterns (regex):
+{missing}
+
+Apply the SMALLEST correction so all patterns match. Output ONLY the corrected DIFF + TEST block (same shape as the contract specifies). No prose."""
 
 SIX_LAYER_TEMPLATE = """You are a senior engineer working IN THIS project.
 Stack: {stack}. Project conventions are LAW. Do not bring generic patterns.
@@ -291,8 +362,10 @@ def _lat1(s) -> str:
 def build_pdf(by_model: dict, cases: list) -> None:
     try:
         from fpdf import FPDF
-    except ImportError:
-        print("[warn] fpdf2 not installed; skipping PDF. install via `pip install fpdf2`.")
+    except BaseException as e:
+        # fpdf2 transitively imports cryptography which can panic on
+        # mis-linked native bindings (PyO3 PanicException is BaseException).
+        print(f"[warn] fpdf2 unavailable ({type(e).__name__}); skipping PDF.")
         return
 
     models = list(by_model.keys())
@@ -464,20 +537,62 @@ def build_pdf(by_model: dict, cases: list) -> None:
 
 # ---------- main runner ---------- #
 
+def _agents_iterate_regex(model: str, c: dict, cli_prompt: str) -> dict:
+    """Verify-loop with regex checks as the oracle. Up to AGENTS_MAX_ATTEMPTS.
+    Returns the BEST score across attempts + cumulative usage."""
+    prompt = cli_prompt
+    best_text = ""; best_flags = [False] * len(c["checks"])
+    best_hits = -1
+    total_tokens = 0; total_prompt = 0; total_completion = 0; total_ms = 0
+    attempts_used = 0
+    for t in range(1, AGENTS_MAX_ATTEMPTS + 1):
+        attempts_used = t
+        res = llm_call(model, prompt)
+        total_tokens += res.get("total_tokens", 0)
+        total_prompt += res.get("prompt_tokens", 0)
+        total_completion += res.get("completion_tokens", 0)
+        total_ms += res.get("elapsed_ms", 0)
+        flags = score(res["text"], c["checks"])
+        hits = sum(flags)
+        if hits > best_hits:
+            best_hits = hits; best_flags = flags; best_text = res["text"]
+        if hits == len(c["checks"]):
+            break  # all patterns matched, done
+        # build retry feedback listing the missing patterns
+        missing = [p for p, ok in zip(c["checks"], flags) if not ok]
+        missing_lines = "\n".join(f"  - {m}" for m in missing)
+        prompt = AGENTS_RETRY_PROMPT_REGEX.format(
+            attempt=t + 1, missing=missing_lines,
+        )
+    return {
+        "text": best_text, "flags": best_flags, "hits": best_hits,
+        "attempts": attempts_used,
+        "prompt_tokens": total_prompt, "completion_tokens": total_completion,
+        "total_tokens": total_tokens, "elapsed_ms": total_ms,
+        "error": None,
+    }
+
+
 def run() -> int:
     cases = json.loads(CASES_PATH.read_text())
     CHART_DIR.mkdir(parents=True, exist_ok=True)
     print(f"models: {MODELS}")
-    print(f"cases:  {len(cases)} · base: {BASE_URL}")
+    print(f"cases:  {len(cases)}")
+    print(f"sides:  baseline / cli"
+          + (" / cli+sp" if INCLUDE_SP else "")
+          + (f" / cli+ag (max {AGENTS_MAX_ATTEMPTS} attempts)" if INCLUDE_AGENTS else ""))
     by_model = {}
     for model in MODELS:
-        print(f"\n=== model: {model} ===")
+        _route_for(model)
+        print(f"\n=== model: {model} (base: {BASE_URL}) ===")
         rows = []
-        sem_hits = com_hits = total = 0
+        sem_hits = com_hits = sp_hits = ag_hits = total = 0
         qsum_sem = {"len": 0, "has_diff_block": 0, "has_test_block": 0, "target_mentioned": 0, "criteria_keywords_hit": 0}
         qsum_com = dict(qsum_sem)
         usage_sem = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "elapsed_ms": 0}
         usage_com = dict(usage_sem)
+        usage_sp = dict(usage_sem)
+        usage_ag = dict(usage_sem)
         for i, c in enumerate(cases, 1):
             sem_res = llm_call(model, c["goal"])
             com_prompt = SIX_LAYER_TEMPLATE.format(
@@ -505,19 +620,41 @@ def run() -> int:
                 usage_sem[k] += sem_res[k]
                 usage_com[k] += com_res[k]
 
-            rows.append({
+            row = {
                 "goal": c["goal"], "stack": c["stack"],
                 "sem_hits": s_h, "com_hits": c_h, "total": t,
                 "sem_flags": s_flags, "com_flags": c_flags,
                 "sem_quality": qs, "com_quality": qc,
                 "sem_usage": {k: sem_res[k] for k in usage_sem},
                 "com_usage": {k: com_res[k] for k in usage_com},
-            })
+            }
+            sp_msg = ""
+            if INCLUDE_SP:
+                sp_prompt = SP_PROMPT_REGEX.format(
+                    sp_runtime=SP_RUNTIME, cli_contract=com_prompt)
+                sp_res = llm_call(model, sp_prompt)
+                sp_flags = score(sp_res["text"], c["checks"])
+                p_h = sum(sp_flags); sp_hits += p_h
+                row["sp_hits"] = p_h; row["sp_flags"] = sp_flags
+                row["sp_usage"] = {k: sp_res[k] for k in usage_sp}
+                for k in usage_sp:
+                    usage_sp[k] += sp_res[k]
+                sp_msg = f"  sp {p_h}/{t}"
+            ag_msg = ""
+            if INCLUDE_AGENTS:
+                ag_res = _agents_iterate_regex(model, c, com_prompt)
+                a_h = ag_res["hits"]; ag_hits += a_h
+                row["ag_hits"] = a_h; row["ag_flags"] = ag_res["flags"]
+                row["ag_attempts"] = ag_res["attempts"]
+                row["ag_usage"] = {k: ag_res[k] for k in usage_ag}
+                for k in usage_ag:
+                    usage_ag[k] += ag_res[k]
+                ag_msg = f"  ag {a_h}/{t}({ag_res['attempts']})"
+            rows.append(row)
             print(
                 f"  [{i:02d}/{len(cases)}] {c['stack']:7s} "
-                f"sem {s_h}/{t} ({sem_res['total_tokens']}tok {sem_res['elapsed_ms']}ms)  "
-                f"com {c_h}/{t} ({com_res['total_tokens']}tok {com_res['elapsed_ms']}ms)  "
-                f"Δ{c_h-s_h:+d}"
+                f"sem {s_h}/{t} com {c_h}/{t}{sp_msg}{ag_msg}  "
+                f"Δcli{c_h-s_h:+d}"
             )
 
             slug = model.replace("/", "_").replace(":", "_")
@@ -526,7 +663,7 @@ def run() -> int:
             (outdir / "sem.txt").write_text(sem_out)
             (outdir / "com.txt").write_text(com_out)
 
-        by_model[model] = {
+        entry = {
             "rows": rows,
             "sem_hits": sem_hits, "com_hits": com_hits, "total": total,
             "sem_pct": 100 * sem_hits // max(total, 1),
@@ -534,6 +671,19 @@ def run() -> int:
             "quality_sem": qsum_sem, "quality_com": qsum_com,
             "usage_sem": usage_sem, "usage_com": usage_com,
         }
+        if INCLUDE_SP:
+            entry["sp_hits"] = sp_hits
+            entry["sp_pct"] = 100 * sp_hits // max(total, 1)
+            entry["usage_sp"] = usage_sp
+        if INCLUDE_AGENTS:
+            entry["ag_hits"] = ag_hits
+            entry["ag_pct"] = 100 * ag_hits // max(total, 1)
+            entry["usage_ag"] = usage_ag
+        by_model[model] = entry
+        tail = f" | sp {sp_hits}/{total} ({100*sp_hits//max(total,1)}%)" if INCLUDE_SP else ""
+        tail += f" | ag {ag_hits}/{total} ({100*ag_hits//max(total,1)}%)" if INCLUDE_AGENTS else ""
+        print(f"  -> baseline {sem_hits}/{total} ({entry['sem_pct']}%) "
+              f"| cli {com_hits}/{total} ({entry['com_pct']}%){tail}\n")
 
     build_reports(by_model, cases)
     return 0
