@@ -92,12 +92,25 @@ M1 MacBook (8 GB), five sub-4B tiny models, six frontier 2026 models, and three
 mid-tier 7B–12B open models. Every one gained at least **+14 points** when
 wrapped in simplicio's 6-layer contract.
 
-#### Hugging Face — Qwen2.5-Coder, re-run on 2026-05-27 (latest mapper, 10 cases/side, 156 checks)
+#### Hugging Face — recommended Qwen3-Coder defaults (HF router)
 
-First batch of the smaller→larger re-benchmark against the latest
-`simplicio-mapper` artifacts. The 1.5B runs on CPU via `transformers`
-(Hugging Face Inference Providers does not serve it); the 3B and 7B run
-through the HF router (`https://router.huggingface.co/v1`).
+The served Qwen Coder recommendation now uses the Qwen3-Coder MoE family.
+`Qwen/Qwen2.5-Coder-3B-Instruct` and
+`Qwen/Qwen2.5-Coder-7B-Instruct` remain available as legacy fallback models for
+historical comparisons and hardware that cannot host the MoE successors.
+
+| Slot | Recommended model | Route | Notes |
+|---|---|---|---|
+| Efficient coder | `Qwen/Qwen3-Coder-30B-A3B-Instruct` | HF router | 30B total / ~3B active MoE successor to the 3B slot |
+| High-ceiling coder | `Qwen/Qwen3-Coder-Next` | HF router | 80B total / ~3B active MoE successor to the 7B slot |
+
+> Reproduce the new default set:
+> `BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=<hf-token>
+> BENCH_MODELS="Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next"
+> python3 bench/run_offline.py`.
+
+Legacy Qwen2.5-Coder baseline, re-run on 2026-05-27 against the latest
+`simplicio-mapper` artifacts (10 cases/side, 156 checks):
 
 | Model | Without simplicio | With simplicio | Gain |
 |---|---|---|---|
@@ -106,10 +119,9 @@ through the HF router (`https://router.huggingface.co/v1`).
 | **Qwen 2.5 Coder 1.5B** (`Qwen/Qwen2.5-Coder-1.5B-Instruct`, local CPU) | 30% | **92%** | **+62 pts** |
 | **HF avg (3 models · 10 cases · 156 checks)** | **34%** | **94%** | **+60 pts (+172%)** |
 
-> Monotonic from smaller to larger: pass-rate with simplicio climbs **92% →
-> 94% → 96%** as the model grows, while the raw-prompt baseline stays at
-> **30–38%**. The 1.5B model gains the most (**+62 pts**) — the contract does
-> the heaviest lifting where the model is weakest. Reproduce:
+> Monotonic from smaller to larger in the legacy baseline: pass-rate with
+> simplicio climbs **92% → 94% → 96%** as the model grows, while the raw-prompt
+> baseline stays at **30–38%**. Reproduce the legacy set:
 > `BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=<hf-token>
 > BENCH_MODELS="local:Qwen/Qwen2.5-Coder-1.5B-Instruct,Qwen/Qwen2.5-Coder-3B-Instruct,Qwen/Qwen2.5-Coder-7B-Instruct"
 > python3 bench/run_offline.py`.
@@ -125,7 +137,18 @@ Pro) show `n/a` for the new column: their OpenRouter calls hit account-level
 HTTP 402 / provider failures on >50% of requests this round, so the sample is
 too small to publish; their old numbers still stand.
 
-#### Local offline — qwen2.5-coder on Ollama, M1 8 GB, run on 2026-05-27 (30 runs/side, 156 checks)
+#### Local offline — Qwen3-Coder GGUF recommendation, Qwen2.5 legacy baseline
+
+For local OpenAI-compatible servers, prefer the Qwen3-Coder GGUF builds when
+the machine can host MoE weights:
+
+| Slot | Recommended local weights | Notes |
+|---|---|---|
+| Efficient coder | `unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF` | Primary local successor for the 3B-active slot |
+| High-ceiling coder | `unsloth/Qwen3-Coder-Next-GGUF` | 24 GB GPU-class successor for long-context work |
+
+The last fully offline fallback baseline remains qwen2.5-coder on Ollama,
+M1 8 GB, run on 2026-05-27 (30 runs/side, 156 checks):
 
 | Model | Without simplicio | With simplicio | Gain |
 |---|---|---|---|
@@ -138,7 +161,7 @@ too small to publish; their old numbers still stand.
 > `http://localhost:11434/v1` (Ollama's OpenAI-compatible endpoint). A
 > 1.5B-param model running on a 4-year-old laptop reaches **88%** pass-rate
 > with simplicio's contract — same hardware, same model, raw prompt = 32%.
-> Reproduce: `BENCH_BASE_URL=http://localhost:11434/v1 BENCH_API_KEY=ollama
+> Reproduce the legacy fallback: `BENCH_BASE_URL=http://localhost:11434/v1 BENCH_API_KEY=ollama
 > BENCH_MODELS="qwen2.5-coder:7b" python3 bench/run_offline.py`.
 
 #### Tiny models — sub-4B, run on 2026-05-26 (50 runs/side, 260 checks)

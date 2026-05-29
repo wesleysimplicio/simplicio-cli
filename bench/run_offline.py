@@ -12,8 +12,9 @@ only the prompt structure changes. Runs across multiple models so the
 result is a property of the *method*, not of one model.
 
 Usage:
-  OPENROUTER_API_KEY=... \\
-    BENCH_MODELS="qwen/qwen-2.5-7b-instruct,meta-llama/llama-3.1-8b-instruct,mistralai/mistral-7b-instruct" \\
+  HF_TOKEN=... \\
+    BENCH_BASE_URL=https://router.huggingface.co/v1 \\
+    BENCH_MODELS="Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next" \\
     python3 bench/run_offline.py
 """
 from __future__ import annotations
@@ -29,17 +30,22 @@ CHART_DIR = ROOT / "bench" / "charts"
 
 MODELS = [m.strip() for m in os.environ.get(
     "BENCH_MODELS",
-    "qwen/qwen-2.5-7b-instruct"
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next"
 ).split(",") if m.strip()]
-BASE_URL = os.environ.get("BENCH_BASE_URL", "https://openrouter.ai/api/v1")
-API_KEY = os.environ.get("BENCH_API_KEY") or os.environ.get("OPENROUTER_API_KEY")
+BASE_URL = os.environ.get("BENCH_BASE_URL", "https://router.huggingface.co/v1")
+API_KEY = (
+    os.environ.get("BENCH_API_KEY")
+    or os.environ.get("HF_TOKEN")
+    or os.environ.get("OPENROUTER_API_KEY")
+)
 INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "0").strip() not in ("0", "false", "False")
 INCLUDE_AGENTS = os.environ.get("BENCH_INCLUDE_AGENTS", "0").strip() not in ("0", "false", "False")
 AGENTS_MAX_ATTEMPTS = int(os.environ.get("BENCH_AGENTS_MAX_ATTEMPTS", "3"))
 
 # Per-model endpoint routing (mirrors bench/run_exec_sindico.py). Lets one
 # batch mix HuggingFace router models with OpenRouter models — `_route_for()`
-# swaps BASE_URL + API_KEY before each model loop.
+# swaps BASE_URL + API_KEY before each model loop. The module-level BASE_URL
+# above stays as the fallback for models not listed here.
 MODEL_ROUTING: dict[str, dict] = {
     "Qwen/Qwen2.5-Coder-3B-Instruct": {
         "base_url": "https://router.huggingface.co/v1", "env_key": "HF_TOKEN",
@@ -61,9 +67,10 @@ def _route_for(model: str) -> None:
     global BASE_URL, API_KEY
     cfg = MODEL_ROUTING.get(model)
     if cfg is None:
-        BASE_URL = os.environ.get("BENCH_BASE_URL", "https://openrouter.ai/api/v1")
-        API_KEY = (os.environ.get("OPENROUTER_API_KEY")
-                   or os.environ.get("BENCH_API_KEY"))
+        BASE_URL = os.environ.get("BENCH_BASE_URL", "https://router.huggingface.co/v1")
+        API_KEY = (os.environ.get("BENCH_API_KEY")
+                   or os.environ.get("HF_TOKEN")
+                   or os.environ.get("OPENROUTER_API_KEY"))
         return
     BASE_URL = cfg["base_url"]
     API_KEY = os.environ.get(cfg["env_key"])
@@ -130,8 +137,9 @@ No prose, no preamble."""
 
 
 # ---------- local transformers backend (model id prefixed "local:") ---------- #
-# Used for weights that HF Inference Providers does not serve (e.g. the small
-# Qwen2.5-Coder-1.5B). Downloads from the Hub and runs greedy decoding on CPU.
+# Use Qwen3 Coder GGUF/OpenAI-compatible servers when the hardware can host the
+# MoE defaults. The local transformers path remains for small legacy weights
+# that hosted providers do not serve (for example Qwen2.5-Coder-1.5B).
 
 _LOCAL_MODELS: dict = {}
 
@@ -190,7 +198,7 @@ def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
     if model.startswith("local:"):
         return local_call(model.split(":", 1)[1], prompt)
     if not API_KEY:
-        raise SystemExit("set OPENROUTER_API_KEY (or BENCH_API_KEY)")
+        raise SystemExit("set BENCH_API_KEY, HF_TOKEN, or OPENROUTER_API_KEY")
     body = json.dumps({
         "model": model,
         "max_tokens": 8192,

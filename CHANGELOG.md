@@ -5,6 +5,131 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **`rust/simplicio-core`: PyO3 `0.22` → `0.28`** (manual major dependency bump,
+  per `.specs/workflow/DEPENDENCY_POLICY.md`). The `build_6layer_prompt` / `hello`
+  extension now builds against current PyO3. No source changes to `lib.rs` — the
+  existing `Bound<'_, PyModule>` / `#[pyfunction]` API is forward-compatible.
+
+### Fixed
+- **Build blocker on Python 3.14.** PyO3 0.22 capped at CPython 3.13, so the crate
+  failed to compile against the 3.14 default interpreter. Now builds natively on
+  CPython 3.14.5 (cp314 wheel): parity suite 5/5, ~8.5x over the Python reference,
+  and the Rust-assembled prompt drives `qwen2.5-coder:3b` to 5/6 on the real-pytest
+  exec bench. See `bench/results_rust_qwen.md`.
+
+## [0.4.1] — 2026-05-28
+
+### Added
+- **Dependency-update policy and enforcement** (closes #21):
+  - `.specs/workflow/DEPENDENCY_POLICY.md` — ecosystem version policy:
+    semver, floor-pinning (`>=`), 15-day floor-bump rule after upstream
+    release, no cyclic deps, release-sync checklist.
+  - `.github/workflows/check-deps.yml` — daily CI (and on every PR
+    touching `pyproject.toml`) that compares pinned floors against the
+    latest published version of every ecosystem dependency on PyPI and
+    fails the build with `::error::` annotations when one is at least
+    a minor behind.
+  - `.github/dependabot.yml` — weekly grouped updates for `pip`
+    (ecosystem packages grouped), `cargo` (`rust/simplicio-core`), and
+    `github-actions`. Patches auto-merge, minor/major wait for review.
+
+### Changed
+- `simplicio-mapper>=0.5.0` → `>=0.6.0` (catch up with upstream 0.6.0).
+- `simplicio-prompt>=1.7.0` → `>=1.9.0` (catch up with upstream 1.9.0).
+
+Both bumps validated locally: `pytest tests/python` stays 38/38 green
+with the new versions installed.
+
+## [0.4.0] — 2026-05-28
+
+### Added
+- **Real-execution benchmark on a real project (`wesleysimplicio/sistema-sindico`).**
+  New `bench/run_exec_sindico.py` harness writes each model's PHP output
+  into a working copy and scores by `vendor/bin/phpunit` exit code over the
+  full production suite. 12 cases cover `src/Core/`, `src/Middleware/`,
+  `src/Repositories/`, routing, and one bug-fix scenario that scores
+  against the existing `PasswordPolicyTest`. Headline on 9 models × 4
+  tasks: baseline 33% → simplicio-cli **64%** (+31 pts).
+  Reports: `bench/results_exec_sindico.{md,pdf,json}`.
+- **17-model regex re-run + old→new comparison.** `bench/run_offline.py`
+  gained a local `transformers` backend for HF-only small models, HTTP
+  retry with exponential backoff (`BENCH_HTTP_RETRIES`), and `--pdf-only` /
+  `--report-only` modes for regenerating reports without re-calling models.
+  New `bench/compare_versions.py` joins the published per-model numbers
+  with the fresh re-run side by side; 14 of 17 returned clean data
+  (with simplicio averaged 86% → **88%**, within noise of the prior
+  publication). Three frontier models hit account-level provider failures
+  and are flagged `n/a` with the reason in the report.
+  Reports: `bench/results_comparison.{md,pdf}`, merged data in
+  `bench/results_all.json`.
+- **Fan-out benchmark using the real `simplicio-prompt` kernel.** New
+  `bench/run_fanout.py` instantiates `kernel.subagent_runtime.SubagentRuntime`
+  from the PyPI package and launches real parallel LLM calls through
+  `LaneWorkerPool`. Every subagent output gets scored two ways: real
+  PHPUnit (functional) and a structural regex check. Default N=200 (the
+  level where harder tasks recover from per-call noise).
+- **Three-side comparison report (`bench/compare_sp.py`).** Generates a
+  focused "with vs without simplicio-prompt" report from any sp-enabled
+  exec validation JSON, with a data-quality guard that flags models whose
+  calls returned no model output (HTTP 402 / empty bodies / etc.) so the
+  numbers never silently average in noise.
+- **`simplicio/utils/` package (Performance Phase 1, closes #14):**
+  - `http_client.py` — lazy singleton `httpx.Client` with connection
+    pooling and env-driven timeouts; `post_json()` helper.
+  - `serialization.py` — orjson-backed `dumps` / `dumps_str` / `loads`,
+    with stdlib `json` fallback so the import never breaks.
+  - `cache.py` — `diskcache` namespaces under `.simplicio/cache/` plus a
+    `memoize_disk(namespace=, ttl=)` decorator.
+- **`simplicio-core` Rust crate (closes #15, #17, #18):**
+  - New `rust/simplicio-core/` with PyO3 0.22 + bumpalo. Build with
+    `cd rust/simplicio-core && maturin develop --release`.
+  - `simplicio_core.build_6layer_prompt(...)` runs the substitution +
+    comment-strip step of `build_prompt` in Rust. **4.9x faster
+    (12.4 µs → 2.5 µs)** on the real template, byte-equal to the Python
+    reference. UTF-8-safe walker handles multibyte content (em-dashes,
+    etc.) without corruption.
+  - `simplicio/prompt.py` picks the Rust path when the extension is
+    installed and falls back to the extracted `_assemble_python`
+    reference implementation otherwise. The CLI's runtime deps do not
+    include `simplicio-core`, so a pip-only install (no Rust toolchain)
+    keeps working.
+- **`simplicio-prompt>=1.7.0` and `simplicio-mapper>=0.5.0` as runtime
+  dependencies.** README install section documents the three Simplicio
+  packages and their per-scope roles.
+- **README rewrite to "real project, real tasks, real test suite".**
+  Section 1 leads with the real-PHPUnit benchmark on sistema-sindico;
+  Section 2 explicitly labels the regex tables as a complementary
+  *contract-adherence* metric (not a runtime proof). The HF Qwen2.5-Coder
+  re-run is documented honestly with the n/a callouts for the
+  paywall-blocked frontier models.
+
+### Changed
+- `simplicio/mapper.py`, `simplicio/observability.py`, `simplicio/init.py`
+  switched from stdlib `json` to the new orjson-backed helpers (13x
+  faster on the bench payloads).
+- `simplicio/prompt.py` caches the 6-layer template through an
+  `lru_cache(maxsize=4)` so it is read once per process instead of every
+  call.
+- `bench/run_offline.py` extracts report generation into
+  `build_reports(by_model, cases)` so md/pdf/charts can be regenerated
+  from results.json without re-calling any model (`--report-only`).
+- README fanout claim rewritten against actually measured data (the
+  earlier "N=64 is the sweet spot" came from a single-task run with
+  `use_cache=True` that triggered ReceiptCache dedup; cache-off partial
+  data shows N depends on task difficulty).
+- `BENCH_FANOUT_NS` defaults to a single value (`"200"`) for our chosen
+  production operating point; sweep across multiple Ns by setting the
+  env var explicitly.
+
+### Fixed
+- 7B-only re-run in the Qwen2.5-Coder benchmark recovered one case
+  that hit a transient SSL `CERTIFICATE_VERIFY_FAILED` on the HF router
+  (single-call empty result was inflating the gap by ~2 points). Merged
+  cleanly with the 1.5B/3B data through the new `--report-only` path.
+
 ## [0.3.0] — 2026-05-27
 
 ### Added

@@ -14,7 +14,7 @@ output matches a regex.
 
 Usage:
   BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=... \
-    BENCH_MODELS="Qwen/Qwen2.5-7B-Instruct,..." python3 bench/run_exec.py
+    BENCH_MODELS="Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next" python3 bench/run_exec.py
 Models prefixed `local:` run on CPU via transformers.
 """
 from __future__ import annotations

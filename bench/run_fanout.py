@@ -49,13 +49,29 @@ from sindico_cases import CASES, REGEX_CHECKS_BY_TASK
 # ---- model -> endpoint table (HF for the served Qwen Coders, OR for the rest) ---- #
 # Each entry: provider preset, env var holding the API key, optional base_url
 # override (for the generic OpenAI-compatible HF route).
+HF_ROUTER_BASE_URL = "https://router.huggingface.co/v1"
+QWEN3_CODER_DEFAULTS = (
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+    "Qwen/Qwen3-Coder-Next",
+)
+
 MODEL_ENDPOINTS: dict[str, dict] = {
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct": {
+        "preset": None, "base_url": HF_ROUTER_BASE_URL,
+        "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
+    },
+    "Qwen/Qwen3-Coder-Next": {
+        "preset": None, "base_url": HF_ROUTER_BASE_URL,
+        "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
+    },
+    # Legacy Qwen2.5 Coder entries stay available for fallback and historical
+    # comparison runs, but they are no longer part of the default fan-out set.
     "Qwen/Qwen2.5-Coder-3B-Instruct": {
-        "preset": None, "base_url": "https://router.huggingface.co/v1",
+        "preset": None, "base_url": HF_ROUTER_BASE_URL,
         "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
     },
     "Qwen/Qwen2.5-Coder-7B-Instruct": {
-        "preset": None, "base_url": "https://router.huggingface.co/v1",
+        "preset": None, "base_url": HF_ROUTER_BASE_URL,
         "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
     },
     "meta-llama/llama-3.1-8b-instruct": {
@@ -275,7 +291,11 @@ def run() -> int:
     setup_workspace_base()
     models_str = os.environ.get(
         "BENCH_FANOUT_MODELS",
-        ",".join(MODEL_ENDPOINTS.keys()),
+        ",".join((
+            *QWEN3_CODER_DEFAULTS,
+            "meta-llama/llama-3.1-8b-instruct",
+            "google/gemini-3.5-flash",
+        )),
     )
     models = [m.strip() for m in models_str.split(",") if m.strip()]
     ns_str = os.environ.get("BENCH_FANOUT_NS", "200")

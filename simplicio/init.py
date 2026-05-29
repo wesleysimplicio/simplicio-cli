@@ -5,11 +5,12 @@ re-merges the settings.json hook entry without duplicating.
 """
 from __future__ import annotations
 
-import json
 import shutil
 import stat
 from dataclasses import dataclass
 from pathlib import Path
+
+from .utils.serialization import dumps_str, loads
 
 try:
     from importlib.resources import files as _res_files
@@ -60,7 +61,7 @@ def install(claude_home=None, dry_run: bool = False) -> InstallReport:
         if settings_changed:
             if settings_path.exists():
                 shutil.copy2(settings_path, settings_path.with_suffix(".json.bak"))
-            settings_path.write_text(json.dumps(new_settings, indent=2) + "\n", encoding="utf-8")
+            settings_path.write_text(dumps_str(new_settings, indent=True) + "\n", encoding="utf-8")
 
     return InstallReport(
         claude_home=home,
@@ -92,8 +93,8 @@ def _plan_settings_update(settings_path: Path, hook_target: Path):
     settings: dict = {}
     if settings_path.exists():
         try:
-            settings = json.loads(settings_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
+            settings = loads(settings_path.read_bytes())
+        except ValueError:
             return False, settings
 
     if not isinstance(settings, dict):

@@ -14,7 +14,5 @@ playwright-report/
 test-results/
 .runtime-logs/
 
-# Rust / maturin build artifacts (no Cargo manifest is tracked on this branch;
-# the dir only ever holds leftovers from out-of-tree maturin develop runs).
+# Rust build artifacts
 rust/*/target/
-rust/target/

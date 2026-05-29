@@ -13,7 +13,7 @@ which means the new method works AND nothing else was broken.
 
 Usage:
   BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=... \
-    BENCH_MODELS="Qwen/Qwen2.5-7B-Instruct,..." \
+    BENCH_MODELS="Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next" \
     python3 bench/run_exec_sindico.py
 """
 from __future__ import annotations
@@ -38,7 +38,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_offline as ro  # llm_call / local_call / _lat1
 from sindico_cases import CASES
 
-MODELS = [m.strip() for m in os.environ.get("BENCH_MODELS", "").split(",") if m.strip()]
+DEFAULT_MODELS = (
+    "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+    "Qwen/Qwen3-Coder-Next",
+)
+MODELS = [
+    m.strip()
+    for m in os.environ.get("BENCH_MODELS", ",".join(DEFAULT_MODELS)).split(",")
+    if m.strip()
+]
 PHPUNIT_TIMEOUT = int(os.environ.get("BENCH_PHPUNIT_TIMEOUT", "60"))
 INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "1").strip() not in ("0", "false", "False")
 INCLUDE_AGENTS = os.environ.get("BENCH_INCLUDE_AGENTS", "1").strip() not in ("0", "false", "False")
