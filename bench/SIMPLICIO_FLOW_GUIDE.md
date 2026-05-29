@@ -578,10 +578,39 @@ SIMPLICIO_PLANNER_MAX_RETRIES=3                  # quantas vezes re-prompt em sc
 SIMPLICIO_AUTO_PULL=1              # opt-in a baixar modelo via ollama
 SIMPLICIO_SKILLS_DIR=/custom/.skills    # override .skills/ root
 
+# Cache (issue #34)
+SIMPLICIO_CACHE=0                  # desliga totalmente o cache
+SIMPLICIO_BUST_CACHE=1             # força miss em todas as keys (caching novas)
+SIMPLICIO_CACHE_DIR=/custom/path   # override de ~/.simplicio/cache
+SIMPLICIO_CACHE_TTL_DAYS=30        # tempo de vida de entries no disco
+SIMPLICIO_CACHE_MAX_MB=500         # cap de tamanho; LRU evicta ao passar
+
 # Hook control
 SIMPLICIO_HOOK_GUARD=1             # interno: previne recursão em shell-out
 SIMPLICIO_SKIP_AUTO_INIT=1         # desliga auto-bootstrap em ~/.claude
 ```
+
+### Cache layer (`simplicio cache`, issue #34)
+
+O cache vive em `simplicio/_cache.py` e é content-addressed por SHA256 de
+`(provider_id, model, prompt, kwargs)`. Hookado em `providers.generate` e
+`providers.planner_complete` — toda chamada LLM consulta cache antes de
+pagar a chamada ao provider e popula após sucesso.
+
+**Garantia de short-circuit:** cache hit retorna **antes** da resolução de
+credenciais. Isso significa que num dev loop você pode ter `SIMPLICIO_API_KEY`
+unset e ainda assim re-rodar scratches do cache.
+
+```bash
+simplicio cache stats         # quantas entries, MB, idade da mais antiga
+simplicio cache stats --json  # machine-readable
+simplicio cache clear --force # remove tudo (requer --force explícito)
+```
+
+**Invariantes testados** em `tests/python/test_cache.py` (12 cenários,
+incluindo: hit, miss, TTL expirado, mudança de `template_version`, bust
+env var, disabled, LRU eviction, escrita concorrente race-safe, arquivo
+cache malformado tratado como miss).
 
 ---
 

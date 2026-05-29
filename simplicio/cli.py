@@ -72,6 +72,10 @@ def main():
         maybe_autoinstall("doctor")
         from .doctor import main as doctor_main
         return doctor_main(sys.argv[2:])
+    if len(sys.argv) >= 2 and sys.argv[1] == "cache":
+        maybe_autoinstall("cache")
+        from .cache_cli import main as cache_main
+        return cache_main(sys.argv[2:])
 
     ap = argparse.ArgumentParser(prog="simplicio")
     sub = ap.add_subparsers(dest="cmd", required=True)
