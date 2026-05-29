@@ -1,250 +1,325 @@
 {
-  "meta-llama/Llama-3.2-1B-Instruct": {
+  "Qwen/Qwen2.5-Coder-3B-Instruct": {
     "rows": [
       {
         "id": "password_strength",
         "sem": {
           "passed": false,
-          "tokens": 819,
-          "ms": 2830,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 1.",
-          "error": null
-        },
-        "com": {
-          "passed": false,
-          "tokens": 945,
-          "ms": 1851,
-          "tail": " | ERRORS! | Tests: 15, Assertions: 21, Errors: 5.",
-          "error": null
-        }
-      },
-      {
-        "id": "password_require_symbol",
-        "sem": {
-          "passed": false,
-          "tokens": 820,
-          "ms": 2095,
-          "tail": " | FAILURES! | Tests: 12, Assertions: 24, Failures: 2.",
-          "error": null
-        },
-        "com": {
-          "passed": false,
-          "tokens": 831,
-          "ms": 1572,
-          "tail": " | ERRORS! | Tests: 12, Assertions: 19, Errors: 2, Failures: 3.",
-          "error": null
-        }
-      },
-      {
-        "id": "env_get_int",
-        "sem": {
-          "passed": false,
-          "tokens": 739,
-          "ms": 4076,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
-          "error": null
-        },
-        "com": {
-          "passed": false,
-          "tokens": 884,
-          "ms": 3434,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
-          "error": null
-        }
-      },
-      {
-        "id": "env_get_bool",
-        "sem": {
-          "passed": false,
-          "tokens": 759,
-          "ms": 4431,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 29, Failures: 3.",
-          "error": null
-        },
-        "com": {
-          "passed": false,
-          "tokens": 887,
-          "ms": 3655,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
-          "error": null
-        }
-      }
-    ],
-    "n": 4,
-    "sem_pass": 0,
-    "com_pass": 0,
-    "sem_pct": 0,
-    "com_pct": 0
-  },
-  "google/gemma-3n-E4B-it": {
-    "rows": [
-      {
-        "id": "password_strength",
-        "sem": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15733,
-          "tail": " | ERRORS! | Tests: 15, Assertions: 15, Errors: 8.",
-          "error": "HTTP Error 403: Forbidden"
-        },
-        "com": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15759,
-          "tail": " | ERRORS! | Tests: 15, Assertions: 15, Errors: 8.",
-          "error": "HTTP Error 403: Forbidden"
-        }
-      },
-      {
-        "id": "password_require_symbol",
-        "sem": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15633,
-          "tail": " | ERRORS! | Tests: 12, Assertions: 15, Errors: 5.",
-          "error": "HTTP Error 403: Forbidden"
-        },
-        "com": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15812,
-          "tail": " | ERRORS! | Tests: 12, Assertions: 15, Errors: 5.",
-          "error": "HTTP Error 403: Forbidden"
-        }
-      },
-      {
-        "id": "env_get_int",
-        "sem": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15808,
-          "tail": "PHP Parse error:  syntax error, unexpected identifier \"HTTP\" in /tmp/sindico_work_bench/src/Core/Env.php on line 2",
-          "error": "HTTP Error 400: Bad Request"
-        },
-        "com": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15817,
-          "tail": "PHP Parse error:  syntax error, unexpected identifier \"HTTP\" in /tmp/sindico_work_bench/src/Core/Env.php on line 2",
-          "error": "HTTP Error 400: Bad Request"
-        }
-      },
-      {
-        "id": "env_get_bool",
-        "sem": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15603,
-          "tail": "PHP Parse error:  syntax error, unexpected identifier \"HTTP\" in /tmp/sindico_work_bench/src/Core/Env.php on line 2",
-          "error": "HTTP Error 400: Bad Request"
-        },
-        "com": {
-          "passed": false,
-          "tokens": 0,
-          "ms": 15597,
-          "tail": "PHP Parse error:  syntax error, unexpected identifier \"HTTP\" in /tmp/sindico_work_bench/src/Core/Env.php on line 2",
-          "error": "HTTP Error 400: Bad Request"
-        }
-      }
-    ],
-    "n": 4,
-    "sem_pass": 0,
-    "com_pass": 0,
-    "sem_pct": 0,
-    "com_pct": 0
-  },
-  "google/gemma-3-4b-it": {
-    "rows": [
-      {
-        "id": "password_strength",
-        "sem": {
-          "passed": false,
-          "tokens": 1038,
-          "ms": 8514,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 2.",
-          "error": null
-        },
-        "com": {
-          "passed": true,
-          "tokens": 1184,
-          "ms": 7484,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
-          "error": null
-        }
-      },
-      {
-        "id": "password_require_symbol",
-        "sem": {
-          "passed": false,
-          "tokens": 928,
-          "ms": 6280,
-          "tail": " | ERRORS! | Tests: 12, Assertions: 22, Errors: 2.",
-          "error": null
-        },
-        "com": {
-          "passed": false,
-          "tokens": 1151,
-          "ms": 7059,
-          "tail": " | ERRORS! | Tests: 12, Assertions: 22, Errors: 2.",
-          "error": null
-        }
-      },
-      {
-        "id": "env_get_int",
-        "sem": {
-          "passed": false,
-          "tokens": 890,
-          "ms": 6318,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
-          "error": null
-        },
-        "com": {
-          "passed": true,
-          "tokens": 1095,
-          "ms": 6948,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
-          "error": null
-        }
-      },
-      {
-        "id": "env_get_bool",
-        "sem": {
-          "passed": false,
-          "tokens": 1041,
-          "ms": 41228,
-          "tail": "PHP Parse error:  syntax error, unexpected token \"public\", expecting end of file in /tmp/sindico_work_bench/src/Core/Env.php on line 60",
-          "error": null
-        },
-        "com": {
-          "passed": true,
-          "tokens": 1151,
-          "ms": 20042,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
-          "error": null
-        }
-      }
-    ],
-    "n": 4,
-    "sem_pass": 0,
-    "com_pass": 3,
-    "sem_pct": 0,
-    "com_pct": 75
-  },
-  "qwen/qwen-2.5-7b-instruct": {
-    "rows": [
-      {
-        "id": "password_strength",
-        "sem": {
-          "passed": false,
-          "tokens": 816,
-          "ms": 5964,
+          "tokens": 866,
+          "ms": 4713,
           "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
           "error": null
         },
         "com": {
           "passed": true,
-          "tokens": 1069,
-          "ms": 5600,
+          "tokens": 1073,
+          "ms": 4638,
+          "tail": "Time: 00:00.012, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1989,
+          "ms": 4373,
+          "tail": "Time: 00:00.011, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "password_require_symbol",
+        "sem": {
+          "passed": false,
+          "tokens": 901,
+          "ms": 5953,
+          "tail": " | FAILURES! | Tests: 12, Assertions: 22, Failures: 4.",
+          "error": null
+        },
+        "com": {
+          "passed": false,
+          "tokens": 1054,
+          "ms": 4782,
+          "tail": " | FAILURES! | Tests: 12, Assertions: 26, Failures: 2.",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1935,
+          "ms": 3946,
+          "tail": "Time: 00:00.009, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "env_get_int",
+        "sem": {
+          "passed": false,
+          "tokens": 769,
+          "ms": 3891,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 960,
+          "ms": 4069,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1926,
+          "ms": 4250,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "env_get_bool",
+        "sem": {
+          "passed": true,
+          "tokens": 782,
+          "ms": 3953,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 1019,
+          "ms": 4548,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1985,
+          "ms": 4851,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "admin_only_allowed_roles",
+        "sem": {
+          "passed": true,
+          "tokens": 384,
+          "ms": 2172,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 518,
+          "ms": 2174,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1484,
+          "ms": 2417,
+          "tail": "Time: 00:00.011, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "rate_limit_bucket_key",
+        "sem": {
+          "passed": false,
+          "tokens": 1241,
+          "ms": 5611,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 1447,
+          "ms": 5682,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 2413,
+          "ms": 5867,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 26 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "base_repository_build_where_sql",
+        "sem": {
+          "passed": false,
+          "tokens": 2223,
+          "ms": 9644,
+          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 2468,
+          "ms": 9878,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 3417,
+          "ms": 9893,
+          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
+          "error": null
+        }
+      },
+      {
+        "id": "router_has",
+        "sem": {
+          "passed": true,
+          "tokens": 2127,
+          "ms": 9965,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 2296,
+          "ms": 9213,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 3390,
+          "ms": 10312,
+          "tail": "Time: 00:00.010, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "bugfix_password_policy_lowercase",
+        "sem": {
+          "passed": true,
+          "tokens": 781,
+          "ms": 3543,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 967,
+          "ms": 4636,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1932,
+          "ms": 3685,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "password_assess",
+        "sem": {
+          "passed": true,
+          "tokens": 897,
+          "ms": 4660,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 1056,
+          "ms": 4497,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1977,
+          "ms": 4230,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "base_repository_build_update_sql",
+        "sem": {
+          "passed": false,
+          "tokens": 2237,
+          "ms": 9647,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": false,
+          "tokens": 2549,
+          "ms": 10428,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 24, Failures: 2.",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 3495,
+          "ms": 10273,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 1.",
+          "error": null
+        }
+      },
+      {
+        "id": "router_extract_params",
+        "sem": {
+          "passed": false,
+          "tokens": 2250,
+          "ms": 10443,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 3, Warnings: 2.",
+          "error": null
+        },
+        "com": {
+          "passed": false,
+          "tokens": 2490,
+          "ms": 10366,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 3, Warnings: 2.",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 3455,
+          "ms": 10586,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 3, Warnings: 2.",
+          "error": null
+        }
+      }
+    ],
+    "n": 12,
+    "sem_pass": 5,
+    "com_pass": 9,
+    "sem_pct": 41,
+    "com_pct": 75,
+    "sp_pass": 9,
+    "sp_pct": 75
+  },
+  "Qwen/Qwen2.5-Coder-7B-Instruct": {
+    "rows": [
+      {
+        "id": "password_strength",
+        "sem": {
+          "passed": false,
+          "tokens": 820,
+          "ms": 6497,
+          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 1015,
+          "ms": 6397,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1988,
+          "ms": 6826,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
         }
@@ -253,16 +328,23 @@
         "id": "password_require_symbol",
         "sem": {
           "passed": false,
-          "tokens": 820,
-          "ms": 3834,
-          "tail": " | FAILURES! | Tests: 12, Assertions: 27, Failures: 1.",
+          "tokens": 839,
+          "ms": 7268,
+          "tail": " | FAILURES! | Tests: 12, Assertions: 25, Failures: 3.",
           "error": null
         },
         "com": {
           "passed": false,
-          "tokens": 1030,
-          "ms": 5917,
-          "tail": " | FAILURES! | Tests: 12, Assertions: 26, Failures: 2.",
+          "tokens": 954,
+          "ms": 5871,
+          "tail": " | ERRORS! | Tests: 12, Assertions: 20, Errors: 2, Failures: 2.",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 1919,
+          "ms": 6187,
+          "tail": " | ERRORS! | Tests: 12, Assertions: 20, Errors: 2, Failures: 2.",
           "error": null
         }
       },
@@ -270,16 +352,23 @@
         "id": "env_get_int",
         "sem": {
           "passed": false,
-          "tokens": 786,
-          "ms": 5174,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
+          "tokens": 769,
+          "ms": 5880,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
           "error": null
         },
         "com": {
+          "passed": true,
+          "tokens": 970,
+          "ms": 6345,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
+          "error": null
+        },
+        "sp": {
           "passed": false,
-          "tokens": 948,
-          "ms": 4788,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
+          "tokens": 1918,
+          "ms": 6127,
+          "tail": " | ERRORS! | Tests: 13, Assertions: 23, Errors: 1.",
           "error": null
         }
       },
@@ -287,272 +376,249 @@
         "id": "env_get_bool",
         "sem": {
           "passed": false,
-          "tokens": 820,
-          "ms": 5995,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
+          "tokens": 773,
+          "ms": 6017,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 36, Failures: 1.",
           "error": null
         },
         "com": {
           "passed": false,
-          "tokens": 1003,
-          "ms": 6119,
-          "tail": " | ERRORS! | Tests: 13, Assertions: 19, Errors: 4.",
+          "tokens": 956,
+          "ms": 6029,
+          "tail": " | ERRORS! | Tests: 13, Assertions: 34, Errors: 1, Failures: 1.",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 1957,
+          "ms": 6593,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 36, Failures: 2.",
           "error": null
         }
-      }
-    ],
-    "n": 4,
-    "sem_pass": 0,
-    "com_pass": 1,
-    "sem_pct": 0,
-    "com_pct": 25
-  },
-  "meta-llama/Llama-3.1-8B-Instruct": {
-    "rows": [
+      },
       {
-        "id": "password_strength",
+        "id": "admin_only_allowed_roles",
         "sem": {
           "passed": true,
-          "tokens": 832,
-          "ms": 8148,
+          "tokens": 384,
+          "ms": 3492,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 518,
+          "ms": 3167,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1481,
+          "ms": 3195,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "rate_limit_bucket_key",
+        "sem": {
+          "passed": false,
+          "tokens": 1241,
+          "ms": 8959,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 1448,
+          "ms": 8969,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 2414,
+          "ms": 9004,
+          "tail": "Time: 00:00.009, Memory: 8.00 MB |  | OK (13 tests, 26 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "base_repository_build_where_sql",
+        "sem": {
+          "passed": false,
+          "tokens": 2223,
+          "ms": 16253,
+          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 2463,
+          "ms": 15971,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 3450,
+          "ms": 16864,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "router_has",
+        "sem": {
+          "passed": true,
+          "tokens": 2119,
+          "ms": 15508,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 2341,
+          "ms": 15653,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 3151,
+          "ms": 13614,
+          "tail": " | ERRORS! | Tests: 15, Assertions: 22, Errors: 4.",
+          "error": null
+        }
+      },
+      {
+        "id": "bugfix_password_policy_lowercase",
+        "sem": {
+          "passed": true,
+          "tokens": 781,
+          "ms": 5923,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 958,
+          "ms": 5179,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1924,
+          "ms": 5560,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "password_assess",
+        "sem": {
+          "passed": true,
+          "tokens": 836,
+          "ms": 7147,
+          "tail": "Time: 00:00.009, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
           "error": null
         },
         "com": {
           "passed": true,
           "tokens": 1017,
-          "ms": 8087,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
-          "error": null
-        }
-      },
-      {
-        "id": "password_require_symbol",
-        "sem": {
-          "passed": true,
-          "tokens": 791,
-          "ms": 8566,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
+          "ms": 6494,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
           "error": null
         },
-        "com": {
+        "sp": {
           "passed": true,
-          "tokens": 948,
-          "ms": 5909,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
+          "tokens": 2027,
+          "ms": 7289,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
           "error": null
         }
       },
       {
-        "id": "env_get_int",
+        "id": "base_repository_build_update_sql",
         "sem": {
           "passed": false,
-          "tokens": 780,
-          "ms": 5440,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
+          "tokens": 2243,
+          "ms": 16402,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 25, Failures: 2.",
           "error": null
         },
         "com": {
-          "passed": true,
-          "tokens": 979,
-          "ms": 5932,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
+          "passed": false,
+          "tokens": 2537,
+          "ms": 16726,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 1.",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 3508,
+          "ms": 17565,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 1.",
           "error": null
         }
       },
       {
-        "id": "env_get_bool",
+        "id": "router_extract_params",
         "sem": {
           "passed": false,
-          "tokens": 804,
-          "ms": 5541,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 36, Failures: 1.",
+          "tokens": 2201,
+          "ms": 17355,
+          "tail": " | ERRORS! | Tests: 14, Assertions: 21, Errors: 4, Warnings: 1.",
           "error": null
         },
         "com": {
-          "passed": true,
-          "tokens": 1030,
-          "ms": 5981,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
+          "passed": false,
+          "tokens": 2439,
+          "ms": 16464,
+          "tail": " | ERRORS! | Tests: 14, Assertions: 21, Errors: 4, Warnings: 1.",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 3192,
+          "ms": 13981,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 2.",
           "error": null
         }
       }
     ],
-    "n": 4,
-    "sem_pass": 2,
-    "com_pass": 4,
-    "sem_pct": 50,
-    "com_pct": 100
+    "n": 12,
+    "sem_pass": 4,
+    "com_pass": 8,
+    "sem_pct": 33,
+    "com_pct": 66,
+    "sp_pass": 6,
+    "sp_pct": 50
   },
-  "google/gemma-3-12b-it": {
+  "meta-llama/llama-3.1-8b-instruct": {
     "rows": [
       {
         "id": "password_strength",
         "sem": {
           "passed": false,
-          "tokens": 963,
-          "ms": 14013,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 2.",
+          "tokens": 812,
+          "ms": 8514,
+          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
           "error": null
         },
         "com": {
           "passed": true,
-          "tokens": 1150,
-          "ms": 14882,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
-          "error": null
-        }
-      },
-      {
-        "id": "password_require_symbol",
-        "sem": {
-          "passed": true,
-          "tokens": 902,
-          "ms": 12442,
-          "tail": "Time: 00:00.009, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
+          "tokens": 1003,
+          "ms": 16926,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
         },
-        "com": {
-          "passed": false,
-          "tokens": 1116,
-          "ms": 11789,
-          "tail": " | FAILURES! | Tests: 12, Assertions: 26, Failures: 2.",
-          "error": null
-        }
-      },
-      {
-        "id": "env_get_int",
-        "sem": {
-          "passed": false,
-          "tokens": 885,
-          "ms": 13630,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
-          "error": null
-        },
-        "com": {
+        "sp": {
           "passed": true,
-          "tokens": 1102,
-          "ms": 16155,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
-          "error": null
-        }
-      },
-      {
-        "id": "env_get_bool",
-        "sem": {
-          "passed": true,
-          "tokens": 952,
-          "ms": 11774,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
-          "error": null
-        },
-        "com": {
-          "passed": true,
-          "tokens": 1170,
-          "ms": 18556,
-          "tail": "Time: 00:00.010, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
-          "error": null
-        }
-      }
-    ],
-    "n": 4,
-    "sem_pass": 2,
-    "com_pass": 3,
-    "sem_pct": 50,
-    "com_pct": 75
-  },
-  "google/gemini-3.5-flash": {
-    "rows": [
-      {
-        "id": "password_strength",
-        "sem": {
-          "passed": true,
-          "tokens": 3173,
-          "ms": 15554,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
-          "error": null
-        },
-        "com": {
-          "passed": true,
-          "tokens": 2702,
-          "ms": 9933,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
-          "error": null
-        }
-      },
-      {
-        "id": "password_require_symbol",
-        "sem": {
-          "passed": true,
-          "tokens": 2487,
-          "ms": 11090,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
-          "error": null
-        },
-        "com": {
-          "passed": true,
-          "tokens": 2935,
-          "ms": 11200,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
-          "error": null
-        }
-      },
-      {
-        "id": "env_get_int",
-        "sem": {
-          "passed": false,
-          "tokens": 1966,
-          "ms": 7619,
-          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
-          "error": null
-        },
-        "com": {
-          "passed": true,
-          "tokens": 4842,
-          "ms": 23663,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
-          "error": null
-        }
-      },
-      {
-        "id": "env_get_bool",
-        "sem": {
-          "passed": true,
-          "tokens": 2282,
-          "ms": 9890,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
-          "error": null
-        },
-        "com": {
-          "passed": true,
-          "tokens": 5821,
-          "ms": 22785,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
-          "error": null
-        }
-      }
-    ],
-    "n": 4,
-    "sem_pass": 3,
-    "com_pass": 4,
-    "sem_pct": 75,
-    "com_pct": 100
-  },
-  "anthropic/claude-opus-4.7": {
-    "rows": [
-      {
-        "id": "password_strength",
-        "sem": {
-          "passed": false,
-          "tokens": 1486,
-          "ms": 8146,
-          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 2.",
-          "error": null
-        },
-        "com": {
-          "passed": true,
-          "tokens": 1597,
-          "ms": 6134,
+          "tokens": 1962,
+          "ms": 15438,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
         }
@@ -561,75 +627,297 @@
         "id": "password_require_symbol",
         "sem": {
           "passed": false,
-          "tokens": 1347,
-          "ms": 7193,
+          "tokens": 820,
+          "ms": 922,
           "tail": " | FAILURES! | Tests: 12, Assertions: 24, Failures: 2.",
           "error": null
         },
         "com": {
           "passed": true,
-          "tokens": 1528,
-          "ms": 6176,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
+          "tokens": 939,
+          "ms": 14074,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 1913,
+          "ms": 6851,
+          "tail": " | FAILURES! | Tests: 12, Assertions: 22, Failures: 4.",
           "error": null
         }
       },
       {
         "id": "env_get_int",
         "sem": {
-          "passed": true,
-          "tokens": 1111,
-          "ms": 5718,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
+          "passed": false,
+          "tokens": 736,
+          "ms": 16325,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
           "error": null
         },
         "com": {
+          "passed": false,
+          "tokens": 932,
+          "ms": 12344,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
+          "error": null
+        },
+        "sp": {
           "passed": true,
-          "tokens": 1454,
-          "ms": 6303,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
+          "tokens": 1899,
+          "ms": 7427,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
           "error": null
         }
       },
       {
         "id": "env_get_bool",
         "sem": {
+          "passed": false,
+          "tokens": 812,
+          "ms": 8969,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 32, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": false,
+          "tokens": 953,
+          "ms": 12760,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 36, Failures: 1.",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 1881,
+          "ms": 8552,
+          "tail": " | ERRORS! | Tests: 13, Assertions: 34, Errors: 1, Failures: 1.",
+          "error": null
+        }
+      },
+      {
+        "id": "admin_only_allowed_roles",
+        "sem": {
           "passed": true,
-          "tokens": 1179,
-          "ms": 6531,
-          "tail": "Time: 00:00.012, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
+          "tokens": 357,
+          "ms": 6204,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
           "error": null
         },
         "com": {
           "passed": true,
-          "tokens": 1464,
-          "ms": 6609,
-          "tail": "Time: 00:00.009, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
+          "tokens": 492,
+          "ms": 3128,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1451,
+          "ms": 3826,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "rate_limit_bucket_key",
+        "sem": {
+          "passed": false,
+          "tokens": 1186,
+          "ms": 21919,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 1417,
+          "ms": 2453,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 2351,
+          "ms": 16215,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 26 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "base_repository_build_where_sql",
+        "sem": {
+          "passed": false,
+          "tokens": 2184,
+          "ms": 17239,
+          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 2432,
+          "ms": 19887,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 3424,
+          "ms": 36377,
+          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 2.",
+          "error": null
+        }
+      },
+      {
+        "id": "router_has",
+        "sem": {
+          "passed": true,
+          "tokens": 2033,
+          "ms": 26396,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 2298,
+          "ms": 2446,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 3221,
+          "ms": 36818,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "bugfix_password_policy_lowercase",
+        "sem": {
+          "passed": true,
+          "tokens": 761,
+          "ms": 6088,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 960,
+          "ms": 843,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1895,
+          "ms": 6939,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "password_assess",
+        "sem": {
+          "passed": true,
+          "tokens": 813,
+          "ms": 10417,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 991,
+          "ms": 10534,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 1956,
+          "ms": 9906,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "base_repository_build_update_sql",
+        "sem": {
+          "passed": false,
+          "tokens": 2222,
+          "ms": 32441,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 24, Failures: 3, Warnings: 4.",
+          "error": null
+        },
+        "com": {
+          "passed": false,
+          "tokens": 2517,
+          "ms": 24541,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 25, Failures: 1.",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 3446,
+          "ms": 20540,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 25, Failures: 2.",
+          "error": null
+        }
+      },
+      {
+        "id": "router_extract_params",
+        "sem": {
+          "passed": false,
+          "tokens": 2155,
+          "ms": 20189,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 2.",
+          "error": null
+        },
+        "com": {
+          "passed": false,
+          "tokens": 2390,
+          "ms": 37803,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 2.",
+          "error": null
+        },
+        "sp": {
+          "passed": false,
+          "tokens": 3349,
+          "ms": 25047,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 26, Failures: 2.",
           "error": null
         }
       }
     ],
-    "n": 4,
-    "sem_pass": 2,
-    "com_pass": 4,
-    "sem_pct": 50,
-    "com_pct": 100
+    "n": 12,
+    "sem_pass": 4,
+    "com_pass": 8,
+    "sem_pct": 33,
+    "com_pct": 66,
+    "sp_pass": 7,
+    "sp_pct": 58
   },
-  "openai/gpt-5.5": {
+  "qwen/qwen3.7-max": {
     "rows": [
       {
         "id": "password_strength",
         "sem": {
           "passed": true,
-          "tokens": 1308,
-          "ms": 14371,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "tokens": 2292,
+          "ms": 27672,
+          "tail": "Time: 00:00.009, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
         },
         "com": {
           "passed": true,
-          "tokens": 1199,
-          "ms": 9836,
+          "tokens": 3059,
+          "ms": 47372,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 4185,
+          "ms": 34349,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
           "error": null
         }
@@ -638,15 +926,22 @@
         "id": "password_require_symbol",
         "sem": {
           "passed": true,
-          "tokens": 1121,
-          "ms": 12743,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
+          "tokens": 3614,
+          "ms": 42993,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
           "error": null
         },
         "com": {
           "passed": true,
-          "tokens": 1054,
-          "ms": 6963,
+          "tokens": 3468,
+          "ms": 38874,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 4089,
+          "ms": 34427,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (12 tests, 28 assertions)",
           "error": null
         }
@@ -655,15 +950,22 @@
         "id": "env_get_int",
         "sem": {
           "passed": false,
-          "tokens": 797,
-          "ms": 5711,
+          "tokens": 1762,
+          "ms": 19743,
           "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 1.",
           "error": null
         },
         "com": {
           "passed": true,
-          "tokens": 1343,
-          "ms": 12812,
+          "tokens": 2857,
+          "ms": 29742,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 4289,
+          "ms": 33935,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 24 assertions)",
           "error": null
         }
@@ -672,24 +974,225 @@
         "id": "env_get_bool",
         "sem": {
           "passed": true,
-          "tokens": 1033,
-          "ms": 10641,
-          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
+          "tokens": 2626,
+          "ms": 27898,
+          "tail": "Time: 00:00.009, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
           "error": null
         },
         "com": {
           "passed": true,
-          "tokens": 1497,
-          "ms": 13404,
+          "tokens": 3870,
+          "ms": 43978,
           "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 4191,
+          "ms": 31582,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (13 tests, 37 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "admin_only_allowed_roles",
+        "sem": {
+          "passed": true,
+          "tokens": 1927,
+          "ms": 21810,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 1798,
+          "ms": 20541,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 2750,
+          "ms": 17414,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (11 tests, 22 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "rate_limit_bucket_key",
+        "sem": {
+          "passed": false,
+          "tokens": 2869,
+          "ms": 27749,
+          "tail": " | FAILURES! | Tests: 13, Assertions: 24, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 2804,
+          "ms": 26679,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 4333,
+          "ms": 33935,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 26 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "base_repository_build_where_sql",
+        "sem": {
+          "passed": false,
+          "tokens": 4568,
+          "ms": 48776,
+          "tail": " | FAILURES! | Tests: 15, Assertions: 26, Failures: 3.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 4871,
+          "ms": 45273,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 5758,
+          "ms": 39897,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 26 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "router_has",
+        "sem": {
+          "passed": true,
+          "tokens": 3480,
+          "ms": 30408,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 5456,
+          "ms": 52034,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 4759,
+          "ms": 30904,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (15 tests, 27 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "bugfix_password_policy_lowercase",
+        "sem": {
+          "passed": true,
+          "tokens": 27780,
+          "ms": 409068,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 7338,
+          "ms": 98489,
+          "tail": "Time: 00:00.010, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 6687,
+          "ms": 71372,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (9 tests, 19 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "password_assess",
+        "sem": {
+          "passed": true,
+          "tokens": 1762,
+          "ms": 18827,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 3380,
+          "ms": 45612,
+          "tail": "Time: 00:00.011, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 4044,
+          "ms": 31537,
+          "tail": "Time: 00:00.007, Memory: 8.00 MB |  | OK (13 tests, 31 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "base_repository_build_update_sql",
+        "sem": {
+          "passed": false,
+          "tokens": 5419,
+          "ms": 53914,
+          "tail": " | FAILURES! | Tests: 14, Assertions: 24, Failures: 2, Warnings: 4.",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 5586,
+          "ms": 54872,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (14 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 6729,
+          "ms": 60554,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (14 tests, 26 assertions)",
+          "error": null
+        }
+      },
+      {
+        "id": "router_extract_params",
+        "sem": {
+          "passed": true,
+          "tokens": 3668,
+          "ms": 33101,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (14 tests, 26 assertions)",
+          "error": null
+        },
+        "com": {
+          "passed": true,
+          "tokens": 5598,
+          "ms": 71731,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (14 tests, 26 assertions)",
+          "error": null
+        },
+        "sp": {
+          "passed": true,
+          "tokens": 7158,
+          "ms": 60983,
+          "tail": "Time: 00:00.008, Memory: 8.00 MB |  | OK (14 tests, 26 assertions)",
           "error": null
         }
       }
     ],
-    "n": 4,
-    "sem_pass": 3,
-    "com_pass": 4,
-    "sem_pct": 75,
-    "com_pct": 100
+    "n": 12,
+    "sem_pass": 8,
+    "com_pass": 12,
+    "sem_pct": 66,
+    "com_pct": 100,
+    "sp_pass": 12,
+    "sp_pct": 100
   }
 }

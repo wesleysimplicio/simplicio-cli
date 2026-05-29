@@ -2,8 +2,8 @@
 
 Date: **2026-05-28**  
 Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico) — a real condominium-management system in pure PHP 8 (public on GitHub, PHPUnit 11)  
-Models: `meta-llama/Llama-3.2-1B-Instruct`, `google/gemma-3n-E4B-it`, `google/gemma-3-4b-it`, `qwen/qwen-2.5-7b-instruct`, `meta-llama/Llama-3.1-8B-Instruct`, `google/gemma-3-12b-it`, `google/gemini-3.5-flash`, `anthropic/claude-opus-4.7`, `openai/gpt-5.5`  
-Tasks: **4** additive real-engineering changes across `src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing.
+Models: `Qwen/Qwen2.5-Coder-3B-Instruct`, `Qwen/Qwen2.5-Coder-7B-Instruct`, `meta-llama/llama-3.1-8b-instruct`, `qwen/qwen3.7-max`  
+Tasks: **12** additive real-engineering changes across `src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing.
 
 ## Methodology — what "pass" actually means
 
@@ -21,33 +21,38 @@ All sides emit the complete file (identical output shape); the only variable is 
 
 - **baseline**: raw goal + current file content
 - **simplicio-cli**: the 6-layer task contract (role/stack, goal, target, criteria as testable states, constraints, output shape)
+- **simplicio-cli + simplicio-prompt (composition)**: the Tuple-Space + Yool runtime template from simplicio-prompt wrapping the simplicio-cli 6-layer contract as user input X. Measures whether the runtime adds value ON TOP of an already-sharp 6-layer prompt — not whether sp alone beats raw goal.
 
 ## Headline
 
-- **Baseline:** 12/36 (33%)
-- **simplicio-cli (6-layer):** 23/36 (63%) — **+30 pts vs baseline**
+- **Baseline:** 21/48 (43%)
+- **simplicio-cli (6-layer):** 37/48 (77%) — **+34 pts vs baseline**
+- **simplicio-cli + simplicio-prompt (composition):** 34/48 (70%) — **+27 pts vs baseline · -7 pts vs cli alone**
 
 ## Per-model (pass = full PHPUnit suite green)
 
-| Model | Baseline | simplicio-cli | Delta (pts) |
-|---|---|---|---|
-| `meta-llama/Llama-3.2-1B-Instruct` | 0/4 (0%) | 0/4 (0%) | **+0** |
-| `google/gemma-3n-E4B-it` | 0/4 (0%) | 0/4 (0%) | **+0** |
-| `google/gemma-3-4b-it` | 0/4 (0%) | 3/4 (75%) | **+75** |
-| `qwen/qwen-2.5-7b-instruct` | 0/4 (0%) | 1/4 (25%) | **+25** |
-| `meta-llama/Llama-3.1-8B-Instruct` | 2/4 (50%) | 4/4 (100%) | **+50** |
-| `google/gemma-3-12b-it` | 2/4 (50%) | 3/4 (75%) | **+25** |
-| `google/gemini-3.5-flash` | 3/4 (75%) | 4/4 (100%) | **+25** |
-| `anthropic/claude-opus-4.7` | 2/4 (50%) | 4/4 (100%) | **+50** |
-| `openai/gpt-5.5` | 3/4 (75%) | 4/4 (100%) | **+25** |
+| Model | Baseline | cli alone | cli + sp | D cli | D (cli+sp) |
+|---|---|---|---|---|---|
+| `Qwen/Qwen2.5-Coder-3B-Instruct` | 5/12 (41%) | 9/12 (75%) | 9/12 (75%) | **+34** | **+34** |
+| `Qwen/Qwen2.5-Coder-7B-Instruct` | 4/12 (33%) | 8/12 (66%) | 6/12 (50%) | **+33** | **+17** |
+| `meta-llama/llama-3.1-8b-instruct` | 4/12 (33%) | 8/12 (66%) | 7/12 (58%) | **+33** | **+25** |
+| `qwen/qwen3.7-max` | 8/12 (66%) | 12/12 (100%) | 12/12 (100%) | **+34** | **+34** |
 
-## Per-task × model (baseline / cli)
+## Per-task × model (baseline / cli / cli+sp)
 
-| Task | Llama-3.2-1B-Instruct | gemma-3n-E4B-it | gemma-3-4b-it | qwen-2.5-7b-instruct | Llama-3.1-8B-Instruct | gemma-3-12b-it | gemini-3.5-flash | claude-opus-4.7 | gpt-5.5 |
-|---|---|---|---|---|---|---|---|---|---|
-| password_strength | ./. | ./. | ./P | ./P | P/P | ./P | P/P | ./P | P/P |
-| password_require_symbol | ./. | ./. | ./. | ./. | P/P | P/. | P/P | ./P | P/P |
-| env_get_int | ./. | ./. | ./P | ./. | ./P | ./P | ./P | P/P | ./P |
-| env_get_bool | ./. | ./. | ./P | ./. | ./P | P/P | P/P | P/P | P/P |
+| Task | Qwen2.5-Coder-3B-Instruct | Qwen2.5-Coder-7B-Instruct | llama-3.1-8b-instruct | qwen3.7-max |
+|---|---|---|---|---|
+| password_strength | ./P/P | ./P/P | ./P/P | P/P/P |
+| password_require_symbol | ././P | ././. | ./P/. | P/P/P |
+| env_get_int | ./P/P | ./P/. | ././P | ./P/P |
+| env_get_bool | P/P/P | ././. | ././. | P/P/P |
+| admin_only_allowed_roles | P/P/P | P/P/P | P/P/P | P/P/P |
+| rate_limit_bucket_key | ./P/P | ./P/P | ./P/P | ./P/P |
+| base_repository_build_where_sql | ./P/. | ./P/P | ./P/. | ./P/P |
+| router_has | P/P/P | P/P/. | P/P/P | P/P/P |
+| bugfix_password_policy_lowercase | P/P/P | P/P/P | P/P/P | P/P/P |
+| password_assess | P/P/P | P/P/P | P/P/P | P/P/P |
+| base_repository_build_update_sql | ././. | ././. | ././. | ./P/P |
+| router_extract_params | ././. | ././. | ././. | P/P/P |
 
 Raw counts above are real `vendor/bin/phpunit` exit codes against `sistema-sindico`. `results_exec_sindico.json` holds per-case pass/fail, tokens, latency and a phpunit tail for every side.
