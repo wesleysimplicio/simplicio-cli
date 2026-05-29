@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **`rust/simplicio-core`: PyO3 `0.22` → `0.28`** (manual major dependency bump,
+  per `.specs/workflow/DEPENDENCY_POLICY.md`). The `build_6layer_prompt` / `hello`
+  extension now builds against current PyO3. No source changes to `lib.rs` — the
+  existing `Bound<'_, PyModule>` / `#[pyfunction]` API is forward-compatible.
+
+### Fixed
+- **Build blocker on Python 3.14.** PyO3 0.22 capped at CPython 3.13, so the crate
+  failed to compile against the 3.14 default interpreter. Now builds natively on
+  CPython 3.14.5 (cp314 wheel): parity suite 5/5, ~8.5x over the Python reference,
+  and the Rust-assembled prompt drives `qwen2.5-coder:3b` to 5/6 on the real-pytest
+  exec bench. See `bench/results_rust_qwen.md`.
+
 ## [0.4.1] — 2026-05-28
 
 ### Added
