@@ -68,6 +68,10 @@ def main():
             return 2
         from .scratch.skill_opt import main as skill_main
         return skill_main(args[1:])
+    if len(sys.argv) >= 2 and sys.argv[1] == "doctor":
+        maybe_autoinstall("doctor")
+        from .doctor import main as doctor_main
+        return doctor_main(sys.argv[2:])
 
     ap = argparse.ArgumentParser(prog="simplicio")
     sub = ap.add_subparsers(dest="cmd", required=True)

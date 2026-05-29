@@ -363,6 +363,49 @@ auto_generated:
 
 ---
 
+## 6.5 Hardware-aware model selection (`simplicio doctor`)
+
+Adendo ao RFC: o doer precisa **escolher-se sozinho** quando o usuário não
+exporta `SIMPLICIO_MODEL`, baseado no hardware do host. Regra rígida:
+**nunca puxar modelo que não cabe**, e nunca puxar sem opt-in do usuário.
+
+### Mapa hardware → modelo (padrão do simplicio)
+
+| Tier detectado | Modelo recomendado | Tamanho Q4 | Trigger |
+|---|---|---|---|
+| `cpu-tiny`   | `qwen2.5-coder:3b`         | ~2 GB | RAM < 8 GB ou sem GPU/Apple Silicon |
+| `cpu-small`  | `qwen2.5-coder:7b`         | ~5 GB | RAM 8-16 GB, sem GPU |
+| `gpu-mid`    | `qwen2.5-coder:14b`        | ~9 GB | VRAM 12-20 GB OU Apple Silicon 16-24 GB |
+| `gpu-large`  | `Qwen3-Coder-30B-A3B-Instruct Q4_K_M` (unsloth) | ~17.5 GB | VRAM 20-32 GB OU Apple Silicon 24-48 GB |
+| `gpu-xlarge` | `Qwen3-Coder-Next Q4` (unsloth) | ~26 GB | VRAM 32+ GB OU Apple Silicon 48+ GB |
+
+### Comando
+
+```bash
+simplicio doctor                  # detecta + imprime recomendação + status
+simplicio doctor --install        # opt-in: roda `ollama pull` se hardware comporta
+simplicio doctor --list-tiers     # tabela completa do mapa
+simplicio doctor --json           # saída machine-readable
+```
+
+### Guarantees (testes em `tests/python/test_local_models.py`)
+
+- `ensure_recommended()` **nunca** puxa modelo se `can_run=False` (RAM/VRAM
+  insuficiente + safety margin 4 GB)
+- **Nunca** puxa sem `auto_pull=True` ou `SIMPLICIO_AUTO_PULL=1`
+- Se Ollama não está no PATH, ensina a instalar; não tenta workaround
+- Se modelo já presente, nunca re-puxa
+
+### Como o doer auto-detecta
+
+Quando `SIMPLICIO_MODEL` não está setado E `SIMPLICIO_AUTO_LOCAL=1`, o
+provider consulta `evaluate(detect())` e usa o `spec.ollama_id` apontando
+para `http://localhost:11434/v1`. Por enquanto requer o usuário ter rodado
+`simplicio doctor --install` antes. Fallback explícito quando hardware
+não comporta nenhum tier: erro com mensagem clara apontando pra cloud.
+
+---
+
 ## 7. Implementação em fases
 
 Mesmo modelo do roadmap do sp — cada fase tem métrica-âncora.
