@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.2] — 2026-05-29
+
+### Added
+- `simplicio task --dry-run-task --json` for SendSprint orchestration. It
+  generates the would-be task output, returns the stable
+  `{task_id, applied, files_changed, tokens_used, cost_usd, diff_summary,
+  warnings}` JSON contract, and does not write `.simplicio/last_output.txt` or
+  run the test/apply loop.
+- `simplicio task --bound-paths <glob>` repeatable edit-surface guard. Generated
+  diffs outside the allowed globs are refused before the test loop and reported
+  as JSON warnings.
 
 ### Changed
 - **`rust/simplicio-core`: PyO3 `0.22` → `0.28`** (manual major dependency bump,

@@ -363,6 +363,29 @@ simplicio task "..." --stack angular --target ...
 
 How it works: simplicio shells out to `claude -p "<prompt>"` (or `codex exec "<prompt>"`) as a subprocess, captures stdout, runs the test loop. The inner CLI authenticates via your existing OAuth session in `~/.claude/` or `~/.codex/`. simplicio sets `SIMPLICIO_HOOK_GUARD=1` in the subprocess env so the inner Claude Code session does **not** re-fire simplicio's own UserPromptSubmit hook (no infinite recursion).
 
+For orchestrators such as SendSprint, `simplicio task` also has a structured
+contract:
+
+```bash
+simplicio task "hide Delete button for non-admins" \
+  --stack angular \
+  --target src/app/screen/screen.component.html \
+  --dry-run-task \
+  --json
+
+simplicio task "front-only task" \
+  --stack angular \
+  --target src/app/screen/screen.component.html \
+  --bound-paths "src/app/**" \
+  --json
+```
+
+`--dry-run-task` generates the would-be diff/test output without applying or
+testing it. `--json` returns `{task_id, applied, files_changed, tokens_used,
+cost_usd, diff_summary, warnings}`. Repeat `--bound-paths <glob>` to reject
+diffs outside the allowed edit surface; violations are reported in `warnings`
+and the command exits non-zero.
+
 ### Path 3 example — standalone with API key
 
 ```bash
