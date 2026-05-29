@@ -1,6 +1,6 @@
 [project]
 name = "simplicio-cli"
-version = "0.4.2"
+version = "0.4.3"
 description = "Portable task-to-code pipeline that works with any LLM. Turn a one-line task into a verified code change — diff + test + verify loop. +55 pts on a 156-check benchmark, 21% faster, ~same tokens."
 readme = "README.md"
 license = { text = "MIT" }
@@ -45,8 +45,8 @@ dependencies = [
   "numpy>=1.23",
   "anthropic>=0.30",
   "openai>=1.30",
-  "simplicio-mapper>=0.6.0",
-  "simplicio-prompt>=1.9.0",
+  "simplicio-mapper>=0.6.1",
+  "simplicio-prompt>=1.12.0",
   "httpx>=0.27",
   "orjson>=3.10",
   "diskcache>=5.6",
