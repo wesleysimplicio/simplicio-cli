@@ -48,7 +48,7 @@ MODELS = [
     if m.strip()
 ]
 PHPUNIT_TIMEOUT = int(os.environ.get("BENCH_PHPUNIT_TIMEOUT", "60"))
-INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "1").strip() not in ("0", "false", "False")
+INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "0").strip() not in ("0", "false", "False")
 INCLUDE_AGENTS = os.environ.get("BENCH_INCLUDE_AGENTS", "1").strip() not in ("0", "false", "False")
 AGENTS_MAX_ATTEMPTS = int(os.environ.get("BENCH_AGENTS_MAX_ATTEMPTS", "3"))
 
