@@ -12,6 +12,7 @@ first CLI use instead — the closest equivalent that works on every machine.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 from pathlib import Path
@@ -51,7 +52,7 @@ def maybe_autoinstall(cmd: str | None) -> bool:
     return False
 
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser(prog="simplicio")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
@@ -64,6 +65,12 @@ def main():
     pt.add_argument("--target", required=True)
     pt.add_argument("--criteria", default="- true state\n- false state")
     pt.add_argument("--constraints", default="- build passes")
+    pt.add_argument("--dry-run-task", action="store_true",
+                    help="generate the would-be task output without applying/testing")
+    pt.add_argument("--json", action="store_true",
+                    help="emit stable structured task output")
+    pt.add_argument("--bound-paths", action="append", default=[],
+                    help="glob limiting which paths the task may change; repeatable")
 
 
     pb = sub.add_parser("bench", help="compare with vs without (real numbers)")
@@ -82,7 +89,7 @@ def main():
     p_det.add_argument("--quiet", action="store_true")
     p_det.add_argument("--json", action="store_true")
 
-    a = ap.parse_args()
+    a = ap.parse_args(argv)
     maybe_autoinstall(a.cmd)
     if a.cmd == "index":
         from .precedent import index_repo
@@ -114,8 +121,30 @@ def main():
             argv += ["--json"]
         return detect_main(argv)
     else:
-        from .pipeline import run
-        run(a.root, a.stack, a.goal, a.target, a.criteria, a.constraints)
+        from .pipeline import run, run_task
+        if a.json or a.dry_run_task:
+            result = run_task(
+                a.root,
+                a.stack,
+                a.goal,
+                a.target,
+                a.criteria,
+                a.constraints,
+                dry_run_task=a.dry_run_task,
+                bound_paths=a.bound_paths,
+                quiet=a.json,
+            )
+            if a.json:
+                print(json.dumps(result, sort_keys=True))
+            else:
+                status = "DRY-RUN" if a.dry_run_task else "DONE"
+                print(f"{status}: {result['diff_summary']}")
+                for warning in result["warnings"]:
+                    print(f"warning: {warning}", file=sys.stderr)
+            return 0 if (a.dry_run_task or result["applied"]) else 1
+        run(a.root, a.stack, a.goal, a.target, a.criteria, a.constraints,
+            bound_paths=a.bound_paths)
+        return 0
 
 if __name__ == "__main__":
     main()
