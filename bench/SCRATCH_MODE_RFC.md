@@ -207,7 +207,15 @@ não basta; framework precisa ser escolhido).
 
 ---
 
-## 5. Planner provider — DeepSeek-V4-Pro por default
+## 5. Planner provider — DeepSeek via HuggingFace por default
+
+> **Atualização (commit subsequente ao RFC inicial):** o planner default
+> mudou de DeepSeek API direto pra DeepSeek servido pelo HuggingFace
+> Inference Router. Razão: a maioria dos usuários já tem `HF_TOKEN`,
+> reduzindo o atrito de "comprar mais um plano só pra planner". Quem
+> prefere DeepSeek direto passa `SIMPLICIO_PLANNER=deepseek/<model>`.
+
+
 
 ### 5.1 Por que separar planner de doer
 
@@ -247,13 +255,20 @@ def _planner_complete(prompt: str) -> str:
 Variáveis de ambiente:
 
 ```bash
-SIMPLICIO_PLANNER=deepseek/deepseek-v4-pro     # default
-DEEPSEEK_API_KEY=sk-...                         # required when planner=deepseek/*
+# default — DeepSeek-V3.1 via HuggingFace Inference Router
+SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1
+HF_TOKEN=hf_...
 
-# override pra testar com outros planners
-SIMPLICIO_PLANNER=anthropic/claude-opus-4-7
-SIMPLICIO_PLANNER=openai/gpt-5.5
-SIMPLICIO_PLANNER=claude-cli/auto              # local Claude Code (Pro/Max user)
+# DeepSeek direto (sem HF middleman)
+SIMPLICIO_PLANNER=deepseek/deepseek-v4-pro
+DEEPSEEK_API_KEY=sk-...
+
+# overrides comuns
+SIMPLICIO_PLANNER=openai/gpt-5.5                # OPENAI_API_KEY
+SIMPLICIO_PLANNER=openrouter/anthropic/claude-opus-4-8  # OPENROUTER_API_KEY
+SIMPLICIO_PLANNER=anthropic/claude-opus-4-8     # ANTHROPIC_API_KEY (SDK nativo)
+SIMPLICIO_PLANNER=hf/Qwen/Qwen3-Coder-Next      # qualquer modelo no HF router
+SIMPLICIO_PLANNER=claude-cli/auto               # Claude Code Pro/Max (shell-out)
 ```
 
 ### 5.3 Plan schema (saída do planner)

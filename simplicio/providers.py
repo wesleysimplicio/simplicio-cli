@@ -140,3 +140,130 @@ def info():
         return f"model={model} provider=codex-cli (shell-out, uses Codex/ChatGPT login) key=not-needed"
     return (f"model={model} base={c['base'] or 'anthropic-native'} "
             f"key={'set' if c['key'] else 'MISSING'}")
+
+
+# --------------------------------------------------------------------------- #
+# Planner-grade provider (used by `simplicio scratch`).
+#
+# Kept SEPARATE from generate() so:
+#   - users keep their cheap doer (SIMPLICIO_MODEL = Coder-Next, etc.)
+#   - the planner runs on a frontier model (DeepSeek-V4-Pro default)
+#   - swap of one does not touch the other
+#
+# Selected via SIMPLICIO_PLANNER:
+#   deepseek/<model>      -> https://api.deepseek.com/v1, DEEPSEEK_API_KEY
+#   anthropic/<model>     -> ANTHROPIC_API_KEY, native SDK
+#   openai/<model>        -> https://api.openai.com/v1, OPENAI_API_KEY
+#   openrouter/<model>    -> https://openrouter.ai/api/v1, OPENROUTER_API_KEY
+#   claude-cli/<model>    -> shell-out, no key needed
+#   codex-cli/<model>     -> shell-out, no key needed
+#   <bare>                -> falls through to SIMPLICIO_MODEL/_API_KEY path
+# --------------------------------------------------------------------------- #
+
+_PLANNER_ROUTES = {
+    # Default planner route: DeepSeek family served via HuggingFace Inference
+    # Router. Uses HF_TOKEN; the model id after the prefix is whatever HF
+    # exposes (e.g. `deepseek-ai/DeepSeek-V3.1`). Cheapest path to a frontier
+    # planner when the user already has an HF account.
+    "deepseek-hf": ("https://router.huggingface.co/v1", "HF_TOKEN"),
+    # DeepSeek's own API (paid, no HF middleman). Pin via `deepseek/<model>`.
+    "deepseek":    ("https://api.deepseek.com/v1",      "DEEPSEEK_API_KEY"),
+    "openai":      ("https://api.openai.com/v1",        "OPENAI_API_KEY"),
+    "openrouter":  ("https://openrouter.ai/api/v1",     "OPENROUTER_API_KEY"),
+    # Generic HF route for any non-DeepSeek model on the HF router (Qwen, Llama, ...).
+    "hf":          ("https://router.huggingface.co/v1", "HF_TOKEN"),
+}
+
+# Default planner. DeepSeek-V3.1 on HF is the current "frontier model with a
+# token most users already have"; users on the DeepSeek Pro plan can swap to
+# `deepseek/deepseek-v4-pro` (direct API) when they prefer. Override via
+# SIMPLICIO_PLANNER.
+_DEFAULT_PLANNER = "deepseek-hf/deepseek-ai/DeepSeek-V3.1"
+
+
+def planner_cfg():
+    """Resolve the planner provider config without touching the doer config.
+
+    Returns a dict with keys: model, base, key, native_anthropic, shell_out.
+    Raises SystemExit if planner is selected but its credentials are missing.
+    """
+    raw = os.environ.get("SIMPLICIO_PLANNER", _DEFAULT_PLANNER).strip()
+    if not raw:
+        raw = _DEFAULT_PLANNER
+
+    if raw.startswith("claude-cli/") or raw.startswith("codex-cli/"):
+        return {"model": raw, "base": None, "key": None,
+                "native_anthropic": False, "shell_out": True}
+
+    if "/" in raw:
+        prefix, name = raw.split("/", 1)
+    else:
+        prefix, name = "", raw
+
+    if prefix == "anthropic":
+        key = os.environ.get("ANTHROPIC_API_KEY")
+        if not key:
+            raise SystemExit(
+                "SIMPLICIO_PLANNER=anthropic/* requires ANTHROPIC_API_KEY")
+        return {"model": name, "base": None, "key": key,
+                "native_anthropic": True, "shell_out": False}
+
+    if prefix in _PLANNER_ROUTES:
+        base, env_key = _PLANNER_ROUTES[prefix]
+        key = os.environ.get(env_key)
+        if not key:
+            raise SystemExit(
+                f"SIMPLICIO_PLANNER={raw} requires {env_key}")
+        return {"model": name, "base": base, "key": key,
+                "native_anthropic": False, "shell_out": False}
+
+    # Bare model name — fall back to the same provider config the doer uses.
+    # Lets the user run planner against whatever they already configured.
+    c = _cfg()
+    return {"model": raw, "base": c["base"], "key": c["key"],
+            "native_anthropic": not c["base"], "shell_out": False}
+
+
+def planner_complete(prompt, max_tokens=8192, temperature=0.1):
+    """Call the planner provider. Used by simplicio.scratch.planner.
+
+    temperature defaults to 0.1 because plans must be reproducible and
+    schema-stable, not creative.
+    """
+    p = planner_cfg()
+
+    if p["shell_out"]:
+        if p["model"].startswith("claude-cli/"):
+            return _shell_out_claude(prompt, p["model"].split("/", 1)[1])
+        if p["model"].startswith("codex-cli/"):
+            return _shell_out_codex(prompt, p["model"].split("/", 1)[1])
+
+    if p["native_anthropic"]:
+        import anthropic
+        cli = anthropic.Anthropic(api_key=p["key"])
+        r = cli.messages.create(
+            model=p["model"], max_tokens=max_tokens, temperature=temperature,
+            messages=[{"role": "user", "content": prompt}])
+        return next((b.text for b in r.content if b.type == "text"), "")
+
+    if not p["key"]:
+        raise SystemExit(
+            "no planner credentials: set SIMPLICIO_PLANNER + matching API key "
+            "(default planner is deepseek/deepseek-v4-pro -> DEEPSEEK_API_KEY)")
+
+    from openai import OpenAI
+    cli = OpenAI(base_url=p["base"], api_key=p["key"])
+    r = cli.chat.completions.create(
+        model=p["model"], max_tokens=max_tokens, temperature=temperature,
+        messages=[{"role": "user", "content": prompt}])
+    return r.choices[0].message.content
+
+
+def planner_info():
+    p = planner_cfg()
+    if p["shell_out"]:
+        return f"planner={p['model']} (shell-out)"
+    if p["native_anthropic"]:
+        return f"planner={p['model']} provider=anthropic-native key={'set' if p['key'] else 'MISSING'}"
+    return (f"planner={p['model']} base={p['base']} "
+            f"key={'set' if p['key'] else 'MISSING'}")

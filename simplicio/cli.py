@@ -52,6 +52,23 @@ def maybe_autoinstall(cmd: str | None) -> bool:
 
 
 def main():
+    # `scratch` and `skill` subcommands have rich flag surfaces; argparse's
+    # subparser + REMAINDER combo eats their flags ungracefully. Short-circuit
+    # to their own argparsers before the top-level parser ever runs.
+    if len(sys.argv) >= 2 and sys.argv[1] == "scratch":
+        maybe_autoinstall("scratch")
+        from .scratch.cli import main as scratch_main
+        return scratch_main(sys.argv[2:])
+    if len(sys.argv) >= 2 and sys.argv[1] == "skill":
+        maybe_autoinstall("skill")
+        args = sys.argv[2:]
+        if not args or args[0] != "new":
+            print("usage: simplicio skill new \"<description>\" [--planner ...] [--dry-run]",
+                  file=sys.stderr)
+            return 2
+        from .scratch.skill_opt import main as skill_main
+        return skill_main(args[1:])
+
     ap = argparse.ArgumentParser(prog="simplicio")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
@@ -81,6 +98,11 @@ def main():
     p_det.add_argument("--prompt", help="prompt text (default: read from stdin)")
     p_det.add_argument("--quiet", action="store_true")
     p_det.add_argument("--json", action="store_true")
+
+    # Note: `scratch` and `skill` subcommands are short-circuited at the top
+    # of main() before this argparse runs, so they don't need to be registered
+    # in the subparser table — they're surfaced in help only via that top
+    # branch.
 
     a = ap.parse_args()
     maybe_autoinstall(a.cmd)
