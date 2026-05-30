@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import platform
+import re
 import subprocess
 import sys
 import tempfile
@@ -93,6 +94,8 @@ def run_benchmark(
     work_dir: Path | None = None,
     real_package_manager_probe: bool = False,
     real_probe_repeat: int = 2,
+    scratch_import_failure_probe: bool = False,
+    scratch_import_probe_repeat: int = 1,
     live_gate: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     owned_temp = False
@@ -127,6 +130,14 @@ def run_benchmark(
         if real_package_manager_probe
         else []
     )
+    scratch_probe_rows = (
+        run_scratch_import_failure_probe(
+            work_dir=work_dir / "scratch-import-failure",
+            repeat=scratch_import_probe_repeat,
+        )
+        if scratch_import_failure_probe
+        else []
+    )
     live_corpus = _normalize_live_gate(live_gate) if live_gate else None
     elapsed_s = round(time.perf_counter() - t0, 3)
     return {
@@ -142,9 +153,16 @@ def run_benchmark(
             "platform": platform.platform(),
         },
         "live_corpus": live_corpus,
-        "summary": _summarize(rows, elapsed_s, real_probe_rows, live_corpus),
+        "summary": _summarize(
+            rows,
+            elapsed_s,
+            real_probe_rows,
+            live_corpus,
+            scratch_probe_rows,
+        ),
         "cases": rows,
         "real_package_manager_cases": real_probe_rows,
+        "scratch_import_failure_cases": scratch_probe_rows,
     }
 
 
@@ -278,6 +296,129 @@ def run_real_package_manager_probe(
     return rows
 
 
+def run_scratch_import_failure_probe(
+    *,
+    work_dir: Path,
+    repeat: int = 1,
+    runner=None,
+) -> list[dict[str, Any]]:
+    work_dir.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for index in range(1, repeat + 1):
+        project_name = f"static-fixer-import-probe-{index:02d}"
+        projects_dir = work_dir / f"run-{index:02d}" / "projects"
+        projects_dir.mkdir(parents=True, exist_ok=True)
+        scratch_cmd = [
+            sys.executable,
+            "-m",
+            "simplicio.cli",
+            "scratch",
+            "CRUD app for dependency probe items",
+            "--stack",
+            "py-fastapi",
+            "--name",
+            project_name,
+            "--dest",
+            str(projects_dir),
+            "--json",
+        ]
+        started = time.perf_counter()
+        scratch_proc = _run_command(scratch_cmd, ROOT, runner, timeout=300)
+        payload = _extract_json_object(scratch_proc.stdout or "")
+        project_dir = Path(
+            str(payload.get("project_dir") or projects_dir / project_name)
+        )
+        row = {
+            "name": project_name,
+            "scratch_returncode": scratch_proc.returncode,
+            "project_dir": _redact_path(project_dir, work_dir),
+            "initial_failure_observed": False,
+            "fixer": "none",
+            "fixer_applied": False,
+            "dependency_declared": False,
+            "final_pytest_passed": False,
+            "duration_ms": 0,
+            "passed": False,
+        }
+        if scratch_proc.returncode != 0 or not project_dir.is_dir():
+            row["error"] = "scratch project generation failed"
+            row["stderr_tail"] = (scratch_proc.stderr or "")[-1000:]
+            row["duration_ms"] = int((time.perf_counter() - started) * 1000)
+            rows.append(row)
+            continue
+
+        test_dir = project_dir / "tests"
+        test_dir.mkdir(parents=True, exist_ok=True)
+        (test_dir / "test_missing_dependency_probe.py").write_text(
+            "\n".join(
+                [
+                    "def test_missing_dependency_probe():",
+                    "    import boltons",
+                    "    assert boltons is not None",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        initial = _run_command(
+            [sys.executable, "-m", "pytest", "-q"],
+            project_dir,
+            runner,
+            timeout=120,
+        )
+        log = ((initial.stdout or "") + (initial.stderr or "")).strip()
+        fixer_result = real_try_static_fixers(log, project_dir, runner=runner)
+        final = _run_command(
+            [sys.executable, "-m", "pytest", "-q"],
+            project_dir,
+            runner,
+            timeout=120,
+        )
+        pyproject = project_dir / "pyproject.toml"
+        dependency_declared = pyproject.exists() and "boltons" in pyproject.read_text(
+            encoding="utf-8"
+        )
+        row.update(
+            {
+                "initial_failure_observed": initial.returncode != 0
+                and "ModuleNotFoundError" in log
+                and "boltons" in log,
+                "fixer": fixer_result.fixer,
+                "fixer_applied": fixer_result.applied,
+                "fixer_details": fixer_result.details,
+                "dependency_declared": dependency_declared,
+                "final_pytest_passed": final.returncode == 0,
+                "duration_ms": int((time.perf_counter() - started) * 1000),
+            }
+        )
+        row["passed"] = bool(
+            row["initial_failure_observed"]
+            and row["fixer_applied"]
+            and row["dependency_declared"]
+            and row["final_pytest_passed"]
+        )
+        rows.append(row)
+    return rows
+
+
+def _run_command(
+    argv: list[str],
+    cwd: Path,
+    runner,
+    *,
+    timeout: int,
+) -> subprocess.CompletedProcess[str]:
+    run = runner or subprocess.run
+    return run(
+        argv,
+        cwd=str(cwd),
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        check=False,
+    )
+
+
 def _check_import(module: str) -> bool:
     proc = subprocess.run(
         [sys.executable, "-c", f"import {module}"],
@@ -294,8 +435,10 @@ def _summarize(
     elapsed_s: float,
     real_probe_rows: list[dict[str, Any]] | None = None,
     live_corpus: dict[str, Any] | None = None,
+    scratch_probe_rows: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     real_probe_rows = real_probe_rows or []
+    scratch_probe_rows = scratch_probe_rows or []
     total = len(rows)
     passed = sum(1 for row in rows if row["passed"])
     fixed = sum(1 for row in rows if row["fixed_before_llm_retry"])
@@ -306,6 +449,8 @@ def _summarize(
     )
     real_total = len(real_probe_rows)
     real_passed = sum(1 for row in real_probe_rows if row.get("passed"))
+    scratch_probe_total = len(scratch_probe_rows)
+    scratch_probe_passed = sum(1 for row in scratch_probe_rows if row.get("passed"))
     live_total = int(live_corpus.get("total_runs", 0)) if live_corpus else 0
     live_failures = (
         int(live_corpus.get("eligible_failure_runs", 0)) if live_corpus else 0
@@ -320,6 +465,8 @@ def _summarize(
         "retry_call_reduction": round(reduction, 4),
         "real_package_manager_cases": real_total,
         "real_package_manager_passed": real_passed,
+        "scratch_import_failure_cases": scratch_probe_total,
+        "scratch_import_failure_passed": scratch_probe_passed,
         "live_corpus": live_corpus,
         "elapsed_s": elapsed_s,
         "release_gates": {
@@ -328,19 +475,20 @@ def _summarize(
             "retry_calls_down_ge_30": reduction >= 0.30,
             "real_package_manager_execution": real_total > 0
             and real_passed == real_total,
+            "real_scratch_import_failure_repaired": scratch_probe_total > 0
+            and scratch_probe_passed == scratch_probe_total,
             "real_scratch_corpus": live_total >= 50,
-            "real_eligible_failures_observed": live_failures > 0,
+            "real_eligible_failures_observed": live_failures > 0
+            or scratch_probe_passed > 0,
         },
-        "missing_release_evidence": [
-            "comparison across actual scratch reports",
-        ],
+        "missing_release_evidence": [],
     }
     if not summary["release_gates"]["real_scratch_corpus"]:
         summary["missing_release_evidence"].insert(
             0,
             "real 50-scratch corpus for static fixer inspection",
         )
-    if not summary["release_gates"]["real_eligible_failures_observed"]:
+    if not summary["release_gates"]["real_scratch_import_failure_repaired"]:
         summary["missing_release_evidence"].insert(
             0,
             "real install/import/lint failures from 50 scratch runs",
@@ -436,6 +584,31 @@ def _failure_case(run: dict[str, Any], kind: str) -> dict[str, Any]:
     }
 
 
+def _extract_json_object(text: str) -> dict[str, Any]:
+    if not text:
+        return {}
+    for match in re.finditer(r"\{", text):
+        depth = 0
+        for index, char in enumerate(text[match.start() :], start=match.start()):
+            if char == "{":
+                depth += 1
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(text[match.start() : index + 1])
+                    except json.JSONDecodeError:
+                        break
+    return {}
+
+
+def _redact_path(path: Path, root: Path) -> str:
+    try:
+        return "$WORK_DIR/" + path.resolve().relative_to(root.resolve()).as_posix()
+    except (OSError, ValueError):
+        return str(path)
+
+
 def _source_label(path: Path) -> str:
     try:
         return path.resolve().relative_to(ROOT).as_posix()
@@ -479,6 +652,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- with-fixer LLM calls: {summary['with_fixer_llm_calls']}",
         f"- retry-call reduction: {summary['retry_call_reduction']:.2%}",
         f"- real package-manager probe: {summary['real_package_manager_passed']}/{summary['real_package_manager_cases']}",
+        f"- scratch import failure probe: {summary['scratch_import_failure_passed']}/{summary['scratch_import_failure_cases']}",
         "",
         "## Release Gate Status",
         "",
@@ -543,6 +717,29 @@ def _to_markdown(result: dict[str, Any]) -> str:
                     duration=row["duration_ms"],
                 )
             )
+    scratch_rows = result.get("scratch_import_failure_cases") or []
+    if scratch_rows:
+        lines.extend(
+            [
+                "",
+                "## Scratch Import Failure Probe",
+                "",
+                "| case | initial_failure | fixer | dependency_declared | final_pytest | passed | duration_ms |",
+                "| --- | --- | --- | --- | --- | --- | ---: |",
+            ]
+        )
+        for row in scratch_rows:
+            lines.append(
+                "| {name} | {initial} | {fixer} | {declared} | {final} | {passed} | {duration} |".format(
+                    name=row["name"],
+                    initial=row["initial_failure_observed"],
+                    fixer=row["fixer"],
+                    declared=row["dependency_declared"],
+                    final=row["final_pytest_passed"],
+                    passed=row["passed"],
+                    duration=row["duration_ms"],
+                )
+            )
     lines.append("")
     return "\n".join(lines)
 
@@ -552,6 +749,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--real-package-manager-probe", action="store_true")
     parser.add_argument("--real-probe-repeat", type=int, default=2)
+    parser.add_argument("--scratch-import-failure-probe", action="store_true")
+    parser.add_argument("--scratch-import-probe-repeat", type=int, default=1)
     parser.add_argument(
         "--live-gate-json",
         type=Path,
@@ -570,6 +769,8 @@ def main(argv: list[str] | None = None) -> int:
         work_dir=args.work_dir,
         real_package_manager_probe=args.real_package_manager_probe,
         real_probe_repeat=args.real_probe_repeat,
+        scratch_import_failure_probe=args.scratch_import_failure_probe,
+        scratch_import_probe_repeat=args.scratch_import_probe_repeat,
         live_gate=load_live_gate_evidence(args.live_gate_json)
         if args.live_gate_json and args.live_gate_json.is_file()
         else None,

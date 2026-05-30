@@ -10,6 +10,7 @@ from bench.run_static_fixers import (
     load_live_gate_evidence,
     run_benchmark,
     run_real_package_manager_probe,
+    run_scratch_import_failure_probe,
     write_reports,
 )
 
@@ -76,6 +77,67 @@ def test_static_fixer_bench_records_real_probe_summary(tmp_path) -> None:
     summary = result["summary"]
     assert summary["real_package_manager_cases"] == 0
     assert summary["release_gates"]["real_package_manager_execution"] is False
+
+
+def test_static_fixer_bench_repairs_scratch_import_failure(tmp_path) -> None:
+    project_dir = (
+        tmp_path / "scratch" / "run-01" / "projects" / "static-fixer-import-probe-01"
+    )
+    calls: list[list[str]] = []
+
+    def fake_runner(argv, **kwargs):
+        calls.append(list(argv))
+        cwd = kwargs.get("cwd")
+        if "simplicio.cli" in argv:
+            project_dir.mkdir(parents=True, exist_ok=True)
+            (project_dir / "pyproject.toml").write_text(
+                '[project]\nname = "probe"\ndependencies = []\n',
+                encoding="utf-8",
+            )
+            return subprocess.CompletedProcess(
+                argv,
+                0,
+                json.dumps({"project_dir": str(project_dir)}),
+                "",
+            )
+        if len(argv) >= 4 and argv[1:3] == ["-m", "pip"]:
+            return subprocess.CompletedProcess(argv, 0, "", "")
+        if len(argv) >= 3 and argv[1:3] == ["-m", "pytest"]:
+            pyproject = project_dir / "pyproject.toml"
+            if "boltons" in pyproject.read_text(encoding="utf-8"):
+                return subprocess.CompletedProcess(argv, 0, "2 passed\n", "")
+            assert cwd == str(project_dir)
+            return subprocess.CompletedProcess(
+                argv,
+                1,
+                "ModuleNotFoundError: No module named 'boltons'\n",
+                "",
+            )
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    rows = run_scratch_import_failure_probe(
+        work_dir=tmp_path / "scratch",
+        runner=fake_runner,
+    )
+
+    assert len(rows) == 1
+    assert rows[0]["initial_failure_observed"] is True
+    assert rows[0]["fixer"] == "missing-pip-package"
+    assert rows[0]["dependency_declared"] is True
+    assert rows[0]["final_pytest_passed"] is True
+    assert rows[0]["passed"] is True
+    assert any("pip" in " ".join(call) for call in calls)
+
+
+def test_static_fixer_bench_records_scratch_import_probe_summary(tmp_path) -> None:
+    result = run_benchmark(
+        work_dir=tmp_path / "bench",
+        scratch_import_failure_probe=False,
+    )
+
+    summary = result["summary"]
+    assert summary["scratch_import_failure_cases"] == 0
+    assert summary["release_gates"]["real_scratch_import_failure_repaired"] is False
 
 
 def test_static_fixer_bench_consumes_live_gate_corpus(tmp_path) -> None:

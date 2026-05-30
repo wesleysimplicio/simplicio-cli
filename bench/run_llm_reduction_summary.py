@@ -125,9 +125,21 @@ def _summarize_levers(inputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
                 "real_package_manager_passed",
                 0,
             ),
+            "scratch_import_failure_cases": fixers.get(
+                "scratch_import_failure_cases",
+                0,
+            ),
+            "scratch_import_failure_passed": fixers.get(
+                "scratch_import_failure_passed",
+                0,
+            ),
             "real_package_manager_execution": _gate(
                 fixers,
                 "real_package_manager_execution",
+            ),
+            "real_scratch_import_failure_repaired": _gate(
+                fixers,
+                "real_scratch_import_failure_repaired",
             ),
             "gate_passed": _gate(fixers, "fixer_resolved_ge_80")
             and _gate(fixers, "retry_calls_down_ge_30"),
@@ -290,6 +302,9 @@ def _summarize_gates(
         "C_real_package_manager_execution": levers["C_static_fixers"][
             "real_package_manager_execution"
         ],
+        "C_real_scratch_import_failure_repaired": levers["C_static_fixers"][
+            "real_scratch_import_failure_repaired"
+        ],
         "A_recipe_llm_baseline_present": levers["A_recipes"]["llm_baseline_present"],
         "A_recipe_pass_rate_ge_llm": levers["A_recipes"][
             "recipe_plan_pass_rate_ge_llm"
@@ -404,6 +419,10 @@ def _missing_release_evidence(
         missing.append("B/codegen zero feature regression evidence")
     if not gates["C_real_package_manager_execution"]:
         missing.append("non-faked package manager execution")
+    if not gates["C_real_scratch_import_failure_repaired"]:
+        missing.append(
+            "real fixer evidence from actual scratch install/import/lint failures"
+        )
     if not gates["A_recipe_llm_baseline_present"]:
         missing.append("recipe path pass-rate compared with equivalent LLM path")
     if not gates["A_recipe_pass_rate_ge_llm"]:
@@ -564,7 +583,9 @@ def _to_markdown(result: dict[str, Any]) -> str:
                 f"retry calls down "
                 f"{levers['C_static_fixers']['retry_call_reduction']:.2%}, "
                 f"real pkg probe {levers['C_static_fixers']['real_package_manager_passed']}/"
-                f"{levers['C_static_fixers']['real_package_manager_cases']} | "
+                f"{levers['C_static_fixers']['real_package_manager_cases']}, "
+                f"scratch import probe {levers['C_static_fixers']['scratch_import_failure_passed']}/"
+                f"{levers['C_static_fixers']['scratch_import_failure_cases']} | "
                 f"real corpus {levers['C_static_fixers']['real_corpus']} |"
             ),
             (

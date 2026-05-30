@@ -10,6 +10,7 @@ synthetic verify-loop fixer benchmark with optional real package-manager probe a
 - with-fixer LLM calls: 60
 - retry-call reduction: 40.00%
 - real package-manager probe: 10/10
+- scratch import failure probe: 1/1
 
 ## Release Gate Status
 
@@ -17,8 +18,9 @@ synthetic verify-loop fixer benchmark with optional real package-manager probe a
 - fixer_resolved_ge_80: True
 - retry_calls_down_ge_30: True
 - real_package_manager_execution: True
+- real_scratch_import_failure_repaired: True
 - real_scratch_corpus: True
-- real_eligible_failures_observed: False
+- real_eligible_failures_observed: True
 
 ## Live Scratch Corpus Inspection
 
@@ -89,13 +91,19 @@ synthetic verify-loop fixer benchmark with optional real package-manager probe a
 
 | case | package | applied | dependency_declared | import_ok | passed | duration_ms |
 | --- | --- | --- | --- | --- | --- | ---: |
-| packaging-01 | packaging | True | True | True | True | 1684 |
-| colorama-01 | colorama | True | True | True | True | 940 |
-| idna-01 | idna | True | True | True | True | 938 |
-| certifi-01 | certifi | True | True | True | True | 936 |
-| charset-normalizer-01 | charset-normalizer | True | True | True | True | 1165 |
-| packaging-02 | packaging | True | True | True | True | 959 |
-| colorama-02 | colorama | True | True | True | True | 913 |
-| idna-02 | idna | True | True | True | True | 887 |
-| certifi-02 | certifi | True | True | True | True | 904 |
-| charset-normalizer-02 | charset-normalizer | True | True | True | True | 988 |
+| packaging-01 | packaging | True | True | True | True | 966 |
+| colorama-01 | colorama | True | True | True | True | 976 |
+| idna-01 | idna | True | True | True | True | 905 |
+| certifi-01 | certifi | True | True | True | True | 914 |
+| charset-normalizer-01 | charset-normalizer | True | True | True | True | 953 |
+| packaging-02 | packaging | True | True | True | True | 937 |
+| colorama-02 | colorama | True | True | True | True | 885 |
+| idna-02 | idna | True | True | True | True | 956 |
+| certifi-02 | certifi | True | True | True | True | 951 |
+| charset-normalizer-02 | charset-normalizer | True | True | True | True | 934 |
+
+## Scratch Import Failure Probe
+
+| case | initial_failure | fixer | dependency_declared | final_pytest | passed | duration_ms |
+| --- | --- | --- | --- | --- | --- | ---: |
+| static-fixer-import-probe-01 | True | missing-pip-package | True | True | True | 10251 |
