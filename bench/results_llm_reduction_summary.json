@@ -93,7 +93,7 @@
       "present": true,
       "real_corpus": true,
       "warm_hit_rate": 1.0,
-      "warm_hits": 26,
+      "warm_hits": 50,
       "warm_misses": 0
     },
     "scratch_live_gate": {
@@ -174,7 +174,6 @@
   "summary": {
     "local_synthetic_gates_pass": true,
     "missing_release_evidence": [
-      "planner cache hit-rate measured across cold/warm real scratch runs",
       "real scratch LLM baseline for B/codegen pass-rate and latency",
       "SkillOpt human approval evidence >=80%"
     ],

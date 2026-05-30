@@ -4,14 +4,14 @@ cold/warm scratch planner cache measurement; this proves planner cache replay fo
 
 ## Summary
 
-- goals: 26
-- cold valid plans: 26
-- warm valid plans: 26
+- goals: 50
+- cold valid plans: 50
+- warm valid plans: 50
 - warm cache hit-rate: 100.00%
-- warm hits/misses: 26/0
-- cold cache puts: 26
-- selected corpus goals: 26/50
-- merged slices: 9
+- warm hits/misses: 50/0
+- cold cache puts: 50
+- selected corpus goals: 50/50
+- merged slices: 12
 
 ## Live Corpus Link
 
@@ -27,11 +27,7 @@ cold/warm scratch planner cache measurement; this proves planner cache replay fo
 - warm_plans_all_valid: True
 - cold_populated_cache: True
 - real_50_scratch_corpus: True
-- cold_warm_measured_on_50_real_scratches: False
-
-## Missing Release Evidence
-
-- planner cache hit-rate measured across cold/warm real scratch runs
+- cold_warm_measured_on_50_real_scratches: True
 
 ## Warm Cases
 
@@ -63,3 +59,27 @@ cold/warm scratch planner cache measurement; this proves planner cache replay fo
 | Build a FastAPI utility meter ingestion service with anomaly flags | True | 25 | 3 |
 | Build a FastAPI budget variance service with approval thresholds | True | 37 | 3 |
 | Build a FastAPI invoice dispute workflow with reviewer assignment | True | 18 | 2 |
+| Build a FastAPI procurement quote comparison service with scoring | True | 34 | 3 |
+| Build a FastAPI security patrol log service with geofence events | True | 38 | 2 |
+| Build a FastAPI elevator outage notification service with ETA updates | True | 25 | 2 |
+| Build a FastAPI pool access rule service with seasonal schedules | True | 43 | 2 |
+| Build a FastAPI guest parking permit service with plate validation | True | 15 | 2 |
+| Build a FastAPI storage locker assignment service with waitlist rules | True | 33 | 2 |
+| Build a FastAPI pet registration service with vaccine reminders | True | 16 | 2 |
+| Build a FastAPI move-in coordination service with deposit tracking | True | 31 | 2 |
+| Build a FastAPI architectural request review service with attachments | True | 21 | 2 |
+| Build a FastAPI violation notice workflow with appeal deadlines | True | 21 | 2 |
+| Build a FastAPI insurance claim tracker with status milestones | True | 27 | 2 |
+| Build a FastAPI emergency contact broadcast service with opt-out rules | True | 36 | 3 |
+| Build a FastAPI reserve study task service with funding categories | True | 16 | 2 |
+| Build a FastAPI janitorial route tracker with completion evidence | True | 14 | 2 |
+| Build a FastAPI landscaping issue queue with seasonal priorities | True | 22 | 2 |
+| Build a FastAPI snow removal dispatch service with weather holds | True | 47 | 2 |
+| Build a FastAPI energy usage report service with building comparisons | True | 32 | 3 |
+| Build a FastAPI noise complaint workflow with quiet-hour policies | True | 23 | 3 |
+| Build a FastAPI access camera incident log with retention controls | True | 25 | 3 |
+| Build a FastAPI owner portal preference service with language settings | True | 14 | 2 |
+| Build a FastAPI meeting agenda builder with attachment ordering | True | 28 | 2 |
+| Build a FastAPI contractor onboarding service with credential checks | True | 27 | 2 |
+| Build a FastAPI warranty inventory service with expiration alerts | True | 22 | 3 |
+| Build a FastAPI recurring assessment calculator with proration rules | True | 25 | 3 |

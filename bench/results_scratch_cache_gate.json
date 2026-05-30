@@ -209,22 +209,214 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-invoice-dispute-workflo",
       "tasks": 18
+    },
+    {
+      "duration_ms": 135475,
+      "goal": "Build a FastAPI procurement quote comparison service with scoring",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-procurement-quote-compa",
+      "tasks": 34
+    },
+    {
+      "duration_ms": 117040,
+      "goal": "Build a FastAPI security patrol log service with geofence events",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-security-patrol-log-ser",
+      "tasks": 38
+    },
+    {
+      "duration_ms": 143743,
+      "goal": "Build a FastAPI elevator outage notification service with ETA updates",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-elevator-outage-notific",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 160248,
+      "goal": "Build a FastAPI pool access rule service with seasonal schedules",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-pool-access-rule-servic",
+      "tasks": 43
+    },
+    {
+      "duration_ms": 37177,
+      "goal": "Build a FastAPI guest parking permit service with plate validation",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-guest-parking-permit-se",
+      "tasks": 15
+    },
+    {
+      "duration_ms": 191811,
+      "goal": "Build a FastAPI storage locker assignment service with waitlist rules",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-storage-locker-assignme",
+      "tasks": 33
+    },
+    {
+      "duration_ms": 53468,
+      "goal": "Build a FastAPI pet registration service with vaccine reminders",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-pet-registration-servic",
+      "tasks": 16
+    },
+    {
+      "duration_ms": 159321,
+      "goal": "Build a FastAPI move-in coordination service with deposit tracking",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-move-in-coordination-se",
+      "tasks": 31
+    },
+    {
+      "duration_ms": 73049,
+      "goal": "Build a FastAPI architectural request review service with attachments",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-architectural-request-r",
+      "tasks": 21
+    },
+    {
+      "duration_ms": 83356,
+      "goal": "Build a FastAPI violation notice workflow with appeal deadlines",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-violation-notice-workfl",
+      "tasks": 21
+    },
+    {
+      "duration_ms": 112875,
+      "goal": "Build a FastAPI insurance claim tracker with status milestones",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-insurance-claim-tracker",
+      "tasks": 27
+    },
+    {
+      "duration_ms": 134655,
+      "goal": "Build a FastAPI emergency contact broadcast service with opt-out rules",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-emergency-contact-broad",
+      "tasks": 36
+    },
+    {
+      "duration_ms": 31949,
+      "goal": "Build a FastAPI reserve study task service with funding categories",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-reserve-study-task-serv",
+      "tasks": 16
+    },
+    {
+      "duration_ms": 28828,
+      "goal": "Build a FastAPI janitorial route tracker with completion evidence",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-janitorial-route-tracke",
+      "tasks": 14
+    },
+    {
+      "duration_ms": 115685,
+      "goal": "Build a FastAPI landscaping issue queue with seasonal priorities",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-landscaping-issue-queue",
+      "tasks": 22
+    },
+    {
+      "duration_ms": 187151,
+      "goal": "Build a FastAPI snow removal dispatch service with weather holds",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-snow-removal-dispatch-s",
+      "tasks": 47
+    },
+    {
+      "duration_ms": 195613,
+      "goal": "Build a FastAPI energy usage report service with building comparisons",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-energy-usage-report-ser",
+      "tasks": 32
+    },
+    {
+      "duration_ms": 113967,
+      "goal": "Build a FastAPI noise complaint workflow with quiet-hour policies",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-noise-complaint-workflo",
+      "tasks": 23
+    },
+    {
+      "duration_ms": 138208,
+      "goal": "Build a FastAPI access camera incident log with retention controls",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-access-camera-incident",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 32412,
+      "goal": "Build a FastAPI owner portal preference service with language settings",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-owner-portal-preference",
+      "tasks": 14
+    },
+    {
+      "duration_ms": 153172,
+      "goal": "Build a FastAPI meeting agenda builder with attachment ordering",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-meeting-agenda-builder",
+      "tasks": 28
+    },
+    {
+      "duration_ms": 131024,
+      "goal": "Build a FastAPI contractor onboarding service with credential checks",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-contractor-onboarding-s",
+      "tasks": 27
+    },
+    {
+      "duration_ms": 83299,
+      "goal": "Build a FastAPI warranty inventory service with expiration alerts",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-warranty-inventory-serv",
+      "tasks": 22
+    },
+    {
+      "duration_ms": 100128,
+      "goal": "Build a FastAPI recurring assessment calculator with proration rules",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-recurring-assessment-ca",
+      "tasks": 25
     }
   ],
-  "cold_elapsed_s": 3544.557,
+  "cold_elapsed_s": 6258.225,
   "cold_stats": {
     "bust": false,
-    "bytes": 59933,
+    "bytes": 110007,
     "enabled": true,
-    "entries": 4,
+    "entries": 8,
     "hit_rate": 0.0,
     "hits": 0,
     "max_mb": 500,
-    "mb": 0.057,
-    "misses": 26,
-    "oldest_age_s": 351.521,
-    "puts": 26,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-22-25\\cache",
+    "mb": 0.105,
+    "misses": 50,
+    "oldest_age_s": 752.217,
+    "puts": 50,
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-42-49\\cache",
     "ttl_days": 30
   },
   "date": "2026-05-30",
@@ -248,14 +440,14 @@
   },
   "matrix": {
     "corpus_total_goals": 50,
-    "merged_slices": 9,
-    "selected_goals": 26
+    "merged_slices": 12,
+    "selected_goals": 50
   },
   "scope": "cold/warm scratch planner cache measurement; this proves planner cache replay for identical prompts. Optional live-gate input links the cache evidence to the shared real scratch release corpus without overstating the cold/warm sample size.",
   "stack": "py-fastapi",
   "summary": {
-    "cold_plans_valid": 26,
-    "cold_puts": 26,
+    "cold_plans_valid": 50,
+    "cold_puts": 50,
     "live_corpus": {
       "e2e_green": 75,
       "e2e_green_rate": 1.0,
@@ -269,21 +461,19 @@
       ],
       "total_runs": 75
     },
-    "missing_release_evidence": [
-      "planner cache hit-rate measured across cold/warm real scratch runs"
-    ],
+    "missing_release_evidence": [],
     "release_gates": {
       "cold_populated_cache": true,
-      "cold_warm_measured_on_50_real_scratches": false,
+      "cold_warm_measured_on_50_real_scratches": true,
       "real_50_scratch_corpus": true,
       "warm_hit_rate_ge_80": true,
       "warm_plans_all_valid": true
     },
-    "total_goals": 26,
+    "total_goals": 50,
     "warm_hit_rate": 1.0,
-    "warm_hits": 26,
+    "warm_hits": 50,
     "warm_misses": 0,
-    "warm_plans_valid": 26
+    "warm_plans_valid": 50
   },
   "warm_cases": [
     {
@@ -493,22 +683,214 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-invoice-dispute-workflo",
       "tasks": 18
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI procurement quote comparison service with scoring",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-procurement-quote-compa",
+      "tasks": 34
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI security patrol log service with geofence events",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-security-patrol-log-ser",
+      "tasks": 38
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI elevator outage notification service with ETA updates",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-elevator-outage-notific",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI pool access rule service with seasonal schedules",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-pool-access-rule-servic",
+      "tasks": 43
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI guest parking permit service with plate validation",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-guest-parking-permit-se",
+      "tasks": 15
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI storage locker assignment service with waitlist rules",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-storage-locker-assignme",
+      "tasks": 33
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI pet registration service with vaccine reminders",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-pet-registration-servic",
+      "tasks": 16
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI move-in coordination service with deposit tracking",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-move-in-coordination-se",
+      "tasks": 31
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI architectural request review service with attachments",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-architectural-request-r",
+      "tasks": 21
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI violation notice workflow with appeal deadlines",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-violation-notice-workfl",
+      "tasks": 21
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI insurance claim tracker with status milestones",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-insurance-claim-tracker",
+      "tasks": 27
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI emergency contact broadcast service with opt-out rules",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-emergency-contact-broad",
+      "tasks": 36
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI reserve study task service with funding categories",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-reserve-study-task-serv",
+      "tasks": 16
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI janitorial route tracker with completion evidence",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-janitorial-route-tracke",
+      "tasks": 14
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI landscaping issue queue with seasonal priorities",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-landscaping-issue-queue",
+      "tasks": 22
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI snow removal dispatch service with weather holds",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-snow-removal-dispatch-s",
+      "tasks": 47
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI energy usage report service with building comparisons",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-energy-usage-report-ser",
+      "tasks": 32
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI noise complaint workflow with quiet-hour policies",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-noise-complaint-workflo",
+      "tasks": 23
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI access camera incident log with retention controls",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-access-camera-incident",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI owner portal preference service with language settings",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-owner-portal-preference",
+      "tasks": 14
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI meeting agenda builder with attachment ordering",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-meeting-agenda-builder",
+      "tasks": 28
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI contractor onboarding service with credential checks",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-contractor-onboarding-s",
+      "tasks": 27
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI warranty inventory service with expiration alerts",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-warranty-inventory-serv",
+      "tasks": 22
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI recurring assessment calculator with proration rules",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-recurring-assessment-ca",
+      "tasks": 25
     }
   ],
-  "warm_elapsed_s": 0.088,
+  "warm_elapsed_s": 0.161,
   "warm_stats": {
     "bust": false,
-    "bytes": 59933,
+    "bytes": 110007,
     "enabled": true,
-    "entries": 4,
+    "entries": 8,
     "hit_rate": 1.0,
-    "hits": 26,
+    "hits": 50,
     "max_mb": 500,
-    "mb": 0.057,
+    "mb": 0.105,
     "misses": 0,
-    "oldest_age_s": 351.535,
+    "oldest_age_s": 752.243,
     "puts": 0,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-22-25\\cache",
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-42-49\\cache",
     "ttl_days": 30
   }
 }
