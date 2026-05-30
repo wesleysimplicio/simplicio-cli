@@ -1,9 +1,9 @@
 # Execution benchmark — real project, real tasks, real test suite
 
-Date: **2026-05-29**  
+Date: **2026-05-30**  
 Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico) — a real condominium-management system in pure PHP 8 (public on GitHub, PHPUnit 11)  
-Models: `Qwen/Qwen3-Coder-30B-A3B-Instruct`, `Qwen/Qwen3-Coder-Next`  
-Tasks: **12** additive real-engineering changes across `src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing.
+Models: `meta-llama/llama-3.2-3b-instruct`  
+Tasks: **1** additive real-engineering changes across `src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing.
 
 ## Methodology — what "pass" actually means
 
@@ -22,38 +22,26 @@ All sides emit the complete file (identical output shape); the only variable is 
 - **baseline**: raw goal + current file content
 - **simplicio-cli**: the 6-layer task contract (role/stack, goal, target, criteria as testable states, constraints, output shape)
 - **simplicio-cli + simplicio-prompt (composition)**: the Tuple-Space + Yool runtime template from simplicio-prompt wrapping the simplicio-cli 6-layer contract as user input X. Measures whether the runtime adds value ON TOP of an already-sharp 6-layer prompt — not whether sp alone beats raw goal.
-- **simplicio-cli + agents (verify-loop)**: same 6-layer contract, but on failure the harness feeds the PHPUnit tail back as classified retry feedback (syntax/assertion/runtime/etc.) and re-prompts up to 3 attempts — the exact loop shipped in `simplicio task --verify` (`simplicio/pipeline.py`).
+- **simplicio-cli + agents (verify-loop)**: same 6-layer contract, but on failure the harness feeds the PHPUnit tail back as classified retry feedback (syntax/assertion/runtime/etc.) and re-prompts up to 2 attempts — the exact loop shipped in `simplicio task --verify` (`simplicio/pipeline.py`).
 
 ## Headline
 
-- **Baseline:** 10/24 (41%)
-- **simplicio-cli (6-layer):** 21/24 (87%) — **+46 pts vs baseline**
-- **simplicio-cli + simplicio-prompt (composition):** 21/24 (87%) — **+46 pts vs baseline · +0 pts vs cli alone**
-- **simplicio-cli + agents (verify-loop):** 22/24 (91%) — **+50 pts vs baseline · +4 pts vs cli alone**
+- **Baseline:** 0/1 (0%)
+- **simplicio-cli (6-layer):** 0/1 (0%) — **+0 pts vs baseline**
+- **simplicio-cli + simplicio-prompt (composition):** 0/1 (0%) — **+0 pts vs baseline · +0 pts vs cli alone**
+- **simplicio-cli + agents (verify-loop):** 0/1 (0%) — **+0 pts vs baseline · +0 pts vs cli alone**
 
 ## Per-model (pass = full PHPUnit suite green)
 
 | Model | Baseline | cli alone | cli + sp | cli + ag | D cli | D (cli+sp) | D (cli+ag) |
 |---|---|---|---|---|---|---|---|
-| `Qwen/Qwen3-Coder-30B-A3B-Instruct` | 4/12 (33%) | 11/12 (91%) | 11/12 (91%) | 11/12 (91%) | **+58** | **+58** | **+58** |
-| `Qwen/Qwen3-Coder-Next` | 6/12 (50%) | 10/12 (83%) | 10/12 (83%) | 11/12 (91%) | **+33** | **+33** | **+41** |
+| `meta-llama/llama-3.2-3b-instruct` | 0/1 (0%) | 0/1 (0%) | 0/1 (0%) | 0/1 (0%) | **+0** | **+0** | **+0** |
 
 ## Per-task × model (baseline / cli / cli+sp / cli+ag)
 
-| Task | Qwen3-Coder-30B-A3B-Instruct | Qwen3-Coder-Next |
-|---|---|---|
-| password_strength | ./P/P/P(1) | ./P/P/P(1) |
-| password_require_symbol | ./././.(3) | ./P/./P(1) |
-| env_get_int | ./P/P/P(1) | P/P/P/P(1) |
-| env_get_bool | ./P/P/P(1) | ././P/P(1) |
-| admin_only_allowed_roles | P/P/P/P(1) | P/P/P/P(1) |
-| rate_limit_bucket_key | ./P/P/P(1) | ./P/P/P(1) |
-| base_repository_build_where_sql | ./P/P/P(1) | ./P/P/P(1) |
-| router_has | ./P/P/P(1) | P/P/P/P(1) |
-| bugfix_password_policy_lowercase | P/P/P/P(1) | P/P/./P(1) |
-| password_assess | P/P/P/P(1) | P/P/P/P(1) |
-| base_repository_build_update_sql | ./P/P/P(1) | ././P/.(3) |
-| router_extract_params | P/P/P/P(1) | P/P/P/P(1) |
+| Task | llama-3.2-3b-instruct |
+|---|---|
+| password_strength | ./././.(2) |
 
 Format suffix `(N)` on cli+ag is the number of verify-loop attempts consumed (1–3). Lower is better; 1 means it passed on the first try, no feedback needed.
 
