@@ -16,8 +16,10 @@ the runtime as prompt text), and the question we're answering is "does
 sp-default 64 buy you anything over single? does 200 buy you more than 64?".
 
 Usage:
-  OPENROUTER_API_KEY=sk-or-... python3 bench/run_fanout.py
+  BENCH_SINDICO_SRC=/path/to/sistema-sindico \
+    OPENROUTER_API_KEY=sk-or-... python3 bench/run_fanout.py
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -36,15 +38,15 @@ from kernel.providers import LLMProvider, resolve_provider_config
 from kernel.subagent_runtime import SubagentRuntime
 
 ROOT = Path(__file__).resolve().parent.parent
-SINDICO_SRC = Path("/tmp/sindico")
-WORK = Path("/tmp/sindico_work_fanout")
+SINDICO_SRC = Path(os.environ.get("BENCH_SINDICO_SRC", "/tmp/sindico"))
+WORK = Path(os.environ.get("BENCH_SINDICO_WORK", "/tmp/sindico_work_fanout"))
 RESULTS_JSON = ROOT / "bench" / "results_fanout.json"
 RESULTS_MD = ROOT / "bench" / "results_fanout.md"
 RESULTS_PDF = ROOT / "bench" / "results_fanout.pdf"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import run_offline as ro  # _lat1
-from sindico_cases import CASES, REGEX_CHECKS_BY_TASK
+import run_offline as ro  # noqa: E402  # _lat1
+from sindico_cases import CASES, REGEX_CHECKS_BY_TASK  # noqa: E402
 
 # ---- model -> endpoint table (HF for the served Qwen Coders, OR for the rest) ---- #
 # Each entry: provider preset, env var holding the API key, optional base_url
@@ -57,30 +59,48 @@ QWEN3_CODER_DEFAULTS = (
 
 MODEL_ENDPOINTS: dict[str, dict] = {
     "Qwen/Qwen3-Coder-30B-A3B-Instruct": {
-        "preset": None, "base_url": HF_ROUTER_BASE_URL,
-        "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
+        "preset": None,
+        "base_url": HF_ROUTER_BASE_URL,
+        "env_key": "HF_TOKEN",
+        "prompt_cost": 0.0,
+        "completion_cost": 0.0,
     },
     "Qwen/Qwen3-Coder-Next": {
-        "preset": None, "base_url": HF_ROUTER_BASE_URL,
-        "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
+        "preset": None,
+        "base_url": HF_ROUTER_BASE_URL,
+        "env_key": "HF_TOKEN",
+        "prompt_cost": 0.0,
+        "completion_cost": 0.0,
     },
     # Legacy Qwen2.5 Coder entries stay available for fallback and historical
     # comparison runs, but they are no longer part of the default fan-out set.
     "Qwen/Qwen2.5-Coder-3B-Instruct": {
-        "preset": None, "base_url": HF_ROUTER_BASE_URL,
-        "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
+        "preset": None,
+        "base_url": HF_ROUTER_BASE_URL,
+        "env_key": "HF_TOKEN",
+        "prompt_cost": 0.0,
+        "completion_cost": 0.0,
     },
     "Qwen/Qwen2.5-Coder-7B-Instruct": {
-        "preset": None, "base_url": HF_ROUTER_BASE_URL,
-        "env_key": "HF_TOKEN", "prompt_cost": 0.0, "completion_cost": 0.0,
+        "preset": None,
+        "base_url": HF_ROUTER_BASE_URL,
+        "env_key": "HF_TOKEN",
+        "prompt_cost": 0.0,
+        "completion_cost": 0.0,
     },
     "meta-llama/llama-3.1-8b-instruct": {
-        "preset": "openrouter", "base_url": None,
-        "env_key": "OPENROUTER_API_KEY", "prompt_cost": 0.06, "completion_cost": 0.06,
+        "preset": "openrouter",
+        "base_url": None,
+        "env_key": "OPENROUTER_API_KEY",
+        "prompt_cost": 0.06,
+        "completion_cost": 0.06,
     },
     "google/gemini-3.5-flash": {
-        "preset": "openrouter", "base_url": None,
-        "env_key": "OPENROUTER_API_KEY", "prompt_cost": 0.075, "completion_cost": 0.30,
+        "preset": "openrouter",
+        "base_url": None,
+        "env_key": "OPENROUTER_API_KEY",
+        "prompt_cost": 0.075,
+        "completion_cost": 0.30,
     },
 }
 
@@ -118,7 +138,9 @@ def regex_score(code: str, patterns: list[str]) -> tuple[int, int]:
     """Return (matched, total) for the list of regex checks against `code`."""
     if not patterns:
         return 0, 0
-    matched = sum(1 for p in patterns if re.search(p, code, re.IGNORECASE | re.MULTILINE))
+    matched = sum(
+        1 for p in patterns if re.search(p, code, re.IGNORECASE | re.MULTILINE)
+    )
     return matched, len(patterns)
 
 
@@ -148,7 +170,8 @@ def normalize(code: str) -> str:
     out, blank = [], False
     for ln in lines:
         if ln == "":
-            if blank: continue
+            if blank:
+                continue
             blank = True
         else:
             blank = False
@@ -200,7 +223,10 @@ def run_phpunit(target_rel: str, code: str) -> bool:
     try:
         p = subprocess.run(
             ["vendor/bin/phpunit", "--configuration", "phpunit.xml.dist"],
-            cwd=WORK, capture_output=True, text=True, timeout=60,
+            cwd=WORK,
+            capture_output=True,
+            text=True,
+            timeout=60,
         )
     except subprocess.TimeoutExpired:
         return False
@@ -219,15 +245,18 @@ def majority(codes: list[str]) -> tuple[str | None, int]:
 
 # ---- main runner ---- #
 
-def fanout_at(n: int, case: dict, runtime: SubagentRuntime,
-              file_content: str, model_id: str) -> dict:
+
+def fanout_at(
+    n: int, case: dict, runtime: SubagentRuntime, file_content: str, model_id: str
+) -> dict:
     user_prompt = build_prompt(case, file_content)
     prompts = [{"system": CLI_SYSTEM, "prompt": user_prompt} for _ in range(n)]
     # use_cache=False so every subagent is an independent provider call (the
     # kernel's ReceiptCache otherwise replays identical-prompt responses and
     # collapses the modal distribution we're measuring).
-    report = runtime.run(task=f"impl {case['id']}", subagents=n, prompts=prompts,
-                         use_cache=False)
+    report = runtime.run(
+        task=f"impl {case['id']}", subagents=n, prompts=prompts, use_cache=False
+    )
     codes = [extract_php(r.text) for r in report.results if r.ok]
     # functional scoring: real phpunit on every subagent's solution
     fn_passes = sum(run_phpunit(case["target"], c) for c in codes)
@@ -246,14 +275,17 @@ def fanout_at(n: int, case: dict, runtime: SubagentRuntime,
     maj_fn_pass = run_phpunit(case["target"], maj_code) if maj_code else False
     if maj_code:
         m, t = regex_score(maj_code, rx_patterns)
-        maj_rx_full_pass = (t > 0 and m == t)
+        maj_rx_full_pass = t > 0 and m == t
         maj_rx_pct = 100 * m // max(t, 1)
     else:
         maj_rx_full_pass, maj_rx_pct = False, 0
     uniques = len({code_hash(c) for c in codes})
     out = {
-        "model": model_id, "task": case["id"], "n": n,
-        "completed": report.completed, "failed": report.failed,
+        "model": model_id,
+        "task": case["id"],
+        "n": n,
+        "completed": report.completed,
+        "failed": report.failed,
         # functional metric (real phpunit)
         "fn_per_attempt_pass": fn_passes,
         "fn_per_attempt_rate": 100 * fn_passes // max(report.completed, 1),
@@ -291,19 +323,27 @@ def run() -> int:
     setup_workspace_base()
     models_str = os.environ.get(
         "BENCH_FANOUT_MODELS",
-        ",".join((
-            *QWEN3_CODER_DEFAULTS,
-            "meta-llama/llama-3.1-8b-instruct",
-            "google/gemini-3.5-flash",
-        )),
+        ",".join(
+            (
+                *QWEN3_CODER_DEFAULTS,
+                "meta-llama/llama-3.1-8b-instruct",
+                "google/gemini-3.5-flash",
+            )
+        ),
     )
     models = [m.strip() for m in models_str.split(",") if m.strip()]
     ns_str = os.environ.get("BENCH_FANOUT_NS", "200")
     ns = [int(x) for x in ns_str.split(",") if x.strip()]
     task_filter = os.environ.get("BENCH_FANOUT_TASKS", "").strip()
-    tasks = CASES if not task_filter else [c for c in CASES if c["id"] in task_filter.split(",")]
-    print(f"fanout benchmark: temp=0.7 N={ns} "
-          f"models={len(models)} tasks={len(tasks)}", flush=True)
+    tasks = (
+        CASES
+        if not task_filter
+        else [c for c in CASES if c["id"] in task_filter.split(",")]
+    )
+    print(
+        f"fanout benchmark: temp=0.7 N={ns} models={len(models)} tasks={len(tasks)}",
+        flush=True,
+    )
 
     # Resume from a checkpoint: skip (model, task, N) tuples already in
     # results_fanout.json so a killed/restarted matrix doesn't redo paid work.
@@ -311,13 +351,19 @@ def run() -> int:
     if RESULTS_JSON.exists():
         try:
             saved = json.loads(RESULTS_JSON.read_text()).get("rows", [])
-            rows = [r for r in saved
-                    if r.get("model") in models
-                    and r.get("task") in {c["id"] for c in tasks}
-                    and r.get("n") in ns]
+            rows = [
+                r
+                for r in saved
+                if r.get("model") in models
+                and r.get("task") in {c["id"] for c in tasks}
+                and r.get("n") in ns
+            ]
             if rows:
-                print(f"resuming: {len(rows)} fanouts already in checkpoint, "
-                      f"skipping those", flush=True)
+                print(
+                    f"resuming: {len(rows)} fanouts already in checkpoint, "
+                    f"skipping those",
+                    flush=True,
+                )
         except Exception as e:
             print(f"checkpoint unreadable ({e}), starting fresh", flush=True)
 
@@ -336,8 +382,10 @@ def run() -> int:
             file_content = install_case(case)
             for n in ns:
                 if (model_id, case["id"], n) in done:
-                    print(f"  N={n:<4d} {case['id']:<33s} [skip - already in checkpoint]",
-                          flush=True)
+                    print(
+                        f"  N={n:<4d} {case['id']:<33s} [skip - already in checkpoint]",
+                        flush=True,
+                    )
                     continue
                 rows.append(fanout_at(n, case, runtime, file_content, model_id))
                 RESULTS_JSON.write_text(json.dumps({"rows": rows}, indent=2))
@@ -355,9 +403,12 @@ def _group_by_task(rows: list[dict]) -> dict:
 
 def _filter(rows: list[dict], *, model=None, n=None, task=None) -> list[dict]:
     out = rows
-    if model is not None: out = [r for r in out if r["model"] == model]
-    if n is not None: out = [r for r in out if r["n"] == n]
-    if task is not None: out = [r for r in out if r["task"] == task]
+    if model is not None:
+        out = [r for r in out if r["model"] == model]
+    if n is not None:
+        out = [r for r in out if r["n"] == n]
+    if task is not None:
+        out = [r for r in out if r["task"] == task]
     return out
 
 
@@ -372,16 +423,23 @@ def _agg(rows: list[dict]) -> dict:
     cost = sum(r["cost_usd"] for r in rows)
     elapsed = sum(r["elapsed_s"] for r in rows)
     return {
-        "rows": len(rows), "completed": completed,
-        "fn_pass": fn_pass, "fn_pct": 100 * fn_pass // max(completed, 1),
-        "rx_full": rx_full, "rx_pct": 100 * rx_full // max(completed, 1),
-        "fn_modal": fn_modal, "rx_modal": rx_modal,
-        "tokens": tokens, "cost": cost, "elapsed": elapsed,
+        "rows": len(rows),
+        "completed": completed,
+        "fn_pass": fn_pass,
+        "fn_pct": 100 * fn_pass // max(completed, 1),
+        "rx_full": rx_full,
+        "rx_pct": 100 * rx_full // max(completed, 1),
+        "fn_modal": fn_modal,
+        "rx_modal": rx_modal,
+        "tokens": tokens,
+        "cost": cost,
+        "elapsed": elapsed,
     }
 
 
-def write_reports(models: list[str], tasks: list[dict], ns: list[int],
-                  rows: list[dict]) -> None:
+def write_reports(
+    models: list[str], tasks: list[dict], ns: list[int], rows: list[dict]
+) -> None:
     by_task = _group_by_task(rows)
     n_tasks = len(by_task)
     task_ids = [c["id"] for c in tasks]
@@ -390,14 +448,16 @@ def write_reports(models: list[str], tasks: list[dict], ns: list[int],
         "# Fan-out benchmark — regex vs functional, 4 models × N ∈ {64, 200, 600}",
         "",
         f"Date: **{time.strftime('%Y-%m-%d')}**  ",
-        f"Engine: `kernel.subagent_runtime.SubagentRuntime` from "
+        "Engine: `kernel.subagent_runtime.SubagentRuntime` from "
         "simplicio-prompt v1.7.0 (PyPI) · `use_cache=False` (every subagent "
         "is an independent provider call) · `temperature=0.7` (induces real "
         "per-call variance).  ",
-        f"Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico) "
+        "Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico) "
         "— real PHP 8 condominium system on GitHub.  ",
-        f"Models: " + ", ".join(f"`{m}`" for m in models) + "  ",
-        f"N values: " + ", ".join(f"**{n}**" + (" *(sp default)*" if n == 64 else "") for n in ns) + "  ",
+        "Models: " + ", ".join(f"`{m}`" for m in models) + "  ",
+        "N values: "
+        + ", ".join(f"**{n}**" + (" *(sp default)*" if n == 64 else "") for n in ns)
+        + "  ",
         f"Tasks: **{n_tasks}** real engineering changes across "
         "`src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing "
         "(includes one bug-fix task that scores against the existing "
@@ -443,12 +503,16 @@ def write_reports(models: list[str], tasks: list[dict], ns: list[int],
                 f"{a['fn_modal']}/{a['rows']} | "
                 f"{a['rx_modal']}/{a['rows']} | "
                 f"{a['tokens']:,} | ${a['cost']:.4f} | "
-                f"{a['elapsed']/max(a['rows'],1):.1f}s |"
+                f"{a['elapsed'] / max(a['rows'], 1):.1f}s |"
             )
 
-    md += ["", "## Per N (aggregate across all models)", "",
-           "| N | fn per-attempt | rx per-attempt | fn-vs-rx gap | fn modal | rx modal |",
-           "|---|---|---|---|---|---|"]
+    md += [
+        "",
+        "## Per N (aggregate across all models)",
+        "",
+        "| N | fn per-attempt | rx per-attempt | fn-vs-rx gap | fn modal | rx modal |",
+        "|---|---|---|---|---|---|",
+    ]
     for n in ns:
         a = _agg(_filter(rows, n=n))
         gap = a["rx_pct"] - a["fn_pct"]
@@ -461,32 +525,41 @@ def write_reports(models: list[str], tasks: list[dict], ns: list[int],
             f"{a['rx_modal']}/{a['rows']} |"
         )
 
-    md += ["",
-           "## Regex-vs-functional disagreement (per task, averaged across models × N)",
-           "",
-           "When the regex score is much higher than phpunit (positive gap), "
-           "regex is a **false positive** — the code looks right but doesn't "
-           "actually pass. When phpunit is higher, regex misses real wins.",
-           "",
-           "| Task | fn per-attempt | rx per-attempt | gap (rx − fn) |",
-           "|---|---|---|---|"]
+    md += [
+        "",
+        "## Regex-vs-functional disagreement (per task, averaged across models × N)",
+        "",
+        "When the regex score is much higher than phpunit (positive gap), "
+        "regex is a **false positive** — the code looks right but doesn't "
+        "actually pass. When phpunit is higher, regex misses real wins.",
+        "",
+        "| Task | fn per-attempt | rx per-attempt | gap (rx − fn) |",
+        "|---|---|---|---|",
+    ]
     for tid in task_ids:
         a = _agg(_filter(rows, task=tid))
         gap = a["rx_pct"] - a["fn_pct"]
         flag = ""
-        if gap >= 20: flag = " ⚠️ regex inflates"
-        elif gap <= -20: flag = " ⚠️ regex misses"
+        if gap >= 20:
+            flag = " ⚠️ regex inflates"
+        elif gap <= -20:
+            flag = " ⚠️ regex misses"
         md.append(f"| `{tid}` | {a['fn_pct']}% | {a['rx_pct']}% | **{gap:+d}**{flag} |")
 
-    md += ["",
-           "## Per-task × model × N detail",
-           "",
-           "Format: `fn% / rx% / fn-modal-pass`. P = phpunit modal PASS, . = fail.",
-           ""]
+    md += [
+        "",
+        "## Per-task × model × N detail",
+        "",
+        "Format: `fn% / rx% / fn-modal-pass`. P = phpunit modal PASS, . = fail.",
+        "",
+    ]
     for tid in task_ids:
-        md += [f"### `{tid}`", "",
-               "| Model \\\\ N | " + " | ".join(str(n) for n in ns) + " |",
-               "|---|" + "|".join("---" for _ in ns) + "|"]
+        md += [
+            f"### `{tid}`",
+            "",
+            "| Model \\\\ N | " + " | ".join(str(n) for n in ns) + " |",
+            "|---|" + "|".join("---" for _ in ns) + "|",
+        ]
         for m in models:
             cells = []
             for n in ns:
@@ -496,8 +569,10 @@ def write_reports(models: list[str], tasks: list[dict], ns: list[int],
                     continue
                 r = sub[0]
                 fnp = "P" if r["fn_majority_pass"] else "."
-                cells.append(f"{r['fn_per_attempt_rate']:>3d}% / "
-                             f"{r['rx_full_pass_rate']:>3d}% / {fnp}")
+                cells.append(
+                    f"{r['fn_per_attempt_rate']:>3d}% / "
+                    f"{r['rx_full_pass_rate']:>3d}% / {fnp}"
+                )
             md.append(f"| `{m.split('/')[-1]}` | " + " | ".join(cells) + " |")
         md.append("")
 
@@ -506,67 +581,108 @@ def write_reports(models: list[str], tasks: list[dict], ns: list[int],
     _pdf(models, tasks, ns, rows)
 
 
-def _pdf(models: list[str], tasks: list[dict], ns: list[int],
-         rows: list[dict]) -> None:
+def _pdf(models: list[str], tasks: list[dict], ns: list[int], rows: list[dict]) -> None:
     try:
         from fpdf import FPDF
     except ImportError:
         print("[warn] fpdf2 not installed; skipping PDF")
         return
     pdf = FPDF(unit="mm", format="A4")
-    pdf.set_auto_page_break(auto=True, margin=15); pdf.set_margins(15, 15, 15)
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_margins(15, 15, 15)
     L = ro._lat1
 
-    def h1(t): pdf.set_font("Helvetica", "B", 15); pdf.multi_cell(0, 8, L(t)); pdf.ln(1)
-    def h2(t): pdf.set_font("Helvetica", "B", 12); pdf.multi_cell(0, 7, L(t)); pdf.ln(1)
-    def p(t): pdf.set_font("Helvetica", "", 9); pdf.multi_cell(0, 5, L(t)); pdf.ln(1)
+    def h1(t):
+        pdf.set_font("Helvetica", "B", 15)
+        pdf.multi_cell(0, 8, L(t))
+        pdf.ln(1)
+
+    def h2(t):
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.multi_cell(0, 7, L(t))
+        pdf.ln(1)
+
+    def p(t):
+        pdf.set_font("Helvetica", "", 9)
+        pdf.multi_cell(0, 5, L(t))
+        pdf.ln(1)
+
     def th(cols, w):
-        pdf.set_font("Helvetica", "B", 9); pdf.set_fill_color(230, 230, 230)
-        for c, x in zip(cols, w): pdf.cell(x, 6, L(c), border=1, fill=True)
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.set_fill_color(230, 230, 230)
+        for c, x in zip(cols, w):
+            pdf.cell(x, 6, L(c), border=1, fill=True)
         pdf.ln()
+
     def tr(cells, w):
         pdf.set_font("Helvetica", "", 9)
-        for c, x in zip(cells, w): pdf.cell(x, 6, L(c), border=1)
+        for c, x in zip(cells, w):
+            pdf.cell(x, 6, L(c), border=1)
         pdf.ln()
 
     task_ids = [c["id"] for c in tasks]
 
     pdf.add_page()
     h1("Fan-out - regex vs functional on sistema-sindico")
-    p(f"Date: {time.strftime('%Y-%m-%d')}   Models: {len(models)}   "
-      f"Tasks: {len(tasks)}   N values: {', '.join(str(n) for n in ns)}   "
-      f"temperature: 0.7   use_cache: False")
-    p("Engine: kernel.subagent_runtime.SubagentRuntime (PyPI simplicio-prompt "
-      "1.7.0). For each (model, task, N), N real parallel LLM calls through "
-      "LaneWorkerPool; each output scored TWO ways: real PHPUnit (functional) "
-      "and a regex pattern match (structural cheap proxy). The comparison "
-      "shows where regex agrees with phpunit (cheap proxy works) and where "
-      "regex inflates a pass that phpunit fails (regex is misleading).")
+    p(
+        f"Date: {time.strftime('%Y-%m-%d')}   Models: {len(models)}   "
+        f"Tasks: {len(tasks)}   N values: {', '.join(str(n) for n in ns)}   "
+        f"temperature: 0.7   use_cache: False"
+    )
+    p(
+        "Engine: kernel.subagent_runtime.SubagentRuntime (PyPI simplicio-prompt "
+        "1.7.0). For each (model, task, N), N real parallel LLM calls through "
+        "LaneWorkerPool; each output scored TWO ways: real PHPUnit (functional) "
+        "and a regex pattern match (structural cheap proxy). The comparison "
+        "shows where regex agrees with phpunit (cheap proxy works) and where "
+        "regex inflates a pass that phpunit fails (regex is misleading)."
+    )
     pdf.ln(1)
 
     h2("Per (model, N) headline")
-    th(["Model", "N", "fn per-att", "rx per-att", "fn modal", "rx modal", "Cost"],
-       [56, 14, 30, 30, 22, 22, 22])
+    th(
+        ["Model", "N", "fn per-att", "rx per-att", "fn modal", "rx modal", "Cost"],
+        [56, 14, 30, 30, 22, 22, 22],
+    )
     for m in models:
         for n in ns:
             sub = _filter(rows, model=m, n=n)
-            if not sub: continue
+            if not sub:
+                continue
             a = _agg(sub)
-            tr([m, str(n),
-                f"{a['fn_pct']}%", f"{a['rx_pct']}%",
-                f"{a['fn_modal']}/{a['rows']}", f"{a['rx_modal']}/{a['rows']}",
-                f"${a['cost']:.4f}"], [56, 14, 30, 30, 22, 22, 22])
+            tr(
+                [
+                    m,
+                    str(n),
+                    f"{a['fn_pct']}%",
+                    f"{a['rx_pct']}%",
+                    f"{a['fn_modal']}/{a['rows']}",
+                    f"{a['rx_modal']}/{a['rows']}",
+                    f"${a['cost']:.4f}",
+                ],
+                [56, 14, 30, 30, 22, 22, 22],
+            )
     pdf.ln(2)
 
     h2("Per N (all models)")
-    th(["N", "fn per-att", "rx per-att", "gap", "fn modal", "rx modal"],
-       [22, 32, 32, 22, 32, 32])
+    th(
+        ["N", "fn per-att", "rx per-att", "gap", "fn modal", "rx modal"],
+        [22, 32, 32, 22, 32, 32],
+    )
     for n in ns:
         a = _agg(_filter(rows, n=n))
         gap = a["rx_pct"] - a["fn_pct"]
-        tr([str(n), f"{a['fn_pct']}%", f"{a['rx_pct']}%", f"{gap:+d}",
-            f"{a['fn_modal']}/{a['rows']}", f"{a['rx_modal']}/{a['rows']}"],
-           [22, 32, 32, 22, 32, 32])
+        tr(
+            [
+                str(n),
+                f"{a['fn_pct']}%",
+                f"{a['rx_pct']}%",
+                f"{gap:+d}",
+                f"{a['fn_modal']}/{a['rows']}",
+                f"{a['rx_modal']}/{a['rows']}",
+            ],
+            [22, 32, 32, 22, 32, 32],
+        )
     pdf.ln(2)
 
     h2("Regex vs phpunit gap per task")
@@ -574,21 +690,28 @@ def _pdf(models: list[str], tasks: list[dict], ns: list[int],
     for tid in task_ids:
         a = _agg(_filter(rows, task=tid))
         gap = a["rx_pct"] - a["fn_pct"]
-        if gap >= 20: verdict = "regex INFLATES (false positive)"
-        elif gap <= -20: verdict = "regex misses real wins"
-        else: verdict = "regex agrees with phpunit"
-        tr([tid, f"{a['fn_pct']}%", f"{a['rx_pct']}%", f"{gap:+d}", verdict],
-           [60, 22, 22, 28, 50])
+        if gap >= 20:
+            verdict = "regex INFLATES (false positive)"
+        elif gap <= -20:
+            verdict = "regex misses real wins"
+        else:
+            verdict = "regex agrees with phpunit"
+        tr(
+            [tid, f"{a['fn_pct']}%", f"{a['rx_pct']}%", f"{gap:+d}", verdict],
+            [60, 22, 22, 28, 50],
+        )
 
     pdf.ln(2)
     h2("Interpretation")
-    p("Functional (fn) = real phpunit exit code 0 on the FULL sindico suite "
-      "including the per-case hidden test (or, for the bug-fix task, the "
-      "existing PasswordPolicyTest). Regex (rx) = 'every structural pattern "
-      "matched' on the generated file (per-task patterns in "
-      "REGEX_CHECKS_BY_TASK). Where rx >> fn the regex metric inflates "
-      "results -- code looks right but doesn't run; where they agree, regex "
-      "is a usable cheap proxy.")
+    p(
+        "Functional (fn) = real phpunit exit code 0 on the FULL sindico suite "
+        "including the per-case hidden test (or, for the bug-fix task, the "
+        "existing PasswordPolicyTest). Regex (rx) = 'every structural pattern "
+        "matched' on the generated file (per-task patterns in "
+        "REGEX_CHECKS_BY_TASK). Where rx >> fn the regex metric inflates "
+        "results -- code looks right but doesn't run; where they agree, regex "
+        "is a usable cheap proxy."
+    )
     pdf.output(str(RESULTS_PDF))
     print(f"-> {RESULTS_PDF}")
 

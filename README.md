@@ -309,7 +309,9 @@ The install ships **three Simplicio packages** that play distinct roles:
   (`bench/run_fanout.py`) measures both real PHPUnit pass-rate and a
   structural regex check on every subagent and surfaces the gap; full
   ongoing numbers in [`bench/results_fanout.md`](bench/results_fanout.md) ·
-  [`bench/results_fanout.pdf`](bench/results_fanout.pdf).
+  [`bench/results_fanout.pdf`](bench/results_fanout.pdf). Set
+  `BENCH_SINDICO_SRC` / `BENCH_SINDICO_WORK` when the local
+  `sistema-sindico` checkout and work copy are not under `/tmp`.
 
 Each is independently published on PyPI; ship them as a set so the CLI's
 mapper-rich precedent ranking, contract-shaped prompts, and (when called
