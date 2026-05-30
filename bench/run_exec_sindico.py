@@ -50,6 +50,7 @@ MODELS = [
 PHPUNIT_TIMEOUT = int(os.environ.get("BENCH_PHPUNIT_TIMEOUT", "60"))
 INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "0").strip() not in ("0", "false", "False")
 INCLUDE_AGENTS = os.environ.get("BENCH_INCLUDE_AGENTS", "1").strip() not in ("0", "false", "False")
+INCLUDE_SP_AG = os.environ.get("BENCH_INCLUDE_SP_AG", "0").strip() not in ("0", "false", "False")
 AGENTS_MAX_ATTEMPTS = int(os.environ.get("BENCH_AGENTS_MAX_ATTEMPTS", "3"))
 
 # Per-model endpoint routing: lets one batch mix HuggingFace router models
@@ -325,7 +326,7 @@ def run() -> int:
         _route_for(model)
         print(f"=== {model} (endpoint: {ro.BASE_URL}) ===")
         rows = []
-        sem_pass = com_pass = sp_pass = ag_pass = 0
+        sem_pass = com_pass = sp_pass = ag_pass = spag_pass = 0
         for c in CASES:
             content = (SINDICO_SRC / c["target"]).read_text(encoding="utf-8")
             ctx = {**c, "file_content": content}
@@ -346,9 +347,21 @@ def run() -> int:
                 ag_pass += int(a["passed"]); row["ag"] = a
                 ag_msg = (f"  cli+ag {'PASS' if a['passed'] else 'fail'}"
                           f"({a['attempts']}/{AGENTS_MAX_ATTEMPTS})")
+            spag_msg = ""
+            if INCLUDE_SP_AG:
+                # 5th side: verify-loop seeded with the sp-wrapped cli contract.
+                # Tests whether the runtime preamble + retry feedback compose
+                # (does the agent loop recover the sp regressions we documented
+                # in SIMPLICIO_PROMPT_ADJUSTMENTS.md?).
+                sp_seed = SP_PROMPT.format(
+                    sp_runtime=SP_RUNTIME, cli_contract=cli_contract)
+                pa = agents_iterate(model, c, sp_seed, snaps)
+                spag_pass += int(pa["passed"]); row["spag"] = pa
+                spag_msg = (f"  cli+sp+ag {'PASS' if pa['passed'] else 'fail'}"
+                            f"({pa['attempts']}/{AGENTS_MAX_ATTEMPTS})")
             rows.append(row)
             print(f"  {c['id']:25s} baseline {'PASS' if s['passed'] else 'fail'}  "
-                  f"cli {'PASS' if w['passed'] else 'fail'}{sp_msg}{ag_msg}")
+                  f"cli {'PASS' if w['passed'] else 'fail'}{sp_msg}{ag_msg}{spag_msg}")
         entry = {"rows": rows, "n": n,
             "sem_pass": sem_pass, "com_pass": com_pass,
             "sem_pct": 100*sem_pass//n, "com_pct": 100*com_pass//n}
@@ -356,9 +369,12 @@ def run() -> int:
             entry["sp_pass"] = sp_pass; entry["sp_pct"] = 100*sp_pass//n
         if INCLUDE_AGENTS:
             entry["ag_pass"] = ag_pass; entry["ag_pct"] = 100*ag_pass//n
+        if INCLUDE_SP_AG:
+            entry["spag_pass"] = spag_pass; entry["spag_pct"] = 100*spag_pass//n
         by_model[model] = entry
         tail = f" | sp {sp_pass}/{n} ({100*sp_pass//n}%)" if INCLUDE_SP else ""
         tail += f" | ag {ag_pass}/{n} ({100*ag_pass//n}%)" if INCLUDE_AGENTS else ""
+        tail += f" | sp+ag {spag_pass}/{n} ({100*spag_pass//n}%)" if INCLUDE_SP_AG else ""
         print(f"  -> baseline {sem_pass}/{n} ({by_model[model]['sem_pct']}%) "
               f"| cli {com_pass}/{n} ({by_model[model]['com_pct']}%){tail}\n")
     RESULTS_JSON.write_text(json.dumps(by_model, indent=2))
@@ -366,15 +382,18 @@ def run() -> int:
     g_sem = sum(b["sem_pass"] for b in by_model.values())
     g_com = sum(b["com_pass"] for b in by_model.values())
     g_tot = sum(b["n"] for b in by_model.values())
-    sp_tail = ag_tail = ""
+    sp_tail = ag_tail = spag_tail = ""
     if INCLUDE_SP:
         g_sp = sum(b.get("sp_pass", 0) for b in by_model.values())
         sp_tail = f" | cli+sp {100*g_sp//g_tot}%"
     if INCLUDE_AGENTS:
         g_ag = sum(b.get("ag_pass", 0) for b in by_model.values())
         ag_tail = f" | cli+ag {100*g_ag//g_tot}%"
+    if INCLUDE_SP_AG:
+        g_spag = sum(b.get("spag_pass", 0) for b in by_model.values())
+        spag_tail = f" | cli+sp+ag {100*g_spag//g_tot}%"
     print(f"grand: baseline {100*g_sem//g_tot}% | cli {100*g_com//g_tot}%"
-          f"{sp_tail}{ag_tail} (real phpunit, {g_tot} runs/side)")
+          f"{sp_tail}{ag_tail}{spag_tail} (real phpunit, {g_tot} runs/side)")
     return 0
 
 

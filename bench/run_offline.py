@@ -40,6 +40,7 @@ API_KEY = (
 )
 INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "0").strip() not in ("0", "false", "False")
 INCLUDE_AGENTS = os.environ.get("BENCH_INCLUDE_AGENTS", "0").strip() not in ("0", "false", "False")
+INCLUDE_SP_AG = os.environ.get("BENCH_INCLUDE_SP_AG", "0").strip() not in ("0", "false", "False")
 AGENTS_MAX_ATTEMPTS = int(os.environ.get("BENCH_AGENTS_MAX_ATTEMPTS", "3"))
 
 # Per-model endpoint routing (mirrors bench/run_exec_sindico.py). Lets one
@@ -580,19 +581,21 @@ def run() -> int:
     print(f"cases:  {len(cases)}")
     print(f"sides:  baseline / cli"
           + (" / cli+sp" if INCLUDE_SP else "")
-          + (f" / cli+ag (max {AGENTS_MAX_ATTEMPTS} attempts)" if INCLUDE_AGENTS else ""))
+          + (f" / cli+ag (max {AGENTS_MAX_ATTEMPTS} attempts)" if INCLUDE_AGENTS else "")
+          + (f" / cli+sp+ag (max {AGENTS_MAX_ATTEMPTS} attempts)" if INCLUDE_SP_AG else ""))
     by_model = {}
     for model in MODELS:
         _route_for(model)
         print(f"\n=== model: {model} (base: {BASE_URL}) ===")
         rows = []
-        sem_hits = com_hits = sp_hits = ag_hits = total = 0
+        sem_hits = com_hits = sp_hits = ag_hits = spag_hits = total = 0
         qsum_sem = {"len": 0, "has_diff_block": 0, "has_test_block": 0, "target_mentioned": 0, "criteria_keywords_hit": 0}
         qsum_com = dict(qsum_sem)
         usage_sem = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "elapsed_ms": 0}
         usage_com = dict(usage_sem)
         usage_sp = dict(usage_sem)
         usage_ag = dict(usage_sem)
+        usage_spag = dict(usage_sem)
         for i, c in enumerate(cases, 1):
             sem_res = llm_call(model, c["goal"])
             com_prompt = SIX_LAYER_TEMPLATE.format(
@@ -650,10 +653,24 @@ def run() -> int:
                 for k in usage_ag:
                     usage_ag[k] += ag_res[k]
                 ag_msg = f"  ag {a_h}/{t}({ag_res['attempts']})"
+            spag_msg = ""
+            if INCLUDE_SP_AG:
+                # 5th side for regex bench: sp-wrapped cli as the seed of the
+                # verify-loop. Same composition as the exec bench cli+sp+ag.
+                sp_seed = SP_PROMPT_REGEX.format(
+                    sp_runtime=SP_RUNTIME, cli_contract=com_prompt)
+                spag_res = _agents_iterate_regex(model, c, sp_seed)
+                sa_h = spag_res["hits"]; spag_hits += sa_h
+                row["spag_hits"] = sa_h; row["spag_flags"] = spag_res["flags"]
+                row["spag_attempts"] = spag_res["attempts"]
+                row["spag_usage"] = {k: spag_res[k] for k in usage_spag}
+                for k in usage_spag:
+                    usage_spag[k] += spag_res[k]
+                spag_msg = f"  sp+ag {sa_h}/{t}({spag_res['attempts']})"
             rows.append(row)
             print(
                 f"  [{i:02d}/{len(cases)}] {c['stack']:7s} "
-                f"sem {s_h}/{t} com {c_h}/{t}{sp_msg}{ag_msg}  "
+                f"sem {s_h}/{t} com {c_h}/{t}{sp_msg}{ag_msg}{spag_msg}  "
                 f"Δcli{c_h-s_h:+d}"
             )
 
@@ -679,9 +696,14 @@ def run() -> int:
             entry["ag_hits"] = ag_hits
             entry["ag_pct"] = 100 * ag_hits // max(total, 1)
             entry["usage_ag"] = usage_ag
+        if INCLUDE_SP_AG:
+            entry["spag_hits"] = spag_hits
+            entry["spag_pct"] = 100 * spag_hits // max(total, 1)
+            entry["usage_spag"] = usage_spag
         by_model[model] = entry
         tail = f" | sp {sp_hits}/{total} ({100*sp_hits//max(total,1)}%)" if INCLUDE_SP else ""
         tail += f" | ag {ag_hits}/{total} ({100*ag_hits//max(total,1)}%)" if INCLUDE_AGENTS else ""
+        tail += f" | sp+ag {spag_hits}/{total} ({100*spag_hits//max(total,1)}%)" if INCLUDE_SP_AG else ""
         print(f"  -> baseline {sem_hits}/{total} ({entry['sem_pct']}%) "
               f"| cli {com_hits}/{total} ({entry['com_pct']}%){tail}\n")
 
