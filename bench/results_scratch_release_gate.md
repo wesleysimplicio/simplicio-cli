@@ -15,21 +15,18 @@ preflight for the live scratch v0.5 release gate; does not replace credentialed 
 
 ## Readiness
 
-- ready for live gate: False
-- blocker count: 3
-- blocker: ts-nextjs missing tools: pnpm
-- blocker: go-gin missing tools: go
-- blocker: php-laravel missing tools: composer
+- ready for live gate: True
+- blocker count: 0
 
 ## Stacks
 
 | stack | present | missing tools |
 | --- | --- | --- |
 | py-fastapi | True | - |
-| ts-nextjs | True | pnpm |
-| go-gin | True | go |
+| ts-nextjs | True | - |
+| go-gin | True | - |
 | rust-axum | True | - |
-| php-laravel | True | composer |
+| php-laravel | True | - |
 
 ## Goals
 

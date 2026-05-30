@@ -66,11 +66,9 @@
       "found_tools": {
         "node": "C:\\Program Files\\nodejs\\node.EXE",
         "npm": "C:\\Users\\wesley.simplicio\\AppData\\Roaming\\npm\\npm.CMD",
-        "pnpm": null
+        "pnpm": "C:\\Users\\wesley.simplicio\\AppData\\Roaming\\npm\\pnpm.CMD"
       },
-      "missing_tools": [
-        "pnpm"
-      ],
+      "missing_tools": [],
       "present": true,
       "required_tools": [
         "node",
@@ -81,11 +79,9 @@
     },
     {
       "found_tools": {
-        "go": null
+        "go": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\go-portable\\extract\\go\\bin\\go.exe"
       },
-      "missing_tools": [
-        "go"
-      ],
+      "missing_tools": [],
       "present": true,
       "required_tools": [
         "go"
@@ -105,12 +101,10 @@
     },
     {
       "found_tools": {
-        "composer": null,
+        "composer": "php C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\composer.phar",
         "php": "C:\\Users\\wesley.simplicio\\AppData\\Local\\Microsoft\\WinGet\\Packages\\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe\\php.EXE"
       },
-      "missing_tools": [
-        "composer"
-      ],
+      "missing_tools": [],
       "present": true,
       "required_tools": [
         "php",
@@ -120,12 +114,8 @@
     }
   ],
   "summary": {
-    "blocker_count": 3,
-    "blockers": [
-      "ts-nextjs missing tools: pnpm",
-      "go-gin missing tools: go",
-      "php-laravel missing tools: composer"
-    ],
-    "ready_for_live_gate": false
+    "blocker_count": 0,
+    "blockers": [],
+    "ready_for_live_gate": true
   }
 }

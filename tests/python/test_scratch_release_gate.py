@@ -7,6 +7,7 @@ from bench.run_scratch_release_gate import (
     RELEASE_GOALS,
     _doer_readiness,
     _planner_readiness,
+    _which,
     run_preflight,
     write_reports,
 )
@@ -58,3 +59,36 @@ def test_release_gate_preflight_resolves_shell_out_route_names(monkeypatch) -> N
     assert planner["cli_path"] == "C:/bin/codex.cmd"
     assert doer["ready"] is True
     assert doer["cli_path"] == "C:/bin/codex.cmd"
+
+
+def test_release_gate_preflight_honors_tool_overrides(monkeypatch) -> None:
+    monkeypatch.setenv("SIMPLICIO_TOOL_GO", "C:/tools/go/bin/go.exe")
+
+    def fake_run(cmd, **kwargs):
+        class Result:
+            returncode = 0
+
+        assert cmd == "C:/tools/go/bin/go.exe version"
+        assert kwargs["shell"] is True
+        return Result()
+
+    monkeypatch.setattr("bench.run_scratch_release_gate.subprocess.run", fake_run)
+
+    assert _which("go") == "C:/tools/go/bin/go.exe"
+
+
+def test_release_gate_preflight_rejects_broken_tool_override(monkeypatch) -> None:
+    monkeypatch.setenv("SIMPLICIO_TOOL_COMPOSER", "php missing-composer.phar")
+
+    def fake_run(*_args, **_kwargs):
+        class Result:
+            returncode = 1
+
+        return Result()
+
+    monkeypatch.setattr("bench.run_scratch_release_gate.subprocess.run", fake_run)
+    monkeypatch.setattr(
+        "bench.run_scratch_release_gate.shutil.which", lambda _cmd: None
+    )
+
+    assert _which("composer") is None

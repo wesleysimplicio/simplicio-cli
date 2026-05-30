@@ -14,6 +14,7 @@ import json
 import os
 import platform
 import shutil
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -220,6 +221,10 @@ def _shell_out_command(model: str) -> str:
 
 
 def _which(command: str) -> str | None:
+    override = os.environ.get(_tool_env_var(command), "").strip()
+    if override:
+        return override if _tool_command_ok(command, override) else None
+
     candidates = [command]
     if os.name == "nt":
         candidates.extend([f"{command}.cmd", f"{command}.exe", f"{command}.bat"])
@@ -227,7 +232,33 @@ def _which(command: str) -> str | None:
         found = shutil.which(candidate)
         if found:
             return found
+
+    if command == "pnpm":
+        corepack = shutil.which("corepack")
+        if corepack and _tool_command_ok("pnpm", f'"{corepack}" pnpm'):
+            return f"{corepack} pnpm"
     return None
+
+
+def _tool_env_var(command: str) -> str:
+    return "SIMPLICIO_TOOL_" + command.upper().replace("-", "_")
+
+
+def _tool_command_ok(command: str, executable: str) -> bool:
+    version_arg = {
+        "go": "version",
+    }.get(command, "--version")
+    try:
+        proc = subprocess.run(
+            f"{executable} {version_arg}",
+            capture_output=True,
+            shell=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return proc.returncode == 0
 
 
 def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> None:
