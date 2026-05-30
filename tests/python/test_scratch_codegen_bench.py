@@ -23,6 +23,17 @@ def test_scratch_codegen_bench_cases_cover_python_executors() -> None:
     }
 
 
+def test_scratch_codegen_bench_cases_cover_typescript_executors() -> None:
+    cases = build_cases(include_typescript=True)
+
+    assert {
+        case.expected_executor for case in cases if case.stack_slug == "ts-nextjs"
+    } == {
+        "typescript-add-next-page",
+        "typescript-add-next-route",
+    }
+
+
 def test_scratch_codegen_bench_runs_keyless_python_cases(tmp_path) -> None:
     result = run_benchmark(
         work_dir=tmp_path / "bench",

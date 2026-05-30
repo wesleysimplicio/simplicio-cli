@@ -82,6 +82,7 @@ simplicio = [
   "templates/recipes/**/*.yml",
   "templates/stacks/**/*",
   "templates/stacks/*/tree/.gitignore",
+  "templates/stacks/*/tree/.eslintrc.json",
 ]
 
 [tool.pytest.ini_options]

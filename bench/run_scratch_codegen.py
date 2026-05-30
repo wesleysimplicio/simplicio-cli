@@ -182,6 +182,24 @@ pythonpath = ["src"]
                 expected_executor="typescript-add-next-route",
             )
         )
+        cases.append(
+            BenchCase(
+                name="typescript-next-page",
+                stack_slug="ts-nextjs",
+                language="TypeScript 5",
+                framework="Next.js app router",
+                task=Task(
+                    id="T06-next-page",
+                    goal="Create a Condo Unit CRUD page",
+                    target="src/app/condo_units/page.tsx",
+                    criteria="- page fetches condo_units\n- create form is rendered",
+                    constraints="- keep component typed and accessible",
+                    verify="pnpm tsc --noEmit",
+                ),
+                seed_files={},
+                expected_executor="typescript-add-next-page",
+            )
+        )
 
     return cases
 
@@ -446,7 +464,44 @@ def _validate_generated_case(
 ) -> dict[str, Any]:
     if case.expected_executor == "typescript-add-next-route":
         return _validate_next_route(project_dir / case.task.target, work_dir)
+    if case.expected_executor == "typescript-add-next-page":
+        return _validate_next_page(project_dir / case.task.target, work_dir)
     return {"passed": True, "checks": [], "log": "no post-validation required"}
+
+
+def _validate_next_page(page_path: Path, work_dir: Path) -> dict[str, Any]:
+    if not page_path.is_file():
+        return {
+            "passed": False,
+            "checks": ["page_file_exists"],
+            "log": f"missing generated page file: {_redact_path(page_path, work_dir)}",
+        }
+    content = page_path.read_text(encoding="utf-8")
+    checks = []
+    if "data-simplicio-crud-page" in content:
+        checks.append("crud_page_marker")
+    if "export default async function" in content:
+        checks.append("async_page_component")
+    if "<form>" in content and 'type="submit"' in content:
+        checks.append("create_form")
+    if ".map((item)" in content:
+        checks.append("list_render")
+    required = {
+        "crud_page_marker",
+        "async_page_component",
+        "create_form",
+        "list_render",
+    }
+    missing = sorted(required - set(checks))
+    return {
+        "passed": not missing,
+        "checks": checks,
+        "log": (
+            "generated CRUD page has marker, async component, form, and list"
+            if not missing
+            else "missing generated page checks: " + ", ".join(missing)
+        ),
+    }
 
 
 def _validate_next_route(route_path: Path, work_dir: Path) -> dict[str, Any]:

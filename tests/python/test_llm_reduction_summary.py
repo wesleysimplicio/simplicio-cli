@@ -17,6 +17,7 @@ def _fixtures(tmp_path):
     recipes = tmp_path / "recipes.json"
     codegen = tmp_path / "codegen.json"
     preflight = tmp_path / "preflight.json"
+    live_gate = tmp_path / "live_gate.json"
     _write_json(
         cache,
         {
@@ -102,12 +103,33 @@ def _fixtures(tmp_path):
             },
         },
     )
+    _write_json(
+        live_gate,
+        {
+            "benchmark": "scratch-live-gate",
+            "summary": {
+                "total_runs": 30,
+                "e2e_green": 30,
+                "e2e_green_rate": 1.0,
+                "median_wall_clock_s": 8.7,
+                "release_gates": {
+                    "full_75_run_matrix": False,
+                    "e2e_green_ge_80": True,
+                    "release_ready": False,
+                },
+                "missing_release_evidence": [
+                    "full 15 goals x 5 pilot stacks live matrix"
+                ],
+            },
+        },
+    )
     return {
         "cache": cache,
         "static_fixers": fixers,
         "recipes": recipes,
         "codegen": codegen,
         "preflight": preflight,
+        "live_gate": live_gate,
     }
 
 
@@ -122,6 +144,9 @@ def test_llm_reduction_summary_keeps_release_gap_explicit(tmp_path) -> None:
     assert summary["modeled_final_calls"] == 6
     assert summary["modeled_reduction"] == 0.6842
     assert result["levers"]["B_codegen"]["llm_baseline_present"] is False
+    assert result["levers"]["scratch_live_gate"]["total_runs"] == 30
+    assert summary["release_gates"]["scratch_live_e2e_green_ge_80"] is True
+    assert summary["release_gates"]["scratch_live_matrix_complete"] is False
     assert any(
         "captured LLM baseline" in item for item in summary["missing_release_evidence"]
     )

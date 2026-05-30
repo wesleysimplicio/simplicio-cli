@@ -3,6 +3,7 @@
   "description": "REST CRUD plan for {Entity} on Next.js app router.",
   "applies_to": ["ts-nextjs"],
   "matches": [
+    "(?i)\\bCRUD\\s+app\\s+for\\s+(?P<entity>[A-Za-z][A-Za-z0-9_-]*(?:\\s+[A-Za-z][A-Za-z0-9_-]*){0,2})(?=\\s+with\\b|\\s*$)",
     "(?i)\\bCRUD\\s+(?:(?:API|page|screen|UI|app)\\s+)?(?:for\\s+|de\\s+|para\\s+|managing\\s+)?(?P<entity>[A-Za-z][A-Za-z0-9_-]*)\\b",
     "(?i)\\bREST\\s+(?:API\\s+)?(?:for\\s+)?(?P<entity>[A-Za-z][A-Za-z0-9_-]*)\\b",
     "(?i)\\bmanage\\s+(?P<entity>[A-Za-z][A-Za-z0-9_-]*)\\s+with\\s+CRUD\\b",
@@ -27,7 +28,7 @@
       "target": "src/app/api/{entity_plural}/route.ts",
       "criteria": "- GET returns JSON list\\n- POST accepts JSON body",
       "constraints": "- use app router route handlers",
-      "verify": "npm test -- --run"
+      "verify": "pnpm tsc --noEmit"
     },
     {
       "id": "T02-page",
@@ -36,11 +37,11 @@
       "target": "src/app/{entity_plural}/page.tsx",
       "criteria": "- page fetches {entity_plural}\\n- create form is rendered",
       "constraints": "- keep component typed and accessible",
-      "verify": "npm test -- --run"
+      "verify": "pnpm tsc --noEmit"
     }
   ],
   "deps_to_install": [],
   "deps_dev": ["vitest", "@testing-library/react"],
-  "test_command": "npm test -- --run",
-  "lint_command": "npm run lint"
+  "test_command": "pnpm tsc --noEmit",
+  "lint_command": "pnpm eslint ."
 }

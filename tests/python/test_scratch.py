@@ -505,6 +505,36 @@ def test_executor_report_records_codegen_metrics() -> None:
         assert (report.project_dir / "src/app/api/units/route.ts").is_file()
 
 
+def test_executor_runs_ts_nextjs_crud_recipe_without_llm(monkeypatch) -> None:
+    monkeypatch.delenv("SIMPLICIO_MODEL", raising=False)
+    reg = StackRegistry()
+    stack = reg.get("ts-nextjs")
+    assert stack is not None
+
+    from simplicio.scratch.executor import execute_plan
+    from simplicio.scratch.planner import generate_plan
+
+    plan = generate_plan(
+        stack,
+        "CRUD app for condo units with owner contact search",
+        "next-crud",
+    )
+
+    with tempfile.TemporaryDirectory() as td:
+        report = execute_plan(plan, stack, Path(td), skip_install=True)
+
+        assert report.tasks_total == 2
+        assert report.tasks_passed == 2
+        assert report.metrics["tasks_codegen"] == 2
+        assert report.metrics["tasks_skipped"] == 0
+        assert {task.codegen_executor for task in report.task_results} == {
+            "typescript-add-next-route",
+            "typescript-add-next-page",
+        }
+        assert (report.project_dir / "src/app/api/condo_units/route.ts").is_file()
+        assert (report.project_dir / "src/app/condo_units/page.tsx").is_file()
+
+
 def test_executor_refuses_existing_project_dir() -> None:
     reg = StackRegistry()
     stack = reg.get("py-fastapi")

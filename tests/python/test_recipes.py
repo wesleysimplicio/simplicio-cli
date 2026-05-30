@@ -25,6 +25,12 @@ MATCH_CASES = [
     ),
     ("py-fastapi", "REST API for Invoice", "crud-resource", "Invoice"),
     ("ts-nextjs", "Manage Product with CRUD", "crud-resource", "Product"),
+    (
+        "ts-nextjs",
+        "CRUD app for condo units with owner contact search",
+        "crud-resource",
+        "CondoUnits",
+    ),
     ("py-fastapi", "add JWT auth", "auth-jwt", None),
     ("ts-nextjs", "authentication with JWT", "auth-jwt", None),
     ("py-fastapi", "login with JWT", "auth-jwt", None),
@@ -156,3 +162,20 @@ def test_same_recipe_name_renders_stack_specific_plan() -> None:
 
     assert py_plan.tasks[0].target == "src/db/unit.py"
     assert ts_plan.tasks[0].target == "src/app/api/units/route.ts"
+
+
+def test_ts_nextjs_crud_recipe_renders_multi_word_entity() -> None:
+    registry = RecipeRegistry()
+    match = registry.match(
+        "CRUD app for condo units with owner contact search",
+        "ts-nextjs",
+    )
+    assert match is not None
+
+    plan = registry.get("crud-resource", "ts-nextjs").instantiate(
+        match,
+        "demo-app",
+    )
+
+    assert plan.tasks[0].target == "src/app/api/condo_units/route.ts"
+    assert plan.tasks[1].target == "src/app/condo_units/page.tsx"

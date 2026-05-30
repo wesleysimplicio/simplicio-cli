@@ -589,6 +589,74 @@ def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> Non
     md_path.write_text(_to_markdown(result), encoding="utf-8")
 
 
+def merge_results(existing: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+    if existing.get("benchmark") != current.get("benchmark"):
+        raise ValueError("cannot merge different benchmark result types")
+    existing_matrix = existing.get("matrix", {})
+    current_matrix = current.get("matrix", {})
+    for field in ("plan_only", "skip_install", "post_verify"):
+        if existing_matrix.get(field) != current_matrix.get(field):
+            raise ValueError(f"cannot merge live gate results with different {field}")
+
+    rows_by_key = {
+        _row_key(row): row
+        for row in existing.get("runs", [])
+        if _row_key(row) is not None
+    }
+    for row in current.get("runs", []):
+        key = _row_key(row)
+        if key is not None:
+            rows_by_key[key] = row
+    rows = sorted(
+        rows_by_key.values(),
+        key=lambda row: (
+            int(row.get("goal_index") or 0),
+            _pilot_stack_index(str(row.get("stack", ""))),
+            str(row.get("stack", "")),
+        ),
+    )
+    for index, row in enumerate(rows, start=1):
+        row["run_number"] = index
+
+    elapsed_s = round(
+        float(existing.get("summary", {}).get("elapsed_s") or 0)
+        + float(current.get("summary", {}).get("elapsed_s") or 0),
+        3,
+    )
+    matrix = dict(current_matrix)
+    matrix["goals"] = len({row.get("goal") for row in rows if row.get("goal")})
+    matrix["stacks"] = len({row.get("stack") for row in rows if row.get("stack")})
+    matrix["planned_runs"] = len(rows)
+    matrix["selected_runs"] = len(rows)
+
+    return {
+        **current,
+        "matrix": matrix,
+        "runs": rows,
+        "summary": _summarize(
+            rows,
+            elapsed_s,
+            plan_only=bool(current_matrix.get("plan_only")),
+            post_verify=bool(current_matrix.get("post_verify")),
+        ),
+    }
+
+
+def _row_key(row: dict[str, Any]) -> tuple[str, str] | None:
+    goal = row.get("goal")
+    stack = row.get("stack")
+    if not goal or not stack:
+        return None
+    return str(goal), str(stack)
+
+
+def _pilot_stack_index(stack: str) -> int:
+    try:
+        return PILOT_STACKS.index(stack)
+    except ValueError:
+        return len(PILOT_STACKS)
+
+
 def _to_markdown(result: dict[str, Any]) -> str:
     summary = result["summary"]
     matrix = result["matrix"]
@@ -666,6 +734,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--timeout-seconds", type=int, default=900)
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
+    parser.add_argument(
+        "--merge-existing",
+        action="store_true",
+        help="merge this slice into an existing JSON report instead of replacing it",
+    )
     parser.add_argument("--quiet", action="store_true")
     return parser.parse_args(argv)
 
@@ -684,6 +757,13 @@ def main(argv: list[str] | None = None) -> int:
         post_verify=args.post_verify,
         timeout_seconds=args.timeout_seconds,
     )
+    if args.merge_existing and args.json_output.is_file():
+        try:
+            existing = json.loads(args.json_output.read_text(encoding="utf-8"))
+            result = merge_results(existing, result)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"failed to merge existing live gate report: {exc}", file=sys.stderr)
+            return 2
     write_reports(result, args.json_output, args.md_output)
     if not args.quiet:
         print(json.dumps(result["summary"], indent=2, sort_keys=True))

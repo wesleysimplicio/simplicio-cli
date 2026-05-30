@@ -11,6 +11,7 @@ from .python_fastapi import PythonAddFastApiRouteExecutor
 from .python_orm import PythonAddOrmFieldExecutor
 from .python_pydantic import PythonAddPydanticSchemaExecutor
 from .python_pytest import PythonAddPytestTestExecutor
+from .typescript_next_page import TypeScriptAddNextPageExecutor
 from .typescript_next_route import TypeScriptAddNextRouteExecutor
 from .types import CodegenResult, TaskExecutor
 
@@ -20,6 +21,7 @@ _DEFAULT_EXECUTORS: list[TaskExecutor] = [
     PythonAddFastApiRouteExecutor(),
     PythonAddPytestTestExecutor(),
     TypeScriptAddNextRouteExecutor(),
+    TypeScriptAddNextPageExecutor(),
 ]
 
 

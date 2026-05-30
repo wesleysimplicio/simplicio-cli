@@ -29,6 +29,7 @@ DEFAULT_INPUTS = {
     "recipes": ROOT / "bench" / "results_scratch_recipes.json",
     "codegen": ROOT / "bench" / "results_scratch_codegen.json",
     "preflight": ROOT / "bench" / "results_scratch_release_gate.json",
+    "live_gate": ROOT / "bench" / "results_scratch_live_gate.json",
 }
 
 
@@ -96,6 +97,7 @@ def _summarize_levers(inputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     recipes = _summary(inputs, "recipes")
     codegen = _summary(inputs, "codegen")
     preflight = _summary(inputs, "preflight")
+    live_gate = _summary(inputs, "live_gate")
 
     return {
         "D_cache": {
@@ -154,6 +156,16 @@ def _summarize_levers(inputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "blocker_count": preflight.get("blocker_count", 0),
             "blockers": preflight.get("blockers", []),
         },
+        "scratch_live_gate": {
+            "present": inputs["live_gate"]["present"],
+            "total_runs": live_gate.get("total_runs", 0),
+            "e2e_green": live_gate.get("e2e_green", 0),
+            "e2e_green_rate": live_gate.get("e2e_green_rate", 0.0),
+            "median_wall_clock_s": live_gate.get("median_wall_clock_s"),
+            "full_matrix": _gate(live_gate, "full_75_run_matrix"),
+            "e2e_green_ge_80": _gate(live_gate, "e2e_green_ge_80"),
+            "release_ready": _gate(live_gate, "release_ready"),
+        },
     }
 
 
@@ -188,6 +200,8 @@ def _summarize_gates(levers: dict[str, Any]) -> dict[str, Any]:
         "B_codegen_llm_baseline_present": levers["B_codegen"]["llm_baseline_present"],
         "B_executor_pass_rate_ge_llm": levers["B_codegen"]["executor_pass_rate_ge_llm"],
         "B_latency_reduction_ge_50": levers["B_codegen"]["latency_reduction_ge_50"],
+        "scratch_live_matrix_complete": levers["scratch_live_gate"]["full_matrix"],
+        "scratch_live_e2e_green_ge_80": levers["scratch_live_gate"]["e2e_green_ge_80"],
     }
     local_synthetic = all(local_gates.values())
     release_complete = all(release_gates.values())
@@ -268,7 +282,8 @@ def _missing_release_evidence(
         missing.append("recipe path pass-rate compared with equivalent LLM path")
     if not gates["scratch_preflight_ready"]:
         missing.append("scratch live-gate preflight must be ready before the matrix")
-    missing.append("live v0.5 scratch matrix: 15 goals x 5 pilot stacks")
+    if not gates["scratch_live_matrix_complete"]:
+        missing.append("live v0.5 scratch matrix: 15 goals x 5 pilot stacks")
     missing.append("SkillOpt human approval evidence >=80%")
     return _canonical_missing(missing)
 
@@ -304,7 +319,7 @@ def _canonical_missing(values: list[str]) -> list[str]:
             canonical.append(
                 "planner cache hit-rate measured across cold/warm real scratch runs"
             )
-        elif "live v0.5" in lower:
+        elif "live v0.5" in lower or "15 goals x 5 pilot stacks" in lower:
             canonical.append("live v0.5 scratch matrix: 15 goals x 5 pilot stacks")
         elif "skillopt" in lower:
             canonical.append("SkillOpt human approval evidence >=80%")
@@ -390,7 +405,15 @@ def _to_markdown(result: dict[str, Any]) -> str:
                 f"| scratch preflight | "
                 f"{levers['scratch_preflight']['ready_for_live_gate']} | "
                 f"blockers {levers['scratch_preflight']['blocker_count']} | "
-                "live matrix not run |"
+                "ready for matrix execution |"
+            ),
+            (
+                f"| scratch live gate | "
+                f"{levers['scratch_live_gate']['e2e_green_ge_80']} | "
+                f"{levers['scratch_live_gate']['e2e_green']}/"
+                f"{levers['scratch_live_gate']['total_runs']} e2e green, "
+                f"median {levers['scratch_live_gate']['median_wall_clock_s']} s | "
+                f"full matrix {levers['scratch_live_gate']['full_matrix']} |"
             ),
         ]
     )

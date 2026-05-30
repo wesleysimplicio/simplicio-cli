@@ -18,6 +18,12 @@
       "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_codegen.json",
       "present": true
     },
+    "live_gate": {
+      "benchmark": "scratch-live-gate",
+      "error": "",
+      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_live_gate.json",
+      "present": true
+    },
     "preflight": {
       "benchmark": "scratch-release-gate",
       "error": "",
@@ -49,7 +55,7 @@
       "total_cases": 50
     },
     "B_codegen": {
-      "avg_codegen_ms": 71,
+      "avg_codegen_ms": 61,
       "codegen_share": 1.0,
       "executor_pass_rate_ge_llm": false,
       "gate_passed": true,
@@ -57,8 +63,8 @@
       "llm_baseline_present": false,
       "pass_rate": 1.0,
       "present": true,
-      "tasks_codegen": 50,
-      "total_tasks": 50
+      "tasks_codegen": 60,
+      "total_tasks": 60
     },
     "C_static_fixers": {
       "baseline_llm_calls": 100,
@@ -76,6 +82,16 @@
       "warm_hit_rate": 1.0,
       "warm_hits": 2,
       "warm_misses": 0
+    },
+    "scratch_live_gate": {
+      "e2e_green": 30,
+      "e2e_green_ge_80": true,
+      "e2e_green_rate": 1.0,
+      "full_matrix": false,
+      "median_wall_clock_s": 8.728,
+      "present": true,
+      "release_ready": false,
+      "total_runs": 30
     },
     "scratch_preflight": {
       "blocker_count": 0,
@@ -134,6 +150,7 @@
       "captured LLM baseline for executor pass-rate and latency",
       "planner cache hit-rate measured across cold/warm real scratch runs",
       "live v0.5 scratch matrix: 15 goals x 5 pilot stacks",
+      "average cost measurement",
       "SkillOpt human approval evidence >=80%"
     ],
     "modeled_baseline_calls": 19,
@@ -152,6 +169,8 @@
       "local_synthetic_gates_pass": true,
       "real_50_scratch_corpus": false,
       "release_evidence_complete": false,
+      "scratch_live_e2e_green_ge_80": true,
+      "scratch_live_matrix_complete": false,
       "scratch_preflight_ready": true,
       "target_reduction_met": false
     },

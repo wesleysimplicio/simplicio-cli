@@ -8,12 +8,12 @@
   "matrix": {
     "goals": 15,
     "plan_only": false,
-    "planned_runs": 15,
+    "planned_runs": 30,
     "post_verify": true,
     "release_planned_runs": 75,
-    "selected_runs": 15,
+    "selected_runs": 30,
     "skip_install": false,
-    "stacks": 1
+    "stacks": 2
   },
   "runs": [
     {
@@ -96,6 +96,66 @@
         "-m",
         "simplicio.cli",
         "scratch",
+        "CRUD app for condo units with owner contact search",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g01-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 10.858,
+      "e2e_green": true,
+      "goal": "CRUD app for condo units with owner contact search",
+      "goal_index": 1,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.819,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.658,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.476,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g01-ts-nextjs",
+      "returncode": 0,
+      "run_number": 2,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g01-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g01-ts-nextjs\\\\src\\\\app\\\\api\\\\condo_units\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 365,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for condo_units\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g01-ts-nextjs\\\\src\\\\app\\\\api\\\\condo_units\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/condo_units/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g01-ts-nextjs\\\\src\\\\app\\\\condo_units\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Next.js CRUD page for condo_units\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g01-ts-nextjs\\\\src\\\\app\\\\condo_units\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 182,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 182\n  },\n  \"elapsed_s\": 10.71\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
         "CRUD app for invoices with paid and overdue filters",
         "--stack",
         "py-fastapi",
@@ -154,7 +214,7 @@
       },
       "project_name": "gate-g02-py-fastapi",
       "returncode": 0,
-      "run_number": 2,
+      "run_number": 3,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g02-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -162,6 +222,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for invoices with paid and overdue filters",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g02-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 11.426,
+      "e2e_green": true,
+      "goal": "CRUD app for invoices with paid and overdue filters",
+      "goal_index": 2,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.835,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.579,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.414,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g02-ts-nextjs",
+      "returncode": 0,
+      "run_number": 4,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g02-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "ipt-add-next-route\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g02-ts-nextjs\\\\src\\\\app\\\\api\\\\invoices\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 360,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for invoices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g02-ts-nextjs\\\\src\\\\app\\\\api\\\\invoices\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/invoices/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g02-ts-nextjs\\\\src\\\\app\\\\invoices\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Next.js CRUD page for invoices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g02-ts-nextjs\\\\src\\\\app\\\\invoices\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 180,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 180\n  },\n  \"elapsed_s\": 11.27\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -228,7 +348,7 @@
       },
       "project_name": "gate-g03-py-fastapi",
       "returncode": 0,
-      "run_number": 3,
+      "run_number": 5,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g03-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -236,6 +356,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for maintenance tickets with assignee status",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g03-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 11.84,
+      "e2e_green": true,
+      "goal": "CRUD app for maintenance tickets with assignee status",
+      "goal_index": 3,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.859,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.589,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.448,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g03-ts-nextjs",
+      "returncode": 0,
+      "run_number": 6,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g03-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "plicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g03-ts-nextjs\\\\src\\\\app\\\\api\\\\maintenance_tickets\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 363,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for maintenance_tickets\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g03-ts-nextjs\\\\src\\\\app\\\\api\\\\maintenance_tickets\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/maintenance_tickets/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g03-ts-nextjs\\\\src\\\\app\\\\maintenance_tickets\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Next.js CRUD page for maintenance_tickets\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g03-ts-nextjs\\\\src\\\\app\\\\maintenance_tickets\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 182,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 182\n  },\n  \"elapsed_s\": 11.66\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -302,7 +482,7 @@
       },
       "project_name": "gate-g04-py-fastapi",
       "returncode": 0,
-      "run_number": 4,
+      "run_number": 7,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g04-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -310,6 +490,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for visitors with check-in and check-out timestamps",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g04-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 11.572,
+      "e2e_green": true,
+      "goal": "CRUD app for visitors with check-in and check-out timestamps",
+      "goal_index": 4,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.865,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.606,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.471,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g04-ts-nextjs",
+      "returncode": 0,
+      "run_number": 8,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g04-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "ipt-add-next-route\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g04-ts-nextjs\\\\src\\\\app\\\\api\\\\visitors\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 404,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for visitors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g04-ts-nextjs\\\\src\\\\app\\\\api\\\\visitors\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/visitors/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g04-ts-nextjs\\\\src\\\\app\\\\visitors\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Next.js CRUD page for visitors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g04-ts-nextjs\\\\src\\\\app\\\\visitors\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 202,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 202\n  },\n  \"elapsed_s\": 11.43\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -376,7 +616,7 @@
       },
       "project_name": "gate-g05-py-fastapi",
       "returncode": 0,
-      "run_number": 5,
+      "run_number": 9,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g05-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -384,6 +624,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for amenity bookings with date conflict checks",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g05-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 12.685,
+      "e2e_green": true,
+      "goal": "CRUD app for amenity bookings with date conflict checks",
+      "goal_index": 5,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.804,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.627,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.431,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g05-ts-nextjs",
+      "returncode": 0,
+      "run_number": 10,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g05-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g05-ts-nextjs\\\\src\\\\app\\\\api\\\\amenity_bookings\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 457,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for amenity_bookings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g05-ts-nextjs\\\\src\\\\app\\\\api\\\\amenity_bookings\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/amenity_bookings/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g05-ts-nextjs\\\\src\\\\app\\\\amenity_bookings\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Next.js CRUD page for amenity_bookings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g05-ts-nextjs\\\\src\\\\app\\\\amenity_bookings\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 229,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 229\n  },\n  \"elapsed_s\": 12.52\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -450,7 +750,7 @@
       },
       "project_name": "gate-g06-py-fastapi",
       "returncode": 0,
-      "run_number": 6,
+      "run_number": 11,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g06-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -458,6 +758,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for announcements with publish and archive state",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g06-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 13.979,
+      "e2e_green": true,
+      "goal": "CRUD app for announcements with publish and archive state",
+      "goal_index": 6,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.846,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.632,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.479,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g06-ts-nextjs",
+      "returncode": 0,
+      "run_number": 12,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g06-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "odified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g06-ts-nextjs\\\\src\\\\app\\\\api\\\\announcements\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 398,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for announcements\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g06-ts-nextjs\\\\src\\\\app\\\\api\\\\announcements\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/announcements/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g06-ts-nextjs\\\\src\\\\app\\\\announcements\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Next.js CRUD page for announcements\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g06-ts-nextjs\\\\src\\\\app\\\\announcements\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 199,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 199\n  },\n  \"elapsed_s\": 13.81\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -524,7 +884,7 @@
       },
       "project_name": "gate-g07-py-fastapi",
       "returncode": 0,
-      "run_number": 7,
+      "run_number": 13,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g07-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -532,6 +892,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for documents with category filtering",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g07-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 14.402,
+      "e2e_green": true,
+      "goal": "CRUD app for documents with category filtering",
+      "goal_index": 7,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.817,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.611,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.428,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g07-ts-nextjs",
+      "returncode": 0,
+      "run_number": 14,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g07-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "-next-route\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g07-ts-nextjs\\\\src\\\\app\\\\api\\\\documents\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 397,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for documents\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g07-ts-nextjs\\\\src\\\\app\\\\api\\\\documents\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/documents/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g07-ts-nextjs\\\\src\\\\app\\\\documents\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Next.js CRUD page for documents\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g07-ts-nextjs\\\\src\\\\app\\\\documents\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 198,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 198\n  },\n  \"elapsed_s\": 14.23\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -598,7 +1018,7 @@
       },
       "project_name": "gate-g08-py-fastapi",
       "returncode": 0,
-      "run_number": 8,
+      "run_number": 15,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g08-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -606,6 +1026,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for vendors with active contract tracking",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g08-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 14.231,
+      "e2e_green": true,
+      "goal": "CRUD app for vendors with active contract tracking",
+      "goal_index": 8,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.799,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.706,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.505,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g08-ts-nextjs",
+      "returncode": 0,
+      "run_number": 16,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g08-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "typescript-add-next-route\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g08-ts-nextjs\\\\src\\\\app\\\\api\\\\vendors\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 351,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for vendors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g08-ts-nextjs\\\\src\\\\app\\\\api\\\\vendors\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/vendors/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g08-ts-nextjs\\\\src\\\\app\\\\vendors\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Next.js CRUD page for vendors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g08-ts-nextjs\\\\src\\\\app\\\\vendors\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 176,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 176\n  },\n  \"elapsed_s\": 14.06\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -672,7 +1152,7 @@
       },
       "project_name": "gate-g09-py-fastapi",
       "returncode": 0,
-      "run_number": 9,
+      "run_number": 17,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g09-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -680,6 +1160,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for inventory items with low-stock flag",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g09-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 14.38,
+      "e2e_green": true,
+      "goal": "CRUD app for inventory items with low-stock flag",
+      "goal_index": 9,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.78,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.681,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.461,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g09-ts-nextjs",
+      "returncode": 0,
+      "run_number": 18,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g09-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "      \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g09-ts-nextjs\\\\src\\\\app\\\\api\\\\inventory_items\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 377,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for inventory_items\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g09-ts-nextjs\\\\src\\\\app\\\\api\\\\inventory_items\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/inventory_items/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g09-ts-nextjs\\\\src\\\\app\\\\inventory_items\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Next.js CRUD page for inventory_items\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g09-ts-nextjs\\\\src\\\\app\\\\inventory_items\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 188,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 188\n  },\n  \"elapsed_s\": 14.22\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -746,7 +1286,7 @@
       },
       "project_name": "gate-g10-py-fastapi",
       "returncode": 0,
-      "run_number": 10,
+      "run_number": 19,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g10-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -754,6 +1294,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for package deliveries with resident pickup",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g10-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 14.618,
+      "e2e_green": true,
+      "goal": "CRUD app for package deliveries with resident pickup",
+      "goal_index": 10,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.859,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.584,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.443,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g10-ts-nextjs",
+      "returncode": 0,
+      "run_number": 20,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g10-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "ley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g10-ts-nextjs\\\\src\\\\app\\\\api\\\\package_deliveries\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 379,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for package_deliveries\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g10-ts-nextjs\\\\src\\\\app\\\\api\\\\package_deliveries\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/package_deliveries/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g10-ts-nextjs\\\\src\\\\app\\\\package_deliveries\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Next.js CRUD page for package_deliveries\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g10-ts-nextjs\\\\src\\\\app\\\\package_deliveries\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 190,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 190\n  },\n  \"elapsed_s\": 14.47\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -820,7 +1420,7 @@
       },
       "project_name": "gate-g11-py-fastapi",
       "returncode": 0,
-      "run_number": 11,
+      "run_number": 21,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g11-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -828,6 +1428,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for parking spaces with vehicle assignment",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g11-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 14.138,
+      "e2e_green": true,
+      "goal": "CRUD app for parking spaces with vehicle assignment",
+      "goal_index": 11,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.826,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.664,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.49,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g11-ts-nextjs",
+      "returncode": 0,
+      "run_number": 22,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g11-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g11-ts-nextjs\\\\src\\\\app\\\\api\\\\parking_spaces\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 343,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for parking_spaces\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g11-ts-nextjs\\\\src\\\\app\\\\api\\\\parking_spaces\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/parking_spaces/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g11-ts-nextjs\\\\src\\\\app\\\\parking_spaces\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Next.js CRUD page for parking_spaces\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g11-ts-nextjs\\\\src\\\\app\\\\parking_spaces\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 172,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 172\n  },\n  \"elapsed_s\": 13.98\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -894,7 +1554,7 @@
       },
       "project_name": "gate-g12-py-fastapi",
       "returncode": 0,
-      "run_number": 12,
+      "run_number": 23,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g12-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -902,6 +1562,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for board meetings with minutes status",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g12-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 16.544,
+      "e2e_green": true,
+      "goal": "CRUD app for board meetings with minutes status",
+      "goal_index": 12,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.865,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.529,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.394,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g12-ts-nextjs",
+      "returncode": 0,
+      "run_number": 24,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g12-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g12-ts-nextjs\\\\src\\\\app\\\\api\\\\board_meetings\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 407,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for board_meetings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g12-ts-nextjs\\\\src\\\\app\\\\api\\\\board_meetings\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/board_meetings/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g12-ts-nextjs\\\\src\\\\app\\\\board_meetings\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Next.js CRUD page for board_meetings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g12-ts-nextjs\\\\src\\\\app\\\\board_meetings\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 204,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 204\n  },\n  \"elapsed_s\": 16.37\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -968,7 +1688,7 @@
       },
       "project_name": "gate-g13-py-fastapi",
       "returncode": 0,
-      "run_number": 13,
+      "run_number": 25,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g13-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -976,6 +1696,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for access devices with revocation state",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g13-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 15.563,
+      "e2e_green": true,
+      "goal": "CRUD app for access devices with revocation state",
+      "goal_index": 13,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.862,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.733,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.596,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g13-ts-nextjs",
+      "returncode": 0,
+      "run_number": 26,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g13-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g13-ts-nextjs\\\\src\\\\app\\\\api\\\\access_devices\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 358,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for access_devices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g13-ts-nextjs\\\\src\\\\app\\\\api\\\\access_devices\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/access_devices/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g13-ts-nextjs\\\\src\\\\app\\\\access_devices\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Next.js CRUD page for access_devices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g13-ts-nextjs\\\\src\\\\app\\\\access_devices\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 180,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 180\n  },\n  \"elapsed_s\": 15.41\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -1042,7 +1822,7 @@
       },
       "project_name": "gate-g14-py-fastapi",
       "returncode": 0,
-      "run_number": 14,
+      "run_number": 27,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g14-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -1050,6 +1830,66 @@
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for payments with receipt reference",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g14-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 16.422,
+      "e2e_green": true,
+      "goal": "CRUD app for payments with receipt reference",
+      "goal_index": 14,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.829,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.604,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.433,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g14-ts-nextjs",
+      "returncode": 0,
+      "run_number": 28,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g14-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "ipt-add-next-route\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g14-ts-nextjs\\\\src\\\\app\\\\api\\\\payments\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 412,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for payments\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g14-ts-nextjs\\\\src\\\\app\\\\api\\\\payments\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/payments/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g14-ts-nextjs\\\\src\\\\app\\\\payments\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Next.js CRUD page for payments\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g14-ts-nextjs\\\\src\\\\app\\\\payments\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 206,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 206\n  },\n  \"elapsed_s\": 16.25\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
       "timed_out": false
     },
     {
@@ -1116,7 +1956,7 @@
       },
       "project_name": "gate-g15-py-fastapi",
       "returncode": 0,
-      "run_number": 15,
+      "run_number": 29,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g15-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -1125,21 +1965,81 @@
       "tasks_passed": 4,
       "tasks_total": 4,
       "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for service requests with priority queue",
+        "--stack",
+        "ts-nextjs",
+        "--name",
+        "gate-g15-ts-nextjs",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-ts-nextjs-15\\projects",
+        "--json"
+      ],
+      "duration_s": 16.384,
+      "e2e_green": true,
+      "goal": "CRUD app for service requests with priority queue",
+      "goal_index": 15,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "pnpm tsc --noEmit",
+            "duration_s": 1.75,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "pnpm eslint .",
+            "duration_s": 2.586,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 4.337,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g15-ts-nextjs",
+      "returncode": 0,
+      "run_number": 30,
+      "scaffold_clean": true,
+      "stack": "ts-nextjs",
+      "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g15-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
+      "stdout_tail": "C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g15-ts-nextjs\\\\src\\\\app\\\\api\\\\service_requests\\\\route.ts\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 387,\n      \"log_tail\": \"generated Next.js route handlers with ts-morph GET, POST for service_requests\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g15-ts-nextjs\\\\src\\\\app\\\\api\\\\service_requests\\\\route.ts\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T02-page\",\n      \"target\": \"src/app/service_requests/page.tsx\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"typescript-add-next-page\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g15-ts-nextjs\\\\src\\\\app\\\\service_requests\\\\page.tsx\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Next.js CRUD page for service_requests\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-ts-nextjs-15\\\\projects\\\\gate-g15-ts-nextjs\\\\src\\\\app\\\\service_requests\\\\page.tsx\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 2,\n  \"tasks_total\": 2,\n  \"metrics\": {\n    \"tasks_total\": 2,\n    \"tasks_codegen\": 2,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 194,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 194\n  },\n  \"elapsed_s\": 16.23\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 2,
+      "tasks_total": 2,
+      "timed_out": false
     }
   ],
   "scope": "live scratch v0.5 gate execution slice; partial runs are evidence only for the executed slice and do not replace the full 75-run gate",
   "summary": {
     "average_cost_usd": null,
-    "e2e_green": 15,
+    "e2e_green": 30,
     "e2e_green_rate": 1.0,
-    "elapsed_s": 114.612,
-    "median_wall_clock_s": 6.262,
+    "elapsed_s": 390.476,
+    "median_wall_clock_s": 8.728,
     "missing_release_evidence": [
       "full 15 goals x 5 pilot stacks live matrix",
       "average cost measurement",
       "SkillOpt human approval evidence >=80%"
     ],
-    "planner_valid": 15,
+    "planner_valid": 30,
     "planner_valid_rate": 1.0,
     "release_gates": {
       "average_cost_le_1": null,
@@ -1151,12 +2051,12 @@
       "scaffold_clean_ge_95": true,
       "skillopt_human_approval_ge_80": false
     },
-    "scaffold_clean": 15,
+    "scaffold_clean": 30,
     "scaffold_clean_rate": 1.0,
-    "task_all_passed": 15,
+    "task_all_passed": 30,
     "task_all_passed_rate": 1.0,
     "timed_out": 0,
-    "total_runs": 15
+    "total_runs": 30
   },
   "work_dir": "$WORK_DIR"
 }

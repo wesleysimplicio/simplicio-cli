@@ -6,6 +6,7 @@ import json
 import subprocess
 
 from bench.run_scratch_live_gate import (
+    merge_results,
     _parse_json_stdout,
     _summarize,
     run_live_gate,
@@ -220,6 +221,50 @@ def test_live_gate_full_matrix_requires_official_pairs() -> None:
     summary = _summarize(rows, 1.0, plan_only=False, post_verify=True)
 
     assert summary["release_gates"]["full_75_run_matrix"] is False
+
+
+def test_live_gate_merges_distinct_slices(tmp_path) -> None:
+    def fake_runner(cmd, **_kwargs):
+        stack = cmd[cmd.index("--stack") + 1]
+        project = tmp_path / "live" / "projects" / f"gate-g01-{stack}"
+        project.mkdir(parents=True, exist_ok=True)
+        if isinstance(cmd, str):
+            return _completed(cmd, "")
+        return _completed(
+            cmd,
+            json.dumps(
+                {
+                    "project_dir": str(project),
+                    "files_written": ["src/main.py"],
+                    "tasks_passed": 1,
+                    "tasks_total": 1,
+                }
+            ),
+        )
+
+    existing = run_live_gate(
+        work_dir=tmp_path / "live-py",
+        stacks=("py-fastapi",),
+        goals=("CRUD app for condo units",),
+        post_verify=False,
+        runner=fake_runner,
+    )
+    current = run_live_gate(
+        work_dir=tmp_path / "live-ts",
+        stacks=("ts-nextjs",),
+        goals=("CRUD app for condo units",),
+        post_verify=False,
+        runner=fake_runner,
+    )
+
+    merged = merge_results(existing, current)
+
+    assert merged["matrix"]["selected_runs"] == 2
+    assert merged["matrix"]["planned_runs"] == 2
+    assert [row["run_number"] for row in merged["runs"]] == [1, 2]
+    assert [row["stack"] for row in merged["runs"]] == ["py-fastapi", "ts-nextjs"]
+    assert merged["summary"]["total_runs"] == 2
+    assert merged["summary"]["task_all_passed"] == 2
 
 
 def test_live_gate_marks_bad_stdout_as_failed(tmp_path) -> None:
