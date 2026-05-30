@@ -47,7 +47,7 @@ def test_scratch_codegen_bench_runs_keyless_python_cases(tmp_path) -> None:
     assert summary["tasks_codegen"] == 4
     assert summary["llm_calls"] == 0
     assert summary["planner_calls"] == 0
-    assert summary["post_validated_cases"] == 0
+    assert summary["post_validated_cases"] == 4
     assert summary["post_validation_failed_cases"] == 0
     assert summary["release_gates"]["llm_baseline_present"] is False
     assert (
@@ -114,30 +114,29 @@ def test_scratch_codegen_bench_captures_llm_baseline_without_codegen(
     tmp_path,
     monkeypatch,
 ) -> None:
-    from simplicio import pipeline
+    from simplicio import providers
 
     generate_calls: list[str] = []
 
     def fake_generate(prompt: str, feedback: str | None = None) -> str:
         generate_calls.append(prompt)
-        return "\n".join(
-            [
-                "diff --git a/src/app.py b/src/app.py",
-                "--- a/src/app.py",
-                "+++ b/src/app.py",
-                "@@ -0,0 +1 @@",
-                "+print('ok')",
-                "",
-                "TEST: pytest -q",
-            ]
+        return (
+            '{"path":"generated.py","content":"'
+            "class User:\\n"
+            "    email: Mapped[str]\\n\\n"
+            "class UserCreate: pass\\n"
+            "class UserUpdate: pass\\n"
+            "class UserRead: pass\\n\\n"
+            "@router.get('/users/{id}')\\n"
+            "async def read_user(): pass\\n\\n"
+            "from src.utils.math_ops import double\\n"
+            "def test_double():\\n"
+            "    assert double(2) == 4\\n"
+            '"}'
         )
 
-    def fake_apply_and_test(output, root, bound_paths=None):
-        return True, "baseline passed"
-
     monkeypatch.setenv("SIMPLICIO_MODEL", "fake-llm/baseline")
-    monkeypatch.setattr(pipeline, "generate", fake_generate)
-    monkeypatch.setattr(pipeline, "_apply_and_test", fake_apply_and_test)
+    monkeypatch.setattr(providers, "generate", fake_generate)
 
     baseline = capture_llm_baseline(
         work_dir=tmp_path / "baseline",

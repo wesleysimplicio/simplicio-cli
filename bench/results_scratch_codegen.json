@@ -3,15 +3,15 @@
   "cases": [
     {
       "actual_executor": "python-add-orm-field",
-      "duration_ms": 142,
+      "duration_ms": 145,
       "execution_mode": "codegen",
       "expected_executor": "python-add-orm-field",
       "expected_executor_match": true,
       "log_tail": "added User.email: Mapped[str] with libcst\nfiles_modified=$WORK_DIR\\projects\\python-orm-field-r01\\src\\db\\models.py",
       "metrics": {
-        "avg_codegen_ms": 142,
+        "avg_codegen_ms": 145,
         "avg_llm_ms": 0,
-        "avg_task_ms": 142,
+        "avg_task_ms": 145,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -26,22 +26,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pydantic-schema",
-      "duration_ms": 5,
+      "duration_ms": 4,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pydantic-schema",
       "expected_executor_match": true,
       "log_tail": "generated Pydantic schemas with libcst for User from src\\db\\user.py\nfiles_modified=$WORK_DIR\\projects\\python-pydantic-schema-r01\\src\\api\\schemas\\user.py",
       "metrics": {
-        "avg_codegen_ms": 5,
+        "avg_codegen_ms": 4,
         "avg_llm_ms": 0,
-        "avg_task_ms": 5,
+        "avg_task_ms": 4,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -56,8 +60,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -86,22 +94,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pytest-test",
-      "duration_ms": 3,
+      "duration_ms": 4,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pytest-test",
       "expected_executor_match": true,
       "log_tail": "generated pytest with libcst tests\\unit\\test_math_ops.py for utils.math_ops.double\nfiles_modified=$WORK_DIR\\projects\\python-pytest-test-r01\\tests\\unit\\test_math_ops.py",
       "metrics": {
-        "avg_codegen_ms": 3,
+        "avg_codegen_ms": 4,
         "avg_llm_ms": 0,
-        "avg_task_ms": 3,
+        "avg_task_ms": 4,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -116,22 +128,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 341,
+      "duration_ms": 345,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r01\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 341,
+        "avg_codegen_ms": 345,
         "avg_llm_ms": 0,
-        "avg_task_ms": 341,
+        "avg_task_ms": 345,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -157,15 +173,15 @@
     },
     {
       "actual_executor": "typescript-add-next-page",
-      "duration_ms": 2,
+      "duration_ms": 1,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-page",
       "expected_executor_match": true,
       "log_tail": "generated Next.js CRUD page for condo_units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-page-r01\\src\\app\\condo_units\\page.tsx",
       "metrics": {
-        "avg_codegen_ms": 2,
+        "avg_codegen_ms": 1,
         "avg_llm_ms": 0,
-        "avg_task_ms": 2,
+        "avg_task_ms": 1,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -192,15 +208,15 @@
     },
     {
       "actual_executor": "python-add-orm-field",
-      "duration_ms": 6,
+      "duration_ms": 3,
       "execution_mode": "codegen",
       "expected_executor": "python-add-orm-field",
       "expected_executor_match": true,
       "log_tail": "added User.email: Mapped[str] with libcst\nfiles_modified=$WORK_DIR\\projects\\python-orm-field-r02\\src\\db\\models.py",
       "metrics": {
-        "avg_codegen_ms": 6,
+        "avg_codegen_ms": 3,
         "avg_llm_ms": 0,
-        "avg_task_ms": 6,
+        "avg_task_ms": 3,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -215,8 +231,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -245,8 +265,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -275,8 +299,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -305,22 +333,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 343,
+      "duration_ms": 334,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r02\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 343,
+        "avg_codegen_ms": 334,
         "avg_llm_ms": 0,
-        "avg_task_ms": 343,
+        "avg_task_ms": 334,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -346,15 +378,15 @@
     },
     {
       "actual_executor": "typescript-add-next-page",
-      "duration_ms": 0,
+      "duration_ms": 1,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-page",
       "expected_executor_match": true,
       "log_tail": "generated Next.js CRUD page for condo_units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-page-r02\\src\\app\\condo_units\\page.tsx",
       "metrics": {
-        "avg_codegen_ms": 0,
+        "avg_codegen_ms": 1,
         "avg_llm_ms": 0,
-        "avg_task_ms": 0,
+        "avg_task_ms": 1,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -381,15 +413,15 @@
     },
     {
       "actual_executor": "python-add-orm-field",
-      "duration_ms": 4,
+      "duration_ms": 3,
       "execution_mode": "codegen",
       "expected_executor": "python-add-orm-field",
       "expected_executor_match": true,
       "log_tail": "added User.email: Mapped[str] with libcst\nfiles_modified=$WORK_DIR\\projects\\python-orm-field-r03\\src\\db\\models.py",
       "metrics": {
-        "avg_codegen_ms": 4,
+        "avg_codegen_ms": 3,
         "avg_llm_ms": 0,
-        "avg_task_ms": 4,
+        "avg_task_ms": 3,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -404,8 +436,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -434,22 +470,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-fastapi-route",
-      "duration_ms": 2,
+      "duration_ms": 1,
       "execution_mode": "codegen",
       "expected_executor": "python-add-fastapi-route",
       "expected_executor_match": true,
       "log_tail": "added FastAPI GET /users/{id} route with libcst\nfiles_modified=$WORK_DIR\\projects\\python-fastapi-route-r03\\src\\api\\users.py",
       "metrics": {
-        "avg_codegen_ms": 2,
+        "avg_codegen_ms": 1,
         "avg_llm_ms": 0,
-        "avg_task_ms": 2,
+        "avg_task_ms": 1,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -464,8 +504,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -494,22 +538,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 331,
+      "duration_ms": 322,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r03\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 331,
+        "avg_codegen_ms": 322,
         "avg_llm_ms": 0,
-        "avg_task_ms": 331,
+        "avg_task_ms": 322,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -535,15 +583,15 @@
     },
     {
       "actual_executor": "typescript-add-next-page",
-      "duration_ms": 1,
+      "duration_ms": 0,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-page",
       "expected_executor_match": true,
       "log_tail": "generated Next.js CRUD page for condo_units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-page-r03\\src\\app\\condo_units\\page.tsx",
       "metrics": {
-        "avg_codegen_ms": 1,
+        "avg_codegen_ms": 0,
         "avg_llm_ms": 0,
-        "avg_task_ms": 1,
+        "avg_task_ms": 0,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -570,15 +618,15 @@
     },
     {
       "actual_executor": "python-add-orm-field",
-      "duration_ms": 5,
+      "duration_ms": 3,
       "execution_mode": "codegen",
       "expected_executor": "python-add-orm-field",
       "expected_executor_match": true,
       "log_tail": "added User.email: Mapped[str] with libcst\nfiles_modified=$WORK_DIR\\projects\\python-orm-field-r04\\src\\db\\models.py",
       "metrics": {
-        "avg_codegen_ms": 5,
+        "avg_codegen_ms": 3,
         "avg_llm_ms": 0,
-        "avg_task_ms": 5,
+        "avg_task_ms": 3,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -593,22 +641,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pydantic-schema",
-      "duration_ms": 3,
+      "duration_ms": 2,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pydantic-schema",
       "expected_executor_match": true,
       "log_tail": "generated Pydantic schemas with libcst for User from src\\db\\user.py\nfiles_modified=$WORK_DIR\\projects\\python-pydantic-schema-r04\\src\\api\\schemas\\user.py",
       "metrics": {
-        "avg_codegen_ms": 3,
+        "avg_codegen_ms": 2,
         "avg_llm_ms": 0,
-        "avg_task_ms": 3,
+        "avg_task_ms": 2,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -623,22 +675,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-fastapi-route",
-      "duration_ms": 1,
+      "duration_ms": 2,
       "execution_mode": "codegen",
       "expected_executor": "python-add-fastapi-route",
       "expected_executor_match": true,
       "log_tail": "added FastAPI GET /users/{id} route with libcst\nfiles_modified=$WORK_DIR\\projects\\python-fastapi-route-r04\\src\\api\\users.py",
       "metrics": {
-        "avg_codegen_ms": 1,
+        "avg_codegen_ms": 2,
         "avg_llm_ms": 0,
-        "avg_task_ms": 1,
+        "avg_task_ms": 2,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -653,22 +709,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pytest-test",
-      "duration_ms": 3,
+      "duration_ms": 2,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pytest-test",
       "expected_executor_match": true,
       "log_tail": "generated pytest with libcst tests\\unit\\test_math_ops.py for utils.math_ops.double\nfiles_modified=$WORK_DIR\\projects\\python-pytest-test-r04\\tests\\unit\\test_math_ops.py",
       "metrics": {
-        "avg_codegen_ms": 3,
+        "avg_codegen_ms": 2,
         "avg_llm_ms": 0,
-        "avg_task_ms": 3,
+        "avg_task_ms": 2,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -683,22 +743,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 349,
+      "duration_ms": 348,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r04\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 349,
+        "avg_codegen_ms": 348,
         "avg_llm_ms": 0,
-        "avg_task_ms": 349,
+        "avg_task_ms": 348,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -724,15 +788,15 @@
     },
     {
       "actual_executor": "typescript-add-next-page",
-      "duration_ms": 0,
+      "duration_ms": 1,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-page",
       "expected_executor_match": true,
       "log_tail": "generated Next.js CRUD page for condo_units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-page-r04\\src\\app\\condo_units\\page.tsx",
       "metrics": {
-        "avg_codegen_ms": 0,
+        "avg_codegen_ms": 1,
         "avg_llm_ms": 0,
-        "avg_task_ms": 0,
+        "avg_task_ms": 1,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -759,15 +823,15 @@
     },
     {
       "actual_executor": "python-add-orm-field",
-      "duration_ms": 3,
+      "duration_ms": 5,
       "execution_mode": "codegen",
       "expected_executor": "python-add-orm-field",
       "expected_executor_match": true,
       "log_tail": "added User.email: Mapped[str] with libcst\nfiles_modified=$WORK_DIR\\projects\\python-orm-field-r05\\src\\db\\models.py",
       "metrics": {
-        "avg_codegen_ms": 3,
+        "avg_codegen_ms": 5,
         "avg_llm_ms": 0,
-        "avg_task_ms": 3,
+        "avg_task_ms": 5,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -782,8 +846,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -812,8 +880,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -842,8 +914,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -872,22 +948,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 322,
+      "duration_ms": 321,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r05\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 322,
+        "avg_codegen_ms": 321,
         "avg_llm_ms": 0,
-        "avg_task_ms": 322,
+        "avg_task_ms": 321,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -913,15 +993,15 @@
     },
     {
       "actual_executor": "typescript-add-next-page",
-      "duration_ms": 0,
+      "duration_ms": 1,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-page",
       "expected_executor_match": true,
       "log_tail": "generated Next.js CRUD page for condo_units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-page-r05\\src\\app\\condo_units\\page.tsx",
       "metrics": {
-        "avg_codegen_ms": 0,
+        "avg_codegen_ms": 1,
         "avg_llm_ms": 0,
-        "avg_task_ms": 0,
+        "avg_task_ms": 1,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -971,22 +1051,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pydantic-schema",
-      "duration_ms": 2,
+      "duration_ms": 3,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pydantic-schema",
       "expected_executor_match": true,
       "log_tail": "generated Pydantic schemas with libcst for User from src\\db\\user.py\nfiles_modified=$WORK_DIR\\projects\\python-pydantic-schema-r06\\src\\api\\schemas\\user.py",
       "metrics": {
-        "avg_codegen_ms": 2,
+        "avg_codegen_ms": 3,
         "avg_llm_ms": 0,
-        "avg_task_ms": 2,
+        "avg_task_ms": 3,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1001,22 +1085,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-fastapi-route",
-      "duration_ms": 1,
+      "duration_ms": 2,
       "execution_mode": "codegen",
       "expected_executor": "python-add-fastapi-route",
       "expected_executor_match": true,
       "log_tail": "added FastAPI GET /users/{id} route with libcst\nfiles_modified=$WORK_DIR\\projects\\python-fastapi-route-r06\\src\\api\\users.py",
       "metrics": {
-        "avg_codegen_ms": 1,
+        "avg_codegen_ms": 2,
         "avg_llm_ms": 0,
-        "avg_task_ms": 1,
+        "avg_task_ms": 2,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1031,22 +1119,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pytest-test",
-      "duration_ms": 2,
+      "duration_ms": 4,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pytest-test",
       "expected_executor_match": true,
       "log_tail": "generated pytest with libcst tests\\unit\\test_math_ops.py for utils.math_ops.double\nfiles_modified=$WORK_DIR\\projects\\python-pytest-test-r06\\tests\\unit\\test_math_ops.py",
       "metrics": {
-        "avg_codegen_ms": 2,
+        "avg_codegen_ms": 4,
         "avg_llm_ms": 0,
-        "avg_task_ms": 2,
+        "avg_task_ms": 4,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1061,22 +1153,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 338,
+      "duration_ms": 357,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r06\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 338,
+        "avg_codegen_ms": 357,
         "avg_llm_ms": 0,
-        "avg_task_ms": 338,
+        "avg_task_ms": 357,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1102,15 +1198,15 @@
     },
     {
       "actual_executor": "typescript-add-next-page",
-      "duration_ms": 0,
+      "duration_ms": 1,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-page",
       "expected_executor_match": true,
       "log_tail": "generated Next.js CRUD page for condo_units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-page-r06\\src\\app\\condo_units\\page.tsx",
       "metrics": {
-        "avg_codegen_ms": 0,
+        "avg_codegen_ms": 1,
         "avg_llm_ms": 0,
-        "avg_task_ms": 0,
+        "avg_task_ms": 1,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1137,15 +1233,15 @@
     },
     {
       "actual_executor": "python-add-orm-field",
-      "duration_ms": 5,
+      "duration_ms": 3,
       "execution_mode": "codegen",
       "expected_executor": "python-add-orm-field",
       "expected_executor_match": true,
       "log_tail": "added User.email: Mapped[str] with libcst\nfiles_modified=$WORK_DIR\\projects\\python-orm-field-r07\\src\\db\\models.py",
       "metrics": {
-        "avg_codegen_ms": 5,
+        "avg_codegen_ms": 3,
         "avg_llm_ms": 0,
-        "avg_task_ms": 5,
+        "avg_task_ms": 3,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1160,8 +1256,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -1190,8 +1290,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -1220,8 +1324,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -1250,22 +1358,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 332,
+      "duration_ms": 319,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r07\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 332,
+        "avg_codegen_ms": 319,
         "avg_llm_ms": 0,
-        "avg_task_ms": 332,
+        "avg_task_ms": 319,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1291,15 +1403,15 @@
     },
     {
       "actual_executor": "typescript-add-next-page",
-      "duration_ms": 0,
+      "duration_ms": 1,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-page",
       "expected_executor_match": true,
       "log_tail": "generated Next.js CRUD page for condo_units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-page-r07\\src\\app\\condo_units\\page.tsx",
       "metrics": {
-        "avg_codegen_ms": 0,
+        "avg_codegen_ms": 1,
         "avg_llm_ms": 0,
-        "avg_task_ms": 0,
+        "avg_task_ms": 1,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1326,15 +1438,15 @@
     },
     {
       "actual_executor": "python-add-orm-field",
-      "duration_ms": 3,
+      "duration_ms": 5,
       "execution_mode": "codegen",
       "expected_executor": "python-add-orm-field",
       "expected_executor_match": true,
       "log_tail": "added User.email: Mapped[str] with libcst\nfiles_modified=$WORK_DIR\\projects\\python-orm-field-r08\\src\\db\\models.py",
       "metrics": {
-        "avg_codegen_ms": 3,
+        "avg_codegen_ms": 5,
         "avg_llm_ms": 0,
-        "avg_task_ms": 3,
+        "avg_task_ms": 5,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1349,22 +1461,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pydantic-schema",
-      "duration_ms": 3,
+      "duration_ms": 2,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pydantic-schema",
       "expected_executor_match": true,
       "log_tail": "generated Pydantic schemas with libcst for User from src\\db\\user.py\nfiles_modified=$WORK_DIR\\projects\\python-pydantic-schema-r08\\src\\api\\schemas\\user.py",
       "metrics": {
-        "avg_codegen_ms": 3,
+        "avg_codegen_ms": 2,
         "avg_llm_ms": 0,
-        "avg_task_ms": 3,
+        "avg_task_ms": 2,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1379,22 +1495,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-fastapi-route",
-      "duration_ms": 2,
+      "duration_ms": 1,
       "execution_mode": "codegen",
       "expected_executor": "python-add-fastapi-route",
       "expected_executor_match": true,
       "log_tail": "added FastAPI GET /users/{id} route with libcst\nfiles_modified=$WORK_DIR\\projects\\python-fastapi-route-r08\\src\\api\\users.py",
       "metrics": {
-        "avg_codegen_ms": 2,
+        "avg_codegen_ms": 1,
         "avg_llm_ms": 0,
-        "avg_task_ms": 2,
+        "avg_task_ms": 1,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1409,8 +1529,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -1439,22 +1563,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 367,
+      "duration_ms": 336,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r08\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 367,
+        "avg_codegen_ms": 336,
         "avg_llm_ms": 0,
-        "avg_task_ms": 367,
+        "avg_task_ms": 336,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1538,22 +1666,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pydantic-schema",
-      "duration_ms": 3,
+      "duration_ms": 2,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pydantic-schema",
       "expected_executor_match": true,
       "log_tail": "generated Pydantic schemas with libcst for User from src\\db\\user.py\nfiles_modified=$WORK_DIR\\projects\\python-pydantic-schema-r09\\src\\api\\schemas\\user.py",
       "metrics": {
-        "avg_codegen_ms": 3,
+        "avg_codegen_ms": 2,
         "avg_llm_ms": 0,
-        "avg_task_ms": 3,
+        "avg_task_ms": 2,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1568,8 +1700,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -1598,8 +1734,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -1628,22 +1768,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 327,
+      "duration_ms": 307,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r09\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 327,
+        "avg_codegen_ms": 307,
         "avg_llm_ms": 0,
-        "avg_task_ms": 327,
+        "avg_task_ms": 307,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1669,15 +1813,15 @@
     },
     {
       "actual_executor": "typescript-add-next-page",
-      "duration_ms": 1,
+      "duration_ms": 0,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-page",
       "expected_executor_match": true,
       "log_tail": "generated Next.js CRUD page for condo_units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-page-r09\\src\\app\\condo_units\\page.tsx",
       "metrics": {
-        "avg_codegen_ms": 1,
+        "avg_codegen_ms": 0,
         "avg_llm_ms": 0,
-        "avg_task_ms": 1,
+        "avg_task_ms": 0,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1704,15 +1848,15 @@
     },
     {
       "actual_executor": "python-add-orm-field",
-      "duration_ms": 5,
+      "duration_ms": 3,
       "execution_mode": "codegen",
       "expected_executor": "python-add-orm-field",
       "expected_executor_match": true,
       "log_tail": "added User.email: Mapped[str] with libcst\nfiles_modified=$WORK_DIR\\projects\\python-orm-field-r10\\src\\db\\models.py",
       "metrics": {
-        "avg_codegen_ms": 5,
+        "avg_codegen_ms": 3,
         "avg_llm_ms": 0,
-        "avg_task_ms": 5,
+        "avg_task_ms": 3,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1727,22 +1871,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pydantic-schema",
-      "duration_ms": 45,
+      "duration_ms": 3,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pydantic-schema",
       "expected_executor_match": true,
       "log_tail": "generated Pydantic schemas with libcst for User from src\\db\\user.py\nfiles_modified=$WORK_DIR\\projects\\python-pydantic-schema-r10\\src\\api\\schemas\\user.py",
       "metrics": {
-        "avg_codegen_ms": 45,
+        "avg_codegen_ms": 3,
         "avg_llm_ms": 0,
-        "avg_task_ms": 45,
+        "avg_task_ms": 3,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1757,8 +1905,12 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
@@ -1787,22 +1939,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "python-add-pytest-test",
-      "duration_ms": 4,
+      "duration_ms": 2,
       "execution_mode": "codegen",
       "expected_executor": "python-add-pytest-test",
       "expected_executor_match": true,
       "log_tail": "generated pytest with libcst tests\\unit\\test_math_ops.py for utils.math_ops.double\nfiles_modified=$WORK_DIR\\projects\\python-pytest-test-r10\\tests\\unit\\test_math_ops.py",
       "metrics": {
-        "avg_codegen_ms": 4,
+        "avg_codegen_ms": 2,
         "avg_llm_ms": 0,
-        "avg_task_ms": 4,
+        "avg_task_ms": 2,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1817,22 +1973,26 @@
       "stack": "py-fastapi",
       "task_passed": true,
       "validation": {
-        "checks": [],
-        "log": "no post-validation required",
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
         "passed": true
       }
     },
     {
       "actual_executor": "typescript-add-next-route",
-      "duration_ms": 342,
+      "duration_ms": 331,
       "execution_mode": "codegen",
       "expected_executor": "typescript-add-next-route",
       "expected_executor_match": true,
       "log_tail": "generated Next.js route handlers with ts-morph GET, POST for units\nfiles_modified=$WORK_DIR\\projects\\typescript-next-route-r10\\src\\app\\api\\units\\route.ts",
       "metrics": {
-        "avg_codegen_ms": 342,
+        "avg_codegen_ms": 331,
         "avg_llm_ms": 0,
-        "avg_task_ms": 342,
+        "avg_task_ms": 331,
         "codegen_share": 1.0,
         "tasks_codegen": 1,
         "tasks_failed": 0,
@@ -1897,34 +2057,44 @@
     "python": "3.14.3"
   },
   "include_typescript": true,
-  "llm_baseline": null,
+  "llm_baseline": {
+    "avg_llm_ms": 69033,
+    "pass_rate": 0.6667,
+    "source": "captured by bench/run_scratch_codegen.py --capture-llm-baseline-json",
+    "total_cases": 6
+  },
   "repeat": 10,
   "scope": "synthetic deterministic executor benchmark; no LLM calls; does not replace the full 50-scratch release gate",
   "summary": {
-    "avg_codegen_ms": 61,
+    "avg_codegen_ms": 59,
     "codegen_share": 1.0,
-    "elapsed_s": 10.108,
-    "executor_pass_rate_ge_llm": null,
+    "elapsed_s": 10.089,
+    "executor_pass_rate_ge_llm": true,
     "expected_executor_match_rate": 1.0,
     "failed_cases": 0,
-    "latency_reduction": null,
+    "latency_reduction": 0.9991,
+    "llm_baseline": {
+      "avg_llm_ms": 69033,
+      "pass_rate": 0.6667,
+      "source": "captured by bench/run_scratch_codegen.py --capture-llm-baseline-json",
+      "total_cases": 6
+    },
     "llm_calls": 0,
     "missing_release_evidence": [
-      "LLM baseline pass-rate and latency comparison",
       "50 real scratch goals across the release corpus",
       "planner cache hit-rate measured across cold/warm scratch runs"
     ],
     "pass_rate": 1.0,
     "passed_cases": 60,
     "planner_calls": 0,
-    "post_validated_cases": 20,
+    "post_validated_cases": 60,
     "post_validation_failed_cases": 0,
     "release_gates": {
       "executor_pass_rate_100": true,
-      "executor_pass_rate_ge_llm": null,
+      "executor_pass_rate_ge_llm": true,
       "fifty_runs": true,
-      "latency_reduction_ge_50": null,
-      "llm_baseline_present": false,
+      "latency_reduction_ge_50": true,
+      "llm_baseline_present": true,
       "mechanical_share_ge_30": true,
       "typescript_next_route_compiles_and_responds_json": true
     },

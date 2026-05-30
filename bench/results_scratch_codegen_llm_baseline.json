@@ -1,0 +1,189 @@
+{
+  "benchmark": "scratch-codegen-llm-baseline",
+  "cases": [
+    {
+      "duration_ms": 8237,
+      "execution_mode": "llm",
+      "log_tail": "rc/db/models.py\",\"content\":\"from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column\\n\\n\\nclass Base(DeclarativeBase):\\n    pass\\n\\n\\nclass User(Base):\\n    __tablename__ = \\\"users\\\"\\n\\n    id: Mapped[int] = mapped_column(primary_key=True)\\n    name: Mapped[str]\\n    email: Mapped[str]\\n\"}\n",
+      "metrics": {
+        "tasks_codegen": 0,
+        "tasks_failed": 0,
+        "tasks_llm": 1,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "name": "python-orm-field",
+      "passed": true,
+      "project_dir": "$WORK_DIR/projects/llm-python-orm-field-r01",
+      "run_index": 1,
+      "stack": "py-fastapi",
+      "task_passed": true,
+      "validation": {
+        "checks": [
+          "user_class",
+          "email_field",
+          "mapped_type"
+        ],
+        "log": "generated file contains required structural markers",
+        "passed": true
+      }
+    },
+    {
+      "duration_ms": 12723,
+      "execution_mode": "llm",
+      "log_tail": " name: str\\n    email: str | None = None\\n\\n\\nclass UserUpdate(BaseModel):\\n    name: str | None = None\\n    email: str | None = None\\n\\n\\nclass UserRead(BaseModel):\\n    id: int\\n    name: str\\n    email: str | None = None\\n    created_at: datetime\\n\\n    class Config:\\n        orm_mode = True\\n\"}\n",
+      "metrics": {
+        "tasks_codegen": 0,
+        "tasks_failed": 0,
+        "tasks_llm": 1,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "name": "python-pydantic-schema",
+      "passed": true,
+      "project_dir": "$WORK_DIR/projects/llm-python-pydantic-schema-r01",
+      "run_index": 1,
+      "stack": "py-fastapi",
+      "task_passed": true,
+      "validation": {
+        "checks": [
+          "user_create",
+          "user_update",
+          "user_read"
+        ],
+        "log": "generated file contains required structural markers",
+        "passed": true
+      }
+    },
+    {
+      "duration_ms": 11169,
+      "execution_mode": "llm",
+      "log_tail": "{\"path\":\"src/api/users.py\",\"content\":\"from fastapi import APIRouter\\n\\nrouter = APIRouter()\\n\\n\\n@router.get(\\\"/users/{id}\\\")\\nasync def get_user(id: int) -> dict[str, int]:\\n    return {\\\"id\\\": id}\\n\"}\n",
+      "metrics": {
+        "tasks_codegen": 0,
+        "tasks_failed": 0,
+        "tasks_llm": 1,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "name": "python-fastapi-route",
+      "passed": true,
+      "project_dir": "$WORK_DIR/projects/llm-python-fastapi-route-r01",
+      "run_index": 1,
+      "stack": "py-fastapi",
+      "task_passed": true,
+      "validation": {
+        "checks": [
+          "router_get",
+          "path_param",
+          "async_handler"
+        ],
+        "log": "generated file contains required structural markers",
+        "passed": true
+      }
+    },
+    {
+      "duration_ms": 6869,
+      "execution_mode": "llm",
+      "log_tail": "{\"path\":\"tests/unit/test_math_ops.py\",\"content\":\"from utils.math_ops import double\\n\\n\\ndef test_double_returns_twice_value():\\n    assert double(21) == 42\\n\"}\n",
+      "metrics": {
+        "tasks_codegen": 0,
+        "tasks_failed": 0,
+        "tasks_llm": 1,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "name": "python-pytest-test",
+      "passed": true,
+      "project_dir": "$WORK_DIR/projects/llm-python-pytest-test-r01",
+      "run_index": 1,
+      "stack": "py-fastapi",
+      "task_passed": true,
+      "validation": {
+        "checks": [
+          "imports_double",
+          "assertion",
+          "test_function"
+        ],
+        "log": "generated file contains required structural markers",
+        "passed": true
+      }
+    },
+    {
+      "duration_ms": 14853,
+      "execution_mode": "llm",
+      "log_tail": "ateId(),\\n    name,\\n    description:\\n      typeof body.description === \\\"string\\\" && body.description.trim()\\n        ? body.description.trim()\\n        : undefined,\\n    createdAt: now,\\n    updatedAt: now,\\n  };\\n\\n  units.push(unit);\\n\\n  return Response.json({ unit }, { status: 201 });\\n}\\n\"}\n",
+      "metrics": {
+        "tasks_codegen": 0,
+        "tasks_failed": 1,
+        "tasks_llm": 1,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "name": "typescript-next-route",
+      "passed": false,
+      "project_dir": "$WORK_DIR/projects/llm-typescript-next-route-r01",
+      "run_index": 1,
+      "stack": "ts-nextjs",
+      "task_passed": false,
+      "validation": {
+        "checks": [
+          "typescript_compile",
+          "route_runtime"
+        ],
+        "log": "GET did not return a JSON array",
+        "passed": false
+      }
+    },
+    {
+      "duration_ms": 360349,
+      "execution_mode": "llm",
+      "log_tail": "y-3 text-sm\\\">{unit.bathrooms ?? \\\"\u2014\\\"}</td>\\n                    <td className=\\\"px-4 py-3 text-sm\\\">{unit.owner_name ?? \\\"\u2014\\\"}</td>\\n                  </tr>\\n                ))}\\n              </tbody>\\n            </table>\\n          </div>\\n        )}\\n      </section>\\n    </main>\\n  );\\n}\\n\"}\n",
+      "metrics": {
+        "tasks_codegen": 0,
+        "tasks_failed": 1,
+        "tasks_llm": 1,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "name": "typescript-next-page",
+      "passed": false,
+      "project_dir": "$WORK_DIR/projects/llm-typescript-next-page-r01",
+      "run_index": 1,
+      "stack": "ts-nextjs",
+      "task_passed": false,
+      "validation": {
+        "checks": [
+          "async_page_component"
+        ],
+        "log": "missing generated page checks: create_form, crud_page_marker, list_render",
+        "passed": false
+      }
+    }
+  ],
+  "environment": {
+    "model": "codex-cli/default",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "python": "3.14.3"
+  },
+  "include_typescript": true,
+  "repeat": 1,
+  "scope": "equivalent LLM scratch-task baseline with mechanical executors disabled; intended as input to --llm-baseline-json",
+  "source": "captured by bench/run_scratch_codegen.py --capture-llm-baseline-json",
+  "summary": {
+    "avg_llm_ms": 69033,
+    "elapsed_s": 414.208,
+    "failed_cases": 2,
+    "model": "codex-cli/default",
+    "pass_rate": 0.6667,
+    "passed_cases": 4,
+    "release_gates": {
+      "baseline_has_successful_cases": true,
+      "baseline_latency_measured": true,
+      "baseline_present": true
+    },
+    "total_cases": 6
+  },
+  "work_dir": "$WORK_DIR",
+  "work_dir_owned_by_runner": false
+}

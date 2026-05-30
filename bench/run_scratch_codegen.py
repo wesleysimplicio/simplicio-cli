@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -410,10 +411,18 @@ def _run_llm_baseline_case(
             "template_version": "bench-scratch-codegen-v1",
         },
     )
-    plan = _plan_for_case(case, project_name)
+    work_dir = projects_parent.parent
+    project_dir = projects_parent / project_name
+    project_dir.mkdir(parents=True, exist_ok=True)
+    stack.render_tree(project_dir, {"project_name": project_name})
 
+    started = time.perf_counter()
+    previous_cwd = Path.cwd()
     try:
-        report = execute_plan(plan, stack, projects_parent, skip_install=True)
+        from simplicio.providers import generate
+
+        os.chdir(project_dir)
+        output = generate(_llm_baseline_prompt(case))
     except Exception as exc:  # pragma: no cover - defensive bench reporting
         return {
             "name": case.name,
@@ -424,30 +433,125 @@ def _run_llm_baseline_case(
             "duration_ms": 0,
             "error": f"{type(exc).__name__}: {exc}",
         }
+    finally:
+        os.chdir(previous_cwd)
 
-    task = report.task_results[0] if report.task_results else None
-    task_passed = bool(task and task.passed)
-    work_dir = projects_parent.parent
+    content = _extract_llm_file_content(output)
+    target = project_dir / case.task.target
+    if content:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8", newline="\n")
     validation = (
-        _validate_generated_case(case, report.project_dir, work_dir)
-        if task_passed
-        else {"passed": False, "checks": [], "log": "LLM task did not pass"}
+        _validate_generated_case(case, project_dir, work_dir)
+        if content
+        else {"passed": False, "checks": [], "log": "LLM output did not include file content"}
     )
+    duration_ms = int((time.perf_counter() - started) * 1000)
     return {
         "name": case.name,
         "run_index": run_index,
         "stack": case.stack_slug,
-        "project_dir": _redact_path(report.project_dir, work_dir),
-        "passed": task_passed and validation["passed"],
-        "task_passed": task_passed,
+        "project_dir": _redact_path(project_dir, work_dir),
+        "passed": validation["passed"],
+        "task_passed": validation["passed"],
         "validation": validation,
-        "execution_mode": task.execution_mode if task is not None else "missing",
-        "duration_ms": task.duration_ms if task is not None else 0,
-        "metrics": report.metrics,
-        "log_tail": _redact_text(task.log_tail[-300:], work_dir)
-        if task is not None
-        else "",
+        "execution_mode": "llm",
+        "duration_ms": duration_ms,
+        "metrics": {
+            "tasks_total": 1,
+            "tasks_codegen": 0,
+            "tasks_llm": 1,
+            "tasks_skipped": 0,
+            "tasks_failed": 0 if validation["passed"] else 1,
+        },
+        "log_tail": _redact_text((output or "")[-300:], work_dir),
     }
+
+
+def _llm_baseline_prompt(case: BenchCase) -> str:
+    seed = "\n\n".join(
+        f"--- {path} ---\n{content}" for path, content in case.seed_files.items()
+    )
+    if not seed:
+        seed = "(no existing files)"
+    return f"""You are the LLM baseline for a code-generation benchmark.
+
+Return ONLY one JSON object with this shape:
+{{"path": "{case.task.target}", "content": "<complete file content>"}}
+
+Do not include markdown fences or prose.
+
+Task:
+{case.task.goal}
+
+Acceptance criteria:
+{case.task.criteria}
+
+Constraints:
+{case.task.constraints}
+
+Existing files:
+{seed}
+"""
+
+
+def _extract_llm_file_content(output: str | None) -> str:
+    if not output:
+        return ""
+    parsed = _extract_json_object(output)
+    if isinstance(parsed, dict):
+        content = parsed.get("content")
+        if isinstance(content, str) and content.strip():
+            return content
+        files = parsed.get("files")
+        if isinstance(files, list):
+            for item in files:
+                if isinstance(item, dict) and isinstance(item.get("content"), str):
+                    return item["content"]
+
+    fenced = re.search(r"```(?:[A-Za-z0-9_.+-]+)?\s*\n(.*?)```", output, re.S)
+    if fenced:
+        return fenced.group(1).strip()
+    return output.strip()
+
+
+def _extract_json_object(text: str) -> dict[str, Any] | None:
+    stripped = text.strip()
+    try:
+        value = json.loads(stripped)
+        return value if isinstance(value, dict) else None
+    except json.JSONDecodeError:
+        pass
+
+    start = stripped.find("{")
+    while start >= 0:
+        depth = 0
+        in_string = False
+        escape = False
+        for index in range(start, len(stripped)):
+            char = stripped[index]
+            if in_string:
+                if escape:
+                    escape = False
+                elif char == "\\":
+                    escape = True
+                elif char == '"':
+                    in_string = False
+                continue
+            if char == '"':
+                in_string = True
+            elif char == "{":
+                depth += 1
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        value = json.loads(stripped[start : index + 1])
+                    except json.JSONDecodeError:
+                        break
+                    return value if isinstance(value, dict) else None
+        start = stripped.find("{", start + 1)
+    return None
 
 
 def _write_seed_tree(tree: Path, seed_files: dict[str, str]) -> None:
@@ -462,11 +566,77 @@ def _validate_generated_case(
     project_dir: Path,
     work_dir: Path,
 ) -> dict[str, Any]:
+    target = project_dir / case.task.target
+    if case.expected_executor == "python-add-orm-field":
+        return _validate_text_markers(
+            target,
+            work_dir,
+            {
+                "user_class": "class User",
+                "email_field": "email",
+                "mapped_type": "Mapped[",
+            },
+        )
+    if case.expected_executor == "python-add-pydantic-schema":
+        return _validate_text_markers(
+            target,
+            work_dir,
+            {
+                "user_create": "class UserCreate",
+                "user_update": "class UserUpdate",
+                "user_read": "class UserRead",
+            },
+        )
+    if case.expected_executor == "python-add-fastapi-route":
+        return _validate_text_markers(
+            target,
+            work_dir,
+            {
+                "router_get": "@router.get",
+                "path_param": "{id}",
+                "async_handler": "async def",
+            },
+        )
+    if case.expected_executor == "python-add-pytest-test":
+        return _validate_text_markers(
+            target,
+            work_dir,
+            {
+                "imports_double": "double",
+                "assertion": "assert",
+                "test_function": "def test_",
+            },
+        )
     if case.expected_executor == "typescript-add-next-route":
-        return _validate_next_route(project_dir / case.task.target, work_dir)
+        return _validate_next_route(target, work_dir)
     if case.expected_executor == "typescript-add-next-page":
-        return _validate_next_page(project_dir / case.task.target, work_dir)
+        return _validate_next_page(target, work_dir)
     return {"passed": True, "checks": [], "log": "no post-validation required"}
+
+
+def _validate_text_markers(
+    target: Path,
+    work_dir: Path,
+    markers: dict[str, str],
+) -> dict[str, Any]:
+    if not target.is_file():
+        return {
+            "passed": False,
+            "checks": ["file_exists"],
+            "log": f"missing generated file: {_redact_path(target, work_dir)}",
+        }
+    content = target.read_text(encoding="utf-8")
+    checks = [name for name, marker in markers.items() if marker in content]
+    missing = sorted(set(markers) - set(checks))
+    return {
+        "passed": not missing,
+        "checks": checks,
+        "log": (
+            "generated file contains required structural markers"
+            if not missing
+            else "missing markers: " + ", ".join(missing)
+        ),
+    }
 
 
 def _validate_next_page(page_path: Path, work_dir: Path) -> dict[str, Any]:
