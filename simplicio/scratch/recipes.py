@@ -5,6 +5,7 @@ turn known goal patterns into schema-validated plans without a planner call.
 The loader accepts JSON-compatible YAML with an optional PyYAML fallback so the
 runtime stays dependency-free in the default install.
 """
+
 from __future__ import annotations
 
 import json
@@ -80,9 +81,7 @@ class Recipe:
             str(slot): SlotSpec(
                 required=bool(spec.get("required", False)),
                 default=(
-                    None
-                    if spec.get("default") is None
-                    else str(spec.get("default"))
+                    None if spec.get("default") is None else str(spec.get("default"))
                 ),
                 derived_from=(
                     None
@@ -231,10 +230,15 @@ class RecipeRegistry:
             try:
                 return recipes[(stack_slug, name)]
             except KeyError as exc:
-                raise KeyError(f"recipe {name!r} not found for stack {stack_slug!r}") from exc
+                raise KeyError(
+                    f"recipe {name!r} not found for stack {stack_slug!r}"
+                ) from exc
 
-        matches = [recipe for (stack, recipe_name), recipe in recipes.items()
-                   if recipe_name == name]
+        matches = [
+            recipe
+            for (stack, recipe_name), recipe in recipes.items()
+            if recipe_name == name
+        ]
         if not matches:
             raise KeyError(f"recipe {name!r} not found")
         return sorted(matches, key=lambda recipe: recipe.stack_slug)[0]
@@ -261,7 +265,10 @@ class RecipeRegistry:
             key = (recipe.stack_slug, recipe.name)
             if key in recipes:
                 raise RecipeLoadError(
-                    _where(path, f"duplicate recipe {recipe.name!r} for stack {stack_slug!r}")
+                    _where(
+                        path,
+                        f"duplicate recipe {recipe.name!r} for stack {stack_slug!r}",
+                    )
                 )
             recipes[key] = recipe
         self._cache = recipes
@@ -309,7 +316,9 @@ def _load_template(path: Path) -> dict[str, Any]:
         try:
             raw = yaml.safe_load(text)
         except Exception as exc:  # pragma: no cover - depends on optional PyYAML
-            raise RecipeLoadError(_where(path, f"invalid recipe YAML: {json_error}")) from exc
+            raise RecipeLoadError(
+                _where(path, f"invalid recipe YAML: {json_error}")
+            ) from exc
     if not isinstance(raw, dict):
         raise RecipeLoadError(_where(path, "recipe root must be an object"))
     return raw
@@ -375,13 +384,13 @@ _PLACEHOLDER_RE = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
 
 def _render(value: Any, context: dict[str, str]) -> Any:
     if isinstance(value, str):
+
         def replace(found: re.Match[str]) -> str:
             key = found.group(1)
             if key not in context:
-                raise RecipeSlotError(
-                    f"missing slot {key!r}; pass --slot {key}=VALUE"
-                )
+                raise RecipeSlotError(f"missing slot {key!r}; pass --slot {key}=VALUE")
             return context[key]
+
         return _PLACEHOLDER_RE.sub(replace, value)
     if isinstance(value, list):
         return [_render(item, context) for item in value]
@@ -412,7 +421,11 @@ def _words(value: str) -> list[str]:
 
 
 def _pluralize(value: str) -> str:
-    if value.endswith(("s", "x")) or value.endswith(("ch", "sh")):
+    if value.endswith("ss"):
+        return value + "es"
+    if value.endswith("s"):
+        return value
+    if value.endswith("x") or value.endswith(("ch", "sh")):
         return value + "es"
     if value.endswith("y") and len(value) > 1 and value[-2] not in "aeiou":
         return value[:-1] + "ies"

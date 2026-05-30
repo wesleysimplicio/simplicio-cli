@@ -5,19 +5,19 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 ## Matrix
 
 - release planned runs: 75
-- selected matrix runs: 1
-- selected runs: 1
+- selected matrix runs: 15
+- selected runs: 15
 - plan only: False
 - skip install: False
 - post verify: True
 
 ## Summary
 
-- planner valid: 1/1 (100.00%)
-- scaffold clean: 1 (100.00%)
-- task all passed: 1 (100.00%)
-- e2e green: 1 (100.00%)
-- median wall-clock: 6.04 s
+- planner valid: 15/15 (100.00%)
+- scaffold clean: 15 (100.00%)
+- task all passed: 15 (100.00%)
+- e2e green: 15 (100.00%)
+- median wall-clock: 6.262 s
 - release ready: False
 
 ## Release Gate Status
@@ -35,7 +35,21 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 | # | stack | goal_index | rc | planner | scaffold | tasks | e2e | duration_s |
 | ---: | --- | ---: | ---: | --- | --- | --- | --- | ---: |
-| 1 | py-fastapi | 1 | 0 | True | True | True | True | 6.04 |
+| 1 | py-fastapi | 1 | 0 | True | True | True | True | 6.151 |
+| 2 | py-fastapi | 2 | 0 | True | True | True | True | 6.109 |
+| 3 | py-fastapi | 3 | 0 | True | True | True | True | 6.198 |
+| 4 | py-fastapi | 4 | 0 | True | True | True | True | 6.262 |
+| 5 | py-fastapi | 5 | 0 | True | True | True | True | 6.254 |
+| 6 | py-fastapi | 6 | 0 | True | True | True | True | 6.59 |
+| 7 | py-fastapi | 7 | 0 | True | True | True | True | 6.228 |
+| 8 | py-fastapi | 8 | 0 | True | True | True | True | 6.265 |
+| 9 | py-fastapi | 9 | 0 | True | True | True | True | 6.118 |
+| 10 | py-fastapi | 10 | 0 | True | True | True | True | 6.481 |
+| 11 | py-fastapi | 11 | 0 | True | True | True | True | 6.442 |
+| 12 | py-fastapi | 12 | 0 | True | True | True | True | 6.256 |
+| 13 | py-fastapi | 13 | 0 | True | True | True | True | 6.597 |
+| 14 | py-fastapi | 14 | 0 | True | True | True | True | 6.316 |
+| 15 | py-fastapi | 15 | 0 | True | True | True | True | 6.507 |
 
 ## Missing Release Evidence
 

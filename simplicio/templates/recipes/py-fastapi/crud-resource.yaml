@@ -3,6 +3,7 @@
   "description": "REST CRUD endpoints, persistence model, schemas, and tests for one FastAPI entity.",
   "applies_to": ["py-fastapi"],
   "matches": [
+    "(?i)\\bCRUD\\s+app\\s+for\\s+(?P<entity>[A-Za-z][A-Za-z0-9_-]*(?:\\s+[A-Za-z][A-Za-z0-9_-]*){0,2})(?=\\s+with\\b|\\s*$)",
     "(?i)\\bCRUD\\s+(?:API\\s+)?(?:for\\s+)?(?:managing\\s+)?(?P<entity>[A-Za-z][A-Za-z0-9_-]*)\\b",
     "(?i)\\bREST\\s+(?:API\\s+)?for\\s+(?P<entity>[A-Za-z][A-Za-z0-9_-]*)\\b",
     "(?i)\\bresource\\s+(?P<entity>[A-Za-z][A-Za-z0-9_-]*)\\s+with\\s+CRUD\\b",

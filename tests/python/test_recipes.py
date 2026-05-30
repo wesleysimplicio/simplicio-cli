@@ -1,4 +1,5 @@
 """Tests for scratch-mode declarative recipe matching and instantiation."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -16,6 +17,12 @@ from simplicio.scratch.recipes import (
 
 MATCH_CASES = [
     ("py-fastapi", "CRUD API for Unit", "crud-resource", "Unit"),
+    (
+        "py-fastapi",
+        "CRUD app for condo units with owner contact search",
+        "crud-resource",
+        "CondoUnits",
+    ),
     ("py-fastapi", "REST API for Invoice", "crud-resource", "Invoice"),
     ("ts-nextjs", "Manage Product with CRUD", "crud-resource", "Product"),
     ("py-fastapi", "add JWT auth", "auth-jwt", None),

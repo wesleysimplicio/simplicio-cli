@@ -6,12 +6,12 @@
     "python": "3.14.3"
   },
   "matrix": {
-    "goals": 1,
+    "goals": 15,
     "plan_only": false,
-    "planned_runs": 1,
+    "planned_runs": 15,
     "post_verify": true,
     "release_planned_runs": 75,
-    "selected_runs": 1,
+    "selected_runs": 15,
     "skip_install": false,
     "stacks": 1
   },
@@ -28,10 +28,10 @@
         "--name",
         "gate-g01-py-fastapi",
         "--dest",
-        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\projects",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
         "--json"
       ],
-      "duration_s": 6.04,
+      "duration_s": 6.151,
       "e2e_green": true,
       "goal": "CRUD app for condo units with owner contact search",
       "goal_index": 1,
@@ -46,13 +46,13 @@
               "pytest",
               "-q"
             ],
-            "duration_s": 1.096,
+            "duration_s": 1.038,
             "fallback_for": "pytest -q",
             "name": "test",
             "passed": true,
             "returncode": 0,
             "stderr_tail": "",
-            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.40s\n",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.38s\n",
             "timed_out": false
           },
           {
@@ -64,7 +64,7 @@
               "src",
               "tests"
             ],
-            "duration_s": 0.203,
+            "duration_s": 0.145,
             "fallback_for": "ruff check src tests",
             "name": "lint",
             "passed": true,
@@ -74,7 +74,7 @@
             "timed_out": false
           }
         ],
-        "duration_s": 1.299,
+        "duration_s": 1.183,
         "enabled": true,
         "passed": true
       },
@@ -84,7 +84,1043 @@
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g01-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
-      "stdout_tail": "l,\n      \"duration_ms\": 2,\n      \"log_tail\": \"created CRUD FastAPI router for App\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\\\projects\\\\gate-g01-py-fastapi\\\\src\\\\api\\\\routes\\\\apps.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\\\projects\\\\gate-g01-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_apps.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\\\projects\\\\gate-g01-py-fastapi\\\\tests\\\\api\\\\test_apps.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for App\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\\\projects\\\\gate-g01-py-fastapi\\\\tests\\\\api\\\\test_apps.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 39,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 39\n  },\n  \"elapsed_s\": 5.88\n}\n",
+      "stdout_tail": "\": null,\n      \"duration_ms\": 2,\n      \"log_tail\": \"created CRUD FastAPI router for CondoUnits\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g01-py-fastapi\\\\src\\\\api\\\\routes\\\\condo_units.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g01-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_condo_units.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g01-py-fastapi\\\\tests\\\\api\\\\test_condo_units.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for CondoUnits\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g01-py-fastapi\\\\tests\\\\api\\\\test_condo_units.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 39,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 39\n  },\n  \"elapsed_s\": 5.96\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for invoices with paid and overdue filters",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g02-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.109,
+      "e2e_green": true,
+      "goal": "CRUD app for invoices with paid and overdue filters",
+      "goal_index": 2,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.097,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.42s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.185,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.282,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g02-py-fastapi",
+      "returncode": 0,
+      "run_number": 2,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g02-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": ",\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"created CRUD FastAPI router for Invoices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g02-py-fastapi\\\\src\\\\api\\\\routes\\\\invoices.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g02-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_invoices.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g02-py-fastapi\\\\tests\\\\api\\\\test_invoices.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for Invoices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g02-py-fastapi\\\\tests\\\\api\\\\test_invoices.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 36,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 36\n  },\n  \"elapsed_s\": 5.89\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for maintenance tickets with assignee status",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g03-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.198,
+      "e2e_green": true,
+      "goal": "CRUD app for maintenance tickets with assignee status",
+      "goal_index": 3,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.111,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.39s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.173,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.284,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g03-py-fastapi",
+      "returncode": 0,
+      "run_number": 3,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g03-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "\": \"created CRUD FastAPI router for MaintenanceTickets\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g03-py-fastapi\\\\src\\\\api\\\\routes\\\\maintenance_tickets.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g03-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_maintenance_tickets.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g03-py-fastapi\\\\tests\\\\api\\\\test_maintenance_tickets.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for MaintenanceTickets\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g03-py-fastapi\\\\tests\\\\api\\\\test_maintenance_tickets.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 36,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 36\n  },\n  \"elapsed_s\": 6.02\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for visitors with check-in and check-out timestamps",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g04-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.262,
+      "e2e_green": true,
+      "goal": "CRUD app for visitors with check-in and check-out timestamps",
+      "goal_index": 4,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.301,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.47s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.147,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.448,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g04-py-fastapi",
+      "returncode": 0,
+      "run_number": 4,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g04-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": ",\n      \"skipped\": null,\n      \"duration_ms\": 2,\n      \"log_tail\": \"created CRUD FastAPI router for Visitors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g04-py-fastapi\\\\src\\\\api\\\\routes\\\\visitors.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g04-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_visitors.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g04-py-fastapi\\\\tests\\\\api\\\\test_visitors.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for Visitors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g04-py-fastapi\\\\tests\\\\api\\\\test_visitors.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 46,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 46\n  },\n  \"elapsed_s\": 6.06\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for amenity bookings with date conflict checks",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g05-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.254,
+      "e2e_green": true,
+      "goal": "CRUD app for amenity bookings with date conflict checks",
+      "goal_index": 5,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.219,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.47s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.17,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.389,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g05-py-fastapi",
+      "returncode": 0,
+      "run_number": 5,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g05-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "2,\n      \"log_tail\": \"created CRUD FastAPI router for AmenityBookings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g05-py-fastapi\\\\src\\\\api\\\\routes\\\\amenity_bookings.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g05-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_amenity_bookings.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g05-py-fastapi\\\\tests\\\\api\\\\test_amenity_bookings.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for AmenityBookings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g05-py-fastapi\\\\tests\\\\api\\\\test_amenity_bookings.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 37,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 37\n  },\n  \"elapsed_s\": 6.09\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for announcements with publish and archive state",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g06-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.59,
+      "e2e_green": true,
+      "goal": "CRUD app for announcements with publish and archive state",
+      "goal_index": 6,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.157,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.42s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.215,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.372,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g06-py-fastapi",
+      "returncode": 0,
+      "run_number": 6,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g06-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": " \"duration_ms\": 2,\n      \"log_tail\": \"created CRUD FastAPI router for Announcements\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g06-py-fastapi\\\\src\\\\api\\\\routes\\\\announcements.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g06-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_announcements.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g06-py-fastapi\\\\tests\\\\api\\\\test_announcements.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for Announcements\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g06-py-fastapi\\\\tests\\\\api\\\\test_announcements.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 39,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 39\n  },\n  \"elapsed_s\": 6.42\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for documents with category filtering",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g07-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.228,
+      "e2e_green": true,
+      "goal": "CRUD app for documents with category filtering",
+      "goal_index": 7,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.218,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.44s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.169,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.388,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g07-py-fastapi",
+      "returncode": 0,
+      "run_number": 7,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g07-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "  \"skipped\": null,\n      \"duration_ms\": 2,\n      \"log_tail\": \"created CRUD FastAPI router for Documents\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g07-py-fastapi\\\\src\\\\api\\\\routes\\\\documents.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g07-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_documents.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g07-py-fastapi\\\\tests\\\\api\\\\test_documents.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for Documents\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g07-py-fastapi\\\\tests\\\\api\\\\test_documents.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 44,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 44\n  },\n  \"elapsed_s\": 6.01\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for vendors with active contract tracking",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g08-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.265,
+      "e2e_green": true,
+      "goal": "CRUD app for vendors with active contract tracking",
+      "goal_index": 8,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.161,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.46s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.182,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.343,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g08-py-fastapi",
+      "returncode": 0,
+      "run_number": 8,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g08-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "     ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"created CRUD FastAPI router for Vendors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g08-py-fastapi\\\\src\\\\api\\\\routes\\\\vendors.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g08-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_vendors.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g08-py-fastapi\\\\tests\\\\api\\\\test_vendors.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for Vendors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g08-py-fastapi\\\\tests\\\\api\\\\test_vendors.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 44,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 44\n  },\n  \"elapsed_s\": 6.02\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for inventory items with low-stock flag",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g09-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.118,
+      "e2e_green": true,
+      "goal": "CRUD app for inventory items with low-stock flag",
+      "goal_index": 9,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.139,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.47s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.167,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.306,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g09-py-fastapi",
+      "returncode": 0,
+      "run_number": 9,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g09-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "_ms\": 1,\n      \"log_tail\": \"created CRUD FastAPI router for InventoryItems\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g09-py-fastapi\\\\src\\\\api\\\\routes\\\\inventory_items.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g09-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_inventory_items.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g09-py-fastapi\\\\tests\\\\api\\\\test_inventory_items.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for InventoryItems\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g09-py-fastapi\\\\tests\\\\api\\\\test_inventory_items.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 36,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 36\n  },\n  \"elapsed_s\": 5.92\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for package deliveries with resident pickup",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g10-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.481,
+      "e2e_green": true,
+      "goal": "CRUD app for package deliveries with resident pickup",
+      "goal_index": 10,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.132,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.41s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.159,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.291,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g10-py-fastapi",
+      "returncode": 0,
+      "run_number": 10,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g10-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "g_tail\": \"created CRUD FastAPI router for PackageDeliveries\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g10-py-fastapi\\\\src\\\\api\\\\routes\\\\package_deliveries.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g10-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_package_deliveries.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g10-py-fastapi\\\\tests\\\\api\\\\test_package_deliveries.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for PackageDeliveries\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g10-py-fastapi\\\\tests\\\\api\\\\test_package_deliveries.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 46,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 46\n  },\n  \"elapsed_s\": 6.29\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for parking spaces with vehicle assignment",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g11-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.442,
+      "e2e_green": true,
+      "goal": "CRUD app for parking spaces with vehicle assignment",
+      "goal_index": 11,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.162,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.45s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.156,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.319,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g11-py-fastapi",
+      "returncode": 0,
+      "run_number": 11,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g11-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "ration_ms\": 1,\n      \"log_tail\": \"created CRUD FastAPI router for ParkingSpaces\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g11-py-fastapi\\\\src\\\\api\\\\routes\\\\parking_spaces.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g11-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_parking_spaces.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g11-py-fastapi\\\\tests\\\\api\\\\test_parking_spaces.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for ParkingSpaces\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g11-py-fastapi\\\\tests\\\\api\\\\test_parking_spaces.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 38,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 38\n  },\n  \"elapsed_s\": 6.25\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for board meetings with minutes status",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g12-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.256,
+      "e2e_green": true,
+      "goal": "CRUD app for board meetings with minutes status",
+      "goal_index": 12,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.102,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.42s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.153,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.256,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g12-py-fastapi",
+      "returncode": 0,
+      "run_number": 12,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g12-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "ration_ms\": 1,\n      \"log_tail\": \"created CRUD FastAPI router for BoardMeetings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g12-py-fastapi\\\\src\\\\api\\\\routes\\\\board_meetings.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g12-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_board_meetings.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g12-py-fastapi\\\\tests\\\\api\\\\test_board_meetings.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for BoardMeetings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g12-py-fastapi\\\\tests\\\\api\\\\test_board_meetings.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 39,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 39\n  },\n  \"elapsed_s\": 6.08\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for access devices with revocation state",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g13-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.597,
+      "e2e_green": true,
+      "goal": "CRUD app for access devices with revocation state",
+      "goal_index": 13,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.084,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.42s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.166,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.25,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g13-py-fastapi",
+      "returncode": 0,
+      "run_number": 13,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g13-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "ration_ms\": 2,\n      \"log_tail\": \"created CRUD FastAPI router for AccessDevices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g13-py-fastapi\\\\src\\\\api\\\\routes\\\\access_devices.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g13-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_access_devices.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g13-py-fastapi\\\\tests\\\\api\\\\test_access_devices.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for AccessDevices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g13-py-fastapi\\\\tests\\\\api\\\\test_access_devices.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 46,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 46\n  },\n  \"elapsed_s\": 6.39\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for payments with receipt reference",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g14-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.316,
+      "e2e_green": true,
+      "goal": "CRUD app for payments with receipt reference",
+      "goal_index": 14,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.195,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.44s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.171,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.367,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g14-py-fastapi",
+      "returncode": 0,
+      "run_number": 14,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g14-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": ",\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"created CRUD FastAPI router for Payments\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g14-py-fastapi\\\\src\\\\api\\\\routes\\\\payments.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g14-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_payments.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g14-py-fastapi\\\\tests\\\\api\\\\test_payments.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for Payments\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g14-py-fastapi\\\\tests\\\\api\\\\test_payments.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 36,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 36\n  },\n  \"elapsed_s\": 6.13\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
+      "tasks_total": 4,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for service requests with priority queue",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g15-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\projects",
+        "--json"
+      ],
+      "duration_s": 6.507,
+      "e2e_green": true,
+      "goal": "CRUD app for service requests with priority queue",
+      "goal_index": 15,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.13,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.42s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.216,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.346,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g15-py-fastapi",
+      "returncode": 0,
+      "run_number": 15,
+      "scaffold_clean": true,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g15-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "1,\n      \"log_tail\": \"created CRUD FastAPI router for ServiceRequests\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g15-py-fastapi\\\\src\\\\api\\\\routes\\\\service_requests.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g15-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_service_requests.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g15-py-fastapi\\\\tests\\\\api\\\\test_service_requests.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for ServiceRequests\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-py-fastapi-15-20260530093206\\\\projects\\\\gate-g15-py-fastapi\\\\tests\\\\api\\\\test_service_requests.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 36,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 36\n  },\n  \"elapsed_s\": 6.33\n}\n",
       "task_all_passed": true,
       "tasks_passed": 4,
       "tasks_total": 4,
@@ -94,16 +1130,16 @@
   "scope": "live scratch v0.5 gate execution slice; partial runs are evidence only for the executed slice and do not replace the full 75-run gate",
   "summary": {
     "average_cost_usd": null,
-    "e2e_green": 1,
+    "e2e_green": 15,
     "e2e_green_rate": 1.0,
-    "elapsed_s": 7.35,
-    "median_wall_clock_s": 6.04,
+    "elapsed_s": 114.612,
+    "median_wall_clock_s": 6.262,
     "missing_release_evidence": [
       "full 15 goals x 5 pilot stacks live matrix",
       "average cost measurement",
       "SkillOpt human approval evidence >=80%"
     ],
-    "planner_valid": 1,
+    "planner_valid": 15,
     "planner_valid_rate": 1.0,
     "release_gates": {
       "average_cost_le_1": null,
@@ -115,12 +1151,12 @@
       "scaffold_clean_ge_95": true,
       "skillopt_human_approval_ge_80": false
     },
-    "scaffold_clean": 1,
+    "scaffold_clean": 15,
     "scaffold_clean_rate": 1.0,
-    "task_all_passed": 1,
+    "task_all_passed": 15,
     "task_all_passed_rate": 1.0,
     "timed_out": 0,
-    "total_runs": 1
+    "total_runs": 15
   },
   "work_dir": "$WORK_DIR"
 }
