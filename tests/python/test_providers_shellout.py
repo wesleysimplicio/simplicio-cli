@@ -4,6 +4,7 @@ These providers spawn a logged-in CLI subprocess instead of calling an HTTP
 API, so we mock subprocess.run and verify argv shape, env injection, and
 error handling.
 """
+
 import subprocess
 from unittest.mock import patch, MagicMock
 
@@ -41,13 +42,15 @@ def test_claude_cli_builds_argv_and_injects_guard(monkeypatch):
     assert out == "hello"
     args, kwargs = run.call_args
     cmd = args[0]
-    assert cmd[0] == "claude"
+    assert cmd[0] in {"claude", "claude.cmd", "claude.exe"}
     assert cmd[1] == "-p"
     assert cmd[2] == "write hello"
     assert "--model" in cmd and "sonnet" in cmd
     assert kwargs["env"]["SIMPLICIO_HOOK_GUARD"] == "1"
     assert kwargs["env"]["SIMPLICIO_SKIP_AUTO_INIT"] == "1"
     assert kwargs["capture_output"] is True
+    assert kwargs["encoding"] == "utf-8"
+    assert kwargs["errors"] == "replace"
     assert kwargs["timeout"] == 600
 
 
@@ -60,7 +63,8 @@ def test_codex_cli_builds_argv_with_model_then_prompt(monkeypatch):
 
     assert out == "done"
     cmd = run.call_args[0][0]
-    assert cmd[:2] == ["codex", "exec"]
+    assert cmd[0] in {"codex", "codex.cmd", "codex.exe"}
+    assert cmd[1] == "exec"
     assert "--model" in cmd
     assert cmd.index("gpt-5") == cmd.index("--model") + 1
     assert cmd[-1] == "refactor x"
@@ -122,8 +126,10 @@ def test_shell_out_timeout_raises_friendly(monkeypatch):
     monkeypatch.setenv("SIMPLICIO_MODEL", "claude-cli/sonnet")
     monkeypatch.delenv("SIMPLICIO_API_KEY", raising=False)
 
-    with patch("subprocess.run",
-               side_effect=subprocess.TimeoutExpired(cmd="claude", timeout=600)):
+    with patch(
+        "subprocess.run",
+        side_effect=subprocess.TimeoutExpired(cmd="claude", timeout=600),
+    ):
         with pytest.raises(SystemExit) as exc:
             providers.generate("x")
 

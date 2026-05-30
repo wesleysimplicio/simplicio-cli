@@ -23,6 +23,7 @@ Three modes, picked by SIMPLICIO_MODEL prefix:
 """
 
 import os
+import shutil
 
 from ._cache import CacheEntry, cache, make_key
 
@@ -81,6 +82,8 @@ def _shell_out(cmd, label):
             env=env,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=600,
             check=False,
         )
@@ -99,15 +102,24 @@ def _shell_out(cmd, label):
     return result.stdout
 
 
+def _cli_command(name):
+    if os.name != "nt":
+        return name
+    for candidate in (f"{name}.cmd", f"{name}.exe", name):
+        if shutil.which(candidate):
+            return candidate
+    return name
+
+
 def _shell_out_claude(prompt, model):
-    cmd = ["claude", "-p", prompt]
+    cmd = [_cli_command("claude"), "-p", prompt]
     if model and model not in ("default", "auto"):
         cmd += ["--model", model]
     return _shell_out(cmd, "Claude Code CLI (`claude -p`)")
 
 
 def _shell_out_codex(prompt, model):
-    cmd = ["codex", "exec"]
+    cmd = [_cli_command("codex"), "exec"]
     if model and model not in ("default", "auto"):
         cmd += ["--model", model]
     cmd.append(prompt)
