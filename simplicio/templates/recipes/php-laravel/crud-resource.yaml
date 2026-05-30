@@ -24,11 +24,11 @@
       "target": "routes/api.php",
       "criteria": "- list, create, and read routes are present\\n- route prefix is /{entity_plural}\\n- health route stays compatible with the feature test",
       "constraints": "- keep the service self-contained and typed",
-      "verify": "vendor/bin/phpunit --configuration phpunit.xml"
+      "verify": "php vendor/bin/phpunit --configuration phpunit.xml"
     }
   ],
   "deps_to_install": [],
   "deps_dev": [],
-  "test_command": "vendor/bin/phpunit --configuration phpunit.xml",
-  "lint_command": "vendor/bin/pint --test"
+  "test_command": "php vendor/bin/phpunit --configuration phpunit.xml",
+  "lint_command": "php vendor/bin/pint --test"
 }

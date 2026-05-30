@@ -286,7 +286,7 @@ def test_registry_loads_go_gin_stack_metadata() -> None:
     assert stack is not None
     assert stack.language.startswith("Go")
     assert stack.framework == "Gin"
-    assert stack.install_command == "go mod download"
+    assert stack.install_command == "go mod tidy"
     assert stack.test_command == "go test ./..."
     assert "best practices" in stack.practices.lower()
 
@@ -309,7 +309,7 @@ def test_registry_loads_php_laravel_stack_metadata() -> None:
     assert stack.language.startswith("PHP")
     assert stack.framework == "Laravel"
     assert stack.install_command == "composer install"
-    assert stack.test_command == "vendor/bin/phpunit --configuration phpunit.xml"
+    assert stack.test_command == "php vendor/bin/phpunit --configuration phpunit.xml"
     assert "best practices" in stack.practices.lower()
 
 

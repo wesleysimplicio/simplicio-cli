@@ -18,7 +18,7 @@ aggregate issue #33 evidence view; separates local synthetic gates from the real
 | A recipes | True | match-rate 60.00%, planner calls saved 30 | LLM baseline False |
 | B codegen | True | codegen share 100.00%, pass-rate 100.00%, avg 61 ms | LLM baseline False |
 | scratch preflight | True | blockers 0 | ready for matrix execution |
-| scratch live gate | True | 60/60 e2e green, median 4.66 s | full matrix False |
+| scratch live gate | True | 75/75 e2e green, median 6.262 s | full matrix True |
 
 ## Modeled Call Path
 
@@ -36,6 +36,5 @@ aggregate issue #33 evidence view; separates local synthetic gates from the real
 - recipe path pass-rate compared with equivalent LLM path
 - captured LLM baseline for executor pass-rate and latency
 - planner cache hit-rate measured across cold/warm real scratch runs
-- live v0.5 scratch matrix: 15 goals x 5 pilot stacks
 - average cost measurement
 - SkillOpt human approval evidence >=80%

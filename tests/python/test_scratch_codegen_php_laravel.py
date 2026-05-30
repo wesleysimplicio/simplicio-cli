@@ -33,7 +33,7 @@ def _task() -> Task:
             "- health route stays compatible with the feature test"
         ),
         constraints="- keep the service self-contained and typed",
-        verify="vendor/bin/phpunit --configuration phpunit.xml",
+        verify="php vendor/bin/phpunit --configuration phpunit.xml",
     )
 
 
@@ -71,7 +71,7 @@ def test_php_laravel_crud_routes_executor_falls_back_for_non_routes_target(tmp_p
             target="app/Models/Unit.php",
             criteria="- route prefix is /units",
             constraints="",
-            verify="vendor/bin/phpunit --configuration phpunit.xml",
+            verify="php vendor/bin/phpunit --configuration phpunit.xml",
         ),
         tmp_path,
         _stack(tmp_path),

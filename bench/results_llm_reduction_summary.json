@@ -84,14 +84,14 @@
       "warm_misses": 0
     },
     "scratch_live_gate": {
-      "e2e_green": 60,
+      "e2e_green": 75,
       "e2e_green_ge_80": true,
       "e2e_green_rate": 1.0,
-      "full_matrix": false,
-      "median_wall_clock_s": 4.66,
+      "full_matrix": true,
+      "median_wall_clock_s": 6.262,
       "present": true,
       "release_ready": false,
-      "total_runs": 60
+      "total_runs": 75
     },
     "scratch_preflight": {
       "blocker_count": 0,
@@ -149,7 +149,6 @@
       "recipe path pass-rate compared with equivalent LLM path",
       "captured LLM baseline for executor pass-rate and latency",
       "planner cache hit-rate measured across cold/warm real scratch runs",
-      "live v0.5 scratch matrix: 15 goals x 5 pilot stacks",
       "average cost measurement",
       "SkillOpt human approval evidence >=80%"
     ],
@@ -170,7 +169,7 @@
       "real_50_scratch_corpus": false,
       "release_evidence_complete": false,
       "scratch_live_e2e_green_ge_80": true,
-      "scratch_live_matrix_complete": false,
+      "scratch_live_matrix_complete": true,
       "scratch_preflight_ready": true,
       "target_reduction_met": false
     },

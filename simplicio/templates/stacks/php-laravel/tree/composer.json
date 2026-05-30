@@ -22,7 +22,7 @@
     }
   },
   "scripts": {
-    "test": "vendor/bin/phpunit --configuration phpunit.xml"
+    "test": "php vendor/bin/phpunit --configuration phpunit.xml"
   },
   "minimum-stability": "stable",
   "prefer-stable": true

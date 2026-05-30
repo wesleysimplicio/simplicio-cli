@@ -17,7 +17,7 @@
 
 ## Testing
 
-- Use `vendor/bin/phpunit --configuration phpunit.xml` as the default
+- Use `php vendor/bin/phpunit --configuration phpunit.xml` as the default
   verification command for the minimal scaffold.
 - Feature tests should call JSON endpoints and assert status plus response
   shape.
@@ -27,5 +27,5 @@
 
 - Tasks order: route -> controller -> model/request -> feature test.
 - Each task touches ONE file.
-- `test_command` = `vendor/bin/phpunit --configuration phpunit.xml`
-- `lint_command` = `vendor/bin/pint --test`
+- `test_command` = `php vendor/bin/phpunit --configuration phpunit.xml`
+- `lint_command` = `php vendor/bin/pint --test`
