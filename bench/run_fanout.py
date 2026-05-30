@@ -27,6 +27,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -186,9 +187,17 @@ def code_hash(code: str) -> str:
 def setup_workspace_base() -> None:
     """Fresh copy of sindico into WORK; create the Hidden test dir."""
     if WORK.exists():
-        shutil.rmtree(WORK)
+        _rmtree(WORK)
     shutil.copytree(SINDICO_SRC, WORK)
     (WORK / "tests" / "unit" / "Core" / "Hidden").mkdir(parents=True, exist_ok=True)
+
+
+def _rmtree(path: Path) -> None:
+    def remove_readonly(func, item, _exc_info):
+        os.chmod(item, stat.S_IWRITE)
+        func(item)
+
+    shutil.rmtree(path, onerror=remove_readonly)
 
 
 def install_case(case: dict) -> str:
