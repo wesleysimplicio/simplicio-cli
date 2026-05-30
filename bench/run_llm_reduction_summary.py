@@ -115,6 +115,18 @@ def _summarize_levers(inputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "retry_call_reduction": fixers.get("retry_call_reduction", 0.0),
             "baseline_llm_calls": fixers.get("baseline_llm_calls", 0),
             "with_fixer_llm_calls": fixers.get("with_fixer_llm_calls", 0),
+            "real_package_manager_cases": fixers.get(
+                "real_package_manager_cases",
+                0,
+            ),
+            "real_package_manager_passed": fixers.get(
+                "real_package_manager_passed",
+                0,
+            ),
+            "real_package_manager_execution": _gate(
+                fixers,
+                "real_package_manager_execution",
+            ),
             "gate_passed": _gate(fixers, "fixer_resolved_ge_80")
             and _gate(fixers, "retry_calls_down_ge_30"),
             "real_corpus": _gate(fixers, "real_scratch_corpus"),
@@ -218,6 +230,9 @@ def _summarize_gates(levers: dict[str, Any]) -> dict[str, Any]:
             and levers["C_static_fixers"]["real_corpus"]
             and levers["A_recipes"]["real_corpus"]
         ),
+        "C_real_package_manager_execution": levers["C_static_fixers"][
+            "real_package_manager_execution"
+        ],
         "A_recipe_llm_baseline_present": levers["A_recipes"]["llm_baseline_present"],
         "A_recipe_pass_rate_ge_llm": levers["A_recipes"][
             "recipe_plan_pass_rate_ge_llm"
@@ -327,6 +342,8 @@ def _missing_release_evidence(
         missing.append("B/codegen real task latency reduction >=50%")
     if not gates["B_zero_feature_regression_live"]:
         missing.append("B/codegen zero feature regression evidence")
+    if not gates["C_real_package_manager_execution"]:
+        missing.append("non-faked package manager execution")
     if not gates["A_recipe_llm_baseline_present"]:
         missing.append("recipe path pass-rate compared with equivalent LLM path")
     if not gates["A_recipe_pass_rate_ge_llm"]:
@@ -374,12 +391,13 @@ def _canonical_missing(values: list[str]) -> list[str]:
             )
         elif (
             "real install/import/lint failures" in lower
-            or "non-faked package manager" in lower
             or "comparison across actual scratch reports" in lower
         ):
             canonical.append(
-                "real fixer evidence from actual install/import/lint failures with non-faked package managers"
+                "real fixer evidence from actual scratch install/import/lint failures"
             )
+        elif "non-faked package manager" in lower:
+            canonical.append("non-faked package manager execution")
         elif "recipe path pass-rate" in lower:
             canonical.append("recipe path pass-rate compared with equivalent LLM path")
         elif "llm baseline" in lower:
@@ -454,7 +472,9 @@ def _to_markdown(result: dict[str, Any]) -> str:
                 f"| C static fixers | {levers['C_static_fixers']['gate_passed']} | "
                 f"fixed {levers['C_static_fixers']['fixer_resolved_rate']:.2%}, "
                 f"retry calls down "
-                f"{levers['C_static_fixers']['retry_call_reduction']:.2%} | "
+                f"{levers['C_static_fixers']['retry_call_reduction']:.2%}, "
+                f"real pkg probe {levers['C_static_fixers']['real_package_manager_passed']}/"
+                f"{levers['C_static_fixers']['real_package_manager_cases']} | "
                 f"real corpus {levers['C_static_fixers']['real_corpus']} |"
             ),
             (

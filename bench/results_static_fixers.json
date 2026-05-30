@@ -606,21 +606,145 @@
     "platform": "Windows-11-10.0.22631-SP0",
     "python": "3.14.3"
   },
-  "scope": "synthetic verify-loop fixer benchmark; package installs and LLM generation are faked; does not replace the full 50-scratch gate",
+  "real_package_manager_cases": [
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed packaging",
+      "duration_ms": 1473,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "packaging",
+      "name": "packaging-01",
+      "package": "packaging",
+      "passed": true
+    },
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed colorama",
+      "duration_ms": 1144,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "colorama",
+      "name": "colorama-01",
+      "package": "colorama",
+      "passed": true
+    },
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed idna",
+      "duration_ms": 1173,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "idna",
+      "name": "idna-01",
+      "package": "idna",
+      "passed": true
+    },
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed certifi",
+      "duration_ms": 1130,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "certifi",
+      "name": "certifi-01",
+      "package": "certifi",
+      "passed": true
+    },
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed charset-normalizer",
+      "duration_ms": 1645,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "charset_normalizer",
+      "name": "charset-normalizer-01",
+      "package": "charset-normalizer",
+      "passed": true
+    },
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed packaging",
+      "duration_ms": 947,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "packaging",
+      "name": "packaging-02",
+      "package": "packaging",
+      "passed": true
+    },
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed colorama",
+      "duration_ms": 978,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "colorama",
+      "name": "colorama-02",
+      "package": "colorama",
+      "passed": true
+    },
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed idna",
+      "duration_ms": 945,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "idna",
+      "name": "idna-02",
+      "package": "idna",
+      "passed": true
+    },
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed certifi",
+      "duration_ms": 1007,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "certifi",
+      "name": "certifi-02",
+      "package": "certifi",
+      "passed": true
+    },
+    {
+      "applied": true,
+      "dependency_declared": true,
+      "details": "added to pyproject.toml and installed charset-normalizer",
+      "duration_ms": 1021,
+      "fixer": "missing-pip-package",
+      "import_ok": true,
+      "module": "charset_normalizer",
+      "name": "charset-normalizer-02",
+      "package": "charset-normalizer",
+      "passed": true
+    }
+  ],
+  "scope": "synthetic verify-loop fixer benchmark with optional real package-manager probe; does not replace the full 50-scratch gate",
   "summary": {
     "baseline_llm_calls": 100,
-    "elapsed_s": 0.199,
+    "elapsed_s": 11.683,
     "fixer_resolved_before_retry": 40,
     "fixer_resolved_rate": 0.8,
     "missing_release_evidence": [
       "real install/import/lint failures from 50 scratch runs",
-      "non-faked package manager execution",
       "comparison across actual scratch reports"
     ],
     "passed_cases": 50,
+    "real_package_manager_cases": 10,
+    "real_package_manager_passed": 10,
     "release_gates": {
       "fifty_cases": true,
       "fixer_resolved_ge_80": true,
+      "real_package_manager_execution": true,
       "real_scratch_corpus": false,
       "retry_calls_down_ge_30": true
     },

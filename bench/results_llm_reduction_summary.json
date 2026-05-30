@@ -79,6 +79,9 @@
       "gate_passed": true,
       "present": true,
       "real_corpus": false,
+      "real_package_manager_cases": 10,
+      "real_package_manager_execution": true,
+      "real_package_manager_passed": 10,
       "retry_call_reduction": 0.4,
       "with_fixer_llm_calls": 60
     },
@@ -152,7 +155,7 @@
     "missing_release_evidence": [
       "real 50-scratch corpus shared by cache, recipes, fixers, and executors",
       "aggregate call-reduction proof across cache, recipes, fixers, and executors",
-      "real fixer evidence from actual install/import/lint failures with non-faked package managers",
+      "real fixer evidence from actual scratch install/import/lint failures",
       "real scratch LLM baseline for B/codegen pass-rate and latency",
       "SkillOpt human approval evidence >=80%"
     ],
@@ -174,6 +177,7 @@
       "B_real_latency_reduction_ge_50": false,
       "B_real_mechanical_share_ge_30": true,
       "B_zero_feature_regression_live": true,
+      "C_real_package_manager_execution": true,
       "C_static_fixers_synthetic": true,
       "D_cache_synthetic": true,
       "local_synthetic_gates_pass": true,

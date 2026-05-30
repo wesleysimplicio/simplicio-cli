@@ -1,6 +1,6 @@
 # Static Fixers Benchmark
 
-synthetic verify-loop fixer benchmark; package installs and LLM generation are faked; does not replace the full 50-scratch gate
+synthetic verify-loop fixer benchmark with optional real package-manager probe; does not replace the full 50-scratch gate
 
 ## Summary
 
@@ -9,12 +9,14 @@ synthetic verify-loop fixer benchmark; package installs and LLM generation are f
 - baseline LLM calls: 100
 - with-fixer LLM calls: 60
 - retry-call reduction: 40.00%
+- real package-manager probe: 10/10
 
 ## Release Gate Status
 
 - fifty_cases: True
 - fixer_resolved_ge_80: True
 - retry_calls_down_ge_30: True
+- real_package_manager_execution: True
 - real_scratch_corpus: False
 
 ## Cases
@@ -71,3 +73,18 @@ synthetic verify-loop fixer benchmark; package installs and LLM generation are f
 | assertion-08 | False | 2 | 2 | True |
 | assertion-09 | False | 2 | 2 | True |
 | assertion-10 | False | 2 | 2 | True |
+
+## Real Package-Manager Probe
+
+| case | package | applied | dependency_declared | import_ok | passed | duration_ms |
+| --- | --- | --- | --- | --- | --- | ---: |
+| packaging-01 | packaging | True | True | True | True | 1473 |
+| colorama-01 | colorama | True | True | True | True | 1144 |
+| idna-01 | idna | True | True | True | True | 1173 |
+| certifi-01 | certifi | True | True | True | True | 1130 |
+| charset-normalizer-01 | charset-normalizer | True | True | True | True | 1645 |
+| packaging-02 | packaging | True | True | True | True | 947 |
+| colorama-02 | colorama | True | True | True | True | 978 |
+| idna-02 | idna | True | True | True | True | 945 |
+| certifi-02 | certifi | True | True | True | True | 1007 |
+| charset-normalizer-02 | charset-normalizer | True | True | True | True | 1021 |

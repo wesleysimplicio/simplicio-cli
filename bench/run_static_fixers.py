@@ -40,6 +40,13 @@ class FixerCase:
     resolvable: bool
 
 
+@dataclass(frozen=True)
+class RealPackageCase:
+    name: str
+    module: str
+    package: str
+
+
 def build_cases() -> list[FixerCase]:
     cases: list[FixerCase] = []
     for idx in range(1, 41):
@@ -61,7 +68,31 @@ def build_cases() -> list[FixerCase]:
     return cases
 
 
-def run_benchmark(*, work_dir: Path | None = None) -> dict[str, Any]:
+def build_real_package_cases(repeat: int = 2) -> list[RealPackageCase]:
+    packages = [
+        RealPackageCase("packaging", "packaging", "packaging"),
+        RealPackageCase("colorama", "colorama", "colorama"),
+        RealPackageCase("idna", "idna", "idna"),
+        RealPackageCase("certifi", "certifi", "certifi"),
+        RealPackageCase(
+            "charset-normalizer",
+            "charset_normalizer",
+            "charset-normalizer",
+        ),
+    ]
+    return [
+        RealPackageCase(f"{case.name}-{idx:02d}", case.module, case.package)
+        for idx in range(1, repeat + 1)
+        for case in packages
+    ]
+
+
+def run_benchmark(
+    *,
+    work_dir: Path | None = None,
+    real_package_manager_probe: bool = False,
+    real_probe_repeat: int = 2,
+) -> dict[str, Any]:
     owned_temp = False
     if work_dir is None:
         work_dir = Path(tempfile.mkdtemp(prefix="simplicio-static-fixers-"))
@@ -86,12 +117,20 @@ def run_benchmark(*, work_dir: Path | None = None) -> dict[str, Any]:
         pipeline._apply_and_test = old_apply_and_test
         pipeline.try_static_fixers = old_try_static_fixers
 
+    real_probe_rows = (
+        run_real_package_manager_probe(
+            work_dir=work_dir / "real-package-manager",
+            repeat=real_probe_repeat,
+        )
+        if real_package_manager_probe
+        else []
+    )
     elapsed_s = round(time.perf_counter() - t0, 3)
     return {
         "benchmark": "static-fixers",
         "scope": (
-            "synthetic verify-loop fixer benchmark; package installs and LLM "
-            "generation are faked; does not replace the full 50-scratch gate"
+            "synthetic verify-loop fixer benchmark with optional real package-manager "
+            "probe; does not replace the full 50-scratch gate"
         ),
         "work_dir": "$WORK_DIR",
         "work_dir_owned_by_runner": owned_temp,
@@ -99,8 +138,9 @@ def run_benchmark(*, work_dir: Path | None = None) -> dict[str, Any]:
             "python": sys.version.split()[0],
             "platform": platform.platform(),
         },
-        "summary": _summarize(rows, elapsed_s),
+        "summary": _summarize(rows, elapsed_s, real_probe_rows),
         "cases": rows,
+        "real_package_manager_cases": real_probe_rows,
     }
 
 
@@ -189,7 +229,68 @@ def _row(
     }
 
 
-def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
+def run_real_package_manager_probe(
+    *,
+    work_dir: Path,
+    repeat: int = 2,
+    runner=None,
+) -> list[dict[str, Any]]:
+    work_dir.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for case in build_real_package_cases(repeat):
+        root = work_dir / case.name
+        root.mkdir(parents=True, exist_ok=True)
+        (root / "pyproject.toml").write_text(
+            '[project]\nname = "probe"\ndependencies = []\n',
+            encoding="utf-8",
+        )
+        started = time.perf_counter()
+        result = real_try_static_fixers(
+            f"ModuleNotFoundError: No module named '{case.module}'",
+            root,
+            runner=runner,
+        )
+        pyproject = root / "pyproject.toml"
+        declared = case.package in pyproject.read_text(encoding="utf-8")
+        import_ok = (
+            _check_import(case.module)
+            if result.applied and runner is None
+            else result.applied
+        )
+        rows.append(
+            {
+                "name": case.name,
+                "module": case.module,
+                "package": case.package,
+                "fixer": result.fixer,
+                "applied": result.applied,
+                "details": result.details,
+                "dependency_declared": declared,
+                "import_ok": import_ok,
+                "duration_ms": int((time.perf_counter() - started) * 1000),
+                "passed": result.applied and declared and import_ok,
+            }
+        )
+    return rows
+
+
+def _check_import(module: str) -> bool:
+    proc = subprocess.run(
+        [sys.executable, "-c", f"import {module}"],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    return proc.returncode == 0
+
+
+def _summarize(
+    rows: list[dict[str, Any]],
+    elapsed_s: float,
+    real_probe_rows: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    real_probe_rows = real_probe_rows or []
     total = len(rows)
     passed = sum(1 for row in rows if row["passed"])
     fixed = sum(1 for row in rows if row["fixed_before_llm_retry"])
@@ -198,7 +299,9 @@ def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
     reduction = (
         (baseline_calls - with_fixer_calls) / baseline_calls if baseline_calls else 0.0
     )
-    return {
+    real_total = len(real_probe_rows)
+    real_passed = sum(1 for row in real_probe_rows if row.get("passed"))
+    summary = {
         "total_cases": total,
         "passed_cases": passed,
         "fixer_resolved_before_retry": fixed,
@@ -206,19 +309,28 @@ def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
         "baseline_llm_calls": baseline_calls,
         "with_fixer_llm_calls": with_fixer_calls,
         "retry_call_reduction": round(reduction, 4),
+        "real_package_manager_cases": real_total,
+        "real_package_manager_passed": real_passed,
         "elapsed_s": elapsed_s,
         "release_gates": {
             "fifty_cases": total >= 50,
             "fixer_resolved_ge_80": fixed / total >= 0.80 if total else False,
             "retry_calls_down_ge_30": reduction >= 0.30,
+            "real_package_manager_execution": real_total > 0
+            and real_passed == real_total,
             "real_scratch_corpus": False,
         },
         "missing_release_evidence": [
             "real install/import/lint failures from 50 scratch runs",
-            "non-faked package manager execution",
             "comparison across actual scratch reports",
         ],
     }
+    if not summary["release_gates"]["real_package_manager_execution"]:
+        summary["missing_release_evidence"].insert(
+            1,
+            "non-faked package manager execution",
+        )
+    return summary
 
 
 def _valid_pipeline_diff(marker: str) -> str:
@@ -256,6 +368,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- baseline LLM calls: {summary['baseline_llm_calls']}",
         f"- with-fixer LLM calls: {summary['with_fixer_llm_calls']}",
         f"- retry-call reduction: {summary['retry_call_reduction']:.2%}",
+        f"- real package-manager probe: {summary['real_package_manager_passed']}/{summary['real_package_manager_cases']}",
         "",
         "## Release Gate Status",
         "",
@@ -281,6 +394,29 @@ def _to_markdown(result: dict[str, Any]) -> str:
                 passed=row["passed"],
             )
         )
+    real_rows = result.get("real_package_manager_cases") or []
+    if real_rows:
+        lines.extend(
+            [
+                "",
+                "## Real Package-Manager Probe",
+                "",
+                "| case | package | applied | dependency_declared | import_ok | passed | duration_ms |",
+                "| --- | --- | --- | --- | --- | --- | ---: |",
+            ]
+        )
+        for row in real_rows:
+            lines.append(
+                "| {name} | {package} | {applied} | {declared} | {import_ok} | {passed} | {duration} |".format(
+                    name=row["name"],
+                    package=row["package"],
+                    applied=row["applied"],
+                    declared=row["dependency_declared"],
+                    import_ok=row["import_ok"],
+                    passed=row["passed"],
+                    duration=row["duration_ms"],
+                )
+            )
     lines.append("")
     return "\n".join(lines)
 
@@ -288,6 +424,8 @@ def _to_markdown(result: dict[str, Any]) -> str:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--work-dir", type=Path)
+    parser.add_argument("--real-package-manager-probe", action="store_true")
+    parser.add_argument("--real-probe-repeat", type=int, default=2)
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
     parser.add_argument("--quiet", action="store_true")
@@ -296,7 +434,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    result = run_benchmark(work_dir=args.work_dir)
+    result = run_benchmark(
+        work_dir=args.work_dir,
+        real_package_manager_probe=args.real_package_manager_probe,
+        real_probe_repeat=args.real_probe_repeat,
+    )
     write_reports(result, args.json_output, args.md_output)
     if not args.quiet:
         print(json.dumps(result["summary"], indent=2, sort_keys=True))
