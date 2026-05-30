@@ -5,15 +5,23 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-from bench.run_scratch_cache_gate import run_cache_gate, write_reports
+from bench.run_scratch_cache_gate import CACHE_GOALS, run_cache_gate, write_reports
 from simplicio._cache import reset_for_tests
 from simplicio.scratch.plan_schema import EXAMPLE_PLAN
+from simplicio.scratch.recipes import RecipeRegistry
 
 
 def _planner_json() -> str:
     payload = dict(EXAMPLE_PLAN)
     payload["project_name"] = "cache-plan"
     return json.dumps(payload)
+
+
+def test_scratch_cache_gate_defines_fifty_planner_goals() -> None:
+    registry = RecipeRegistry()
+
+    assert len(CACHE_GOALS) == 50
+    assert all(registry.match(goal, "py-fastapi") is None for goal in CACHE_GOALS)
 
 
 def test_scratch_cache_gate_measures_warm_hits(tmp_path, monkeypatch) -> None:
