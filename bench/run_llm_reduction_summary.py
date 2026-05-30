@@ -212,6 +212,16 @@ def _summarize_levers(inputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "median_wall_clock_s": live_gate.get("median_wall_clock_s"),
             "full_matrix": _gate(live_gate, "full_75_run_matrix"),
             "e2e_green_ge_80": _gate(live_gate, "e2e_green_ge_80"),
+            "skillopt_human_approval_ge_80": _gate(
+                live_gate,
+                "skillopt_human_approval_ge_80",
+            ),
+            "skillopt_reviews": int(
+                (live_gate.get("skillopt_review") or {}).get("total_reviews", 0)
+            ),
+            "skillopt_approved": int(
+                (live_gate.get("skillopt_review") or {}).get("approved", 0)
+            ),
             "release_ready": _gate(live_gate, "release_ready"),
         },
     }
@@ -328,6 +338,9 @@ def _summarize_gates(
         ],
         "scratch_live_matrix_complete": levers["scratch_live_gate"]["full_matrix"],
         "scratch_live_e2e_green_ge_80": levers["scratch_live_gate"]["e2e_green_ge_80"],
+        "SkillOpt_human_approval_ge_80": levers["scratch_live_gate"][
+            "skillopt_human_approval_ge_80"
+        ],
         "aggregate_call_reduction_proof": release_call_proof["present"],
     }
     local_synthetic = all(local_gates.values())
@@ -431,7 +444,8 @@ def _missing_release_evidence(
         missing.append("scratch live-gate preflight must be ready before the matrix")
     if not gates["scratch_live_matrix_complete"]:
         missing.append("live v0.5 scratch matrix: 15 goals x 5 pilot stacks")
-    missing.append("SkillOpt human approval evidence >=80%")
+    if not gates["SkillOpt_human_approval_ge_80"]:
+        missing.append("SkillOpt human approval evidence >=80%")
     return _canonical_missing(missing)
 
 
@@ -614,6 +628,8 @@ def _to_markdown(result: dict[str, Any]) -> str:
                 f"{levers['scratch_live_gate']['e2e_green_ge_80']} | "
                 f"{levers['scratch_live_gate']['e2e_green']}/"
                 f"{levers['scratch_live_gate']['total_runs']} e2e green, "
+                f"SkillOpt {levers['scratch_live_gate']['skillopt_approved']}/"
+                f"{levers['scratch_live_gate']['skillopt_reviews']} approved, "
                 f"median {levers['scratch_live_gate']['median_wall_clock_s']} s | "
                 f"full matrix {levers['scratch_live_gate']['full_matrix']} |"
             ),

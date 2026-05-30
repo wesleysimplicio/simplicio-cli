@@ -62,3 +62,41 @@ def test_scratch_cache_gate_writes_reports(tmp_path, monkeypatch) -> None:
 
     assert '"benchmark": "scratch-cache-gate"' in json_path.read_text(encoding="utf-8")
     assert "# Scratch Planner Cache Gate" in md_path.read_text(encoding="utf-8")
+
+
+def test_scratch_cache_gate_links_live_corpus_without_overclaiming(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("SIMPLICIO_PLANNER", "codex-cli/default")
+    monkeypatch.setattr(
+        "simplicio.providers._shell_out_codex",
+        MagicMock(return_value=_planner_json()),
+    )
+    live_gate = {
+        "source": "fixture-live-gate.json",
+        "runs": [
+            {
+                "stack": "py-fastapi",
+                "goal": f"CRUD app for live item {index}",
+                "e2e_green": True,
+            }
+            for index in range(50)
+        ],
+    }
+
+    result = run_cache_gate(
+        work_dir=tmp_path / "bench",
+        goals=("Build a FastAPI cache fixture service",),
+        live_gate=live_gate,
+    )
+
+    summary = result["summary"]
+    gates = summary["release_gates"]
+    assert gates["real_50_scratch_corpus"] is True
+    assert gates["cold_warm_measured_on_50_real_scratches"] is False
+    assert summary["live_corpus"]["total_runs"] == 50
+    assert (
+        "planner cache hit-rate measured across cold/warm real scratch runs"
+        in (summary["missing_release_evidence"])
+    )
