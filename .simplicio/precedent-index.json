@@ -1,7 +1,7 @@
 {
   "schema": "simplicio.precedent-index/v1",
   "version": 1,
-  "generated_at": "2026-05-30T20:28:56.434Z",
+  "generated_at": "2026-05-30T20:31:13.911Z",
   "source_project_map": ".simplicio/project-map.json",
   "items": [
     {
@@ -403,7 +403,41 @@
         "baseline"
       ],
       "summary": "feature precedent in bench/results_scratch_codegen_llm_baseline.json",
-      "snippet": "      \"duration_ms\": 12723,\n      \"execution_mode\": \"llm\",\n      \"log_tail\": \" name: str\\\\n    email: str | None = None\\\\n\\\\n\\\\nclass UserUpdate(BaseModel):\\\\n    name: str | None = None\\\\n    email: str | None = None\\\\n\\\\n\\\\nclass UserRead(BaseModel):\\\\n    id: int\\\\n    name: str\\\\n    email: str | None = None\\\\n    created_at: datetime\\\\n\\\\n    class Config:\\\\n        orm_mode = True\\\\n\\\"}\\n\",\n      \"metrics\": {\n        \"tasks_codegen\": 0,"
+      "snippet": "      \"duration_ms\": 1,\n      \"execution_mode\": \"llm\",\n      \"log_tail\": \" name: str\\\\n    email: str | None = None\\\\n\\\\n\\\\nclass UserUpdate(BaseModel):\\\\n    name: str | None = None\\\\n    email: str | None = None\\\\n\\\\n\\\\nclass UserRead(BaseModel):\\\\n    id: int\\\\n    name: str\\\\n    email: str | None = None\\\\n    created_at: datetime\\\\n\\\\n    class Config:\\\\n        orm_mode = True\\\\n\\\"}\\n\",\n      \"metrics\": {\n        \"tasks_codegen\": 0,"
+    },
+    {
+      "id": "5631d23fccb48f3a",
+      "path": "bench/results_scratch_codegen.json",
+      "line": 215,
+      "language": "json",
+      "change_type": "route",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "scratch",
+        "codegen"
+      ],
+      "summary": "route precedent in bench/results_scratch_codegen.json",
+      "snippet": "      \"expected_executor\": \"go-gin-crud\",\n      \"expected_executor_match\": true,\n      \"log_tail\": \"generated Gin CRUD routes for condo_units\\nfiles_modified=$WORK_DIR\\\\projects\\\\go-gin-crud-r01\\\\internal\\\\http\\\\router.go\",\n      \"metrics\": {\n        \"avg_codegen_ms\": 1,"
+    },
+    {
+      "id": "1d7944826aa3eaf6",
+      "path": "bench/results_scratch_live_llm_baseline.json",
+      "line": 87,
+      "language": "json",
+      "change_type": "route",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "scratch",
+        "live",
+        "llm",
+        "baseline"
+      ],
+      "summary": "route precedent in bench/results_scratch_live_llm_baseline.json",
+      "snippet": "      \"stack\": \"go-gin\",\n      \"stderr_tail\": \"[scratch] stack:   go-gin (Go 1.22 / Gin)\\n[scratch] project: gate-g01-go-gin\\n[scratch] planner: planner=codex-cli/default (shell-out)\\n[scratch] generating plan...\\n[scratch] plan ok: 1 tasks\\n\",\n      \"stdout_tail\": \"golang.org/x/arch v0.8.0\\\\ngo: downloading github.com/klauspost/cpuid/v2 v2.2.7\\\\ngo: downloading github.com/bytedance/sonic/loader v0.1.1\\\\ngo: downloading github.com/twitchyliquid64/golang-asm v0.15.1\\\\ngo: downloading github.com/cloudwego/iasm v0.2.0\\\\ngo: downloading github.com/go-playground/assert/v2 v2.2.0\\\\ngo: downloading github.com/google/go-cmp v0.5.5\\\\ngo: downloading gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405\\\\ngo: downloading golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543\\\\n\\\",\\n  \\\"tasks\\\": [\\n    {\\n      \\\"id\\\": \\\"T01-gin-crud\\\",\\n      \\\"target\\\": \\\"internal/http/router.go\\\",\\n      \\\"passed\\\": true,\\n      \\\"execution_mode\\\": \\\"llm\\\",\\n      \\\"codegen_executor\\\": null,\\n      \\\"files_modified\\\": [],\\n      \\\"skipped\\\": null,\\n      \\\"duration_ms\\\": 197963,\\n      \\\"log_tail\\\": \\\"codegen fallback: codegen disabled by SIMPLICIO_DISABLE_CODEGEN\\\\n\\\\n{\\\\n  \\\\\\\"applied\\\\\\\": true,\\\\n  \\\\\\\""
     },
     {
       "id": "1244106a06eedfb1",
@@ -513,9 +547,9 @@
       "snippet": "Usage:\n  HF_TOKEN=... \\\\\n    BENCH_BASE_URL=https://router.huggingface.co/v1 \\\\\n    BENCH_MODELS=\"Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next\" \\\\\n    python3 bench/run_offline.py"
     },
     {
-      "id": "25fa91c47d4ce778",
+      "id": "b0e19c44f3823eb9",
       "path": "bench/run_scratch_cache_gate.py",
-      "line": 42,
+      "line": 88,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -546,9 +580,9 @@
       "snippet": "\n@dataclass(frozen=True)\nclass BenchCase:\n    name: str\n    stack_slug: str"
     },
     {
-      "id": "1cf244c8ccfea9f6",
+      "id": "9fdbd074901d8e77",
       "path": "bench/run_scratch_live_gate.py",
-      "line": 36,
+      "line": 37,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -563,9 +597,9 @@
       "snippet": "\n\ndef run_live_gate(\n    *,\n    work_dir: Path,"
     },
     {
-      "id": "c602c965cf87b4f4",
+      "id": "1893697f8c9107a6",
       "path": "bench/run_scratch_recipes.py",
-      "line": 38,
+      "line": 39,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -596,9 +630,9 @@
       "snippet": "\n\ndef run_preflight() -> dict[str, Any]:\n    registry = StackRegistry()\n    stacks = {stack.slug: stack for stack in registry.list()}"
     },
     {
-      "id": "fb5423ab276f7445",
+      "id": "fb04afbf14724ec5",
       "path": "bench/run_static_fixers.py",
-      "line": 37,
+      "line": 39,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -1242,9 +1276,9 @@
       "snippet": "\n\ndef _cfg():\n    return {\n        \"model\": os.environ.get(\"SIMPLICIO_MODEL\"),"
     },
     {
-      "id": "8234bd857dadb376",
+      "id": "1c7e8059b52af5f8",
       "path": "simplicio/scratch/_pipeline_adapter.py",
-      "line": 22,
+      "line": 23,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -3252,9 +3286,9 @@
       "snippet": "\n\ndef _template_path() -> str:\n    import simplicio\n    return os.path.join(os.path.dirname(simplicio.__file__), \"templates\", \"simplicio_prompt.md\")"
     },
     {
-      "id": "e52dddc6bb316182",
+      "id": "70ffaadedf3dbac3",
       "path": "tests/python/test_scratch_cache_gate.py",
-      "line": 13,
+      "line": 20,
       "language": "python",
       "change_type": "test",
       "tags": [
@@ -3284,9 +3318,9 @@
       "snippet": "\n\ndef _plan(stack_slug: str, project_name: str):\n    raw = {**EXAMPLE_PLAN, \"stack\": stack_slug, \"project_name\": project_name}\n    return validate_plan(raw)"
     },
     {
-      "id": "3f7f32023cd73053",
+      "id": "2f8c91b5fee1229f",
       "path": "tests/python/test_scratch_codegen_bench.py",
-      "line": 16,
+      "line": 19,
       "language": "python",
       "change_type": "test",
       "tags": [
@@ -3464,9 +3498,9 @@
       "snippet": "\n\ndef _task() -> Task:\n    return Task(\n        id=\"T01-codegen\","
     },
     {
-      "id": "796685b0505be7ca",
+      "id": "2a386f3cd729b0fb",
       "path": "tests/python/test_scratch_live_gate.py",
-      "line": 17,
+      "line": 19,
       "language": "python",
       "change_type": "test",
       "tags": [
@@ -3480,9 +3514,9 @@
       "snippet": "\n\ndef _completed(cmd, stdout, returncode=0, stderr=\"\"):\n    return subprocess.CompletedProcess(cmd, returncode, stdout, stderr)\n"
     },
     {
-      "id": "0f2bb6e5a33ed45c",
+      "id": "e3fbd86504d7dc35",
       "path": "tests/python/test_scratch_recipes_bench.py",
-      "line": 16,
+      "line": 19,
       "language": "python",
       "change_type": "test",
       "tags": [
@@ -3512,9 +3546,9 @@
       "snippet": "\n\ndef test_release_gate_preflight_defines_full_matrix(monkeypatch) -> None:\n    monkeypatch.delenv(\"SIMPLICIO_MODEL\", raising=False)\n    monkeypatch.delenv(\"SIMPLICIO_PLANNER\", raising=False)"
     },
     {
-      "id": "0a7eeee1a69025d0",
+      "id": "68d7824ac1449ba9",
       "path": "tests/python/test_scratch.py",
-      "line": 23,
+      "line": 24,
       "language": "python",
       "change_type": "test",
       "tags": [
@@ -3526,9 +3560,9 @@
       "snippet": "\n\ndef test_example_plan_validates() -> None:\n    plan = validate_plan(\n        {"
     },
     {
-      "id": "7c51c531da196f30",
+      "id": "9d9c1664cb41eeea",
       "path": "tests/python/test_static_fixers_bench.py",
-      "line": 15,
+      "line": 18,
       "language": "python",
       "change_type": "test",
       "tags": [
