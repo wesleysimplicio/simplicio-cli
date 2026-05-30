@@ -16,13 +16,13 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import subprocess
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from .codegen import CodegenResult, try_execute
 from .plan_schema import Plan, Task
 from .stack_registry import Stack
 
@@ -125,14 +125,25 @@ def _execute_one_task(task: Task, project_dir: Path,
     can still be smoke-tested. When SIMPLICIO_MODEL IS set, defers to
     simplicio.pipeline via the adapter."""
     t0 = time.perf_counter()
+    codegen_log = ""
+
+    codegen_result = try_execute(task, project_dir, stack)
+    if codegen_result is not None:
+        codegen_log = codegen_result.log
+        if codegen_result.passed or not codegen_result.fallback_to_llm:
+            return _task_result_from_codegen(task, t0, codegen_result)
 
     if not os.environ.get("SIMPLICIO_MODEL"):
         # smoke-test mode: log the task but mark as skipped (no LLM call made)
         ms = int((time.perf_counter() - t0) * 1000)
+        fallback_note = (
+            f"codegen fallback: {codegen_log[:200]}\n"
+            if codegen_log else ""
+        )
         return TaskResult(
             id=task.id, target=task.target, passed=False, duration_ms=ms,
             skipped_reason="no SIMPLICIO_MODEL set; task generation skipped",
-            log_tail=f"goal={task.goal[:200]}",
+            log_tail=f"{fallback_note}goal={task.goal[:200]}",
         )
 
     try:
@@ -145,9 +156,26 @@ def _execute_one_task(task: Task, project_dir: Path,
         )
 
     passed, log = run_task(task, project_dir, stack)
+    if codegen_log:
+        log = f"codegen fallback: {codegen_log}\n\n{log}"
     ms = int((time.perf_counter() - t0) * 1000)
     return TaskResult(id=task.id, target=task.target, passed=passed,
                       duration_ms=ms, log_tail=log)
+
+
+def _task_result_from_codegen(
+    task: Task, started_at: float, result: CodegenResult
+) -> TaskResult:
+    ms = int((time.perf_counter() - started_at) * 1000)
+    files = ", ".join(str(path) for path in result.files_modified)
+    suffix = f"\nfiles_modified={files}" if files else ""
+    return TaskResult(
+        id=task.id,
+        target=task.target,
+        passed=result.passed,
+        duration_ms=ms,
+        log_tail=f"{result.log}{suffix}".strip(),
+    )
 
 
 def execute_plan(plan: Plan, stack: Stack, parent_dir: Path,
