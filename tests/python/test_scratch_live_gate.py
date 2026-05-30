@@ -9,9 +9,11 @@ from bench.run_scratch_live_gate import (
     merge_results,
     _parse_json_stdout,
     _summarize,
+    load_skillopt_review_evidence,
     run_live_gate,
     write_reports,
 )
+from bench.run_scratch_release_gate import PILOT_STACKS, RELEASE_GOALS
 
 
 def _completed(cmd, stdout, returncode=0, stderr=""):
@@ -249,6 +251,83 @@ def test_live_gate_keeps_cost_unknown_when_llm_cost_is_missing() -> None:
     assert summary["average_cost_usd"] is None
     assert summary["release_gates"]["average_cost_le_1"] is None
     assert "average cost measurement" in summary["missing_release_evidence"]
+
+
+def test_live_gate_accepts_skillopt_human_review_evidence(tmp_path) -> None:
+    reviews = [
+        {
+            "skill": f"generated-skill-{index:02d}",
+            "reviewer": "wesley",
+            "approved": index <= 8,
+            "reviewed_at": "2026-05-30",
+        }
+        for index in range(1, 11)
+    ]
+    review_path = tmp_path / "skillopt-review.json"
+    review_path.write_text(json.dumps({"reviews": reviews}), encoding="utf-8")
+    rows = [
+        {
+            "goal": goal,
+            "stack": stack,
+            "planner_valid": True,
+            "scaffold_clean": True,
+            "task_all_passed": True,
+            "e2e_green": True,
+            "duration_s": 1,
+            "timed_out": False,
+            "cost_usd": 0.0,
+        }
+        for goal in RELEASE_GOALS
+        for stack in PILOT_STACKS
+    ]
+
+    summary = _summarize(
+        rows,
+        1.0,
+        plan_only=False,
+        post_verify=True,
+        skillopt_review=load_skillopt_review_evidence(review_path),
+    )
+
+    assert summary["skillopt_review"]["total_reviews"] == 10
+    assert summary["skillopt_review"]["approved"] == 8
+    assert summary["release_gates"]["skillopt_human_approval_ge_80"] is True
+    assert summary["release_gates"]["release_ready"] is True
+    assert (
+        "SkillOpt human approval evidence >=80%"
+        not in summary["missing_release_evidence"]
+    )
+
+
+def test_live_gate_rejects_invalid_skillopt_review_rows() -> None:
+    summary = _summarize(
+        [
+            {
+                "goal": "CRUD app for condo units with owner contact search",
+                "stack": "py-fastapi",
+                "planner_valid": True,
+                "scaffold_clean": True,
+                "task_all_passed": True,
+                "e2e_green": True,
+                "duration_s": 1,
+                "timed_out": False,
+                "cost_usd": 0.0,
+            }
+        ],
+        1.0,
+        plan_only=False,
+        post_verify=True,
+        skillopt_review={
+            "reviews": [
+                {"skill": "missing-reviewer", "approved": True},
+                {"skill": "string-approved", "reviewer": "wesley", "approved": "yes"},
+            ]
+        },
+    )
+
+    assert summary["skillopt_review"]["total_reviews"] == 0
+    assert summary["skillopt_review"]["invalid_reviews"] == 2
+    assert summary["release_gates"]["skillopt_human_approval_ge_80"] is False
 
 
 def test_live_gate_merges_distinct_slices(tmp_path) -> None:

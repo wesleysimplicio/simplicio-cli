@@ -43,6 +43,7 @@ def run_live_gate(
     skip_install: bool = False,
     post_verify: bool = False,
     timeout_seconds: int = 900,
+    skillopt_review: dict[str, Any] | None = None,
     runner: Runner = subprocess.run,
 ) -> dict[str, Any]:
     if max_runs is not None and max_runs < 1:
@@ -81,7 +82,13 @@ def run_live_gate(
         )
 
     elapsed_s = round(time.perf_counter() - t0, 3)
-    summary = _summarize(rows, elapsed_s, plan_only=plan_only, post_verify=post_verify)
+    summary = _summarize(
+        rows,
+        elapsed_s,
+        plan_only=plan_only,
+        post_verify=post_verify,
+        skillopt_review=skillopt_review,
+    )
     return {
         "benchmark": "scratch-live-gate",
         "scope": (
@@ -515,6 +522,7 @@ def _summarize(
     *,
     plan_only: bool,
     post_verify: bool,
+    skillopt_review: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     total = len(rows)
     planner_valid = sum(1 for row in rows if row.get("planner_valid"))
@@ -529,15 +537,14 @@ def _summarize(
     scaffold_clean_rate = _ratio(scaffold_clean, len(scaffold_rows))
     e2e_green_rate = _ratio(e2e_green, len(e2e_rows))
     cost_values = [
-        float(row["cost_usd"])
-        for row in rows
-        if row.get("cost_usd") is not None
+        float(row["cost_usd"]) for row in rows if row.get("cost_usd") is not None
     ]
     average_cost_usd = (
         round(sum(cost_values) / len(cost_values), 6)
         if len(cost_values) == total and total
         else None
     )
+    skillopt = _normalize_skillopt_review(skillopt_review)
     release_gates = {
         "full_75_run_matrix": _has_full_release_matrix(rows),
         "planner_valid_ge_90": planner_valid_rate >= 0.90 if total else False,
@@ -551,7 +558,7 @@ def _summarize(
         "average_cost_le_1": (
             average_cost_usd <= 1.0 if average_cost_usd is not None else None
         ),
-        "skillopt_human_approval_ge_80": False,
+        "skillopt_human_approval_ge_80": skillopt["gate_passed"],
     }
     release_gates["release_ready"] = all(
         value is True for value in release_gates.values()
@@ -569,6 +576,7 @@ def _summarize(
         "timed_out": sum(1 for row in rows if row.get("timed_out")),
         "median_wall_clock_s": median_wall_clock_s,
         "average_cost_usd": average_cost_usd,
+        "skillopt_review": skillopt,
         "elapsed_s": elapsed_s,
         "release_gates": release_gates,
         "missing_release_evidence": _missing_release_evidence(
@@ -596,6 +604,62 @@ def _missing_release_evidence(
     if not release_gates["skillopt_human_approval_ge_80"]:
         missing.append("SkillOpt human approval evidence >=80%")
     return missing
+
+
+def load_skillopt_review_evidence(path: Path) -> dict[str, Any]:
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    return _normalize_skillopt_review(raw, source=str(path))
+
+
+def _normalize_skillopt_review(
+    evidence: dict[str, Any] | None,
+    *,
+    source: str = "inline",
+) -> dict[str, Any]:
+    if not evidence:
+        return {
+            "source": source,
+            "total_reviews": 0,
+            "approved": 0,
+            "approval_rate": 0.0,
+            "gate_passed": False,
+            "reviews": [],
+            "invalid_reviews": 0,
+        }
+    rows = evidence.get("reviews") or evidence.get("skill_reviews") or []
+    normalized = []
+    invalid = 0
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict):
+            invalid += 1
+            continue
+        skill = str(row.get("skill") or row.get("slug") or "").strip()
+        reviewer = str(row.get("reviewer") or "").strip()
+        approved = row.get("approved")
+        if not skill or not reviewer or not isinstance(approved, bool):
+            invalid += 1
+            continue
+        normalized.append(
+            {
+                "skill": skill,
+                "reviewer": reviewer,
+                "approved": approved,
+                "reviewed_at": str(row.get("reviewed_at") or "").strip(),
+                "notes": str(row.get("notes") or "").strip(),
+            }
+        )
+    total = len(normalized)
+    approved_count = sum(1 for row in normalized if row["approved"])
+    approval_rate = _ratio(approved_count, total)
+    return {
+        "source": str(evidence.get("source") or source),
+        "total_reviews": total,
+        "approved": approved_count,
+        "approval_rate": approval_rate,
+        "gate_passed": total >= 10 and approval_rate >= 0.80,
+        "reviews": normalized,
+        "invalid_reviews": invalid,
+    }
 
 
 def _has_full_release_matrix(rows: list[dict[str, Any]]) -> bool:
@@ -678,6 +742,10 @@ def merge_results(existing: dict[str, Any], current: dict[str, Any]) -> dict[str
             elapsed_s,
             plan_only=bool(current_matrix.get("plan_only")),
             post_verify=bool(current_matrix.get("post_verify")),
+            skillopt_review=(
+                current.get("summary", {}).get("skillopt_review")
+                or existing.get("summary", {}).get("skillopt_review")
+            ),
         ),
     }
 
@@ -700,6 +768,7 @@ def _pilot_stack_index(stack: str) -> int:
 def _to_markdown(result: dict[str, Any]) -> str:
     summary = result["summary"]
     matrix = result["matrix"]
+    skillopt = summary.get("skillopt_review") or {}
     lines = [
         "# Scratch Live Gate",
         "",
@@ -729,6 +798,20 @@ def _to_markdown(result: dict[str, Any]) -> str:
     ]
     for gate, value in summary["release_gates"].items():
         lines.append(f"- {gate}: {value}")
+    lines.extend(
+        [
+            "",
+            "## SkillOpt Review Evidence",
+            "",
+            f"- source: {skillopt.get('source', 'inline')}",
+            (
+                f"- reviewed skills: {skillopt.get('approved', 0)}/"
+                f"{skillopt.get('total_reviews', 0)} approved"
+            ),
+            f"- approval rate: {float(skillopt.get('approval_rate', 0.0)):.2%}",
+            f"- invalid review rows: {skillopt.get('invalid_reviews', 0)}",
+        ]
+    )
     lines.extend(
         [
             "",
@@ -776,6 +859,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
     parser.add_argument(
+        "--skillopt-review-json",
+        type=Path,
+        help=(
+            "human review evidence JSON for generated SkillOpt skills; requires "
+            ">=10 reviewed skills and >=80% approved"
+        ),
+    )
+    parser.add_argument(
         "--merge-existing",
         action="store_true",
         help="merge this slice into an existing JSON report instead of replacing it",
@@ -797,6 +888,11 @@ def main(argv: list[str] | None = None) -> int:
         skip_install=args.skip_install,
         post_verify=args.post_verify,
         timeout_seconds=args.timeout_seconds,
+        skillopt_review=(
+            load_skillopt_review_evidence(args.skillopt_review_json)
+            if args.skillopt_review_json
+            else None
+        ),
     )
     if args.merge_existing and args.json_output.is_file():
         try:

@@ -5651,6 +5651,15 @@
     },
     "scaffold_clean": 75,
     "scaffold_clean_rate": 1.0,
+    "skillopt_review": {
+      "approval_rate": 0.0,
+      "approved": 0,
+      "gate_passed": false,
+      "invalid_reviews": 0,
+      "reviews": [],
+      "source": "inline",
+      "total_reviews": 0
+    },
     "task_all_passed": 75,
     "task_all_passed_rate": 1.0,
     "timed_out": 0,

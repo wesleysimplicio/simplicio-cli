@@ -23,14 +23,21 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## Release Gate Status
 
-- average_cost_le_1: True
-- e2e_green_ge_80: True
 - full_75_run_matrix: True
-- median_wall_clock_le_8m: True
 - planner_valid_ge_90: True
-- release_ready: False
 - scaffold_clean_ge_95: True
+- e2e_green_ge_80: True
+- median_wall_clock_le_8m: True
+- average_cost_le_1: True
 - skillopt_human_approval_ge_80: False
+- release_ready: False
+
+## SkillOpt Review Evidence
+
+- source: inline
+- reviewed skills: 0/0 approved
+- approval rate: 0.00%
+- invalid review rows: 0
 
 ## Runs
 
