@@ -1,6 +1,6 @@
 # Static Fixers Benchmark
 
-synthetic verify-loop fixer benchmark with optional real package-manager probe; does not replace the full 50-scratch gate
+synthetic verify-loop fixer benchmark with optional real package-manager probe and live scratch-corpus inspection
 
 ## Summary
 
@@ -17,7 +17,18 @@ synthetic verify-loop fixer benchmark with optional real package-manager probe; 
 - fixer_resolved_ge_80: True
 - retry_calls_down_ge_30: True
 - real_package_manager_execution: True
-- real_scratch_corpus: False
+- real_scratch_corpus: True
+- real_eligible_failures_observed: False
+
+## Live Scratch Corpus Inspection
+
+- source: bench/results_scratch_live_gate.json
+- runs: 75
+- e2e green: 75/75
+- eligible failure runs: 0
+- post-verify failure runs: 0
+- scratch returncode failure runs: 0
+- stacks: go-gin, php-laravel, py-fastapi, rust-axum, ts-nextjs
 
 ## Cases
 
@@ -78,13 +89,13 @@ synthetic verify-loop fixer benchmark with optional real package-manager probe; 
 
 | case | package | applied | dependency_declared | import_ok | passed | duration_ms |
 | --- | --- | --- | --- | --- | --- | ---: |
-| packaging-01 | packaging | True | True | True | True | 1473 |
-| colorama-01 | colorama | True | True | True | True | 1144 |
-| idna-01 | idna | True | True | True | True | 1173 |
-| certifi-01 | certifi | True | True | True | True | 1130 |
-| charset-normalizer-01 | charset-normalizer | True | True | True | True | 1645 |
-| packaging-02 | packaging | True | True | True | True | 947 |
-| colorama-02 | colorama | True | True | True | True | 978 |
-| idna-02 | idna | True | True | True | True | 945 |
-| certifi-02 | certifi | True | True | True | True | 1007 |
-| charset-normalizer-02 | charset-normalizer | True | True | True | True | 1021 |
+| packaging-01 | packaging | True | True | True | True | 1684 |
+| colorama-01 | colorama | True | True | True | True | 940 |
+| idna-01 | idna | True | True | True | True | 938 |
+| certifi-01 | certifi | True | True | True | True | 936 |
+| charset-normalizer-01 | charset-normalizer | True | True | True | True | 1165 |
+| packaging-02 | packaging | True | True | True | True | 959 |
+| colorama-02 | colorama | True | True | True | True | 913 |
+| idna-02 | idna | True | True | True | True | 887 |
+| certifi-02 | certifi | True | True | True | True | 904 |
+| charset-normalizer-02 | charset-normalizer | True | True | True | True | 988 |

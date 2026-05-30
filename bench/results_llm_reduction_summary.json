@@ -78,7 +78,7 @@
       "fixer_resolved_rate": 0.8,
       "gate_passed": true,
       "present": true,
-      "real_corpus": false,
+      "real_corpus": true,
       "real_package_manager_cases": 10,
       "real_package_manager_execution": true,
       "real_package_manager_passed": 10,
@@ -157,7 +157,7 @@
       "real fixer evidence from actual scratch install/import/lint failures",
       "real scratch LLM baseline for B/codegen pass-rate and latency",
       "SkillOpt human approval evidence >=80%",
-      "real 50-scratch corpus still missing for cache, static fixers"
+      "real 50-scratch corpus still missing for cache"
     ],
     "modeled_baseline_calls": 19,
     "modeled_final_calls": 6,

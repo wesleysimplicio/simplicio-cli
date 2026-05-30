@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 
 from bench.run_static_fixers import (
     build_cases,
+    load_live_gate_evidence,
     run_benchmark,
     run_real_package_manager_probe,
     write_reports,
@@ -74,3 +76,75 @@ def test_static_fixer_bench_records_real_probe_summary(tmp_path) -> None:
     summary = result["summary"]
     assert summary["real_package_manager_cases"] == 0
     assert summary["release_gates"]["real_package_manager_execution"] is False
+
+
+def test_static_fixer_bench_consumes_live_gate_corpus(tmp_path) -> None:
+    live_gate = {
+        "source": "fixture-live-gate",
+        "summary": {
+            "total_runs": 75,
+            "e2e_green": 75,
+        },
+        "runs": [
+            {
+                "stack": "py-fastapi",
+                "goal_index": index,
+                "goal": f"CRUD app {index}",
+                "returncode": 0,
+                "e2e_green": True,
+                "post_verify": {
+                    "enabled": True,
+                    "commands": [
+                        {"name": "test", "passed": True},
+                        {"name": "lint", "passed": True},
+                    ],
+                },
+            }
+            for index in range(1, 76)
+        ],
+    }
+
+    result = run_benchmark(work_dir=tmp_path / "bench", live_gate=live_gate)
+    summary = result["summary"]
+    gates = summary["release_gates"]
+
+    assert gates["real_scratch_corpus"] is True
+    assert gates["real_eligible_failures_observed"] is False
+    assert summary["live_corpus"]["total_runs"] == 75
+    assert summary["live_corpus"]["eligible_failure_runs"] == 0
+    assert "real 50-scratch corpus" not in "\n".join(
+        summary["missing_release_evidence"]
+    )
+    assert "real install/import/lint failures" in "\n".join(
+        summary["missing_release_evidence"]
+    )
+
+    live_path = tmp_path / "live-gate.json"
+    live_path.write_text(json.dumps(live_gate), encoding="utf-8")
+    loaded = load_live_gate_evidence(live_path)
+    assert loaded["source"] == "fixture-live-gate"
+    assert loaded["e2e_green"] == 75
+
+
+def test_static_fixer_bench_counts_live_failure_runs(tmp_path) -> None:
+    live_gate = {
+        "runs": [
+            {
+                "stack": "py-fastapi",
+                "goal": "CRUD app",
+                "returncode": 1,
+                "e2e_green": False,
+                "post_verify": {
+                    "enabled": True,
+                    "commands": [{"name": "test", "passed": False}],
+                },
+            }
+        ]
+    }
+
+    result = run_benchmark(work_dir=tmp_path / "bench", live_gate=live_gate)
+
+    assert result["summary"]["live_corpus"]["eligible_failure_runs"] == 1
+    assert result["summary"]["live_corpus"]["post_verify_failure_runs"] == 1
+    assert result["summary"]["live_corpus"]["scratch_returncode_failure_runs"] == 1
+    assert result["summary"]["release_gates"]["real_scratch_corpus"] is False

@@ -606,12 +606,27 @@
     "platform": "Windows-11-10.0.22631-SP0",
     "python": "3.14.3"
   },
+  "live_corpus": {
+    "e2e_green": 75,
+    "eligible_failure_runs": 0,
+    "post_verify_failure_runs": 0,
+    "scratch_returncode_failure_runs": 0,
+    "source": "bench/results_scratch_live_gate.json",
+    "stacks": [
+      "go-gin",
+      "php-laravel",
+      "py-fastapi",
+      "rust-axum",
+      "ts-nextjs"
+    ],
+    "total_runs": 75
+  },
   "real_package_manager_cases": [
     {
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed packaging",
-      "duration_ms": 1473,
+      "duration_ms": 1684,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "packaging",
@@ -623,7 +638,7 @@
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed colorama",
-      "duration_ms": 1144,
+      "duration_ms": 940,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "colorama",
@@ -635,7 +650,7 @@
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed idna",
-      "duration_ms": 1173,
+      "duration_ms": 938,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "idna",
@@ -647,7 +662,7 @@
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed certifi",
-      "duration_ms": 1130,
+      "duration_ms": 936,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "certifi",
@@ -659,7 +674,7 @@
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed charset-normalizer",
-      "duration_ms": 1645,
+      "duration_ms": 1165,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "charset_normalizer",
@@ -671,7 +686,7 @@
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed packaging",
-      "duration_ms": 947,
+      "duration_ms": 959,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "packaging",
@@ -683,7 +698,7 @@
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed colorama",
-      "duration_ms": 978,
+      "duration_ms": 913,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "colorama",
@@ -695,7 +710,7 @@
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed idna",
-      "duration_ms": 945,
+      "duration_ms": 887,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "idna",
@@ -707,7 +722,7 @@
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed certifi",
-      "duration_ms": 1007,
+      "duration_ms": 904,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "certifi",
@@ -719,7 +734,7 @@
       "applied": true,
       "dependency_declared": true,
       "details": "added to pyproject.toml and installed charset-normalizer",
-      "duration_ms": 1021,
+      "duration_ms": 988,
       "fixer": "missing-pip-package",
       "import_ok": true,
       "module": "charset_normalizer",
@@ -728,12 +743,27 @@
       "passed": true
     }
   ],
-  "scope": "synthetic verify-loop fixer benchmark with optional real package-manager probe; does not replace the full 50-scratch gate",
+  "scope": "synthetic verify-loop fixer benchmark with optional real package-manager probe and live scratch-corpus inspection",
   "summary": {
     "baseline_llm_calls": 100,
-    "elapsed_s": 11.683,
+    "elapsed_s": 10.611,
     "fixer_resolved_before_retry": 40,
     "fixer_resolved_rate": 0.8,
+    "live_corpus": {
+      "e2e_green": 75,
+      "eligible_failure_runs": 0,
+      "post_verify_failure_runs": 0,
+      "scratch_returncode_failure_runs": 0,
+      "source": "bench/results_scratch_live_gate.json",
+      "stacks": [
+        "go-gin",
+        "php-laravel",
+        "py-fastapi",
+        "rust-axum",
+        "ts-nextjs"
+      ],
+      "total_runs": 75
+    },
     "missing_release_evidence": [
       "real install/import/lint failures from 50 scratch runs",
       "comparison across actual scratch reports"
@@ -744,8 +774,9 @@
     "release_gates": {
       "fifty_cases": true,
       "fixer_resolved_ge_80": true,
+      "real_eligible_failures_observed": false,
       "real_package_manager_execution": true,
-      "real_scratch_corpus": false,
+      "real_scratch_corpus": true,
       "retry_calls_down_ge_30": true
     },
     "retry_call_reduction": 0.4,

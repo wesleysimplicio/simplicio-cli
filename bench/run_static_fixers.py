@@ -31,6 +31,7 @@ from simplicio.pipeline_fixers import try_static_fixers as real_try_static_fixer
 
 RESULTS_JSON = ROOT / "bench" / "results_static_fixers.json"
 RESULTS_MD = ROOT / "bench" / "results_static_fixers.md"
+LIVE_GATE_JSON = ROOT / "bench" / "results_scratch_live_gate.json"
 
 
 @dataclass(frozen=True)
@@ -92,6 +93,7 @@ def run_benchmark(
     work_dir: Path | None = None,
     real_package_manager_probe: bool = False,
     real_probe_repeat: int = 2,
+    live_gate: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     owned_temp = False
     if work_dir is None:
@@ -125,12 +127,13 @@ def run_benchmark(
         if real_package_manager_probe
         else []
     )
+    live_corpus = _normalize_live_gate(live_gate) if live_gate else None
     elapsed_s = round(time.perf_counter() - t0, 3)
     return {
         "benchmark": "static-fixers",
         "scope": (
             "synthetic verify-loop fixer benchmark with optional real package-manager "
-            "probe; does not replace the full 50-scratch gate"
+            "probe and live scratch-corpus inspection"
         ),
         "work_dir": "$WORK_DIR",
         "work_dir_owned_by_runner": owned_temp,
@@ -138,7 +141,8 @@ def run_benchmark(
             "python": sys.version.split()[0],
             "platform": platform.platform(),
         },
-        "summary": _summarize(rows, elapsed_s, real_probe_rows),
+        "live_corpus": live_corpus,
+        "summary": _summarize(rows, elapsed_s, real_probe_rows, live_corpus),
         "cases": rows,
         "real_package_manager_cases": real_probe_rows,
     }
@@ -289,6 +293,7 @@ def _summarize(
     rows: list[dict[str, Any]],
     elapsed_s: float,
     real_probe_rows: list[dict[str, Any]] | None = None,
+    live_corpus: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     real_probe_rows = real_probe_rows or []
     total = len(rows)
@@ -301,6 +306,10 @@ def _summarize(
     )
     real_total = len(real_probe_rows)
     real_passed = sum(1 for row in real_probe_rows if row.get("passed"))
+    live_total = int(live_corpus.get("total_runs", 0)) if live_corpus else 0
+    live_failures = (
+        int(live_corpus.get("eligible_failure_runs", 0)) if live_corpus else 0
+    )
     summary = {
         "total_cases": total,
         "passed_cases": passed,
@@ -311,6 +320,7 @@ def _summarize(
         "retry_call_reduction": round(reduction, 4),
         "real_package_manager_cases": real_total,
         "real_package_manager_passed": real_passed,
+        "live_corpus": live_corpus,
         "elapsed_s": elapsed_s,
         "release_gates": {
             "fifty_cases": total >= 50,
@@ -318,19 +328,119 @@ def _summarize(
             "retry_calls_down_ge_30": reduction >= 0.30,
             "real_package_manager_execution": real_total > 0
             and real_passed == real_total,
-            "real_scratch_corpus": False,
+            "real_scratch_corpus": live_total >= 50,
+            "real_eligible_failures_observed": live_failures > 0,
         },
         "missing_release_evidence": [
-            "real install/import/lint failures from 50 scratch runs",
             "comparison across actual scratch reports",
         ],
     }
+    if not summary["release_gates"]["real_scratch_corpus"]:
+        summary["missing_release_evidence"].insert(
+            0,
+            "real 50-scratch corpus for static fixer inspection",
+        )
+    if not summary["release_gates"]["real_eligible_failures_observed"]:
+        summary["missing_release_evidence"].insert(
+            0,
+            "real install/import/lint failures from 50 scratch runs",
+        )
     if not summary["release_gates"]["real_package_manager_execution"]:
         summary["missing_release_evidence"].insert(
             1,
             "non-faked package manager execution",
         )
     return summary
+
+
+def load_live_gate_evidence(path: Path) -> dict[str, Any]:
+    return _normalize_live_gate(
+        json.loads(path.read_text(encoding="utf-8")),
+        source=_source_label(path),
+    )
+
+
+def _normalize_live_gate(
+    live_gate: dict[str, Any],
+    *,
+    source: str | None = None,
+) -> dict[str, Any]:
+    if "runs" not in live_gate:
+        return {
+            "source": live_gate.get("source") or source or "inline",
+            "total_runs": int(live_gate.get("total_runs", 0)),
+            "e2e_green": int(live_gate.get("e2e_green", 0)),
+            "eligible_failure_runs": int(live_gate.get("eligible_failure_runs", 0)),
+            "post_verify_failure_runs": int(
+                live_gate.get("post_verify_failure_runs", 0)
+            ),
+            "scratch_returncode_failure_runs": int(
+                live_gate.get("scratch_returncode_failure_runs", 0)
+            ),
+            "stacks": sorted(live_gate.get("stacks", [])),
+        }
+
+    summary = live_gate.get("summary") if isinstance(live_gate, dict) else {}
+    summary = summary if isinstance(summary, dict) else {}
+    runs = live_gate.get("runs")
+    runs = runs if isinstance(runs, list) else []
+
+    post_verify_failure_runs = 0
+    scratch_returncode_failure_runs = 0
+    e2e_green = 0
+    stacks: set[str] = set()
+    failure_cases = []
+    for run in runs:
+        stack = run.get("stack")
+        if isinstance(stack, str):
+            stacks.add(stack)
+        if run.get("e2e_green"):
+            e2e_green += 1
+        if run.get("returncode") not in (0, None):
+            scratch_returncode_failure_runs += 1
+            failure_cases.append(_failure_case(run, "scratch_returncode"))
+        verify = run.get("post_verify")
+        if isinstance(verify, dict) and verify.get("enabled"):
+            failed_commands = [
+                command
+                for command in verify.get("commands", [])
+                if isinstance(command, dict) and not command.get("passed")
+            ]
+            if failed_commands:
+                post_verify_failure_runs += 1
+                failure_cases.append(_failure_case(run, "post_verify"))
+
+    total = int(summary.get("total_runs") or len(runs))
+    if summary.get("e2e_green") is not None:
+        e2e_green = int(summary["e2e_green"])
+    return {
+        "source": live_gate.get("source") or source or "inline",
+        "total_runs": total,
+        "e2e_green": e2e_green,
+        "eligible_failure_runs": sum(
+            1 for row in runs if row.get("e2e_green") is False
+        ),
+        "post_verify_failure_runs": post_verify_failure_runs,
+        "scratch_returncode_failure_runs": scratch_returncode_failure_runs,
+        "stacks": sorted(stacks),
+        "failure_cases": failure_cases,
+    }
+
+
+def _failure_case(run: dict[str, Any], kind: str) -> dict[str, Any]:
+    return {
+        "kind": kind,
+        "stack": run.get("stack", ""),
+        "goal_index": run.get("goal_index", ""),
+        "goal": run.get("goal", ""),
+    }
+
+
+def _source_label(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def _valid_pipeline_diff(marker: str) -> str:
@@ -375,6 +485,22 @@ def _to_markdown(result: dict[str, Any]) -> str:
     ]
     for gate, value in summary["release_gates"].items():
         lines.append(f"- {gate}: {value}")
+    live = summary.get("live_corpus")
+    if live:
+        lines.extend(
+            [
+                "",
+                "## Live Scratch Corpus Inspection",
+                "",
+                f"- source: {live['source']}",
+                f"- runs: {live['total_runs']}",
+                f"- e2e green: {live['e2e_green']}/{live['total_runs']}",
+                f"- eligible failure runs: {live['eligible_failure_runs']}",
+                f"- post-verify failure runs: {live['post_verify_failure_runs']}",
+                f"- scratch returncode failure runs: {live['scratch_returncode_failure_runs']}",
+                f"- stacks: {', '.join(live['stacks'])}",
+            ]
+        )
     lines.extend(
         [
             "",
@@ -426,6 +552,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--real-package-manager-probe", action="store_true")
     parser.add_argument("--real-probe-repeat", type=int, default=2)
+    parser.add_argument(
+        "--live-gate-json",
+        type=Path,
+        default=LIVE_GATE_JSON,
+        help="Path to scratch live-gate JSON used to inspect real fixer corpus failures.",
+    )
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
     parser.add_argument("--quiet", action="store_true")
@@ -438,6 +570,9 @@ def main(argv: list[str] | None = None) -> int:
         work_dir=args.work_dir,
         real_package_manager_probe=args.real_package_manager_probe,
         real_probe_repeat=args.real_probe_repeat,
+        live_gate=load_live_gate_evidence(args.live_gate_json)
+        if args.live_gate_json and args.live_gate_json.is_file()
+        else None,
     )
     write_reports(result, args.json_output, args.md_output)
     if not args.quiet:
