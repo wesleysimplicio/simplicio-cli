@@ -49,22 +49,54 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-incident-escalation-ser",
       "tasks": 28
+    },
+    {
+      "duration_ms": 140365,
+      "goal": "Build a FastAPI maintenance scheduling service with recurring windows",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-maintenance-scheduling",
+      "tasks": 30
+    },
+    {
+      "duration_ms": 157536,
+      "goal": "Build a FastAPI resident profile merge service with conflict reports",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-resident-profile-merge",
+      "tasks": 32
+    },
+    {
+      "duration_ms": 192345,
+      "goal": "Build a FastAPI document indexing service with access policy checks",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-document-indexing-servi",
+      "tasks": 44
+    },
+    {
+      "duration_ms": 131369,
+      "goal": "Build a FastAPI visitor preapproval service with expiry reminders",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-visitor-preapproval-ser",
+      "tasks": 29
     }
   ],
-  "cold_elapsed_s": 1041.349,
+  "cold_elapsed_s": 1662.967,
   "cold_stats": {
     "bust": false,
-    "bytes": 32610,
+    "bytes": 41744,
     "enabled": true,
     "entries": 2,
     "hit_rate": 0.0,
     "hits": 0,
     "max_mb": 500,
-    "mb": 0.031,
-    "misses": 6,
-    "oldest_age_s": 119.112,
-    "puts": 6,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-04-05\\cache",
+    "mb": 0.04,
+    "misses": 10,
+    "oldest_age_s": 131.374,
+    "puts": 10,
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-08-09\\cache",
     "ttl_days": 30
   },
   "date": "2026-05-30",
@@ -88,14 +120,14 @@
   },
   "matrix": {
     "corpus_total_goals": 50,
-    "merged_slices": 3,
-    "selected_goals": 6
+    "merged_slices": 5,
+    "selected_goals": 10
   },
   "scope": "cold/warm scratch planner cache measurement; this proves planner cache replay for identical prompts. Optional live-gate input links the cache evidence to the shared real scratch release corpus without overstating the cold/warm sample size.",
   "stack": "py-fastapi",
   "summary": {
-    "cold_plans_valid": 6,
-    "cold_puts": 6,
+    "cold_plans_valid": 10,
+    "cold_puts": 10,
     "live_corpus": {
       "e2e_green": 75,
       "e2e_green_rate": 1.0,
@@ -119,11 +151,11 @@
       "warm_hit_rate_ge_80": true,
       "warm_plans_all_valid": true
     },
-    "total_goals": 6,
+    "total_goals": 10,
     "warm_hit_rate": 1.0,
-    "warm_hits": 6,
+    "warm_hits": 10,
     "warm_misses": 0,
-    "warm_plans_valid": 6
+    "warm_plans_valid": 10
   },
   "warm_cases": [
     {
@@ -173,22 +205,54 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-incident-escalation-ser",
       "tasks": 28
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI maintenance scheduling service with recurring windows",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-maintenance-scheduling",
+      "tasks": 30
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI resident profile merge service with conflict reports",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-resident-profile-merge",
+      "tasks": 32
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI document indexing service with access policy checks",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-document-indexing-servi",
+      "tasks": 44
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI visitor preapproval service with expiry reminders",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-visitor-preapproval-ser",
+      "tasks": 29
     }
   ],
-  "warm_elapsed_s": 0.022,
+  "warm_elapsed_s": 0.036,
   "warm_stats": {
     "bust": false,
-    "bytes": 32610,
+    "bytes": 41744,
     "enabled": true,
     "entries": 2,
     "hit_rate": 1.0,
-    "hits": 6,
+    "hits": 10,
     "max_mb": 500,
-    "mb": 0.031,
+    "mb": 0.04,
     "misses": 0,
-    "oldest_age_s": 119.121,
+    "oldest_age_s": 131.381,
     "puts": 0,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-04-05\\cache",
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-08-09\\cache",
     "ttl_days": 30
   }
 }

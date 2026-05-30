@@ -4,14 +4,14 @@ cold/warm scratch planner cache measurement; this proves planner cache replay fo
 
 ## Summary
 
-- goals: 6
-- cold valid plans: 6
-- warm valid plans: 6
+- goals: 10
+- cold valid plans: 10
+- warm valid plans: 10
 - warm cache hit-rate: 100.00%
-- warm hits/misses: 6/0
-- cold cache puts: 6
-- selected corpus goals: 6/50
-- merged slices: 3
+- warm hits/misses: 10/0
+- cold cache puts: 10
+- selected corpus goals: 10/50
+- merged slices: 5
 
 ## Live Corpus Link
 
@@ -43,3 +43,7 @@ cold/warm scratch planner cache measurement; this proves planner cache replay fo
 | Build a FastAPI data export service with signed download links | True | 36 | 2 |
 | Build a FastAPI notification preference service with channel rules | True | 27 | 5 |
 | Build a FastAPI incident escalation service with severity routing | True | 28 | 3 |
+| Build a FastAPI maintenance scheduling service with recurring windows | True | 30 | 3 |
+| Build a FastAPI resident profile merge service with conflict reports | True | 32 | 2 |
+| Build a FastAPI document indexing service with access policy checks | True | 44 | 3 |
+| Build a FastAPI visitor preapproval service with expiry reminders | True | 29 | 2 |
