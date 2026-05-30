@@ -3,6 +3,7 @@ import json
 from simplicio import bench
 from simplicio import pipeline
 from simplicio import prompt as prompt_module
+from simplicio.pipeline_fixers import FixerResult
 from simplicio.precedent import build_precedent_block
 
 
@@ -136,6 +137,122 @@ def test_retry_classification_and_pre_apply_validation():
     assert "pre-apply validation failed" in feedback
     assert "assertion" in feedback
     assert "attempt 2" in feedback
+
+
+def _valid_pipeline_diff():
+    return "\n".join(
+        [
+            "diff --git a/src/app.py b/src/app.py",
+            "--- a/src/app.py",
+            "+++ b/src/app.py",
+            "@@ -0,0 +1 @@",
+            "+print('ok')",
+            "",
+            "TEST: pytest -q",
+        ]
+    )
+
+
+def test_pipeline_static_fixer_skips_llm_retry_when_verify_passes(tmp_path, monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_DISABLE_RUN_LOG", "1")
+    generate_calls = []
+    apply_calls = {"count": 0}
+
+    def fake_generate(prompt, feedback=None):
+        generate_calls.append(feedback)
+        return _valid_pipeline_diff()
+
+    def fake_apply_and_test(output, root, bound_paths=None):
+        apply_calls["count"] += 1
+        if apply_calls["count"] == 1:
+            return False, "ModuleNotFoundError: No module named 'fastapi'"
+        return True, "1 passed"
+
+    monkeypatch.setattr(pipeline, "generate", fake_generate)
+    monkeypatch.setattr(pipeline, "build_prompt", lambda *args, **kwargs: "prompt")
+    monkeypatch.setattr(pipeline, "_apply_and_test", fake_apply_and_test)
+    monkeypatch.setattr(
+        pipeline,
+        "try_static_fixers",
+        lambda log, root: FixerResult("missing-pip-package", True, "installed fastapi"),
+    )
+
+    result = pipeline.run_task(str(tmp_path), "python", "add api", "src/app.py", "- passes", "- small", quiet=True)
+
+    assert result["applied"] is True
+    assert len(generate_calls) == 1
+    assert apply_calls["count"] == 2
+
+
+def test_pipeline_retries_with_llm_when_static_fixer_does_not_resolve(tmp_path, monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_DISABLE_RUN_LOG", "1")
+    generate_calls = []
+    apply_calls = {"count": 0}
+
+    def fake_generate(prompt, feedback=None):
+        generate_calls.append(feedback)
+        return _valid_pipeline_diff()
+
+    def fake_apply_and_test(output, root, bound_paths=None):
+        apply_calls["count"] += 1
+        if apply_calls["count"] == 1:
+            return False, "ModuleNotFoundError: No module named 'fastapi'"
+        if apply_calls["count"] == 2:
+            return False, "AssertionError: still failing after fixer"
+        return True, "1 passed"
+
+    def fake_fixers(log, root):
+        if "No module named" in log:
+            return FixerResult("missing-pip-package", True, "installed fastapi")
+        return FixerResult("none", False, "no static fixer matched")
+
+    monkeypatch.setattr(pipeline, "generate", fake_generate)
+    monkeypatch.setattr(pipeline, "build_prompt", lambda *args, **kwargs: "prompt")
+    monkeypatch.setattr(pipeline, "_apply_and_test", fake_apply_and_test)
+    monkeypatch.setattr(pipeline, "try_static_fixers", fake_fixers)
+
+    result = pipeline.run_task(str(tmp_path), "python", "add api", "src/app.py", "- passes", "- small", quiet=True)
+
+    assert result["applied"] is True
+    assert len(generate_calls) == 2
+    assert generate_calls[1] is not None
+
+
+def test_static_fixers_reduce_retry_calls_in_synthetic_pipeline_case(tmp_path, monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_DISABLE_RUN_LOG", "1")
+
+    def run_case(root, fixer_enabled):
+        generate_calls = []
+        apply_calls = {"count": 0}
+
+        def fake_generate(prompt, feedback=None):
+            generate_calls.append(feedback)
+            return _valid_pipeline_diff()
+
+        def fake_apply_and_test(output, run_root, bound_paths=None):
+            apply_calls["count"] += 1
+            if apply_calls["count"] == 1:
+                return False, "ModuleNotFoundError: No module named 'fastapi'"
+            return True, "1 passed"
+
+        def fake_fixers(log, run_root):
+            if fixer_enabled:
+                return FixerResult("missing-pip-package", True, "installed fastapi")
+            return FixerResult("none", False, "disabled for synthetic baseline")
+
+        monkeypatch.setattr(pipeline, "generate", fake_generate)
+        monkeypatch.setattr(pipeline, "build_prompt", lambda *args, **kwargs: "prompt")
+        monkeypatch.setattr(pipeline, "_apply_and_test", fake_apply_and_test)
+        monkeypatch.setattr(pipeline, "try_static_fixers", fake_fixers)
+        pipeline.run_task(str(root), "python", "add api", "src/app.py", "- passes", "- small", quiet=True)
+        return len(generate_calls)
+
+    baseline_calls = run_case(tmp_path / "baseline", fixer_enabled=False)
+    fixer_calls = run_case(tmp_path / "fixer", fixer_enabled=True)
+
+    assert baseline_calls == 2
+    assert fixer_calls == 1
+    assert (baseline_calls - fixer_calls) / baseline_calls >= 0.3
 
 
 def test_benchmark_writes_observability_log(tmp_path, monkeypatch):

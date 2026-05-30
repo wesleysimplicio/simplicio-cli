@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import fnmatch
 import os, re, subprocess
 from .observability import estimate_tokens, log_run
+from .pipeline_fixers import try_static_fixers
 from .prompt import build_prompt
 from .providers import generate
 
@@ -164,6 +165,25 @@ def run_task(root, stack, goal, target, criteria, constraints, *,
             if not quiet:
                 print("PASSED the contract. DONE.")
             return _task_result(target, prompt, output, applied=True)
+        fixer_result = try_static_fixers(log, root)
+        if fixer_result.applied:
+            ok, fixed_log = _apply_and_test(output, root, bound_paths)
+            log_run(root, {
+                "mode": "fixer",
+                "attempt": t,
+                "ok": ok,
+                "fixer": fixer_result.fixer,
+                "details": fixer_result.details,
+                "failure_class": "none" if ok else classify_failure(fixed_log).kind,
+                "target": target,
+                "stack": stack,
+            })
+            last_log = fixed_log
+            log = fixed_log if ok else f"{fixer_result.details}\n{fixed_log}"
+            if ok:
+                if not quiet:
+                    print(f"PASSED after static fixer {fixer_result.fixer}. DONE.")
+                return _task_result(target, prompt, output, applied=True)
         if not quiet:
             print("failed:", log[:300])
         feedback = build_retry_feedback(t + 1, last_validation, log)
