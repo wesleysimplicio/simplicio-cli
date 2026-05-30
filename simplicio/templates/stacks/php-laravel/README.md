@@ -31,5 +31,5 @@ Laravel conventions, Composer packages, and PHPUnit feature tests.
 ## Verify-loop
 
 - `install`: `composer install`
-- `test`:    `php artisan test`
+- `test`:    `vendor/bin/phpunit --configuration phpunit.xml`
 - `lint`:    `vendor/bin/pint --test`

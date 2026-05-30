@@ -6,6 +6,6 @@ Generated with the `php-laravel` Simplicio scratch stack.
 
 ```bash
 composer install
-php artisan test
+vendor/bin/phpunit --configuration phpunit.xml
 vendor/bin/pint --test
 ```

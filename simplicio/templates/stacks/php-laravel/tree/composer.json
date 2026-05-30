@@ -22,7 +22,7 @@
     }
   },
   "scripts": {
-    "test": "php artisan test"
+    "test": "vendor/bin/phpunit --configuration phpunit.xml"
   },
   "minimum-stability": "stable",
   "prefer-stable": true

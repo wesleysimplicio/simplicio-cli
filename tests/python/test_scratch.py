@@ -164,7 +164,7 @@ def test_registry_loads_php_laravel_stack_metadata() -> None:
     assert stack.language.startswith("PHP")
     assert stack.framework == "Laravel"
     assert stack.install_command == "composer install"
-    assert stack.test_command == "php artisan test"
+    assert stack.test_command == "vendor/bin/phpunit --configuration phpunit.xml"
     assert "best practices" in stack.practices.lower()
 
 
@@ -198,9 +198,12 @@ def test_php_laravel_stack_renders_composer_project_name() -> None:
 
         assert (dest / "composer.json").is_file()
         assert (dest / "routes/api.php").is_file()
+        assert (dest / "bootstrap/cache").is_dir()
         assert '"name": "simplicio/demo-api"' in (dest / "composer.json").read_text(
             encoding="utf-8"
         )
+        with (dest / "routes/api.php").open(encoding="utf-8", newline="") as fh:
+            assert "\r\n" not in fh.read()
         assert any(path.name == "HealthTest.php" for path in written)
 
 

@@ -98,7 +98,8 @@ class Stack:
             # break naive formatting. Only known variables are substituted.
             for key, value in vars.items():
                 content = content.replace("{" + key + "}", str(value))
-            out.write_text(content, encoding="utf-8")
+            with out.open("w", encoding="utf-8", newline="\n") as fh:
+                fh.write(content)
             written.append(out)
         return written
 
