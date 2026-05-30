@@ -1,4 +1,5 @@
 """Unit tests for simplicio.scratch — schema, registry, executor stub mode."""
+
 from __future__ import annotations
 
 import os
@@ -12,7 +13,7 @@ from simplicio.scratch.plan_schema import (
     PlanValidationError,
     validate_plan,
 )
-from simplicio.scratch.stack_registry import StackRegistry, slugify_project
+from simplicio.scratch.stack_registry import Stack, StackRegistry, slugify_project
 
 
 # ----- plan_schema ----- #
@@ -48,9 +49,7 @@ def test_rejects_estimated_count_mismatch() -> None:
 def test_rejects_unknown_depends_on() -> None:
     bad = {
         **EXAMPLE_PLAN,
-        "tasks": [
-            {**EXAMPLE_PLAN["tasks"][0], "depends_on": ["T99-ghost"]}
-        ],
+        "tasks": [{**EXAMPLE_PLAN["tasks"][0], "depends_on": ["T99-ghost"]}],
     }
     with pytest.raises(PlanValidationError) as exc:
         validate_plan(bad)
@@ -76,6 +75,7 @@ def test_registry_lists_pilot_stacks() -> None:
     slugs = {s.slug for s in reg.list()}
     assert "py-fastapi" in slugs
     assert "ts-nextjs" in slugs
+    assert "go-gin" in slugs
 
 
 def test_registry_loads_full_metadata() -> None:
@@ -94,6 +94,39 @@ def test_registry_filters_by_tag() -> None:
     web_stacks = {s.slug for s in reg.by_tags(["web"])}
     assert "py-fastapi" in web_stacks
     assert "ts-nextjs" in web_stacks
+    assert "go-gin" in web_stacks
+
+
+def test_registry_loads_go_gin_stack_metadata() -> None:
+    reg = StackRegistry()
+    stack = reg.get("go-gin")
+    assert stack is not None
+    assert stack.language.startswith("Go")
+    assert stack.framework == "Gin"
+    assert stack.install_command == "go mod download"
+    assert stack.test_command == "go test ./..."
+    assert "best practices" in stack.practices.lower()
+
+
+def test_stack_render_tree_ignores_tool_cache_dirs() -> None:
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td) / "stack"
+        tree = root / "tree"
+        (tree / ".ruff_cache" / "0.15.13").mkdir(parents=True)
+        (tree / ".ruff_cache" / "0.15.13" / "cache").write_bytes(b"\xff\xfe")
+        (tree / ".gitignore").write_text("*.pyc\n", encoding="utf-8")
+        (tree / "README.md").write_text("# {project_name}\n", encoding="utf-8")
+
+        dest = Path(td) / "out"
+        stack = Stack(slug="test", path=root)
+        written = stack.render_tree(dest, {"project_name": "demo"})
+
+        assert sorted(p.relative_to(dest).as_posix() for p in written) == [
+            ".gitignore",
+            "README.md",
+        ]
+        assert (dest / "README.md").read_text(encoding="utf-8") == "# demo\n"
+        assert not (dest / ".ruff_cache").exists()
 
 
 def test_slugify_project_normalizes_name() -> None:
@@ -129,10 +162,49 @@ def test_executor_scaffolds_tree_in_stub_mode() -> None:
             # tasks in stub mode are recorded but not passed
             assert report.tasks_total == 1
             assert report.tasks_passed == 0
+            assert report.metrics["tasks_skipped"] == 1
+            assert report.metrics["codegen_share"] == 0.0
             assert report.task_results[0].skipped_reason is not None
     finally:
         if prev is not None:
             os.environ["SIMPLICIO_MODEL"] = prev
+
+
+def test_executor_report_records_codegen_metrics() -> None:
+    reg = StackRegistry()
+    stack = reg.get("ts-nextjs")
+    assert stack is not None
+    plan = validate_plan(
+        {
+            **EXAMPLE_PLAN,
+            "stack": "ts-nextjs",
+            "project_name": "next-api",
+            "tasks": [
+                {
+                    "id": "T01-next-route",
+                    "depends_on": [],
+                    "goal": "Create Next.js route handlers for Unit CRUD",
+                    "target": "src/app/api/units/route.ts",
+                    "criteria": "- exports GET and POST handlers\n- returns JSON",
+                    "constraints": "- use deterministic codegen",
+                    "verify": "pnpm vitest run",
+                }
+            ],
+            "estimated_total_tasks": 1,
+        }
+    )
+
+    with tempfile.TemporaryDirectory() as td:
+        from simplicio.scratch.executor import execute_plan
+
+        report = execute_plan(plan, stack, Path(td), skip_install=True)
+        data = report.to_dict()
+
+        assert report.metrics["tasks_codegen"] == 1
+        assert report.metrics["codegen_share"] == 1.0
+        assert data["tasks"][0]["execution_mode"] == "codegen"
+        assert data["tasks"][0]["codegen_executor"] == "typescript-add-next-route"
+        assert (report.project_dir / "src/app/api/units/route.ts").is_file()
 
 
 def test_executor_refuses_existing_project_dir() -> None:

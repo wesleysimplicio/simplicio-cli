@@ -12,6 +12,7 @@ This file deliberately does NOT call simplicio.pipeline.run directly yet —
 the pipeline today expects a single goal/target/contract and we need a small
 adapter shim. Adapter lives in simplicio/scratch/_pipeline_adapter.py.
 """
+
 from __future__ import annotations
 
 import json
@@ -32,6 +33,9 @@ class TaskResult:
     id: str
     target: str
     passed: bool
+    execution_mode: str = "unknown"
+    codegen_executor: Optional[str] = None
+    files_modified: list[str] = field(default_factory=list)
     skipped_reason: Optional[str] = None
     duration_ms: int = 0
     log_tail: str = ""
@@ -55,6 +59,26 @@ class ExecutorReport:
     def tasks_total(self) -> int:
         return len(self.task_results)
 
+    @property
+    def metrics(self) -> dict:
+        by_mode = {
+            mode: [task for task in self.task_results if task.execution_mode == mode]
+            for mode in ("codegen", "llm", "skipped", "failed")
+        }
+        total = self.tasks_total
+        codegen = len(by_mode["codegen"])
+        return {
+            "tasks_total": total,
+            "tasks_codegen": codegen,
+            "tasks_llm": len(by_mode["llm"]),
+            "tasks_skipped": len(by_mode["skipped"]),
+            "tasks_failed": len(by_mode["failed"]),
+            "codegen_share": round(codegen / total, 4) if total else 0.0,
+            "avg_codegen_ms": _avg_ms(by_mode["codegen"]),
+            "avg_llm_ms": _avg_ms(by_mode["llm"]),
+            "avg_task_ms": _avg_ms(self.task_results),
+        }
+
     def to_dict(self) -> dict:
         return {
             "project_dir": str(self.project_dir),
@@ -63,13 +87,22 @@ class ExecutorReport:
             "install_ok": self.install_ok,
             "install_log_tail": self.install_log[-1500:],
             "tasks": [
-                {"id": t.id, "target": t.target, "passed": t.passed,
-                 "skipped": t.skipped_reason, "duration_ms": t.duration_ms,
-                 "log_tail": t.log_tail[-400:]}
+                {
+                    "id": t.id,
+                    "target": t.target,
+                    "passed": t.passed,
+                    "execution_mode": t.execution_mode,
+                    "codegen_executor": t.codegen_executor,
+                    "files_modified": t.files_modified,
+                    "skipped": t.skipped_reason,
+                    "duration_ms": t.duration_ms,
+                    "log_tail": t.log_tail[-400:],
+                }
                 for t in self.task_results
             ],
             "tasks_passed": self.tasks_passed,
             "tasks_total": self.tasks_total,
+            "metrics": self.metrics,
             "elapsed_s": round(self.elapsed_s, 2),
         }
 
@@ -102,13 +135,16 @@ def _topo_sort(tasks: list[Task]) -> list[Task]:
     return ordered
 
 
-def _safe_run(cmd: list[str] | str, cwd: Path,
-              timeout: int = 300) -> tuple[bool, str]:
+def _safe_run(cmd: list[str] | str, cwd: Path, timeout: int = 300) -> tuple[bool, str]:
     """Run a shell command, never raising. Returns (ok, log_tail)."""
     try:
         p = subprocess.run(
-            cmd, cwd=cwd, capture_output=True, text=True,
-            timeout=timeout, shell=isinstance(cmd, str),
+            cmd,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            shell=isinstance(cmd, str),
         )
     except subprocess.TimeoutExpired:
         return False, f"TIMEOUT after {timeout}s"
@@ -118,8 +154,7 @@ def _safe_run(cmd: list[str] | str, cwd: Path,
     return p.returncode == 0, log
 
 
-def _execute_one_task(task: Task, project_dir: Path,
-                      stack: Stack) -> TaskResult:
+def _execute_one_task(task: Task, project_dir: Path, stack: Stack) -> TaskResult:
     """Execute a single task. For Phase 0/1, this stubs out the actual code
     generation if no SIMPLICIO_MODEL is set so the scaffold + verify pipeline
     can still be smoke-tested. When SIMPLICIO_MODEL IS set, defers to
@@ -137,11 +172,14 @@ def _execute_one_task(task: Task, project_dir: Path,
         # smoke-test mode: log the task but mark as skipped (no LLM call made)
         ms = int((time.perf_counter() - t0) * 1000)
         fallback_note = (
-            f"codegen fallback: {codegen_log[:200]}\n"
-            if codegen_log else ""
+            f"codegen fallback: {codegen_log[:200]}\n" if codegen_log else ""
         )
         return TaskResult(
-            id=task.id, target=task.target, passed=False, duration_ms=ms,
+            id=task.id,
+            target=task.target,
+            passed=False,
+            duration_ms=ms,
+            execution_mode="skipped",
             skipped_reason="no SIMPLICIO_MODEL set; task generation skipped",
             log_tail=f"{fallback_note}goal={task.goal[:200]}",
         )
@@ -151,7 +189,11 @@ def _execute_one_task(task: Task, project_dir: Path,
     except ImportError as e:
         ms = int((time.perf_counter() - t0) * 1000)
         return TaskResult(
-            id=task.id, target=task.target, passed=False, duration_ms=ms,
+            id=task.id,
+            target=task.target,
+            passed=False,
+            duration_ms=ms,
+            execution_mode="failed",
             skipped_reason=f"adapter import failed: {e}",
         )
 
@@ -159,8 +201,14 @@ def _execute_one_task(task: Task, project_dir: Path,
     if codegen_log:
         log = f"codegen fallback: {codegen_log}\n\n{log}"
     ms = int((time.perf_counter() - t0) * 1000)
-    return TaskResult(id=task.id, target=task.target, passed=passed,
-                      duration_ms=ms, log_tail=log)
+    return TaskResult(
+        id=task.id,
+        target=task.target,
+        passed=passed,
+        execution_mode="llm" if passed else "failed",
+        duration_ms=ms,
+        log_tail=log,
+    )
 
 
 def _task_result_from_codegen(
@@ -173,13 +221,23 @@ def _task_result_from_codegen(
         id=task.id,
         target=task.target,
         passed=result.passed,
+        execution_mode="codegen" if result.passed else "failed",
+        codegen_executor=result.executor_name,
+        files_modified=[str(path) for path in result.files_modified],
         duration_ms=ms,
         log_tail=f"{result.log}{suffix}".strip(),
     )
 
 
-def execute_plan(plan: Plan, stack: Stack, parent_dir: Path,
-                 skip_install: bool = False) -> ExecutorReport:
+def _avg_ms(tasks: list[TaskResult]) -> int:
+    if not tasks:
+        return 0
+    return round(sum(task.duration_ms for task in tasks) / len(tasks))
+
+
+def execute_plan(
+    plan: Plan, stack: Stack, parent_dir: Path, skip_install: bool = False
+) -> ExecutorReport:
     """Materialize the plan into parent_dir/<project_name>/."""
     t_start = time.perf_counter()
 
@@ -187,7 +245,8 @@ def execute_plan(plan: Plan, stack: Stack, parent_dir: Path,
     if project_dir.exists():
         raise FileExistsError(
             f"project directory already exists: {project_dir}. "
-            "Choose a different project_name or remove the existing dir.")
+            "Choose a different project_name or remove the existing dir."
+        )
     project_dir.mkdir(parents=True)
 
     report = ExecutorReport(project_dir=project_dir, stack_slug=stack.slug)
@@ -204,28 +263,44 @@ def execute_plan(plan: Plan, stack: Stack, parent_dir: Path,
     sim_dir = project_dir / ".simplicio"
     sim_dir.mkdir(exist_ok=True)
     plan_path = sim_dir / "plan.json"
-    plan_path.write_text(json.dumps({
-        "version": plan.version,
-        "stack": plan.stack,
-        "project_name": plan.project_name,
-        "rationale": plan.rationale,
-        "files_to_create": [{"path": f.path, "purpose": f.purpose}
-                            for f in plan.files_to_create],
-        "tasks": [{"id": t.id, "goal": t.goal, "target": t.target,
-                   "criteria": t.criteria, "constraints": t.constraints,
-                   "verify": t.verify, "depends_on": t.depends_on}
-                  for t in plan.tasks],
-        "deps_to_install": plan.deps_to_install,
-        "deps_dev": plan.deps_dev,
-        "test_command": plan.test_command,
-        "lint_command": plan.lint_command,
-        "estimated_total_tasks": plan.estimated_total_tasks,
-    }, indent=2), encoding="utf-8")
+    plan_path.write_text(
+        json.dumps(
+            {
+                "version": plan.version,
+                "stack": plan.stack,
+                "project_name": plan.project_name,
+                "rationale": plan.rationale,
+                "files_to_create": [
+                    {"path": f.path, "purpose": f.purpose} for f in plan.files_to_create
+                ],
+                "tasks": [
+                    {
+                        "id": t.id,
+                        "goal": t.goal,
+                        "target": t.target,
+                        "criteria": t.criteria,
+                        "constraints": t.constraints,
+                        "verify": t.verify,
+                        "depends_on": t.depends_on,
+                    }
+                    for t in plan.tasks
+                ],
+                "deps_to_install": plan.deps_to_install,
+                "deps_dev": plan.deps_dev,
+                "test_command": plan.test_command,
+                "lint_command": plan.lint_command,
+                "estimated_total_tasks": plan.estimated_total_tasks,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     # 3. Run install (best-effort)
     if not skip_install and stack.install_command:
         report.install_ok, report.install_log = _safe_run(
-            stack.install_command, project_dir, timeout=600)
+            stack.install_command, project_dir, timeout=600
+        )
 
     # 4. Execute tasks in dependency order
     for task in _topo_sort(plan.tasks):
@@ -235,6 +310,7 @@ def execute_plan(plan: Plan, stack: Stack, parent_dir: Path,
 
     # 5. Write final report next to the plan
     (sim_dir / "scratch_report.json").write_text(
-        json.dumps(report.to_dict(), indent=2), encoding="utf-8")
+        json.dumps(report.to_dict(), indent=2), encoding="utf-8"
+    )
 
     return report

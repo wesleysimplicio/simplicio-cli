@@ -9,11 +9,12 @@ Schema is hand-rolled instead of jsonschema to keep the package zero-dep.
 The structure is simple enough that a manual validator gives clearer errors
 than jsonschema-default output.
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 SCHEMA_VERSION = "1.0"
@@ -54,6 +55,7 @@ class Plan:
 class PlanValidationError(ValueError):
     """Raised when the planner output is off-schema. Carries the human-readable
     diff so the planner can be re-prompted with the exact violation list."""
+
     def __init__(self, errors: list[str]) -> None:
         self.errors = errors
         super().__init__("plan validation failed:\n  - " + "\n  - ".join(errors))
@@ -103,7 +105,8 @@ def validate_plan(raw: dict) -> Plan:
     project_name = _need(raw, "project_name", str, errors, "") or ""
     if project_name and not _PROJECT_NAME_RE.match(project_name):
         errors.append(
-            f"project_name '{project_name}' must match {_PROJECT_NAME_RE.pattern}")
+            f"project_name '{project_name}' must match {_PROJECT_NAME_RE.pattern}"
+        )
 
     rationale = _need(raw, "rationale", str, errors, "") or ""
 
@@ -129,8 +132,7 @@ def validate_plan(raw: dict) -> Plan:
         tid = _need(tr, "id", str, errors, path) or ""
         if tid:
             if not _TASK_ID_RE.match(tid):
-                errors.append(
-                    f"{path}.id '{tid}' must match {_TASK_ID_RE.pattern}")
+                errors.append(f"{path}.id '{tid}' must match {_TASK_ID_RE.pattern}")
             elif tid in seen_ids:
                 errors.append(f"{path}.id '{tid}' is duplicated")
             else:
@@ -143,20 +145,28 @@ def validate_plan(raw: dict) -> Plan:
         d = tr.get("depends_on", [])
         deps = _list_of_str(d, errors, f"{path}.depends_on")
         if g and t and c and co and v:
-            tasks.append(Task(id=tid, goal=g, target=t, criteria=c,
-                              constraints=co, verify=v, depends_on=deps))
+            tasks.append(
+                Task(
+                    id=tid,
+                    goal=g,
+                    target=t,
+                    criteria=c,
+                    constraints=co,
+                    verify=v,
+                    depends_on=deps,
+                )
+            )
 
     # Cross-task validation: depends_on must reference existing IDs
     for t in tasks:
         for dep in t.depends_on:
             if dep not in seen_ids:
-                errors.append(
-                    f"tasks[{t.id}].depends_on references unknown id '{dep}'")
+                errors.append(f"tasks[{t.id}].depends_on references unknown id '{dep}'")
 
-    deps_to_install = _list_of_str(raw.get("deps_to_install", []),
-                                   errors, "deps_to_install")
-    deps_dev = _list_of_str(raw.get("deps_dev", []),
-                            errors, "deps_dev")
+    deps_to_install = _list_of_str(
+        raw.get("deps_to_install", []), errors, "deps_to_install"
+    )
+    deps_dev = _list_of_str(raw.get("deps_dev", []), errors, "deps_dev")
     test_command = _need(raw, "test_command", str, errors, "") or ""
     lint_command = _need(raw, "lint_command", str, errors, "") or ""
     estimated = _need(raw, "estimated_total_tasks", int, errors, "")
@@ -164,7 +174,8 @@ def validate_plan(raw: dict) -> Plan:
         estimated = 0
     elif estimated != len(tasks):
         errors.append(
-            f"estimated_total_tasks={estimated} but tasks has {len(tasks)} entries")
+            f"estimated_total_tasks={estimated} but tasks has {len(tasks)} entries"
+        )
 
     if errors:
         raise PlanValidationError(errors)
@@ -190,12 +201,10 @@ EXAMPLE_PLAN: dict = {
     "stack": "py-fastapi",
     "project_name": "condo-mgmt",
     "rationale": "FastAPI is the lightest Python web stack with type hints; "
-                 "fits a CRUD admin app with low operational overhead.",
+    "fits a CRUD admin app with low operational overhead.",
     "files_to_create": [
-        {"path": "src/api/units.py",
-         "purpose": "REST endpoints for the Unit entity"},
-        {"path": "src/db/models.py",
-         "purpose": "SQLAlchemy ORM model for Unit"},
+        {"path": "src/api/units.py", "purpose": "REST endpoints for the Unit entity"},
+        {"path": "src/db/models.py", "purpose": "SQLAlchemy ORM model for Unit"},
     ],
     "tasks": [
         {

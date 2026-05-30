@@ -16,6 +16,7 @@ class CodegenResult:
     files_modified: list[Path] = field(default_factory=list)
     log: str = ""
     fallback_to_llm: bool = False
+    executor_name: str | None = None
 
 
 class TaskExecutor(ABC):
