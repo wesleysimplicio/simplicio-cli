@@ -203,6 +203,71 @@ pythonpath = ["src"]
             )
         )
 
+    cases.extend(
+        [
+            BenchCase(
+                name="go-gin-crud",
+                stack_slug="go-gin",
+                language="Go",
+                framework="Gin",
+                task=Task(
+                    id="T07-gin-crud",
+                    goal="Implement Gin CRUD routes for condo_units.",
+                    target="internal/http/router.go",
+                    criteria=(
+                        "- list, create, and read routes are present\n"
+                        "- route prefix is /condo_units\n"
+                        "- handlers return JSON responses"
+                    ),
+                    constraints="- keep the service self-contained and typed",
+                    verify="go test ./...",
+                ),
+                seed_files={},
+                expected_executor="go-gin-crud",
+            ),
+            BenchCase(
+                name="rust-axum-crud",
+                stack_slug="rust-axum",
+                language="Rust",
+                framework="Axum",
+                task=Task(
+                    id="T08-axum-crud",
+                    goal="Implement Axum CRUD routes for condo_units.",
+                    target="src/main.rs",
+                    criteria=(
+                        "- list and create routes are present\n"
+                        "- route prefix is /condo_units\n"
+                        "- route tests exercise the generated API"
+                    ),
+                    constraints="- keep the service self-contained and typed",
+                    verify="cargo test",
+                ),
+                seed_files={},
+                expected_executor="rust-axum-crud",
+            ),
+            BenchCase(
+                name="php-laravel-routes",
+                stack_slug="php-laravel",
+                language="PHP",
+                framework="Laravel",
+                task=Task(
+                    id="T09-laravel-routes",
+                    goal="Implement Laravel CRUD API routes for condo_units.",
+                    target="routes/api.php",
+                    criteria=(
+                        "- list, create, and show routes are present\n"
+                        "- route prefix is /condo_units\n"
+                        "- create route returns a JSON 201 response"
+                    ),
+                    constraints="- keep routes compact and framework-native",
+                    verify="php vendor/bin/phpunit --configuration phpunit.xml",
+                ),
+                seed_files={},
+                expected_executor="php-laravel-crud-routes",
+            ),
+        ]
+    )
+
     return cases
 
 
@@ -420,6 +485,7 @@ def _run_llm_baseline_case(
     project_dir = projects_parent / project_name
     project_dir.mkdir(parents=True, exist_ok=True)
     stack.render_tree(project_dir, {"project_name": project_name})
+    _ensure_git_repo(project_dir)
 
     started = time.perf_counter()
     previous_cwd = Path.cwd()
@@ -570,6 +636,18 @@ def _write_seed_tree(tree: Path, seed_files: dict[str, str]) -> None:
         path.write_text(content, encoding="utf-8")
 
 
+def _ensure_git_repo(path: Path) -> None:
+    if (path / ".git").exists():
+        return
+    subprocess.run(
+        ["git", "init", "-q"],
+        cwd=path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
 def _validate_generated_case(
     case: BenchCase,
     project_dir: Path,
@@ -620,6 +698,42 @@ def _validate_generated_case(
         return _validate_next_route(target, work_dir)
     if case.expected_executor == "typescript-add-next-page":
         return _validate_next_page(target, work_dir)
+    if case.expected_executor == "go-gin-crud":
+        return _validate_text_markers(
+            target,
+            work_dir,
+            {
+                "package_http": "package http",
+                "gin_import": "github.com/gin-gonic/gin",
+                "router_ctor": "func NewRouter()",
+                "route_prefix": '"/condo_units"',
+                "json_response": "c.JSON",
+            },
+        )
+    if case.expected_executor == "rust-axum-crud":
+        return _validate_text_markers(
+            target,
+            work_dir,
+            {
+                "axum_import": "use axum::",
+                "item_type": "struct CondoUnit",
+                "router": "Router::new()",
+                "route_prefix": '"/condo_units"',
+                "route_test": "condo_units_crud_routes_work",
+            },
+        )
+    if case.expected_executor == "php-laravel-crud-routes":
+        return _validate_text_markers(
+            target,
+            work_dir,
+            {
+                "php_open": "<?php",
+                "route_get": "Route::get('/condo_units'",
+                "route_post": "Route::post('/condo_units'",
+                "json_response": "JsonResponse",
+                "created_status": "201",
+            },
+        )
     return {"passed": True, "checks": [], "log": "no post-validation required"}
 
 

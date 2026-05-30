@@ -16,7 +16,7 @@ aggregate issue #33 evidence view; separates local synthetic gates from the real
 | D cache | True | warm hit-rate 100.00%, hits/misses 2/0 | real corpus False |
 | C static fixers | True | fixed 80.00%, retry calls down 40.00%, real pkg probe 10/10 | real corpus False |
 | A recipes | True | match-rate 60.00%, planner calls saved 30 | LLM baseline True, real corpus True |
-| B codegen | True | codegen share 100.00%, pass-rate 100.00%, avg 61 ms | LLM baseline True, real corpus True |
+| B codegen | True | codegen share 100.00%, pass-rate 100.00%, avg 49 ms | LLM baseline True, real corpus True |
 | scratch preflight | True | blockers 0 | ready for matrix execution |
 | scratch live gate | True | 75/75 e2e green, median 6.262 s | full matrix True |
 

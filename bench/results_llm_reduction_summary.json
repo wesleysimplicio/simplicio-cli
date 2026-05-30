@@ -56,7 +56,7 @@
       "total_cases": 50
     },
     "B_codegen": {
-      "avg_codegen_ms": 61,
+      "avg_codegen_ms": 49,
       "codegen_share": 1.0,
       "executor_pass_rate_ge_llm": true,
       "gate_passed": true,
@@ -69,8 +69,8 @@
       "real_executor_pass_rate_ge_llm": false,
       "real_latency_reduction_ge_50": false,
       "real_mechanical_share_ge_30": true,
-      "tasks_codegen": 60,
-      "total_tasks": 60,
+      "tasks_codegen": 90,
+      "total_tasks": 90,
       "zero_feature_regression_live": true
     },
     "C_static_fixers": {

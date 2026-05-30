@@ -16,7 +16,9 @@ from bench.run_scratch_codegen import (
 def test_scratch_codegen_bench_cases_cover_python_executors() -> None:
     cases = build_cases(include_typescript=False)
 
-    assert {case.expected_executor for case in cases} == {
+    assert {
+        case.expected_executor for case in cases if case.stack_slug == "py-fastapi"
+    } == {
         "python-add-fastapi-route",
         "python-add-orm-field",
         "python-add-pydantic-schema",
@@ -35,7 +37,21 @@ def test_scratch_codegen_bench_cases_cover_typescript_executors() -> None:
     }
 
 
-def test_scratch_codegen_bench_runs_keyless_python_cases(tmp_path) -> None:
+def test_scratch_codegen_bench_cases_cover_live_stack_executors() -> None:
+    cases = build_cases(include_typescript=True)
+
+    assert {
+        case.expected_executor
+        for case in cases
+        if case.stack_slug in {"go-gin", "rust-axum", "php-laravel"}
+    } == {
+        "go-gin-crud",
+        "php-laravel-crud-routes",
+        "rust-axum-crud",
+    }
+
+
+def test_scratch_codegen_bench_runs_keyless_non_typescript_cases(tmp_path) -> None:
     result = run_benchmark(
         work_dir=tmp_path / "bench",
         repeat=1,
@@ -43,12 +59,12 @@ def test_scratch_codegen_bench_runs_keyless_python_cases(tmp_path) -> None:
     )
 
     summary = result["summary"]
-    assert summary["total_cases"] == 4
-    assert summary["passed_cases"] == 4
-    assert summary["tasks_codegen"] == 4
+    assert summary["total_cases"] == 7
+    assert summary["passed_cases"] == 7
+    assert summary["tasks_codegen"] == 7
     assert summary["llm_calls"] == 0
     assert summary["planner_calls"] == 0
-    assert summary["post_validated_cases"] == 4
+    assert summary["post_validated_cases"] == 7
     assert summary["post_validation_failed_cases"] == 0
     assert summary["release_gates"]["llm_baseline_present"] is False
     assert (
@@ -231,6 +247,19 @@ def test_scratch_codegen_bench_captures_llm_baseline_without_codegen(
             "from src.utils.math_ops import double\\n"
             "def test_double():\\n"
             "    assert double(2) == 4\\n"
+            "package http\\n"
+            'import \\"github.com/gin-gonic/gin\\"\\n'
+            "func NewRouter() {}\\n"
+            '\\"/condo_units\\"\\n'
+            "c.JSON\\n"
+            "use axum::Router;\\n"
+            "struct CondoUnit;\\n"
+            "Router::new()\\n"
+            "condo_units_crud_routes_work\\n"
+            "<?php\\n"
+            "Route::get('/condo_units', fn () => []);\\n"
+            "Route::post('/condo_units', fn () => response()->json([], 201));\\n"
+            "JsonResponse\\n"
             '"}'
         )
 
@@ -244,12 +273,12 @@ def test_scratch_codegen_bench_captures_llm_baseline_without_codegen(
     )
 
     summary = baseline["summary"]
-    assert summary["total_cases"] == 4
-    assert summary["passed_cases"] == 4
+    assert summary["total_cases"] == 7
+    assert summary["passed_cases"] == 7
     assert summary["pass_rate"] == 1.0
     assert summary["avg_llm_ms"] >= 0
     assert summary["model"] == "fake-llm/baseline"
-    assert len(generate_calls) == 4
+    assert len(generate_calls) == 7
     assert all(row["execution_mode"] == "llm" for row in baseline["cases"])
 
     baseline_path = tmp_path / "captured-baseline.json"
