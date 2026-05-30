@@ -1,0 +1,45 @@
+"""Registry for deterministic scratch task executors."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Iterable
+
+from ..plan_schema import Task
+from ..stack_registry import Stack
+from .python_fastapi import PythonAddFastApiRouteExecutor
+from .python_orm import PythonAddOrmFieldExecutor
+from .python_pydantic import PythonAddPydanticSchemaExecutor
+from .python_pytest import PythonAddPytestTestExecutor
+from .typescript_next_route import TypeScriptAddNextRouteExecutor
+from .types import CodegenResult, TaskExecutor
+
+_DEFAULT_EXECUTORS: list[TaskExecutor] = [
+    PythonAddOrmFieldExecutor(),
+    PythonAddPydanticSchemaExecutor(),
+    PythonAddFastApiRouteExecutor(),
+    PythonAddPytestTestExecutor(),
+    TypeScriptAddNextRouteExecutor(),
+]
+
+
+def registered_executors() -> list[TaskExecutor]:
+    return list(_DEFAULT_EXECUTORS)
+
+
+def register_executor(executor: TaskExecutor) -> None:
+    _DEFAULT_EXECUTORS.append(executor)
+
+
+def try_execute(
+    task: Task,
+    project_dir: Path,
+    stack: Stack,
+    executors: Iterable[TaskExecutor] | None = None,
+) -> CodegenResult | None:
+    for executor in executors if executors is not None else _DEFAULT_EXECUTORS:
+        if executor.can_handle(task, stack):
+            result = executor.execute(task, project_dir, stack)
+            result.executor_name = executor.name
+            return result
+    return None

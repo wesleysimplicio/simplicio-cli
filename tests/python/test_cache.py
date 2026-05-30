@@ -6,7 +6,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from simplicio import providers
-from simplicio._cache import CacheEntry, CompletionCache, cache, make_key, reset_for_tests
+from simplicio._cache import (
+    CacheEntry,
+    CompletionCache,
+    cache,
+    make_key,
+    reset_for_tests,
+)
 from simplicio.cli import main as cli_main
 
 
@@ -77,6 +83,21 @@ def test_disabled_cache_is_noop(monkeypatch):
     assert c.stats()["entries"] == 0
 
 
+def test_cache_stats_track_session_hit_rate():
+    c = CompletionCache()
+    key = make_key("p", "m", "prompt")
+
+    assert c.get(key) is None
+    c.put(key, CacheEntry("cached", provider_id="p", model="m"))
+    assert c.get(key).completion == "cached"
+
+    stats = c.stats()
+    assert stats["hits"] == 1
+    assert stats["misses"] == 1
+    assert stats["puts"] == 1
+    assert stats["hit_rate"] == 0.5
+
+
 def test_concurrent_writes_keep_valid_json():
     c = CompletionCache()
     key = make_key("p", "m", "prompt")
@@ -135,6 +156,33 @@ def test_provider_cache_short_circuits_missing_api_key(monkeypatch):
     )
 
     assert providers.generate("cached prompt") == "CACHED"
+
+
+def test_planner_cache_short_circuits_missing_api_key(monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_PLANNER", "deepseek/deepseek-v4-pro")
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    cfg = providers.planner_cfg(require_key=False)
+    key = providers._planner_cache_key(
+        cfg,
+        "cached plan",
+        8192,
+        0.1,
+        "stack-v1",
+    )
+    cache().put(
+        key,
+        CacheEntry(
+            "CACHED_PLAN",
+            provider_id=providers._planner_provider_id(cfg),
+            model=cfg["model"],
+        ),
+    )
+
+    assert providers.planner_complete("cached plan", template_version="stack-v1") == (
+        "CACHED_PLAN"
+    )
+    with pytest.raises(SystemExit):
+        providers.planner_complete("cached plan", template_version="stack-v2")
 
 
 def test_provider_writes_shell_out_completion_to_cache(monkeypatch):

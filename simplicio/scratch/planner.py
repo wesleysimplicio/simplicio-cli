@@ -4,6 +4,7 @@ DeepSeek-V4-Pro is the default (see simplicio.providers.planner_complete);
 swappable via SIMPLICIO_PLANNER. Retries on schema validation failure with
 the diff fed back as feedback, up to PLANNER_MAX_RETRIES.
 """
+
 from __future__ import annotations
 
 import json
@@ -37,6 +38,9 @@ Hard rules:
   index, kebab-case slug, max 40 chars after the dash).
 - `depends_on` lists IDs of tasks that must complete BEFORE this one. Use
   empty list for tasks with no prerequisite.
+- If a task needs project-specific expertise not covered by the stack template,
+  set optional `required_skill` to a short plain-English capability description.
+  Omit it otherwise.
 - `estimated_total_tasks` MUST equal the length of `tasks`.
 - `project_name` MUST be lowercase kebab-case, starting with a letter.
 - Do not invent fields. Do not nest extra structure. Do not add comments.
@@ -110,7 +114,7 @@ def _extract_json(text: str) -> Optional[dict]:
         elif ch == "}":
             depth -= 1
             if depth == 0 and start is not None:
-                blob = text[start:i + 1]
+                blob = text[start : i + 1]
                 try:
                     return json.loads(blob)
                 except json.JSONDecodeError:
@@ -156,7 +160,10 @@ def generate_plan(
             )
 
         try:
-            raw_text = planner_complete(prompt_with_feedback)
+            raw_text = planner_complete(
+                prompt_with_feedback,
+                template_version=stack.version,
+            )
         except SystemExit as e:
             # Provider auth / config error — bubble up immediately, don't retry
             raise PlannerError(f"planner provider error: {e}") from e

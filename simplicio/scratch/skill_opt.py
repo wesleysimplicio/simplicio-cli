@@ -5,6 +5,7 @@ executor.py when a plan task needs a capability not yet represented in
 `.skills/`. Always writes the generated skill with `review_required: true`
 in the frontmatter, so a human gate-keeps before it becomes a default.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -116,13 +117,17 @@ def _has_review_gate(text: str) -> bool:
     return bool(re.search(r"review_required:\s*true", text))
 
 
-def generate_skill_doc(description: str, skills_root: Optional[Path] = None,
-                      planner_model: Optional[str] = None) -> tuple[str, str]:
+def generate_skill_doc(
+    description: str,
+    skills_root: Optional[Path] = None,
+    planner_model: Optional[str] = None,
+) -> tuple[str, str]:
     """Generate the SKILL.md content. Returns (slug, full markdown)."""
     root = skills_root or _skills_root()
     existing = _list_existing_skills(root)
-    pm = planner_model or os.environ.get("SIMPLICIO_PLANNER",
-                                         "deepseek/deepseek-v4-pro")
+    pm = planner_model or os.environ.get(
+        "SIMPLICIO_PLANNER", "deepseek/deepseek-v4-pro"
+    )
 
     prompt = SKILL_GEN_TEMPLATE.format(
         system=SKILL_GEN_SYSTEM,
@@ -139,21 +144,23 @@ def generate_skill_doc(description: str, skills_root: Optional[Path] = None,
     slug = _extract_slug(text)
     if not slug:
         raise SkillOptError(
-            "generated SKILL.md is missing a valid `name:` frontmatter field")
+            "generated SKILL.md is missing a valid `name:` frontmatter field"
+        )
     if not _has_review_gate(text):
         raise SkillOptError(
             "generated SKILL.md is missing `review_required: true` gate — "
-            "rejected to protect .skills/ from un-reviewed defaults")
+            "rejected to protect .skills/ from un-reviewed defaults"
+        )
     if slug in existing:
         raise SkillOptError(
             f"skill '{slug}' already exists; pick a different angle or "
-            f"reference the existing one")
+            f"reference the existing one"
+        )
 
     return slug, text
 
 
-def install_skill(slug: str, markdown: str,
-                  skills_root: Optional[Path] = None) -> Path:
+def install_skill(slug: str, markdown: str, skills_root: Optional[Path] = None) -> Path:
     """Write the generated SKILL.md to disk and return its path."""
     root = skills_root or _skills_root()
     root.mkdir(parents=True, exist_ok=True)
@@ -168,12 +175,17 @@ def install_skill(slug: str, markdown: str,
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="simplicio skill new")
-    parser.add_argument("description",
-                        help="what the skill should do (one or two sentences)")
-    parser.add_argument("--planner", default=None,
-                        help="override SIMPLICIO_PLANNER for this run")
-    parser.add_argument("--dry-run", action="store_true",
-                        help="print the generated SKILL.md but do not write it")
+    parser.add_argument(
+        "description", help="what the skill should do (one or two sentences)"
+    )
+    parser.add_argument(
+        "--planner", default=None, help="override SIMPLICIO_PLANNER for this run"
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="print the generated SKILL.md but do not write it",
+    )
     args = parser.parse_args(argv)
 
     if args.planner:
@@ -195,6 +207,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[skill-opt] {e}", file=sys.stderr)
         return 3
     print(f"[skill-opt] installed at {path}", file=sys.stderr)
-    print(f"[skill-opt] frontmatter has review_required: true — review it "
-          f"before relying on it.", file=sys.stderr)
+    print(
+        "[skill-opt] frontmatter has review_required: true — review it "
+        "before relying on it.",
+        file=sys.stderr,
+    )
     return 0

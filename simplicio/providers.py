@@ -21,6 +21,7 @@ Three modes, picked by SIMPLICIO_MODEL prefix:
      given SIMPLICIO_HOOK_GUARD=1 so the inner CLI does not re-trigger the
      simplicio UserPromptSubmit hook (recursion guard).
 """
+
 import os
 
 from ._cache import CacheEntry, cache, make_key
@@ -29,18 +30,22 @@ from ._cache import CacheEntry, cache, make_key
 def _cfg():
     return {
         "model": os.environ.get("SIMPLICIO_MODEL"),
-        "base":  os.environ.get("SIMPLICIO_BASE_URL"),
-        "key":   os.environ.get("SIMPLICIO_API_KEY")
-                 or os.environ.get("OPENROUTER_API_KEY")
-                 or os.environ.get("ANTHROPIC_API_KEY"),
+        "base": os.environ.get("SIMPLICIO_BASE_URL"),
+        "key": os.environ.get("SIMPLICIO_API_KEY")
+        or os.environ.get("OPENROUTER_API_KEY")
+        or os.environ.get("ANTHROPIC_API_KEY"),
     }
 
 
 def _msgs(prompt, feedback):
     m = [{"role": "user", "content": prompt}]
     if feedback:
-        m.append({"role": "user",
-                  "content": f"The test FAILED:\n{feedback}\nFix it. Same output format."})
+        m.append(
+            {
+                "role": "user",
+                "content": f"The test FAILED:\n{feedback}\nFix it. Same output format.",
+            }
+        )
     return m
 
 
@@ -68,11 +73,16 @@ def _shell_out(cmd, label):
     re-run the first-run bootstrap.
     """
     import subprocess
+
     env = {**os.environ, "SIMPLICIO_HOOK_GUARD": "1", "SIMPLICIO_SKIP_AUTO_INIT": "1"}
     try:
         result = subprocess.run(
-            cmd, env=env, capture_output=True, text=True,
-            timeout=600, check=False,
+            cmd,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=600,
+            check=False,
         )
     except FileNotFoundError:
         raise SystemExit(
@@ -84,8 +94,7 @@ def _shell_out(cmd, label):
     if result.returncode != 0:
         stderr = (result.stderr or "").strip()
         raise SystemExit(
-            f"simplicio: {label} failed (exit {result.returncode}): "
-            f"{stderr[:500]}"
+            f"simplicio: {label} failed (exit {result.returncode}): {stderr[:500]}"
         )
     return result.stdout
 
@@ -127,11 +136,15 @@ def generate(prompt, feedback=None, max_tokens=4000):
 
     # Path 3: shell out to a logged-in CLI. No API key needed.
     if model.startswith("claude-cli/"):
-        out = _shell_out_claude(_inline_feedback(prompt, feedback), model.split("/", 1)[1])
+        out = _shell_out_claude(
+            _inline_feedback(prompt, feedback), model.split("/", 1)[1]
+        )
         cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
         return out
     if model.startswith("codex-cli/"):
-        out = _shell_out_codex(_inline_feedback(prompt, feedback), model.split("/", 1)[1])
+        out = _shell_out_codex(
+            _inline_feedback(prompt, feedback), model.split("/", 1)[1]
+        )
         cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
         return out
 
@@ -145,18 +158,22 @@ def generate(prompt, feedback=None, max_tokens=4000):
     # Native Anthropic path: no base_url
     if not c["base"]:
         import anthropic
+
         cli = anthropic.Anthropic(api_key=c["key"])
-        r = cli.messages.create(model=model, max_tokens=max_tokens,
-                                messages=_msgs(prompt, feedback))
+        r = cli.messages.create(
+            model=model, max_tokens=max_tokens, messages=_msgs(prompt, feedback)
+        )
         out = next((b.text for b in r.content if b.type == "text"), "")
         cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
         return out
 
     # Any OpenAI-compatible endpoint (OpenRouter, GLM, DeepSeek, local...)
     from openai import OpenAI
+
     cli = OpenAI(base_url=c["base"], api_key=c["key"])
-    r = cli.chat.completions.create(model=model, max_tokens=max_tokens,
-                                    messages=_msgs(prompt, feedback))
+    r = cli.chat.completions.create(
+        model=model, max_tokens=max_tokens, messages=_msgs(prompt, feedback)
+    )
     out = r.choices[0].message.content
     cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
     return out
@@ -169,8 +186,10 @@ def info():
         return f"model={model} provider=claude-cli (shell-out, uses Claude Code OAuth) key=not-needed"
     if model.startswith("codex-cli/"):
         return f"model={model} provider=codex-cli (shell-out, uses Codex/ChatGPT login) key=not-needed"
-    return (f"model={model} base={c['base'] or 'anthropic-native'} "
-            f"key={'set' if c['key'] else 'MISSING'}")
+    return (
+        f"model={model} base={c['base'] or 'anthropic-native'} "
+        f"key={'set' if c['key'] else 'MISSING'}"
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -198,11 +217,11 @@ _PLANNER_ROUTES = {
     # planner when the user already has an HF account.
     "deepseek-hf": ("https://router.huggingface.co/v1", "HF_TOKEN"),
     # DeepSeek's own API (paid, no HF middleman). Pin via `deepseek/<model>`.
-    "deepseek":    ("https://api.deepseek.com/v1",      "DEEPSEEK_API_KEY"),
-    "openai":      ("https://api.openai.com/v1",        "OPENAI_API_KEY"),
-    "openrouter":  ("https://openrouter.ai/api/v1",     "OPENROUTER_API_KEY"),
+    "deepseek": ("https://api.deepseek.com/v1", "DEEPSEEK_API_KEY"),
+    "openai": ("https://api.openai.com/v1", "OPENAI_API_KEY"),
+    "openrouter": ("https://openrouter.ai/api/v1", "OPENROUTER_API_KEY"),
     # Generic HF route for any non-DeepSeek model on the HF router (Qwen, Llama, ...).
-    "hf":          ("https://router.huggingface.co/v1", "HF_TOKEN"),
+    "hf": ("https://router.huggingface.co/v1", "HF_TOKEN"),
 }
 
 # Default planner. DeepSeek-V3.1 on HF is the current "frontier model with a
@@ -212,7 +231,7 @@ _PLANNER_ROUTES = {
 _DEFAULT_PLANNER = "deepseek-hf/deepseek-ai/DeepSeek-V3.1"
 
 
-def planner_cfg():
+def planner_cfg(require_key=True):
     """Resolve the planner provider config without touching the doer config.
 
     Returns a dict with keys: model, base, key, native_anthropic, shell_out.
@@ -223,8 +242,13 @@ def planner_cfg():
         raw = _DEFAULT_PLANNER
 
     if raw.startswith("claude-cli/") or raw.startswith("codex-cli/"):
-        return {"model": raw, "base": None, "key": None,
-                "native_anthropic": False, "shell_out": True}
+        return {
+            "model": raw,
+            "base": None,
+            "key": None,
+            "native_anthropic": False,
+            "shell_out": True,
+        }
 
     if "/" in raw:
         prefix, name = raw.split("/", 1)
@@ -233,61 +257,132 @@ def planner_cfg():
 
     if prefix == "anthropic":
         key = os.environ.get("ANTHROPIC_API_KEY")
-        if not key:
-            raise SystemExit(
-                "SIMPLICIO_PLANNER=anthropic/* requires ANTHROPIC_API_KEY")
-        return {"model": name, "base": None, "key": key,
-                "native_anthropic": True, "shell_out": False}
+        if not key and require_key:
+            raise SystemExit("SIMPLICIO_PLANNER=anthropic/* requires ANTHROPIC_API_KEY")
+        return {
+            "model": name,
+            "base": None,
+            "key": key,
+            "native_anthropic": True,
+            "shell_out": False,
+        }
 
     if prefix in _PLANNER_ROUTES:
         base, env_key = _PLANNER_ROUTES[prefix]
         key = os.environ.get(env_key)
-        if not key:
-            raise SystemExit(
-                f"SIMPLICIO_PLANNER={raw} requires {env_key}")
-        return {"model": name, "base": base, "key": key,
-                "native_anthropic": False, "shell_out": False}
+        if not key and require_key:
+            raise SystemExit(f"SIMPLICIO_PLANNER={raw} requires {env_key}")
+        return {
+            "model": name,
+            "base": base,
+            "key": key,
+            "native_anthropic": False,
+            "shell_out": False,
+        }
 
     # Bare model name — fall back to the same provider config the doer uses.
     # Lets the user run planner against whatever they already configured.
     c = _cfg()
-    return {"model": raw, "base": c["base"], "key": c["key"],
-            "native_anthropic": not c["base"], "shell_out": False}
+    return {
+        "model": raw,
+        "base": c["base"],
+        "key": c["key"],
+        "native_anthropic": not c["base"],
+        "shell_out": False,
+    }
 
 
-def planner_complete(prompt, max_tokens=8192, temperature=0.1):
+def _planner_provider_id(cfg):
+    model = cfg["model"]
+    if model.startswith("claude-cli/"):
+        return "planner:claude-cli"
+    if model.startswith("codex-cli/"):
+        return "planner:codex-cli"
+    if cfg["native_anthropic"]:
+        return "planner:anthropic-native"
+    if cfg["base"]:
+        return f"planner:openai-compatible:{cfg['base'].rstrip('/')}"
+    return "planner:unknown"
+
+
+def _planner_cache_key(cfg, prompt, max_tokens, temperature, template_version):
+    return make_key(
+        _planner_provider_id(cfg),
+        cfg["model"],
+        prompt,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        template_version=template_version,
+    )
+
+
+def planner_complete(prompt, max_tokens=8192, temperature=0.1, template_version=None):
     """Call the planner provider. Used by simplicio.scratch.planner.
 
     temperature defaults to 0.1 because plans must be reproducible and
     schema-stable, not creative.
     """
-    p = planner_cfg()
+    p = planner_cfg(require_key=False)
+    key = _planner_cache_key(p, prompt, max_tokens, temperature, template_version)
+    cached = cache().get(key)
+    if cached is not None:
+        return cached.completion
 
     if p["shell_out"]:
+        provider_id = _planner_provider_id(p)
         if p["model"].startswith("claude-cli/"):
-            return _shell_out_claude(prompt, p["model"].split("/", 1)[1])
+            out = _shell_out_claude(prompt, p["model"].split("/", 1)[1])
+            cache().put(
+                key,
+                CacheEntry(out, provider_id=provider_id, model=p["model"]),
+            )
+            return out
         if p["model"].startswith("codex-cli/"):
-            return _shell_out_codex(prompt, p["model"].split("/", 1)[1])
-
-    if p["native_anthropic"]:
-        import anthropic
-        cli = anthropic.Anthropic(api_key=p["key"])
-        r = cli.messages.create(
-            model=p["model"], max_tokens=max_tokens, temperature=temperature,
-            messages=[{"role": "user", "content": prompt}])
-        return next((b.text for b in r.content if b.type == "text"), "")
+            out = _shell_out_codex(prompt, p["model"].split("/", 1)[1])
+            cache().put(
+                key,
+                CacheEntry(out, provider_id=provider_id, model=p["model"]),
+            )
+            return out
 
     if not p["key"]:
         raise SystemExit(
             "no planner credentials: set SIMPLICIO_PLANNER + matching API key "
-            "(default planner is deepseek/deepseek-v4-pro -> DEEPSEEK_API_KEY)")
+            "(default planner is deepseek-hf/deepseek-ai/DeepSeek-V3.1 -> HF_TOKEN)"
+        )
+
+    if p["native_anthropic"]:
+        import anthropic
+
+        cli = anthropic.Anthropic(api_key=p["key"])
+        r = cli.messages.create(
+            model=p["model"],
+            max_tokens=max_tokens,
+            temperature=temperature,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        out = next((b.text for b in r.content if b.type == "text"), "")
+        cache().put(
+            key,
+            CacheEntry(out, provider_id=_planner_provider_id(p), model=p["model"]),
+        )
+        return out
 
     from openai import OpenAI
+
     cli = OpenAI(base_url=p["base"], api_key=p["key"])
     r = cli.chat.completions.create(
-        model=p["model"], max_tokens=max_tokens, temperature=temperature,
-        messages=[{"role": "user", "content": prompt}])
-    return r.choices[0].message.content
+        model=p["model"],
+        max_tokens=max_tokens,
+        temperature=temperature,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    out = r.choices[0].message.content
+    cache().put(
+        key,
+        CacheEntry(out, provider_id=_planner_provider_id(p), model=p["model"]),
+    )
+    return out
 
 
 def planner_info():
@@ -296,5 +391,6 @@ def planner_info():
         return f"planner={p['model']} (shell-out)"
     if p["native_anthropic"]:
         return f"planner={p['model']} provider=anthropic-native key={'set' if p['key'] else 'MISSING'}"
-    return (f"planner={p['model']} base={p['base']} "
-            f"key={'set' if p['key'] else 'MISSING'}")
+    return (
+        f"planner={p['model']} base={p['base']} key={'set' if p['key'] else 'MISSING'}"
+    )
