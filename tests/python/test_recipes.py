@@ -43,6 +43,18 @@ MATCH_CASES = [
         "crud-resource",
         "CondoUnits",
     ),
+    (
+        "go-gin",
+        "CRUD app for condo units with owner contact search",
+        "crud-resource",
+        "CondoUnits",
+    ),
+    (
+        "php-laravel",
+        "CRUD app for condo units with owner contact search",
+        "crud-resource",
+        "CondoUnits",
+    ),
 ]
 
 
@@ -67,6 +79,8 @@ def test_registry_loads_three_pilot_recipes_for_each_stack() -> None:
         assert {"crud-resource", "auth-jwt", "admin-crud"} <= names
 
     assert {recipe.name for recipe in registry.list("rust-axum")} == {"crud-resource"}
+    assert {recipe.name for recipe in registry.list("go-gin")} == {"crud-resource"}
+    assert {recipe.name for recipe in registry.list("php-laravel")} == {"crud-resource"}
 
 
 @pytest.mark.parametrize(
@@ -203,4 +217,38 @@ def test_rust_axum_crud_recipe_renders_multi_word_entity() -> None:
     )
 
     assert plan.tasks[0].target == "src/main.rs"
+    assert "route prefix is /condo_units" in plan.tasks[0].criteria
+
+
+def test_go_gin_crud_recipe_renders_multi_word_entity() -> None:
+    registry = RecipeRegistry()
+    match = registry.match(
+        "CRUD app for condo units with owner contact search",
+        "go-gin",
+    )
+    assert match is not None
+
+    plan = registry.get("crud-resource", "go-gin").instantiate(
+        match,
+        "demo-app",
+    )
+
+    assert plan.tasks[0].target == "internal/http/router.go"
+    assert "route prefix is /condo_units" in plan.tasks[0].criteria
+
+
+def test_php_laravel_crud_recipe_renders_multi_word_entity() -> None:
+    registry = RecipeRegistry()
+    match = registry.match(
+        "CRUD app for condo units with owner contact search",
+        "php-laravel",
+    )
+    assert match is not None
+
+    plan = registry.get("crud-resource", "php-laravel").instantiate(
+        match,
+        "demo-app",
+    )
+
+    assert plan.tasks[0].target == "routes/api.php"
     assert "route prefix is /condo_units" in plan.tasks[0].criteria

@@ -28,6 +28,6 @@ deployment, and a single static binary matter.
 
 ## Verify-loop
 
-- `install`: `go mod download`
+- `install`: `go mod tidy`
 - `test`:    `go test ./...`
 - `lint`:    `go vet ./...`

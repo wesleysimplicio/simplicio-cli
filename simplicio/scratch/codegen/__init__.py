@@ -1,5 +1,7 @@
 """Deterministic code-generation executors for scratch tasks."""
 
+from .go_gin import GoGinCrudExecutor
+from .php_laravel import PhpLaravelCrudRoutesExecutor
 from .python_fastapi import PythonAddFastApiRouteExecutor
 from .python_orm import PythonAddOrmFieldExecutor
 from .python_pydantic import PythonAddPydanticSchemaExecutor
@@ -12,6 +14,8 @@ from .types import CodegenResult, TaskExecutor
 
 __all__ = [
     "CodegenResult",
+    "GoGinCrudExecutor",
+    "PhpLaravelCrudRoutesExecutor",
     "PythonAddFastApiRouteExecutor",
     "PythonAddOrmFieldExecutor",
     "PythonAddPydanticSchemaExecutor",

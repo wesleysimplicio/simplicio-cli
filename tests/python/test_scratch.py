@@ -560,6 +560,56 @@ def test_executor_runs_rust_axum_crud_recipe_without_llm(monkeypatch) -> None:
         assert (report.project_dir / "src/main.rs").is_file()
 
 
+def test_executor_runs_go_gin_crud_recipe_without_llm(monkeypatch) -> None:
+    monkeypatch.delenv("SIMPLICIO_MODEL", raising=False)
+    reg = StackRegistry()
+    stack = reg.get("go-gin")
+    assert stack is not None
+
+    from simplicio.scratch.executor import execute_plan
+    from simplicio.scratch.planner import generate_plan
+
+    plan = generate_plan(
+        stack,
+        "CRUD app for condo units with owner contact search",
+        "go-crud",
+    )
+
+    with tempfile.TemporaryDirectory() as td:
+        report = execute_plan(plan, stack, Path(td), skip_install=True)
+
+        assert report.tasks_total == 1
+        assert report.tasks_passed == 1
+        assert report.metrics["tasks_codegen"] == 1
+        assert report.task_results[0].codegen_executor == "go-gin-crud"
+        assert (report.project_dir / "internal/http/router.go").is_file()
+
+
+def test_executor_runs_php_laravel_crud_recipe_without_llm(monkeypatch) -> None:
+    monkeypatch.delenv("SIMPLICIO_MODEL", raising=False)
+    reg = StackRegistry()
+    stack = reg.get("php-laravel")
+    assert stack is not None
+
+    from simplicio.scratch.executor import execute_plan
+    from simplicio.scratch.planner import generate_plan
+
+    plan = generate_plan(
+        stack,
+        "CRUD app for condo units with owner contact search",
+        "laravel-crud",
+    )
+
+    with tempfile.TemporaryDirectory() as td:
+        report = execute_plan(plan, stack, Path(td), skip_install=True)
+
+        assert report.tasks_total == 1
+        assert report.tasks_passed == 1
+        assert report.metrics["tasks_codegen"] == 1
+        assert report.task_results[0].codegen_executor == "php-laravel-crud-routes"
+        assert (report.project_dir / "routes/api.php").is_file()
+
+
 def test_executor_refuses_existing_project_dir() -> None:
     reg = StackRegistry()
     stack = reg.get("py-fastapi")
