@@ -15,3 +15,8 @@ test-results/
 
 # Rust build artifacts
 rust/*/target/
+
+# Per-bench-run scratchpad: every model × case raw output. Regenerated on
+# every bench run; we keep results JSON/MD/PDF artifacts under bench/ but
+# not the per-case scratchpads.
+.simplicio/bench_runs/
