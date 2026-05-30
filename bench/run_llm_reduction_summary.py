@@ -37,7 +37,8 @@ def run_summary(input_paths: dict[str, Path] | None = None) -> dict[str, Any]:
     paths = input_paths or DEFAULT_INPUTS
     inputs = {name: _load_input(path) for name, path in paths.items()}
     levers = _summarize_levers(inputs)
-    gates = _summarize_gates(levers)
+    release_call_proof = _release_call_proof(inputs)
+    gates = _summarize_gates(levers, release_call_proof)
     modeled_path = _modeled_call_path(gates)
     missing = _missing_release_evidence(inputs, gates)
 
@@ -62,6 +63,7 @@ def run_summary(input_paths: dict[str, Path] | None = None) -> dict[str, Any]:
             for name, item in inputs.items()
         },
         "levers": levers,
+        "release_call_proof": release_call_proof,
         "summary": {
             "local_synthetic_gates_pass": gates["local_synthetic_gates_pass"],
             "release_evidence_complete": gates["release_evidence_complete"],
@@ -215,7 +217,62 @@ def _gate(summary: dict[str, Any], name: str) -> bool:
     return bool(summary.get("release_gates", {}).get(name, False))
 
 
-def _summarize_gates(levers: dict[str, Any]) -> dict[str, Any]:
+def _release_call_proof(inputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    recipes = _summary(inputs, "recipes")
+    codegen = _summary(inputs, "codegen")
+    live_gate = _summary(inputs, "live_gate")
+    recipe_live = recipes.get("live_corpus") or {}
+    codegen_live = codegen.get("live_corpus") or {}
+
+    total_runs = int(
+        recipe_live.get("total_runs")
+        or live_gate.get("total_runs")
+        or codegen_live.get("total_runs")
+        or 0
+    )
+    tasks_total = int(
+        codegen_live.get("tasks_total") or codegen.get("total_tasks") or 0
+    )
+    tasks_llm = int(codegen_live.get("tasks_llm") or 0)
+    tasks_codegen = int(codegen_live.get("tasks_codegen") or 0)
+    planner_calls_saved = min(
+        int(recipe_live.get("planner_calls_saved") or 0),
+        total_runs,
+    )
+    planner_calls_after_recipes = max(total_runs - planner_calls_saved, 0)
+    baseline_calls = total_runs + tasks_total
+    actual_calls = planner_calls_after_recipes + tasks_llm
+    calls_saved = max(baseline_calls - actual_calls, 0)
+    reduction = round(calls_saved / baseline_calls, 4) if baseline_calls else 0.0
+
+    release_matrix_ready = bool(
+        _gate(live_gate, "full_75_run_matrix")
+        and _gate(live_gate, "e2e_green_ge_80")
+        and _gate(recipes, "real_scratch_corpus")
+        and _gate(codegen, "real_50_scratch_corpus")
+    )
+    target_met = bool(release_matrix_ready and reduction >= 0.68)
+    return {
+        "present": release_matrix_ready,
+        "baseline_calls": baseline_calls,
+        "actual_calls": actual_calls,
+        "calls_saved": calls_saved,
+        "reduction": reduction,
+        "target_reduction": 0.68,
+        "target_reduction_met": target_met,
+        "total_runs": total_runs,
+        "planner_calls_saved_by_recipes": planner_calls_saved,
+        "planner_calls_after_recipes": planner_calls_after_recipes,
+        "tasks_total": tasks_total,
+        "tasks_codegen": tasks_codegen,
+        "tasks_llm": tasks_llm,
+    }
+
+
+def _summarize_gates(
+    levers: dict[str, Any],
+    release_call_proof: dict[str, Any],
+) -> dict[str, Any]:
     local_gates = {
         "D_cache_synthetic": levers["D_cache"]["gate_passed"],
         "C_static_fixers_synthetic": levers["C_static_fixers"]["gate_passed"],
@@ -256,12 +313,13 @@ def _summarize_gates(levers: dict[str, Any]) -> dict[str, Any]:
         ],
         "scratch_live_matrix_complete": levers["scratch_live_gate"]["full_matrix"],
         "scratch_live_e2e_green_ge_80": levers["scratch_live_gate"]["e2e_green_ge_80"],
+        "aggregate_call_reduction_proof": release_call_proof["present"],
     }
     local_synthetic = all(local_gates.values())
     release_complete = all(release_gates.values())
     release_gates["local_synthetic_gates_pass"] = local_synthetic
     release_gates["release_evidence_complete"] = release_complete
-    release_gates["target_reduction_met"] = False
+    release_gates["target_reduction_met"] = release_call_proof["target_reduction_met"]
     return release_gates
 
 
@@ -326,6 +384,8 @@ def _missing_release_evidence(
         summary = _summary(inputs, name)
         for entry in summary.get("missing_release_evidence", []):
             if _is_generic_real_corpus_missing(str(entry)):
+                continue
+            if _is_aggregate_call_missing(str(entry)) and gates["target_reduction_met"]:
                 continue
             missing.append(str(entry))
     if not gates["real_50_scratch_corpus"]:
@@ -422,6 +482,10 @@ def _is_generic_real_corpus_missing(value: str) -> bool:
     return "50 real scratch" in lower or "real 50-scratch" in lower
 
 
+def _is_aggregate_call_missing(value: str) -> bool:
+    return "aggregate call-reduction" in " ".join(value.strip().split()).casefold()
+
+
 def _real_corpus_missing_text(inputs: dict[str, dict[str, Any]]) -> str:
     missing = []
     if not _gate(_summary(inputs, "cache"), "real_50_scratch_corpus"):
@@ -458,6 +522,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
     summary = result["summary"]
     levers = result["levers"]
     path = result["modeled_call_path"]
+    proof = result["release_call_proof"]
     lines = [
         "# LLM Reduction Summary",
         "",
@@ -472,6 +537,11 @@ def _to_markdown(result: dict[str, Any]) -> str:
             "- modeled local call path: "
             f"{path['baseline_calls']} -> {path['final_calls']} "
             f"({path['reduction']:.2%} reduction)"
+        ),
+        (
+            "- release call proof: "
+            f"{proof['baseline_calls']} -> {proof['actual_calls']} "
+            f"({proof['reduction']:.2%} reduction)"
         ),
         "",
         "## Lever Evidence",
@@ -533,6 +603,23 @@ def _to_markdown(result: dict[str, Any]) -> str:
         gate = step.get("gate_passed")
         gate_text = "" if gate is None else f", gate={gate}"
         lines.append(f"- {step['name']}: {step['calls']} calls{gate_text}")
+    lines.extend(
+        [
+            "",
+            "## Release Call Proof",
+            "",
+            f"- release matrix present: {proof['present']}",
+            f"- baseline calls: {proof['baseline_calls']}",
+            f"- actual calls: {proof['actual_calls']}",
+            f"- calls saved: {proof['calls_saved']}",
+            (
+                "- planner calls saved by recipes: "
+                f"{proof['planner_calls_saved_by_recipes']}"
+            ),
+            f"- task calls handled by codegen: {proof['tasks_codegen']}",
+            f"- remaining task-level LLM calls: {proof['tasks_llm']}",
+        ]
+    )
     lines.extend(["", "## Missing Release Evidence", ""])
     for item in summary["missing_release_evidence"]:
         lines.append(f"- {item}")

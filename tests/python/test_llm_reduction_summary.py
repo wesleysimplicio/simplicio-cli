@@ -137,9 +137,12 @@ def test_llm_reduction_summary_keeps_release_gap_explicit(tmp_path) -> None:
     result = run_summary(_fixtures(tmp_path))
 
     summary = result["summary"]
+    proof = result["release_call_proof"]
     assert summary["local_synthetic_gates_pass"] is True
     assert summary["release_evidence_complete"] is False
     assert summary["target_reduction_met"] is False
+    assert proof["present"] is False
+    assert proof["baseline_calls"] == 80
     assert summary["modeled_baseline_calls"] == 19
     assert summary["modeled_final_calls"] == 6
     assert summary["modeled_reduction"] == 0.6842
@@ -149,6 +152,87 @@ def test_llm_reduction_summary_keeps_release_gap_explicit(tmp_path) -> None:
     assert summary["release_gates"]["scratch_live_matrix_complete"] is False
     assert any(
         "captured LLM baseline" in item for item in summary["missing_release_evidence"]
+    )
+
+
+def test_llm_reduction_summary_proves_release_call_reduction(tmp_path) -> None:
+    paths = _fixtures(tmp_path)
+    recipes = json.loads(paths["recipes"].read_text(encoding="utf-8"))
+    recipes["summary"].update(
+        {
+            "live_corpus": {
+                "total_runs": 75,
+                "planner_calls_saved": 75,
+                "matched_runs": 75,
+                "valid_recipe_plans": 75,
+                "e2e_green": 75,
+            },
+            "missing_release_evidence": [
+                "aggregate call-reduction proof across cache, recipes, fixers, and executors"
+            ],
+        }
+    )
+    recipes["summary"]["release_gates"].update(
+        {
+            "real_scratch_corpus": True,
+            "llm_pass_rate_baseline_present": True,
+            "recipe_plan_pass_rate_ge_llm": True,
+        }
+    )
+    _write_json(paths["recipes"], recipes)
+
+    codegen = json.loads(paths["codegen"].read_text(encoding="utf-8"))
+    codegen["summary"].update(
+        {
+            "live_corpus": {
+                "total_runs": 75,
+                "tasks_total": 135,
+                "tasks_codegen": 135,
+                "tasks_llm": 0,
+                "e2e_green": 75,
+            },
+            "missing_release_evidence": [
+                "real scratch LLM baseline for task latency comparison"
+            ],
+        }
+    )
+    codegen["summary"]["release_gates"].update(
+        {
+            "llm_baseline_present": True,
+            "executor_pass_rate_ge_llm": True,
+            "latency_reduction_ge_50": True,
+            "real_50_scratch_corpus": True,
+            "real_mechanical_share_ge_30": True,
+            "real_e2e_green_ge_80": True,
+            "zero_feature_regression_live": True,
+        }
+    )
+    _write_json(paths["codegen"], codegen)
+
+    live_gate = json.loads(paths["live_gate"].read_text(encoding="utf-8"))
+    live_gate["summary"].update({"total_runs": 75, "e2e_green": 75})
+    live_gate["summary"]["release_gates"].update({"full_75_run_matrix": True})
+    live_gate["summary"]["missing_release_evidence"] = []
+    _write_json(paths["live_gate"], live_gate)
+
+    result = run_summary(paths)
+
+    proof = result["release_call_proof"]
+    summary = result["summary"]
+    assert proof["present"] is True
+    assert proof["baseline_calls"] == 210
+    assert proof["actual_calls"] == 0
+    assert proof["planner_calls_saved_by_recipes"] == 75
+    assert proof["tasks_codegen"] == 135
+    assert proof["reduction"] == 1.0
+    assert summary["target_reduction_met"] is True
+    assert (
+        "aggregate call-reduction proof across cache, recipes, fixers, and executors"
+        not in summary["missing_release_evidence"]
+    )
+    assert any(
+        "real scratch LLM baseline" in item
+        for item in summary["missing_release_evidence"]
     )
 
 

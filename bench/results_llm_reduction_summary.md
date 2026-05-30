@@ -6,8 +6,9 @@ aggregate issue #33 evidence view; separates local synthetic gates from the real
 
 - local synthetic gates pass: True
 - release evidence complete: False
-- target reduction met for release: False
+- target reduction met for release: True
 - modeled local call path: 19 -> 6 (68.42% reduction)
+- release call proof: 210 -> 0 (100.00% reduction)
 
 ## Lever Evidence
 
@@ -28,9 +29,18 @@ aggregate issue #33 evidence view; separates local synthetic gates from the real
 - A_recipes: 16 calls, gate=True
 - B_codegen: 6 calls, gate=True
 
+## Release Call Proof
+
+- release matrix present: True
+- baseline calls: 210
+- actual calls: 0
+- calls saved: 210
+- planner calls saved by recipes: 75
+- task calls handled by codegen: 135
+- remaining task-level LLM calls: 0
+
 ## Missing Release Evidence
 
-- aggregate call-reduction proof across cache, recipes, fixers, and executors
 - real fixer evidence from actual scratch install/import/lint failures
 - real scratch LLM baseline for B/codegen pass-rate and latency
 - SkillOpt human approval evidence >=80%
