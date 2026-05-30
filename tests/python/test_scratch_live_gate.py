@@ -71,6 +71,7 @@ def test_live_gate_runs_execution_slice(tmp_path) -> None:
                     "files_written": ["src/main.py"],
                     "tasks_passed": 2,
                     "tasks_total": 2,
+                    "metrics": {"tasks_llm": 0, "tasks_codegen": 2},
                 }
             ),
         )
@@ -90,9 +91,13 @@ def test_live_gate_runs_execution_slice(tmp_path) -> None:
     assert row["scaffold_clean"] is True
     assert row["task_all_passed"] is True
     assert row["e2e_green"] is True
+    assert row["scratch_metrics"]["tasks_llm"] == 0
+    assert row["cost_usd"] == 0.0
     assert row["post_verify"]["passed"] is True
     assert summary["scaffold_clean_rate"] == 1.0
     assert summary["e2e_green_rate"] == 1.0
+    assert summary["average_cost_usd"] == 0.0
+    assert summary["release_gates"]["average_cost_le_1"] is True
     assert summary["release_gates"]["full_75_run_matrix"] is False
 
 
@@ -221,6 +226,29 @@ def test_live_gate_full_matrix_requires_official_pairs() -> None:
     summary = _summarize(rows, 1.0, plan_only=False, post_verify=True)
 
     assert summary["release_gates"]["full_75_run_matrix"] is False
+
+
+def test_live_gate_keeps_cost_unknown_when_llm_cost_is_missing() -> None:
+    rows = [
+        {
+            "goal": "CRUD app for condo units with owner contact search",
+            "stack": "py-fastapi",
+            "planner_valid": True,
+            "scaffold_clean": True,
+            "task_all_passed": True,
+            "e2e_green": True,
+            "duration_s": 1,
+            "timed_out": False,
+            "cost_usd": None,
+            "scratch_metrics": {"tasks_llm": 1},
+        }
+    ]
+
+    summary = _summarize(rows, 1.0, plan_only=False, post_verify=True)
+
+    assert summary["average_cost_usd"] is None
+    assert summary["release_gates"]["average_cost_le_1"] is None
+    assert "average cost measurement" in summary["missing_release_evidence"]
 
 
 def test_live_gate_merges_distinct_slices(tmp_path) -> None:

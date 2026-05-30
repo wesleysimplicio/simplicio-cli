@@ -36,5 +36,4 @@ aggregate issue #33 evidence view; separates local synthetic gates from the real
 - recipe path pass-rate compared with equivalent LLM path
 - captured LLM baseline for executor pass-rate and latency
 - planner cache hit-rate measured across cold/warm real scratch runs
-- average cost measurement
 - SkillOpt human approval evidence >=80%

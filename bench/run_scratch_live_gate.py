@@ -201,6 +201,8 @@ def _run_one(
         post_verify=post_verify,
         verify=verify,
     )
+    scratch_metrics = _scratch_metrics(payload)
+    cost_usd = _payload_cost_usd(payload)
     return {
         "run_number": run_number,
         "goal_index": goal_index,
@@ -212,6 +214,8 @@ def _run_one(
         "timed_out": timed_out,
         "duration_s": duration_s,
         **metrics,
+        "scratch_metrics": scratch_metrics,
+        "cost_usd": cost_usd,
         "post_verify": verify,
         "json_parse_error": parse_error,
         "stdout_tail": _tail_text(stdout_text),
@@ -469,6 +473,30 @@ def _coerce_int(value: Any, field: str) -> tuple[int, str]:
         return 0, f"{field} must be an integer"
 
 
+def _scratch_metrics(payload: dict[str, Any] | None) -> dict[str, Any]:
+    if not payload:
+        return {}
+    metrics = payload.get("metrics")
+    return metrics if isinstance(metrics, dict) else {}
+
+
+def _payload_cost_usd(payload: dict[str, Any] | None) -> float | None:
+    metrics = _scratch_metrics(payload)
+    explicit = metrics.get("cost_usd")
+    if explicit is not None:
+        try:
+            return round(float(explicit), 6)
+        except (TypeError, ValueError):
+            return None
+    tasks_llm = metrics.get("tasks_llm")
+    if tasks_llm is not None:
+        try:
+            return 0.0 if int(tasks_llm) == 0 else None
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
 def _as_text(value: Any) -> str:
     if value is None:
         return ""
@@ -500,6 +528,16 @@ def _summarize(
     planner_valid_rate = _ratio(planner_valid, total)
     scaffold_clean_rate = _ratio(scaffold_clean, len(scaffold_rows))
     e2e_green_rate = _ratio(e2e_green, len(e2e_rows))
+    cost_values = [
+        float(row["cost_usd"])
+        for row in rows
+        if row.get("cost_usd") is not None
+    ]
+    average_cost_usd = (
+        round(sum(cost_values) / len(cost_values), 6)
+        if len(cost_values) == total and total
+        else None
+    )
     release_gates = {
         "full_75_run_matrix": _has_full_release_matrix(rows),
         "planner_valid_ge_90": planner_valid_rate >= 0.90 if total else False,
@@ -510,7 +548,9 @@ def _summarize(
         "median_wall_clock_le_8m": (
             median_wall_clock_s <= 480 if median_wall_clock_s is not None else None
         ),
-        "average_cost_le_1": None,
+        "average_cost_le_1": (
+            average_cost_usd <= 1.0 if average_cost_usd is not None else None
+        ),
         "skillopt_human_approval_ge_80": False,
     }
     release_gates["release_ready"] = all(
@@ -528,7 +568,7 @@ def _summarize(
         "e2e_green_rate": e2e_green_rate,
         "timed_out": sum(1 for row in rows if row.get("timed_out")),
         "median_wall_clock_s": median_wall_clock_s,
-        "average_cost_usd": None,
+        "average_cost_usd": average_cost_usd,
         "elapsed_s": elapsed_s,
         "release_gates": release_gates,
         "missing_release_evidence": _missing_release_evidence(
@@ -681,6 +721,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- task all passed: {summary['task_all_passed']} ({summary['task_all_passed_rate']:.2%})",
         f"- e2e green: {summary['e2e_green']} ({summary['e2e_green_rate']:.2%})",
         f"- median wall-clock: {summary['median_wall_clock_s']} s",
+        f"- average cost: {summary['average_cost_usd']}",
         f"- release ready: {summary['release_gates']['release_ready']}",
         "",
         "## Release Gate Status",

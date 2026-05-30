@@ -18,18 +18,19 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 - task all passed: 75 (100.00%)
 - e2e green: 75 (100.00%)
 - median wall-clock: 6.262 s
+- average cost: 0.0
 - release ready: False
 
 ## Release Gate Status
 
-- full_75_run_matrix: True
-- planner_valid_ge_90: True
-- scaffold_clean_ge_95: True
+- average_cost_le_1: True
 - e2e_green_ge_80: True
+- full_75_run_matrix: True
 - median_wall_clock_le_8m: True
-- average_cost_le_1: None
-- skillopt_human_approval_ge_80: False
+- planner_valid_ge_90: True
 - release_ready: False
+- scaffold_clean_ge_95: True
+- skillopt_human_approval_ge_80: False
 
 ## Runs
 
@@ -113,5 +114,4 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## Missing Release Evidence
 
-- average cost measurement
 - SkillOpt human approval evidence >=80%
