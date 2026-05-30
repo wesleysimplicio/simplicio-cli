@@ -320,6 +320,20 @@ def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
         "csharp-aspnet"
     ):
         return "csharp-aspnet"
+    if any(k in g for k in ("blazor", "c# ui")) and reg.get("csharp-blazor"):
+        return "csharp-blazor"
+    if any(k in g for k in ("java spring", "spring boot java")) and reg.get(
+        "java-spring"
+    ):
+        return "java-spring"
+    if any(k in g for k in ("kotlin spring", "spring boot kotlin")) and reg.get(
+        "kotlin-spring"
+    ):
+        return "kotlin-spring"
+    if "ktor" in g and reg.get("kotlin-ktor"):
+        return "kotlin-ktor"
+    if any(k in g for k in ("phoenix", "elixir")) and reg.get("elixir-phoenix"):
+        return "elixir-phoenix"
     if any(k in g for k in ("echo", "go api")) and reg.get("go-echo"):
         return "go-echo"
     if any(k in g for k in ("go cli", "cobra", "viper")) and reg.get("go-cli"):
