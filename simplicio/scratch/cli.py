@@ -278,6 +278,22 @@ def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
             return "ts-nextjs"
     if "fastapi" in g and reg.get("py-fastapi"):
         return "py-fastapi"
+    if "django" in g and reg.get("py-django"):
+        return "py-django"
+    if "flask" in g and reg.get("py-flask"):
+        return "py-flask"
+    if any(k in g for k in ("typer", "python cli", "command line")) and reg.get(
+        "py-cli"
+    ):
+        return "py-cli"
+    if any(k in g for k in ("express", "node api", "node.js api")) and reg.get(
+        "js-express"
+    ):
+        return "js-express"
+    if any(k in g for k in ("vite", "react spa", "react app")) and reg.get(
+        "react-vite"
+    ):
+        return "react-vite"
     if any(k in g for k in ("axum", "rust ")) and reg.get("rust-axum"):
         return "rust-axum"
     if "laravel" in g and reg.get("php-laravel"):

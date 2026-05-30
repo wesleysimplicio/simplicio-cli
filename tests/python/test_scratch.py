@@ -107,11 +107,18 @@ def test_rejects_non_string_required_skill() -> None:
 def test_registry_lists_pilot_stacks() -> None:
     reg = StackRegistry()
     slugs = {s.slug for s in reg.list()}
-    assert "py-fastapi" in slugs
-    assert "ts-nextjs" in slugs
-    assert "go-gin" in slugs
-    assert "rust-axum" in slugs
-    assert "php-laravel" in slugs
+    assert {
+        "go-gin",
+        "js-express",
+        "php-laravel",
+        "py-cli",
+        "py-django",
+        "py-fastapi",
+        "py-flask",
+        "react-vite",
+        "rust-axum",
+        "ts-nextjs",
+    } <= slugs
 
 
 def test_registry_loads_full_metadata() -> None:
@@ -128,11 +135,62 @@ def test_registry_loads_full_metadata() -> None:
 def test_registry_filters_by_tag() -> None:
     reg = StackRegistry()
     web_stacks = {s.slug for s in reg.by_tags(["web"])}
+    assert "js-express" in web_stacks
+    assert "py-django" in web_stacks
     assert "py-fastapi" in web_stacks
+    assert "py-flask" in web_stacks
+    assert "react-vite" in web_stacks
     assert "ts-nextjs" in web_stacks
     assert "go-gin" in web_stacks
     assert "rust-axum" in web_stacks
     assert "php-laravel" in web_stacks
+
+
+@pytest.mark.parametrize(
+    ("slug", "language", "framework", "test_command"),
+    [
+        ("js-express", "JavaScript", "Express", "npm test"),
+        ("py-cli", "Python", "Typer", "pytest -q"),
+        ("py-django", "Python", "Django", "python manage.py test"),
+        ("py-flask", "Python", "Flask", "pytest -q"),
+        ("react-vite", "TypeScript", "React", "npm test"),
+    ],
+)
+def test_registry_loads_expansion_stack_metadata(
+    slug: str,
+    language: str,
+    framework: str,
+    test_command: str,
+) -> None:
+    reg = StackRegistry()
+    stack = reg.get(slug)
+
+    assert stack is not None
+    assert stack.language.startswith(language)
+    assert stack.framework.startswith(framework)
+    assert stack.test_command == test_command
+    assert "best practices" in stack.practices.lower()
+
+
+@pytest.mark.parametrize(
+    "slug",
+    ["js-express", "py-cli", "py-django", "py-flask", "react-vite"],
+)
+def test_expansion_stacks_render_minimal_project(slug: str) -> None:
+    reg = StackRegistry()
+    stack = reg.get(slug)
+    assert stack is not None
+
+    with tempfile.TemporaryDirectory() as td:
+        dest = Path(td) / "out"
+        written = stack.render_tree(
+            dest,
+            {"project_name": "demo-app", "goal": "Demo goal"},
+        )
+
+        assert written
+        assert (dest / "README.md").is_file()
+        assert "demo-app" in (dest / "README.md").read_text(encoding="utf-8")
 
 
 def test_registry_loads_go_gin_stack_metadata() -> None:

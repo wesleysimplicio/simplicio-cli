@@ -1,0 +1,13 @@
+{
+  "slug": "py-cli",
+  "template_version": "0.1.0",
+  "language": "Python 3.12",
+  "framework": "Typer",
+  "framework_version": ">=0.12",
+  "package_manager": "pip",
+  "test_runner": "pytest",
+  "linter": "ruff",
+  "deps_required": ["typer>=0.12", "rich>=13"],
+  "deps_dev": ["pytest>=8", "ruff>=0.6"],
+  "tags": ["cli", "python", "terminal", "automation"]
+}
