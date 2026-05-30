@@ -81,22 +81,86 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-visitor-preapproval-ser",
       "tasks": 29
+    },
+    {
+      "duration_ms": 144607,
+      "goal": "Build a FastAPI package pickup workflow with identity verification",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-package-pickup-workflow",
+      "tasks": 35
+    },
+    {
+      "duration_ms": 63793,
+      "goal": "Build a FastAPI payment reconciliation service with exception queues",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-payment-reconciliation",
+      "tasks": 29
+    },
+    {
+      "duration_ms": 166843,
+      "goal": "Build a FastAPI amenity capacity service with blackout dates",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-amenity-capacity-servic",
+      "tasks": 38
+    },
+    {
+      "duration_ms": 193461,
+      "goal": "Build a FastAPI parking allocation service with waitlist promotion",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-parking-allocation-serv",
+      "tasks": 33
+    },
+    {
+      "duration_ms": 94823,
+      "goal": "Build a FastAPI vendor insurance tracker with renewal alerts",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-vendor-insurance-tracke",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 119457,
+      "goal": "Build a FastAPI board vote recording service with quorum rules",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-board-vote-recording-se",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 133157,
+      "goal": "Build a FastAPI announcement targeting service with audience segments",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-announcement-targeting",
+      "tasks": 31
+    },
+    {
+      "duration_ms": 122253,
+      "goal": "Build a FastAPI key fob lifecycle service with revocation audits",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-key-fob-lifecycle-servi",
+      "tasks": 28
     }
   ],
-  "cold_elapsed_s": 1662.967,
+  "cold_elapsed_s": 2701.369,
   "cold_stats": {
     "bust": false,
-    "bytes": 41744,
+    "bytes": 67236,
     "enabled": true,
-    "entries": 2,
+    "entries": 4,
     "hit_rate": 0.0,
     "hits": 0,
     "max_mb": 500,
-    "mb": 0.04,
-    "misses": 10,
-    "oldest_age_s": 131.374,
-    "puts": 10,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-08-09\\cache",
+    "mb": 0.064,
+    "misses": 18,
+    "oldest_age_s": 374.873,
+    "puts": 18,
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-14-17\\cache",
     "ttl_days": 30
   },
   "date": "2026-05-30",
@@ -120,14 +184,14 @@
   },
   "matrix": {
     "corpus_total_goals": 50,
-    "merged_slices": 5,
-    "selected_goals": 10
+    "merged_slices": 7,
+    "selected_goals": 18
   },
   "scope": "cold/warm scratch planner cache measurement; this proves planner cache replay for identical prompts. Optional live-gate input links the cache evidence to the shared real scratch release corpus without overstating the cold/warm sample size.",
   "stack": "py-fastapi",
   "summary": {
-    "cold_plans_valid": 10,
-    "cold_puts": 10,
+    "cold_plans_valid": 18,
+    "cold_puts": 18,
     "live_corpus": {
       "e2e_green": 75,
       "e2e_green_rate": 1.0,
@@ -151,11 +215,11 @@
       "warm_hit_rate_ge_80": true,
       "warm_plans_all_valid": true
     },
-    "total_goals": 10,
+    "total_goals": 18,
     "warm_hit_rate": 1.0,
-    "warm_hits": 10,
+    "warm_hits": 18,
     "warm_misses": 0,
-    "warm_plans_valid": 10
+    "warm_plans_valid": 18
   },
   "warm_cases": [
     {
@@ -237,22 +301,86 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-visitor-preapproval-ser",
       "tasks": 29
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI package pickup workflow with identity verification",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-package-pickup-workflow",
+      "tasks": 35
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI payment reconciliation service with exception queues",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-payment-reconciliation",
+      "tasks": 29
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI amenity capacity service with blackout dates",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-amenity-capacity-servic",
+      "tasks": 38
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI parking allocation service with waitlist promotion",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-parking-allocation-serv",
+      "tasks": 33
+    },
+    {
+      "duration_ms": 4,
+      "goal": "Build a FastAPI vendor insurance tracker with renewal alerts",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-vendor-insurance-tracke",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI board vote recording service with quorum rules",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-board-vote-recording-se",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI announcement targeting service with audience segments",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-announcement-targeting",
+      "tasks": 31
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI key fob lifecycle service with revocation audits",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-key-fob-lifecycle-servi",
+      "tasks": 28
     }
   ],
-  "warm_elapsed_s": 0.036,
+  "warm_elapsed_s": 0.062,
   "warm_stats": {
     "bust": false,
-    "bytes": 41744,
+    "bytes": 67236,
     "enabled": true,
-    "entries": 2,
+    "entries": 4,
     "hit_rate": 1.0,
-    "hits": 10,
+    "hits": 18,
     "max_mb": 500,
-    "mb": 0.04,
+    "mb": 0.064,
     "misses": 0,
-    "oldest_age_s": 131.381,
+    "oldest_age_s": 374.886,
     "puts": 0,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-08-09\\cache",
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-14-17\\cache",
     "ttl_days": 30
   }
 }
