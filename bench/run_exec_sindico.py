@@ -314,24 +314,23 @@ def one(model: str, case: dict, prompt: str, snaps: dict) -> dict:
 
 
 def one_sp_fanout(model: str, case: dict, sp_prompt: str, snaps: dict) -> dict:
-    """sp side via REAL N=200 subagents through SubagentRuntime + modal vote.
+    """sp side via gradual-escalation fan-out (64 → 100 → 200) with the
+    oracle (phpunit) as the gate to stop early.
 
-    Per the 2026-05-30 mandate: sp ALWAYS runs as fan-out, never single-call.
-    The single-call sp path was empirically a regression vs cli alone in
-    ≤8B models (v13 bench). N is configurable via BENCH_SP_SUBAGENTS (default
-    200). Tokens reported are summed across all subagents.
+    Per the 2026-05-30 mandate (cycle 1):
+      try 64 subagents; if oracle passes on modal, STOP.
+      if not, retry with 100 (fresh fan-out).
+      if not, retry with 200.
+
+    Structured output is on by default — small-model parse failures
+    fall back gracefully to text aggregation in behavior_modal_vote.
     """
-    from sp_fanout_helper import sp_fanout_complete
+    from sp_fanout_helper import sp_fanout_escalating
+
+    # Pre-install the hidden test once so the oracle callback can run
+    # phpunit cheaply. We reset the file between candidates by rewriting
+    # `target` from snaps before each attempt.
     reset_target(case, snaps)
-    res = sp_fanout_complete(model, sp_prompt)
-    if res.get("error"):
-        reset_target(case, snaps)
-        return {"passed": False, "tokens": 0, "ms": res.get("ms", 0),
-                "tail": f"FANOUT_ERR: {res['error']}", "error": res["error"],
-                "subagents": res.get("subagents", 0), "uniq": 0,
-                "modal_count": 0}
-    code = extract_php(res["text"])
-    (WORK / case["target"]).write_text(code, encoding="utf-8")
     hidden_dst = None
     if case.get("hidden_test"):
         hidden_dst = WORK / "tests" / "unit" / "Core" / "Hidden" / case["hidden_test"]
@@ -339,15 +338,45 @@ def one_sp_fanout(model: str, case: dict, sp_prompt: str, snaps: dict) -> dict:
             (HIDDEN_TPL / case["hidden_test"]).read_text(encoding="utf-8"),
             encoding="utf-8",
         )
+
+    def oracle(text: str) -> bool:
+        if not text:
+            return False
+        try:
+            (WORK / case["target"]).write_text(extract_php(text), encoding="utf-8")
+        except Exception:
+            return False
+        ok, _ = run_phpunit()
+        return ok
+
+    res = sp_fanout_escalating(model, sp_prompt, oracle)
+
+    # Final phpunit pass to capture the tail message for the report,
+    # regardless of whether oracle short-circuit said pass/fail.
+    final_text = res.get("text", "") or ""
+    if final_text:
+        try:
+            (WORK / case["target"]).write_text(extract_php(final_text), encoding="utf-8")
+        except Exception:
+            pass
     passed, tail = run_phpunit()
+
     if hidden_dst is not None:
         hidden_dst.unlink(missing_ok=True)
     reset_target(case, snaps)
-    return {"passed": passed, "tokens": res.get("tokens", 0),
-            "ms": res.get("ms", 0), "tail": tail, "error": None,
-            "subagents": res.get("subagents", 0),
-            "uniq": res.get("uniq", 0),
-            "modal_count": res.get("modal_count", 0)}
+
+    return {
+        "passed": passed, "tokens": res.get("tokens", 0),
+        "ms": res.get("ms", 0), "tail": tail, "error": res.get("error"),
+        "subagents": res.get("subagents", 0),
+        "uniq": res.get("uniq", 0),
+        "modal_count": res.get("modal_count", 0),
+        "cycles_run": res.get("cycles_run", 0),
+        "escalated": res.get("escalated", False),
+        "tier_history": res.get("tier_history", []),
+        "structured_parse_ok": res.get("structured_parse_ok", 0),
+        "structured_parse_fail": res.get("structured_parse_fail", 0),
+    }
 
 
 def run() -> int:
@@ -381,9 +410,12 @@ def run() -> int:
                     sp_runtime=SP_RUNTIME, cli_contract=cli_contract)
                 p = one_sp_fanout(model, c, sp_prompt, snaps)
                 sp_pass += int(p["passed"]); row["sp"] = p
+                tiers = "→".join(str(h["n"]) for h in p.get("tier_history", []))
                 sp_msg = (f"  cli+sp {'PASS' if p['passed'] else 'fail'}"
-                          f"[N={p.get('subagents',0)},u={p.get('uniq',0)},"
-                          f"modal={p.get('modal_count',0)}]")
+                          f"[tiers={tiers},u={p.get('uniq',0)},"
+                          f"modal={p.get('modal_count',0)},"
+                          f"parse={p.get('structured_parse_ok',0)}/"
+                          f"{p.get('structured_parse_ok',0)+p.get('structured_parse_fail',0)}]")
             ag_msg = ""
             if INCLUDE_AGENTS:
                 a = agents_iterate(model, c, cli_contract, snaps)

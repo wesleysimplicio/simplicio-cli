@@ -633,20 +633,28 @@ def run() -> int:
             }
             sp_msg = ""
             if INCLUDE_SP:
-                # MANDATE 2026-05-30: sp ALWAYS runs as N=200 real subagents
-                # via kernel.subagent_runtime + modal vote. Same change as
-                # the exec bench. BENCH_SP_SUBAGENTS=N overrides the default 200.
-                from sp_fanout_helper import sp_fanout_complete
+                # MANDATE 2026-05-30 (cycle 1+): gradual escalation
+                # 64 → 100 → 200 with regex-all-match as the oracle,
+                # structured output schema for better modal-vote on behavior.
+                from sp_fanout_helper import sp_fanout_escalating
                 sp_prompt = SP_PROMPT_REGEX.format(
                     sp_runtime=SP_RUNTIME, cli_contract=com_prompt)
-                sp_res_full = sp_fanout_complete(model, sp_prompt)
+                checks = c["checks"]
+                def regex_oracle(text: str) -> bool:
+                    flags = score(text, checks)
+                    return sum(flags) == len(checks)
+                sp_res_full = sp_fanout_escalating(model, sp_prompt, regex_oracle)
                 sp_text = sp_res_full.get("text", "")
-                sp_flags = score(sp_text, c["checks"])
+                sp_flags = score(sp_text, checks)
                 p_h = sum(sp_flags); sp_hits += p_h
                 row["sp_hits"] = p_h; row["sp_flags"] = sp_flags
                 row["sp_subagents"] = sp_res_full.get("subagents", 0)
                 row["sp_uniq"] = sp_res_full.get("uniq", 0)
                 row["sp_modal_count"] = sp_res_full.get("modal_count", 0)
+                row["sp_cycles_run"] = sp_res_full.get("cycles_run", 0)
+                row["sp_escalated"] = sp_res_full.get("escalated", False)
+                row["sp_tier_history"] = sp_res_full.get("tier_history", [])
+                row["sp_structured_parse_ok"] = sp_res_full.get("structured_parse_ok", 0)
                 row["sp_usage"] = {
                     "prompt_tokens": 0, "completion_tokens": 0,
                     "total_tokens": sp_res_full.get("tokens", 0),
@@ -654,7 +662,8 @@ def run() -> int:
                 }
                 usage_sp["total_tokens"] += sp_res_full.get("tokens", 0)
                 usage_sp["elapsed_ms"] += sp_res_full.get("ms", 0)
-                sp_msg = (f"  sp {p_h}/{t}[N={sp_res_full.get('subagents',0)},"
+                tiers = "→".join(str(h["n"]) for h in sp_res_full.get("tier_history", []))
+                sp_msg = (f"  sp {p_h}/{t}[tiers={tiers},"
                           f"u={sp_res_full.get('uniq',0)}]")
             ag_msg = ""
             if INCLUDE_AGENTS:

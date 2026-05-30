@@ -28,6 +28,12 @@ from typing import Optional
 
 DEFAULT_SUBAGENTS = int(os.environ.get("BENCH_SP_SUBAGENTS", "200"))
 
+# Gradual escalation tiers (override via BENCH_SP_TIERS="64,100,200")
+ESCALATION_TIERS: tuple[int, ...] = tuple(
+    int(x) for x in os.environ.get("BENCH_SP_TIERS", "64,100,200").split(",")
+    if x.strip()
+) or (64, 100, 200)
+
 
 # ---- model → endpoint table (mirrors bench/run_fanout.py) ---- #
 
@@ -156,5 +162,153 @@ def sp_fanout_complete(model_id: str, sp_wrapped_prompt: str,
         "subagents": subagents,
         "completed": getattr(report, "completed", subagents),
         "failed": getattr(report, "failed", 0),
+        "error": None,
+    }
+
+
+def sp_fanout_escalating(
+    model_id: str, sp_wrapped_prompt: str,
+    oracle, *,
+    system: str = "You are a senior engineer.",
+    tiers: Optional[tuple[int, ...]] = None,
+    structured: bool = True,
+) -> dict:
+    """Gradual N-escalation: try cheap tier first, escalate only if oracle
+    says no. Per user mandate 2026-05-30:
+
+      cycle 1 → 64 subagents; if oracle PASSES on modal, stop.
+      cycle 2 → 100 subagents (fresh run); if PASSES, stop.
+      cycle 3 → 200 subagents.
+
+    `oracle(text) -> bool` is the caller-provided correctness check.
+    For exec bench: phpunit on the artifact. For regex: all patterns
+    match. Returns the same shape as sp_fanout_complete plus:
+      cycles_run, tier_history, escalated, structured_parse_stats
+
+    structured=True: prompts the LLM with [STRUCTURED_OUTPUT=v1] marker
+    and uses behavior-modal-vote instead of raw-string modal. Falls back
+    to text aggregation when parsing fails (small models).
+    """
+    from sp_output_schema import (
+        STRUCTURED_OUTPUT_INSTRUCTION,
+        StructuredResponse,
+        behavior_modal_vote,
+    )
+
+    tier_list = tiers if tiers is not None else ESCALATION_TIERS
+    if not tier_list:
+        tier_list = (200,)
+
+    final_prompt = sp_wrapped_prompt
+    if structured:
+        final_prompt = (
+            sp_wrapped_prompt + "\n\n" + STRUCTURED_OUTPUT_INSTRUCTION.strip()
+        )
+
+    t0 = time.perf_counter()
+    history = []
+    total_tokens = 0
+    last_text = ""
+    last_uniq = 0
+    last_modal = 0
+    last_subagents = 0
+    last_diagnostics: dict = {}
+    last_parse_ok = 0
+    last_parse_fail = 0
+    last_passed = False
+
+    try:
+        runtime = _build_runtime(model_id)
+    except SystemExit as e:
+        return {
+            "text": "", "tokens": 0,
+            "ms": int((time.perf_counter() - t0) * 1000),
+            "uniq": 0, "modal_count": 0, "subagents": 0,
+            "passed": False, "cycles_run": 0,
+            "tier_history": [], "escalated": False,
+            "error": str(e),
+        }
+
+    for cycle, n in enumerate(tier_list, start=1):
+        cycle_start = time.perf_counter()
+        prompts = [{"system": system, "prompt": final_prompt}] * n
+        try:
+            try:
+                report = runtime.run(
+                    task=f"sp-escalate-cycle{cycle}",
+                    subagents=n, prompts=prompts,
+                    use_cache=False, diversify=True,
+                )
+            except TypeError:
+                report = runtime.run(
+                    task=f"sp-escalate-cycle{cycle}",
+                    subagents=n, prompts=prompts, use_cache=False,
+                )
+        except Exception as e:
+            history.append({
+                "cycle": cycle, "n": n, "error": str(e),
+                "elapsed_ms": int((time.perf_counter() - cycle_start) * 1000),
+            })
+            break
+
+        texts = [r.text for r in report.results if getattr(r, "ok", False)]
+        cycle_tokens = (
+            getattr(report.usage, "total_tokens", 0)
+            if hasattr(report, "usage") else 0
+        )
+        total_tokens += cycle_tokens
+
+        if structured:
+            parsed = [StructuredResponse.from_text(t) for t in texts]
+            winner, modal_count, uniq, diag = behavior_modal_vote(parsed)
+            last_text = winner.artifact if winner else ""
+            last_diagnostics = diag
+            last_parse_ok = diag.get("parse_ok_count", 0)
+            last_parse_fail = diag.get("parse_failed_count", 0)
+        else:
+            winning_text, modal_count, uniq = _modal_vote(texts)
+            last_text = winning_text or ""
+            last_diagnostics = {}
+            last_parse_ok = 0
+            last_parse_fail = 0
+
+        last_uniq = uniq
+        last_modal = modal_count
+        last_subagents = n
+
+        passed = False
+        oracle_error = None
+        try:
+            passed = bool(oracle(last_text))
+        except Exception as e:
+            oracle_error = str(e)
+        last_passed = passed
+
+        history.append({
+            "cycle": cycle, "n": n, "uniq": uniq,
+            "modal_count": modal_count, "passed": passed,
+            "parse_ok": last_parse_ok, "parse_fail": last_parse_fail,
+            "tokens": cycle_tokens,
+            "elapsed_ms": int((time.perf_counter() - cycle_start) * 1000),
+            "oracle_error": oracle_error,
+        })
+
+        if passed:
+            break
+
+    return {
+        "text": last_text,
+        "tokens": total_tokens,
+        "ms": int((time.perf_counter() - t0) * 1000),
+        "uniq": last_uniq,
+        "modal_count": last_modal,
+        "subagents": last_subagents,
+        "passed": last_passed,
+        "cycles_run": len(history),
+        "tier_history": history,
+        "escalated": len(history) > 1,
+        "structured_parse_ok": last_parse_ok,
+        "structured_parse_fail": last_parse_fail,
+        "modal_diagnostics": last_diagnostics,
         "error": None,
     }
