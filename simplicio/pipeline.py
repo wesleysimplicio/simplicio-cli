@@ -7,7 +7,7 @@ from .pipeline_fixers import try_static_fixers
 from .prompt import build_prompt
 from .providers import generate
 
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS = 5
 
 @dataclass
 class ValidationResult:
