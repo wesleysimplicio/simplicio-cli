@@ -5,7 +5,13 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-from bench.run_scratch_cache_gate import CACHE_GOALS, run_cache_gate, write_reports
+from bench.run_scratch_cache_gate import (
+    CACHE_GOALS,
+    merge_cache_gate_reports,
+    run_cache_gate,
+    select_cache_goals,
+    write_reports,
+)
 from simplicio._cache import reset_for_tests
 from simplicio.scratch.plan_schema import EXAMPLE_PLAN
 from simplicio.scratch.recipes import RecipeRegistry
@@ -22,6 +28,12 @@ def test_scratch_cache_gate_defines_fifty_planner_goals() -> None:
 
     assert len(CACHE_GOALS) == 50
     assert all(registry.match(goal, "py-fastapi") is None for goal in CACHE_GOALS)
+
+
+def test_scratch_cache_gate_selects_goal_slices() -> None:
+    selected = select_cache_goals(goal_offset=2, goal_limit=3)
+
+    assert selected == CACHE_GOALS[2:5]
 
 
 def test_scratch_cache_gate_measures_warm_hits(tmp_path, monkeypatch) -> None:
@@ -108,3 +120,53 @@ def test_scratch_cache_gate_links_live_corpus_without_overclaiming(
         "planner cache hit-rate measured across cold/warm real scratch runs"
         in (summary["missing_release_evidence"])
     )
+
+
+def test_scratch_cache_gate_merges_disjoint_slices(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("SIMPLICIO_PLANNER", "codex-cli/default")
+    monkeypatch.setattr(
+        "simplicio.providers._shell_out_codex",
+        MagicMock(return_value=_planner_json()),
+    )
+    first = run_cache_gate(
+        work_dir=tmp_path / "first",
+        goals=(CACHE_GOALS[0],),
+    )
+    second = run_cache_gate(
+        work_dir=tmp_path / "second",
+        goals=(CACHE_GOALS[1],),
+    )
+
+    merged = merge_cache_gate_reports(first, second)
+
+    summary = merged["summary"]
+    assert summary["total_goals"] == 2
+    assert summary["cold_plans_valid"] == 2
+    assert summary["warm_plans_valid"] == 2
+    assert summary["warm_hits"] == 2
+    assert summary["warm_misses"] == 0
+    assert merged["matrix"]["selected_goals"] == 2
+    assert merged["matrix"]["merged_slices"] == 2
+
+
+def test_scratch_cache_gate_rejects_overlapping_merge(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("SIMPLICIO_PLANNER", "codex-cli/default")
+    monkeypatch.setattr(
+        "simplicio.providers._shell_out_codex",
+        MagicMock(return_value=_planner_json()),
+    )
+    first = run_cache_gate(
+        work_dir=tmp_path / "first",
+        goals=(CACHE_GOALS[0],),
+    )
+    second = run_cache_gate(
+        work_dir=tmp_path / "second",
+        goals=(CACHE_GOALS[0],),
+    )
+
+    try:
+        merge_cache_gate_reports(first, second)
+    except ValueError as exc:
+        assert "overlapping cache cases" in str(exc)
+    else:  # pragma: no cover - assertion guard
+        raise AssertionError("expected overlapping merge to fail")

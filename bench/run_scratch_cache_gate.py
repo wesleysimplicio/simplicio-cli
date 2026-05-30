@@ -151,6 +151,10 @@ def run_cache_gate(
             "overstating the cold/warm sample size."
         ),
         "date": time.strftime("%Y-%m-%d"),
+        "matrix": {
+            "corpus_total_goals": len(CACHE_GOALS),
+            "selected_goals": len(goals),
+        },
         "environment": {
             "python": sys.version.split()[0],
             "platform": platform.platform(),
@@ -167,6 +171,120 @@ def run_cache_gate(
         "cold_cases": cold_rows,
         "warm_cases": warm_rows,
     }
+
+
+def select_cache_goals(
+    *,
+    goal_offset: int = 0,
+    goal_limit: int = len(CACHE_GOALS),
+    goals: tuple[str, ...] = CACHE_GOALS,
+) -> tuple[str, ...]:
+    if goal_offset < 0:
+        raise ValueError("goal_offset must be >= 0")
+    if goal_limit < 0:
+        raise ValueError("goal_limit must be >= 0")
+    return goals[goal_offset : goal_offset + goal_limit]
+
+
+def merge_cache_gate_reports(
+    existing: dict[str, Any],
+    current: dict[str, Any],
+) -> dict[str, Any]:
+    """Merge disjoint cache-gate slices into one accumulated report."""
+    if not existing:
+        return current
+    if existing.get("benchmark") != current.get("benchmark"):
+        raise ValueError("can only merge scratch-cache-gate reports")
+
+    existing_keys = _case_keys(existing)
+    current_keys = _case_keys(current)
+    overlap = existing_keys & current_keys
+    if overlap:
+        sample = sorted(overlap)[0]
+        raise ValueError(f"cannot merge overlapping cache cases: {sample}")
+
+    cold_cases = [
+        *existing.get("cold_cases", []),
+        *current.get("cold_cases", []),
+    ]
+    warm_cases = [
+        *existing.get("warm_cases", []),
+        *current.get("warm_cases", []),
+    ]
+    cold_stats = _merge_stats(
+        existing.get("cold_stats", {}), current.get("cold_stats", {})
+    )
+    warm_stats = _merge_stats(
+        existing.get("warm_stats", {}), current.get("warm_stats", {})
+    )
+    live_corpus = current.get("live_corpus") or existing.get("live_corpus")
+    summary = _summarize(
+        cold_cases,
+        warm_cases,
+        cold_stats,
+        warm_stats,
+        live_corpus=live_corpus,
+    )
+    matrix = {
+        "corpus_total_goals": max(
+            int((existing.get("matrix") or {}).get("corpus_total_goals", 0)),
+            int((current.get("matrix") or {}).get("corpus_total_goals", 0)),
+            len(CACHE_GOALS),
+        ),
+        "selected_goals": len({row.get("goal") for row in warm_cases}),
+        "merged_slices": int((existing.get("matrix") or {}).get("merged_slices", 1))
+        + 1,
+    }
+    return {
+        **existing,
+        "date": time.strftime("%Y-%m-%d"),
+        "matrix": matrix,
+        "cold_elapsed_s": round(
+            float(existing.get("cold_elapsed_s", 0.0))
+            + float(current.get("cold_elapsed_s", 0.0)),
+            3,
+        ),
+        "warm_elapsed_s": round(
+            float(existing.get("warm_elapsed_s", 0.0))
+            + float(current.get("warm_elapsed_s", 0.0)),
+            3,
+        ),
+        "cold_stats": cold_stats,
+        "warm_stats": warm_stats,
+        "live_corpus": live_corpus,
+        "summary": summary,
+        "cold_cases": cold_cases,
+        "warm_cases": warm_cases,
+    }
+
+
+def _case_keys(result: dict[str, Any]) -> set[tuple[str, str]]:
+    keys: set[tuple[str, str]] = set()
+    for row in result.get("cold_cases", []):
+        keys.add(("cold", str(row.get("goal", ""))))
+    for row in result.get("warm_cases", []):
+        keys.add(("warm", str(row.get("goal", ""))))
+    return keys
+
+
+def _merge_stats(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
+    hits = int(left.get("hits", 0)) + int(right.get("hits", 0))
+    misses = int(left.get("misses", 0)) + int(right.get("misses", 0))
+    puts = int(left.get("puts", 0)) + int(right.get("puts", 0))
+    total = hits + misses
+    merged = {
+        **left,
+        **right,
+        "hits": hits,
+        "misses": misses,
+        "puts": puts,
+        "hit_rate": round(hits / total, 4) if total else 0.0,
+    }
+    if "entries" in left or "entries" in right:
+        merged["entries"] = max(
+            int(left.get("entries", 0)), int(right.get("entries", 0))
+        )
+    return merged
 
 
 def _run_pass(
@@ -309,6 +427,7 @@ def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> Non
 
 def _to_markdown(result: dict[str, Any]) -> str:
     summary = result["summary"]
+    matrix = result.get("matrix") or {}
     lines = [
         "# Scratch Planner Cache Gate",
         "",
@@ -322,6 +441,9 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- warm cache hit-rate: {summary['warm_hit_rate']:.2%}",
         f"- warm hits/misses: {summary['warm_hits']}/{summary['warm_misses']}",
         f"- cold cache puts: {summary['cold_puts']}",
+        f"- selected corpus goals: {matrix.get('selected_goals', summary['total_goals'])}/"
+        f"{matrix.get('corpus_total_goals', summary['total_goals'])}",
+        f"- merged slices: {matrix.get('merged_slices', 1)}",
         "",
     ]
     live = summary.get("live_corpus")
@@ -371,9 +493,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--work-dir", type=Path, required=True)
     parser.add_argument("--stack", default="py-fastapi")
+    parser.add_argument("--goal-offset", type=int, default=0)
     parser.add_argument("--goal-limit", type=int, default=len(CACHE_GOALS))
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
+    parser.add_argument(
+        "--merge-existing-json",
+        type=Path,
+        help=(
+            "Merge this run with an existing cache-gate JSON. Slices must have "
+            "disjoint goals."
+        ),
+    )
     parser.add_argument(
         "--live-gate-json",
         type=Path,
@@ -387,7 +518,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    goals = CACHE_GOALS[: max(0, args.goal_limit)]
+    try:
+        goals = select_cache_goals(
+            goal_offset=args.goal_offset,
+            goal_limit=args.goal_limit,
+        )
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     result = run_cache_gate(
         work_dir=args.work_dir,
         stack_slug=args.stack,
@@ -395,6 +533,13 @@ def main(argv: list[str] | None = None) -> int:
         clear_cache=not args.keep_cache,
         live_gate=load_live_gate(args.live_gate_json) if args.live_gate_json else None,
     )
+    if args.merge_existing_json and args.merge_existing_json.is_file():
+        try:
+            existing = json.loads(args.merge_existing_json.read_text(encoding="utf-8"))
+            result = merge_cache_gate_reports(existing, result)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
     write_reports(result, args.json_output, args.md_output)
     if not args.quiet:
         print(json.dumps(result["summary"], indent=2, sort_keys=True))
