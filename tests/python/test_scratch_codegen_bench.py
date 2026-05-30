@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import json
+
 from bench.run_scratch_codegen import (
     build_cases,
     capture_llm_baseline,
     load_live_gate_evidence,
     load_llm_baseline,
+    load_real_llm_baseline_from_live_gate,
     run_benchmark,
     write_llm_baseline,
     write_reports,
@@ -209,6 +212,76 @@ def test_scratch_codegen_bench_loads_live_gate_file(tmp_path) -> None:
     assert loaded["codegen_share"] == 0.5
     assert loaded["avg_codegen_ms"] == 25
     assert loaded["stacks"] == ["py-fastapi"]
+
+
+def test_scratch_codegen_loads_real_llm_baseline_from_disabled_live_gate(
+    tmp_path,
+) -> None:
+    live_gate_path = tmp_path / "llm-live-gate.json"
+    runs = [
+        {
+            "stack": "py-fastapi",
+            "e2e_green": index < 45,
+            "scratch_metrics": {
+                "tasks_total": 2,
+                "tasks_codegen": 0,
+                "tasks_llm": 2,
+                "tasks_failed": 0 if index < 45 else 1,
+                "avg_llm_ms": 1500,
+            },
+        }
+        for index in range(50)
+    ]
+    live_gate_path.write_text(
+        json.dumps(
+            {
+                "matrix": {
+                    "disable_codegen": True,
+                    "plan_only": False,
+                    "post_verify": True,
+                    "skip_install": False,
+                },
+                "summary": {
+                    "total_runs": 50,
+                    "e2e_green": 45,
+                    "e2e_green_rate": 0.9,
+                    "release_gates": {"e2e_green_ge_80": True},
+                },
+                "runs": runs,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    baseline = load_real_llm_baseline_from_live_gate(live_gate_path)
+
+    assert baseline["total_cases"] == 50
+    assert baseline["pass_rate"] == 0.9
+    assert baseline["avg_llm_ms"] == 1500
+    assert baseline["real_corpus"] is True
+
+
+def test_scratch_codegen_rejects_live_gate_baseline_without_disable_codegen(
+    tmp_path,
+) -> None:
+    live_gate_path = tmp_path / "codegen-live-gate.json"
+    live_gate_path.write_text(
+        json.dumps(
+            {
+                "matrix": {"disable_codegen": False, "post_verify": True},
+                "summary": {"total_runs": 1, "e2e_green_rate": 1.0},
+                "runs": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    try:
+        load_real_llm_baseline_from_live_gate(live_gate_path)
+    except ValueError as exc:
+        assert "--disable-codegen" in str(exc)
+    else:  # pragma: no cover - assertion guard
+        raise AssertionError("expected disabled-codegen guard")
 
 
 def test_scratch_codegen_bench_loads_baseline_file(tmp_path) -> None:

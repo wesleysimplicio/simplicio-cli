@@ -80,6 +80,20 @@ def test_successful_codegen_runs_without_model(tmp_path, monkeypatch):
     assert "files_modified" in result.log_tail
 
 
+def test_codegen_can_be_disabled_for_llm_baseline(tmp_path, monkeypatch):
+    executor = _Executor(result=CodegenResult(passed=True, log="would codegen"))
+    monkeypatch.setattr(codegen_registry, "_DEFAULT_EXECUTORS", [executor])
+    monkeypatch.delenv("SIMPLICIO_MODEL", raising=False)
+    monkeypatch.setenv("SIMPLICIO_DISABLE_CODEGEN", "1")
+
+    result = _execute_one_task(_task(), tmp_path, _stack(tmp_path))
+
+    assert executor.calls == 0
+    assert result.execution_mode == "skipped"
+    assert result.skipped_reason == "no SIMPLICIO_MODEL set; task generation skipped"
+    assert "codegen disabled by SIMPLICIO_DISABLE_CODEGEN" in result.log_tail
+
+
 def test_codegen_failure_without_fallback_does_not_call_llm(tmp_path, monkeypatch):
     executor = _Executor(result=CodegenResult(passed=False, log="missing class"))
     monkeypatch.setattr(codegen_registry, "_DEFAULT_EXECUTORS", [executor])

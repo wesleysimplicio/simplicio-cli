@@ -1098,6 +1098,43 @@ def load_live_gate_evidence(path: Path) -> dict[str, Any]:
     return _normalize_live_gate(data, source=_source_label(path))
 
 
+def load_real_llm_baseline_from_live_gate(path: Path) -> dict[str, Any]:
+    """Load a codegen-disabled live gate as the real scratch LLM baseline."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    matrix = data.get("matrix") if isinstance(data, dict) else {}
+    matrix = matrix if isinstance(matrix, dict) else {}
+    if not matrix.get("disable_codegen"):
+        raise ValueError(
+            "real LLM baseline live gate must be captured with --disable-codegen"
+        )
+    if matrix.get("plan_only"):
+        raise ValueError("real LLM baseline live gate cannot be plan-only")
+    if not matrix.get("post_verify"):
+        raise ValueError("real LLM baseline live gate must use --post-verify")
+
+    live = _normalize_live_gate(data, source=_source_label(path))
+    raw_runs = data.get("runs") if isinstance(data, dict) else []
+    observed_runs = len(raw_runs) if isinstance(raw_runs, list) else 0
+    total_runs = int(live.get("total_runs", 0))
+    total_cases = min(total_runs, observed_runs) if total_runs else observed_runs
+    avg_llm_ms = int(live.get("avg_llm_ms", 0))
+    if total_cases <= 0:
+        raise ValueError("real LLM baseline live gate must include at least one run")
+    if avg_llm_ms <= 0:
+        raise ValueError("real LLM baseline live gate must include avg_llm_ms")
+    return {
+        "source": f"{_source_label(path)} (--disable-codegen live gate)",
+        "total_cases": total_cases,
+        "pass_rate": float(live.get("e2e_green_rate", 0.0)),
+        "avg_llm_ms": avg_llm_ms,
+        "real_corpus": (
+            total_cases >= 50
+            and not bool(matrix.get("skip_install"))
+            and bool(matrix.get("post_verify"))
+        ),
+    }
+
+
 def _normalize_llm_baseline(
     baseline: dict[str, Any],
     *,
@@ -1152,6 +1189,7 @@ def _normalize_live_gate(
             "tasks_failed": int(live_gate.get("tasks_failed", 0)),
             "codegen_share": float(live_gate.get("codegen_share", 0.0)),
             "avg_codegen_ms": int(live_gate.get("avg_codegen_ms", 0)),
+            "avg_llm_ms": int(live_gate.get("avg_llm_ms", 0)),
             "stacks": sorted(live_gate.get("stacks", [])),
             "full_75_run_matrix": bool(live_gate.get("full_75_run_matrix", False)),
             "e2e_green_ge_80": bool(live_gate.get("e2e_green_ge_80", False)),
@@ -1173,6 +1211,7 @@ def _normalize_live_gate(
     tasks_llm = 0
     tasks_failed = 0
     weighted_codegen_ms = 0
+    weighted_llm_ms = 0
     stacks: set[str] = set()
 
     for row in runs:
@@ -1186,11 +1225,13 @@ def _normalize_live_gate(
         row_llm = int(metrics.get("tasks_llm", 0) or 0)
         row_failed = int(metrics.get("tasks_failed", 0) or 0)
         avg_codegen = int(metrics.get("avg_codegen_ms", 0) or 0)
+        avg_llm = int(metrics.get("avg_llm_ms", 0) or 0)
         tasks_total += row_total
         tasks_codegen += row_codegen
         tasks_llm += row_llm
         tasks_failed += row_failed
         weighted_codegen_ms += avg_codegen * row_codegen
+        weighted_llm_ms += avg_llm * row_llm
 
     gates = summary.get("release_gates") if isinstance(summary, dict) else {}
     gates = gates if isinstance(gates, dict) else {}
@@ -1213,6 +1254,7 @@ def _normalize_live_gate(
         "avg_codegen_ms": (
             round(weighted_codegen_ms / tasks_codegen) if tasks_codegen else 0
         ),
+        "avg_llm_ms": round(weighted_llm_ms / tasks_llm) if tasks_llm else 0,
         "stacks": sorted(stacks),
         "full_75_run_matrix": bool(gates.get("full_75_run_matrix", False)),
         "e2e_green_ge_80": bool(gates.get("e2e_green_ge_80", False)),
@@ -1483,6 +1525,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--real-llm-baseline-live-gate-json",
+        type=Path,
+        help=(
+            "Path to a scratch live-gate JSON captured with --disable-codegen "
+            "and --post-verify; used as the real release-corpus LLM baseline."
+        ),
+    )
+    parser.add_argument(
         "--live-gate-json",
         type=Path,
         default=LIVE_GATE_JSON,
@@ -1497,9 +1547,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    if args.llm_baseline_json and args.capture_llm_baseline_json:
+    baseline_args = [
+        args.llm_baseline_json,
+        args.capture_llm_baseline_json,
+        args.real_llm_baseline_live_gate_json,
+    ]
+    if sum(1 for value in baseline_args if value) > 1:
         print(
-            "choose only one of --llm-baseline-json or --capture-llm-baseline-json",
+            "choose only one LLM baseline input",
             file=sys.stderr,
         )
         return 2
@@ -1523,6 +1578,14 @@ def main(argv: list[str] | None = None) -> int:
         work_dir = codegen_work_dir
     elif args.llm_baseline_json:
         llm_baseline = load_llm_baseline(args.llm_baseline_json)
+    elif args.real_llm_baseline_live_gate_json:
+        try:
+            llm_baseline = load_real_llm_baseline_from_live_gate(
+                args.real_llm_baseline_live_gate_json
+            )
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
     live_gate = None
     if args.live_gate_json and args.live_gate_json.is_file():
         live_gate = load_live_gate_evidence(args.live_gate_json)

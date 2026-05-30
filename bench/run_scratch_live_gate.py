@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import platform
 import shlex
 import statistics
@@ -42,6 +43,7 @@ def run_live_gate(
     plan_only: bool = False,
     skip_install: bool = False,
     post_verify: bool = False,
+    disable_codegen: bool = False,
     timeout_seconds: int = 900,
     skillopt_review: dict[str, Any] | None = None,
     runner: Runner = subprocess.run,
@@ -75,6 +77,7 @@ def run_live_gate(
                 plan_only=plan_only,
                 skip_install=skip_install,
                 post_verify=post_verify,
+                disable_codegen=disable_codegen,
                 timeout_seconds=timeout_seconds,
                 runner=runner,
                 registry=registry,
@@ -109,6 +112,7 @@ def run_live_gate(
             "plan_only": plan_only,
             "skip_install": skip_install,
             "post_verify": post_verify,
+            "disable_codegen": disable_codegen,
         },
         "work_dir": "$WORK_DIR",
         "summary": summary,
@@ -126,6 +130,7 @@ def _run_one(
     plan_only: bool,
     skip_install: bool,
     post_verify: bool,
+    disable_codegen: bool,
     timeout_seconds: int,
     runner: Runner,
     registry: StackRegistry,
@@ -158,6 +163,7 @@ def _run_one(
             capture_output=True,
             text=True,
             timeout=timeout_seconds,
+            env=_scratch_env(disable_codegen),
         )
         timed_out = False
     except subprocess.TimeoutExpired as exc:
@@ -178,6 +184,7 @@ def _run_one(
             "e2e_green": None,
             "tasks_passed": 0,
             "tasks_total": 0,
+            "codegen_disabled": disable_codegen,
             "post_verify": {
                 "enabled": post_verify and not plan_only,
                 "passed": False if post_verify and not plan_only else None,
@@ -223,11 +230,20 @@ def _run_one(
         **metrics,
         "scratch_metrics": scratch_metrics,
         "cost_usd": cost_usd,
+        "codegen_disabled": disable_codegen,
         "post_verify": verify,
         "json_parse_error": parse_error,
         "stdout_tail": _tail_text(stdout_text),
         "stderr_tail": _tail_text(stderr_text),
     }
+
+
+def _scratch_env(disable_codegen: bool) -> dict[str, str] | None:
+    if not disable_codegen:
+        return None
+    env = os.environ.copy()
+    env["SIMPLICIO_DISABLE_CODEGEN"] = "1"
+    return env
 
 
 def _row_metrics(
@@ -698,7 +714,7 @@ def merge_results(existing: dict[str, Any], current: dict[str, Any]) -> dict[str
         raise ValueError("cannot merge different benchmark result types")
     existing_matrix = existing.get("matrix", {})
     current_matrix = current.get("matrix", {})
-    for field in ("plan_only", "skip_install", "post_verify"):
+    for field in ("plan_only", "skip_install", "post_verify", "disable_codegen"):
         if existing_matrix.get(field) != current_matrix.get(field):
             raise ValueError(f"cannot merge live gate results with different {field}")
 
@@ -782,6 +798,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- plan only: {matrix['plan_only']}",
         f"- skip install: {matrix['skip_install']}",
         f"- post verify: {matrix['post_verify']}",
+        f"- codegen disabled: {matrix.get('disable_codegen', False)}",
         "",
         "## Summary",
         "",
@@ -855,6 +872,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="after scratch execution, run the selected stack test and lint commands",
     )
+    parser.add_argument(
+        "--disable-codegen",
+        action="store_true",
+        help=(
+            "run scratch with SIMPLICIO_DISABLE_CODEGEN=1 so mechanical tasks "
+            "fall through to the LLM path; intended for real baseline capture"
+        ),
+    )
     parser.add_argument("--timeout-seconds", type=int, default=900)
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
@@ -887,6 +912,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_only=args.plan_only,
         skip_install=args.skip_install,
         post_verify=args.post_verify,
+        disable_codegen=args.disable_codegen,
         timeout_seconds=args.timeout_seconds,
         skillopt_review=(
             load_skillopt_review_evidence(args.skillopt_review_json)

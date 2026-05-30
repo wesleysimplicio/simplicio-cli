@@ -176,7 +176,11 @@ def _execute_one_task(task: Task, project_dir: Path, stack: Stack) -> TaskResult
             log_tail=skill_log,
         )
 
-    codegen_result = try_execute(task, project_dir, stack)
+    if _codegen_disabled():
+        codegen_result = None
+        codegen_log = "codegen disabled by SIMPLICIO_DISABLE_CODEGEN"
+    else:
+        codegen_result = try_execute(task, project_dir, stack)
     if codegen_result is not None:
         codegen_log = codegen_result.log
         if codegen_result.passed or not codegen_result.fallback_to_llm:
@@ -259,6 +263,11 @@ def _task_result_from_codegen(
         log_tail=f"{skill_log}{result.log}{suffix}".strip(),
         generated_skill=generated_skill,
     )
+
+
+def _codegen_disabled() -> bool:
+    value = os.environ.get("SIMPLICIO_DISABLE_CODEGEN", "").strip().lower()
+    return value in {"1", "true", "yes", "on"}
 
 
 def _ensure_required_skill(

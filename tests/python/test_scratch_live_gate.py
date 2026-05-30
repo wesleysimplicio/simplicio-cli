@@ -103,6 +103,40 @@ def test_live_gate_runs_execution_slice(tmp_path) -> None:
     assert summary["release_gates"]["full_75_run_matrix"] is False
 
 
+def test_live_gate_can_disable_codegen_for_llm_baseline(tmp_path) -> None:
+    def fake_runner(cmd, **kwargs):
+        assert kwargs["env"]["SIMPLICIO_DISABLE_CODEGEN"] == "1"
+        return _completed(
+            cmd,
+            json.dumps(
+                {
+                    "project_dir": str(tmp_path),
+                    "files_written": ["src/main.py"],
+                    "tasks_passed": 2,
+                    "tasks_total": 2,
+                    "metrics": {
+                        "tasks_llm": 2,
+                        "tasks_codegen": 0,
+                        "avg_llm_ms": 1200,
+                    },
+                }
+            ),
+        )
+
+    result = run_live_gate(
+        work_dir=tmp_path / "live",
+        stacks=("py-fastapi",),
+        goals=("CRUD app for condo units",),
+        disable_codegen=True,
+        runner=fake_runner,
+    )
+
+    row = result["runs"][0]
+    assert result["matrix"]["disable_codegen"] is True
+    assert row["codegen_disabled"] is True
+    assert row["scratch_metrics"]["tasks_llm"] == 2
+
+
 def test_live_gate_requires_project_dir_for_post_verify(tmp_path) -> None:
     def fake_runner(cmd, **_kwargs):
         return _completed(
