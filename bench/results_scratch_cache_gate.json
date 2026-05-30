@@ -17,22 +17,38 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-feature-flag-service-wi",
       "tasks": 28
+    },
+    {
+      "duration_ms": 124279,
+      "goal": "Build a FastAPI webhook ingestion service with replay controls",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-webhook-ingestion-servi",
+      "tasks": 30
+    },
+    {
+      "duration_ms": 149120,
+      "goal": "Build a FastAPI data export service with signed download links",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-data-export-service-wit",
+      "tasks": 36
     }
   ],
-  "cold_elapsed_s": 495.175,
+  "cold_elapsed_s": 768.575,
   "cold_stats": {
     "bust": false,
-    "bytes": 27119,
+    "bytes": 35610,
     "enabled": true,
     "entries": 2,
     "hit_rate": 0.0,
     "hits": 0,
     "max_mb": 500,
-    "mb": 0.026,
-    "misses": 2,
-    "oldest_age_s": 126.57,
-    "puts": 2,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate\\cache",
+    "mb": 0.034,
+    "misses": 4,
+    "oldest_age_s": 149.124,
+    "puts": 4,
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-02-03\\cache",
     "ttl_days": 30
   },
   "date": "2026-05-30",
@@ -54,11 +70,16 @@
     ],
     "total_runs": 75
   },
+  "matrix": {
+    "corpus_total_goals": 50,
+    "merged_slices": 2,
+    "selected_goals": 4
+  },
   "scope": "cold/warm scratch planner cache measurement; this proves planner cache replay for identical prompts. Optional live-gate input links the cache evidence to the shared real scratch release corpus without overstating the cold/warm sample size.",
   "stack": "py-fastapi",
   "summary": {
-    "cold_plans_valid": 2,
-    "cold_puts": 2,
+    "cold_plans_valid": 4,
+    "cold_puts": 4,
     "live_corpus": {
       "e2e_green": 75,
       "e2e_green_rate": 1.0,
@@ -82,11 +103,11 @@
       "warm_hit_rate_ge_80": true,
       "warm_plans_all_valid": true
     },
-    "total_goals": 2,
+    "total_goals": 4,
     "warm_hit_rate": 1.0,
-    "warm_hits": 2,
+    "warm_hits": 4,
     "warm_misses": 0,
-    "warm_plans_valid": 2
+    "warm_plans_valid": 4
   },
   "warm_cases": [
     {
@@ -104,22 +125,38 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-feature-flag-service-wi",
       "tasks": 28
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI webhook ingestion service with replay controls",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-webhook-ingestion-servi",
+      "tasks": 30
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI data export service with signed download links",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-data-export-service-wit",
+      "tasks": 36
     }
   ],
-  "warm_elapsed_s": 0.006,
+  "warm_elapsed_s": 0.013,
   "warm_stats": {
     "bust": false,
-    "bytes": 27119,
+    "bytes": 35610,
     "enabled": true,
     "entries": 2,
     "hit_rate": 1.0,
-    "hits": 2,
+    "hits": 4,
     "max_mb": 500,
-    "mb": 0.026,
+    "mb": 0.034,
     "misses": 0,
-    "oldest_age_s": 126.577,
+    "oldest_age_s": 149.13,
     "puts": 0,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate\\cache",
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-02-03\\cache",
     "ttl_days": 30
   }
 }
