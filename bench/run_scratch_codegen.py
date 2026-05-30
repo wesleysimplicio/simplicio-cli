@@ -190,6 +190,7 @@ def run_benchmark(
     work_dir: Path | None = None,
     repeat: int = 10,
     include_typescript: bool = True,
+    llm_baseline: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if repeat < 1:
         raise ValueError("repeat must be >= 1")
@@ -201,6 +202,7 @@ def run_benchmark(
     work_dir.mkdir(parents=True, exist_ok=True)
 
     cases = build_cases(include_typescript=include_typescript)
+    baseline = _normalize_llm_baseline(llm_baseline) if llm_baseline else None
     projects_parent = work_dir / "projects"
     templates_parent = work_dir / "templates"
     projects_parent.mkdir(parents=True, exist_ok=True)
@@ -239,7 +241,8 @@ def run_benchmark(
             "python": sys.version.split()[0],
             "platform": platform.platform(),
         },
-        "summary": _summarize(rows, elapsed_s),
+        "llm_baseline": baseline,
+        "summary": _summarize(rows, elapsed_s, baseline),
         "cases": rows,
     }
 
@@ -424,7 +427,11 @@ def _plan_for_case(case: BenchCase, project_name: str) -> Plan:
     )
 
 
-def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
+def _summarize(
+    rows: list[dict[str, Any]],
+    elapsed_s: float,
+    llm_baseline: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     total_cases = len(rows)
     passed_cases = sum(1 for row in rows if row.get("passed"))
     codegen_tasks = sum(
@@ -472,10 +479,26 @@ def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
         "planner_calls": 0,
         "llm_calls": llm_tasks,
     }
+    baseline_avg_ms = int(llm_baseline.get("avg_llm_ms", 0)) if llm_baseline else 0
+    if llm_baseline:
+        summary["llm_baseline"] = llm_baseline
+        summary["executor_pass_rate_ge_llm"] = summary["pass_rate"] >= float(
+            llm_baseline["pass_rate"]
+        )
+        summary["latency_reduction"] = (
+            round((baseline_avg_ms - summary["avg_codegen_ms"]) / baseline_avg_ms, 4)
+            if baseline_avg_ms > 0
+            else None
+        )
+    else:
+        summary["executor_pass_rate_ge_llm"] = None
+        summary["latency_reduction"] = None
+
     summary["release_gates"] = {
         "fifty_runs": total_cases >= 50,
         "mechanical_share_ge_30": summary["codegen_share"] >= 0.30,
         "executor_pass_rate_100": summary["pass_rate"] == 1.0,
+        "executor_pass_rate_ge_llm": summary["executor_pass_rate_ge_llm"],
         "typescript_next_route_compiles_and_responds_json": any(
             row.get("name") == "typescript-next-route"
             and row.get("validation", {}).get("passed")
@@ -484,15 +507,58 @@ def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
             )
             for row in rows
         ),
-        "llm_baseline_present": False,
-        "latency_reduction_ge_50": None,
+        "llm_baseline_present": llm_baseline is not None,
+        "latency_reduction_ge_50": (
+            summary["latency_reduction"] >= 0.50
+            if summary["latency_reduction"] is not None
+            else None
+        ),
     }
-    summary["missing_release_evidence"] = [
-        "LLM baseline pass-rate and latency comparison",
+    missing = [
         "50 real scratch goals across the release corpus",
         "planner cache hit-rate measured across cold/warm scratch runs",
     ]
+    if llm_baseline is None:
+        missing.insert(0, "LLM baseline pass-rate and latency comparison")
+    summary["missing_release_evidence"] = missing
     return summary
+
+
+def load_llm_baseline(path: Path) -> dict[str, Any]:
+    """Load a captured LLM baseline summary for executor-vs-LLM comparison."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return _normalize_llm_baseline(data, source=str(path))
+
+
+def _normalize_llm_baseline(
+    baseline: dict[str, Any],
+    *,
+    source: str | None = None,
+) -> dict[str, Any]:
+    summary = baseline.get("summary")
+    values = summary if isinstance(summary, dict) else baseline
+    pass_rate = values.get("pass_rate", values.get("llm_pass_rate"))
+    avg_ms = values.get(
+        "avg_llm_ms",
+        values.get("avg_task_ms", values.get("average_latency_ms")),
+    )
+    raw_cases = values.get("cases", baseline.get("cases", []))
+    total_cases = values.get("total_cases")
+    if total_cases is None:
+        total_cases = len(raw_cases) if isinstance(raw_cases, list) else raw_cases
+    if pass_rate is None or avg_ms is None:
+        raise ValueError("LLM baseline must include pass_rate and avg_llm_ms")
+    normalized = {
+        "source": baseline.get("source") or source or "inline",
+        "total_cases": int(total_cases or 0),
+        "pass_rate": float(pass_rate),
+        "avg_llm_ms": int(avg_ms),
+    }
+    if not 0 <= normalized["pass_rate"] <= 1:
+        raise ValueError("LLM baseline pass_rate must be between 0 and 1")
+    if normalized["avg_llm_ms"] <= 0:
+        raise ValueError("LLM baseline avg_llm_ms must be > 0")
+    return normalized
 
 
 def _ratio(numerator: int, denominator: int) -> float:
@@ -651,6 +717,21 @@ def _to_markdown(result: dict[str, Any]) -> str:
     ]
     for gate, value in summary["release_gates"].items():
         lines.append(f"- {gate}: {value}")
+    baseline = summary.get("llm_baseline")
+    if baseline:
+        lines.extend(
+            [
+                "",
+                "## LLM Baseline",
+                "",
+                f"- source: {baseline['source']}",
+                f"- cases: {baseline['total_cases']}",
+                f"- pass rate: {baseline['pass_rate']:.2%}",
+                f"- avg LLM latency: {baseline['avg_llm_ms']} ms",
+                f"- executor pass-rate >= LLM: {summary['executor_pass_rate_ge_llm']}",
+                f"- latency reduction: {summary['latency_reduction']:.2%}",
+            ]
+        )
     lines.extend(
         [
             "",
@@ -690,6 +771,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Skip the Next.js ts-morph executor case.",
     )
+    parser.add_argument(
+        "--llm-baseline-json",
+        type=Path,
+        help=(
+            "Path to a captured LLM baseline JSON with summary.pass_rate and "
+            "summary.avg_llm_ms for executor-vs-LLM gate comparison."
+        ),
+    )
     parser.add_argument("--quiet", action="store_true")
     return parser.parse_args(argv)
 
@@ -700,6 +789,9 @@ def main(argv: list[str] | None = None) -> int:
         work_dir=args.work_dir,
         repeat=args.repeat,
         include_typescript=not args.no_typescript,
+        llm_baseline=load_llm_baseline(args.llm_baseline_json)
+        if args.llm_baseline_json
+        else None,
     )
     write_reports(result, args.json_output, args.md_output)
     if not args.quiet:
