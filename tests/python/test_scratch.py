@@ -12,6 +12,7 @@ import pytest
 from simplicio.scratch.plan_schema import (
     EXAMPLE_PLAN,
     PlanValidationError,
+    Task,
     validate_plan,
 )
 from simplicio.scratch.stack_registry import Stack, StackRegistry, slugify_project
@@ -608,6 +609,57 @@ def test_executor_runs_php_laravel_crud_recipe_without_llm(monkeypatch) -> None:
         assert report.metrics["tasks_codegen"] == 1
         assert report.task_results[0].codegen_executor == "php-laravel-crud-routes"
         assert (report.project_dir / "routes/api.php").is_file()
+
+
+def test_pipeline_adapter_runs_llm_pipeline_inside_project_dir(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    from simplicio import pipeline
+    from simplicio.scratch import _pipeline_adapter
+
+    outer = tmp_path / "outer"
+    project_dir = tmp_path / "project"
+    outer.mkdir()
+    project_dir.mkdir()
+    monkeypatch.chdir(outer)
+    monkeypatch.setenv("SIMPLICIO_TEST_CMD", "pytest old")
+    git_inits = []
+
+    def fake_pipeline_run(**kwargs):
+        assert Path.cwd() == project_dir
+        Path("cwd_marker.txt").write_text("ok", encoding="utf-8")
+        assert kwargs["root"] == str(project_dir)
+        return {"applied": True}
+
+    def fake_git_init(cmd, **kwargs):
+        git_inits.append((cmd, kwargs["cwd"]))
+
+    monkeypatch.setattr(pipeline, "run", fake_pipeline_run)
+    monkeypatch.setattr(_pipeline_adapter.subprocess, "run", fake_git_init)
+    task = Task(
+        id="T01",
+        goal="create file",
+        target="src/app.py",
+        criteria="- marker",
+        constraints="- stay in project",
+        verify="pytest new",
+    )
+    stack = Stack(
+        slug="py-fastapi",
+        path=project_dir,
+        meta={"language": "Python", "framework": "FastAPI"},
+    )
+
+    passed, log = _pipeline_adapter.run_task(task, project_dir, stack)
+
+    assert passed is True
+    assert '"applied": true' in log
+    assert git_inits == [(["git", "init"], project_dir)]
+    assert Path.cwd() == outer
+    assert os.environ["SIMPLICIO_TEST_CMD"] == "pytest old"
+    assert (project_dir / "cwd_marker.txt").read_text(encoding="utf-8") == "ok"
+    assert not (outer / "cwd_marker.txt").exists()
 
 
 def test_executor_refuses_existing_project_dir() -> None:
