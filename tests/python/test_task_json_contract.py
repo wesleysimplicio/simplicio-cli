@@ -1,4 +1,6 @@
 import json
+import os
+import subprocess
 import sys
 
 from simplicio import cli
@@ -10,17 +12,19 @@ def _write(path, text):
 
 
 def _diff(path):
-    return "\n".join([
-        f"diff --git a/{path} b/{path}",
-        f"--- a/{path}",
-        f"+++ b/{path}",
-        "@@ -1 +1 @@",
-        "-old",
-        "+new",
-        "",
-        "TEST:",
-        "assert True",
-    ])
+    return "\n".join(
+        [
+            f"diff --git a/{path} b/{path}",
+            f"--- a/{path}",
+            f"+++ b/{path}",
+            "@@ -1 +1 @@",
+            "-old",
+            "+new",
+            "",
+            "TEST:",
+            "assert True",
+        ]
+    )
 
 
 def _true_cmd():
@@ -30,20 +34,24 @@ def _true_cmd():
 def test_task_dry_run_json_does_not_touch_worktree(tmp_path, monkeypatch, capsys):
     _write(tmp_path / "frontend" / "app.ts", "old\n")
     monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
-    monkeypatch.setattr("simplicio.pipeline.generate", lambda *a, **k: _diff("frontend/app.ts"))
+    monkeypatch.setattr(
+        "simplicio.pipeline.generate", lambda *a, **k: _diff("frontend/app.ts")
+    )
 
-    code = cli.main([
-        "task",
-        "update app",
-        "--root",
-        str(tmp_path),
-        "--stack",
-        "angular",
-        "--target",
-        "frontend/app.ts",
-        "--dry-run-task",
-        "--json",
-    ])
+    code = cli.main(
+        [
+            "task",
+            "update app",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "angular",
+            "--target",
+            "frontend/app.ts",
+            "--dry-run-task",
+            "--json",
+        ]
+    )
 
     assert code == 0
     payload = json.loads(capsys.readouterr().out)
@@ -62,19 +70,23 @@ def test_task_json_reports_normal_run(tmp_path, monkeypatch, capsys):
     _write(tmp_path / "frontend" / "app.ts", "old\n")
     monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
     monkeypatch.setenv("SIMPLICIO_TEST_CMD", _true_cmd())
-    monkeypatch.setattr("simplicio.pipeline.generate", lambda *a, **k: _diff("frontend/app.ts"))
+    monkeypatch.setattr(
+        "simplicio.pipeline.generate", lambda *a, **k: _diff("frontend/app.ts")
+    )
 
-    code = cli.main([
-        "task",
-        "update app",
-        "--root",
-        str(tmp_path),
-        "--stack",
-        "angular",
-        "--target",
-        "frontend/app.ts",
-        "--json",
-    ])
+    code = cli.main(
+        [
+            "task",
+            "update app",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "angular",
+            "--target",
+            "frontend/app.ts",
+            "--json",
+        ]
+    )
 
     assert code == 0
     payload = json.loads(capsys.readouterr().out)
@@ -90,24 +102,42 @@ def test_task_bound_paths_refuses_out_of_scope_diff(tmp_path, monkeypatch, capsy
     _write(tmp_path / "backend" / "app.ts", "old\n")
     monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
     monkeypatch.setenv("SIMPLICIO_TEST_CMD", _true_cmd())
-    monkeypatch.setattr("simplicio.pipeline.generate", lambda *a, **k: _diff("backend/app.ts"))
+    monkeypatch.setattr(
+        "simplicio.pipeline.generate", lambda *a, **k: _diff("backend/app.ts")
+    )
 
-    code = cli.main([
-        "task",
-        "update app",
-        "--root",
-        str(tmp_path),
-        "--stack",
-        "angular",
-        "--target",
-        "frontend/app.ts",
-        "--bound-paths",
-        "frontend/**",
-        "--json",
-    ])
+    code = cli.main(
+        [
+            "task",
+            "update app",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "angular",
+            "--target",
+            "frontend/app.ts",
+            "--bound-paths",
+            "frontend/**",
+            "--json",
+        ]
+    )
 
     assert code == 1
     payload = json.loads(capsys.readouterr().out)
     assert payload["applied"] is False
     assert payload["files_changed"] == ["backend/app.ts"]
     assert any("outside bound paths" in warning for warning in payload["warnings"])
+
+
+def test_python_module_entrypoint_propagates_cli_exit_code():
+    env = {**os.environ, "SIMPLICIO_SKIP_AUTO_INIT": "1"}
+    proc = subprocess.run(
+        [sys.executable, "-m", "simplicio.cli", "scratch"],
+        capture_output=True,
+        env=env,
+        text=True,
+        timeout=30,
+    )
+
+    assert proc.returncode == 2
+    assert "provide a goal" in proc.stderr

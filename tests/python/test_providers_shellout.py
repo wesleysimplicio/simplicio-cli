@@ -63,11 +63,13 @@ def test_codex_cli_builds_argv_with_model_then_prompt(monkeypatch):
 
     assert out == "done"
     cmd = run.call_args[0][0]
+    kwargs = run.call_args[1]
     assert cmd[0] in {"codex", "codex.cmd", "codex.exe"}
     assert cmd[1] == "exec"
     assert "--model" in cmd
     assert cmd.index("gpt-5") == cmd.index("--model") + 1
-    assert cmd[-1] == "refactor x"
+    assert cmd[-1] == "-"
+    assert kwargs["input"] == "refactor x"
 
 
 def test_claude_cli_skips_model_flag_for_default(monkeypatch):

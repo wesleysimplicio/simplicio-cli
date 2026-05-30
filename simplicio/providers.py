@@ -66,7 +66,7 @@ def _provider_id(model, base):
     return "anthropic-native"
 
 
-def _shell_out(cmd, label):
+def _shell_out(cmd, label, stdin_text=None):
     """Run a subprocess that uses an OAuth session instead of an API key.
 
     SIMPLICIO_HOOK_GUARD=1 + SIMPLICIO_SKIP_AUTO_INIT=1 are injected so the
@@ -80,6 +80,7 @@ def _shell_out(cmd, label):
         result = subprocess.run(
             cmd,
             env=env,
+            input=stdin_text,
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -122,8 +123,8 @@ def _shell_out_codex(prompt, model):
     cmd = [_cli_command("codex"), "exec"]
     if model and model not in ("default", "auto"):
         cmd += ["--model", model]
-    cmd.append(prompt)
-    return _shell_out(cmd, "Codex CLI (`codex exec`)")
+    cmd.append("-")
+    return _shell_out(cmd, "Codex CLI (`codex exec`)", stdin_text=prompt)
 
 
 def generate(prompt, feedback=None, max_tokens=4000):

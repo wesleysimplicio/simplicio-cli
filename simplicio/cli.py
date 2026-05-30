@@ -1,4 +1,5 @@
 """CLI entrypoint for simplicio."""
+
 from __future__ import annotations
 
 import argparse
@@ -28,7 +29,11 @@ def maybe_autoinstall(cmd: str | None) -> bool:
     except Exception as e:
         print(f"simplicio: auto-activation skipped ({e})", file=sys.stderr)
         return False
-    if report.skill_installed or report.hook_script_installed or report.settings_updated:
+    if (
+        report.skill_installed
+        or report.hook_script_installed
+        or report.settings_updated
+    ):
         print(
             "simplicio: auto-activation installed in Claude Code "
             "(skill + UserPromptSubmit hook). "
@@ -85,7 +90,9 @@ def main(argv=None):
         action="store_true",
         help="generate the would-be task output without applying/testing",
     )
-    pt.add_argument("--json", action="store_true", help="emit stable structured task output")
+    pt.add_argument(
+        "--json", action="store_true", help="emit stable structured task output"
+    )
     pt.add_argument(
         "--bound-paths",
         action="append",
@@ -105,9 +112,13 @@ def main(argv=None):
     pc_clear = pc_sub.add_parser("clear", help="clear completion cache")
     pc_clear.add_argument("--force", action="store_true", help="required to clear")
 
-    sub.add_parser("smoke", help="one proof call: connect+generate (needs SIMPLICIO_MODEL+KEY)")
+    sub.add_parser(
+        "smoke", help="one proof call: connect+generate (needs SIMPLICIO_MODEL+KEY)"
+    )
 
-    p_init = sub.add_parser("init", help="install skill + UserPromptSubmit hook into ~/.claude/")
+    p_init = sub.add_parser(
+        "init", help="install skill + UserPromptSubmit hook into ~/.claude/"
+    )
     p_init.add_argument("--claude-home", help="override ~/.claude (for tests)")
     p_init.add_argument("--dry-run", action="store_true")
 
@@ -209,4 +220,4 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
