@@ -21,6 +21,13 @@ class _FunctionTarget:
     node: ast.FunctionDef | ast.AsyncFunctionDef
 
 
+@dataclass(frozen=True)
+class _CrudApiTestSpec:
+    model_name: str
+    resource_name: str
+    prefix: str
+
+
 class PythonAddPytestTestExecutor(TaskExecutor):
     """Generate one minimal pytest happy-path test for a Python function."""
 
@@ -40,6 +47,10 @@ class PythonAddPytestTestExecutor(TaskExecutor):
         )
 
     def execute(self, task: Task, project_dir: Path, stack: Stack) -> CodegenResult:
+        crud_spec = _parse_crud_api_test_spec(task)
+        if crud_spec is not None:
+            return _write_crud_api_test(task, project_dir, crud_spec)
+
         target = project_dir / task.target
         if target.exists() and not target.is_file():
             return _fallback(f"target is not a file: {task.target}")
@@ -98,6 +109,54 @@ def _is_python_stack(stack: Stack) -> bool:
 
 def _task_text(task: Task) -> str:
     return "\n".join([task.goal, task.criteria, task.constraints])
+
+
+def _parse_crud_api_test_spec(task: Task) -> _CrudApiTestSpec | None:
+    target = task.target.replace("\\", "/").lower()
+    text = _task_text(task)
+    lowered = text.lower()
+    if "tests/api/" not in f"/{target}" or "crud" not in lowered:
+        return None
+    if "route" not in lowered and "router" not in lowered:
+        return None
+    model_name = _parse_model_name(text) or _pascal_case(Path(task.target).stem)
+    if not model_name:
+        return None
+    return _CrudApiTestSpec(
+        model_name=model_name,
+        resource_name=_snake_case(model_name),
+        prefix=_parse_prefix_from_target(task.target),
+    )
+
+
+def _parse_model_name(text: str) -> str | None:
+    match = re.search(r"\b([A-Z][A-Za-z0-9_]*)\s+CRUD\s+router\b", text)
+    return match.group(1) if match else None
+
+
+def _parse_prefix_from_target(target: str) -> str:
+    stem = Path(target).stem
+    if stem.startswith("test_"):
+        stem = stem[5:]
+    return f"/{stem}"
+
+
+def _pascal_case(value: str) -> str | None:
+    cleaned = re.sub(r"[^A-Za-z0-9]+", "_", value).strip("_")
+    if cleaned.startswith("test_"):
+        cleaned = cleaned[5:]
+    if cleaned.endswith("ies") and len(cleaned) > 3:
+        cleaned = f"{cleaned[:-3]}y"
+    elif cleaned.endswith("s") and len(cleaned) > 1:
+        cleaned = cleaned[:-1]
+    parts = [part for part in cleaned.split("_") if part]
+    return "".join(part[:1].upper() + part[1:] for part in parts) or None
+
+
+def _snake_case(value: str) -> str:
+    value = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", value)
+    value = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", value)
+    return value.lower()
 
 
 def _resolve_function_target(task: Task, project_dir: Path) -> _FunctionTarget | None:
@@ -398,6 +457,58 @@ def _module_has_function(tree: ast.AST, function_name: str) -> bool:
         isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
         and node.name == function_name
         for node in getattr(tree, "body", [])
+    )
+
+
+def _write_crud_api_test(
+    task: Task,
+    project_dir: Path,
+    spec: _CrudApiTestSpec,
+) -> CodegenResult:
+    target = project_dir / task.target
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
+        "\n".join(
+            [
+                "from fastapi.testclient import TestClient",
+                "",
+                "from main import app",
+                "",
+                "",
+                f"def test_{spec.resource_name}_crud_flow() -> None:",
+                "    client = TestClient(app)",
+                f'    created = client.post("{spec.prefix}", json={{"name": "Demo"}})',
+                "    assert created.status_code == 201",
+                "    created_payload = created.json()",
+                '    item_id = created_payload["id"]',
+                '    assert created_payload["name"] == "Demo"',
+                "",
+                f'    listed = client.get("{spec.prefix}")',
+                "    assert listed.status_code == 200",
+                '    assert any(item["id"] == item_id for item in listed.json())',
+                "",
+                f'    read = client.get(f"{spec.prefix}/{{item_id}}")',
+                "    assert read.status_code == 200",
+                '    assert read.json()["name"] == "Demo"',
+                "",
+                f'    updated = client.patch(f"{spec.prefix}/{{item_id}}", json={{"name": "Renamed"}})',
+                "    assert updated.status_code == 200",
+                '    assert updated.json()["name"] == "Renamed"',
+                "",
+                f'    deleted = client.delete(f"{spec.prefix}/{{item_id}}")',
+                "    assert deleted.status_code == 204",
+                "",
+                f'    missing = client.get(f"{spec.prefix}/{{item_id}}")',
+                "    assert missing.status_code == 404",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return CodegenResult(
+        passed=True,
+        files_modified=[target],
+        log=f"generated CRUD API pytest for {spec.model_name}",
     )
 
 

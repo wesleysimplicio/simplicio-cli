@@ -7,7 +7,7 @@ synthetic deterministic executor benchmark; no LLM calls; does not replace the f
 - cases: 50/50 passed
 - codegen share: 100.00%
 - expected executor match: 100.00%
-- avg codegen latency: 71 ms
+- avg codegen latency: 70 ms
 - post-validated cases: 10
 - post-validation failures: 0
 - planner calls: 0
@@ -27,53 +27,53 @@ synthetic deterministic executor benchmark; no LLM calls; does not replace the f
 
 | case | stack | executor | mode | post-validation | passed | duration_ms |
 | --- | --- | --- | --- | --- | --- | ---: |
-| python-orm-field r01 | py-fastapi | python-add-orm-field | codegen | - | True | 150 |
+| python-orm-field r01 | py-fastapi | python-add-orm-field | codegen | - | True | 142 |
 | python-pydantic-schema r01 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 4 |
 | python-fastapi-route r01 | py-fastapi | python-add-fastapi-route | codegen | - | True | 2 |
 | python-pytest-test r01 | py-fastapi | python-add-pytest-test | codegen | - | True | 3 |
-| typescript-next-route r01 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 323 |
+| typescript-next-route r01 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 343 |
 | python-orm-field r02 | py-fastapi | python-add-orm-field | codegen | - | True | 3 |
 | python-pydantic-schema r02 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 2 |
 | python-fastapi-route r02 | py-fastapi | python-add-fastapi-route | codegen | - | True | 1 |
 | python-pytest-test r02 | py-fastapi | python-add-pytest-test | codegen | - | True | 2 |
-| typescript-next-route r02 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 338 |
+| typescript-next-route r02 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 308 |
 | python-orm-field r03 | py-fastapi | python-add-orm-field | codegen | - | True | 3 |
-| python-pydantic-schema r03 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 2 |
+| python-pydantic-schema r03 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 3 |
 | python-fastapi-route r03 | py-fastapi | python-add-fastapi-route | codegen | - | True | 1 |
 | python-pytest-test r03 | py-fastapi | python-add-pytest-test | codegen | - | True | 2 |
-| typescript-next-route r03 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 319 |
+| typescript-next-route r03 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 366 |
 | python-orm-field r04 | py-fastapi | python-add-orm-field | codegen | - | True | 3 |
 | python-pydantic-schema r04 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 2 |
 | python-fastapi-route r04 | py-fastapi | python-add-fastapi-route | codegen | - | True | 1 |
 | python-pytest-test r04 | py-fastapi | python-add-pytest-test | codegen | - | True | 2 |
-| typescript-next-route r04 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 325 |
+| typescript-next-route r04 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 304 |
 | python-orm-field r05 | py-fastapi | python-add-orm-field | codegen | - | True | 4 |
-| python-pydantic-schema r05 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 3 |
+| python-pydantic-schema r05 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 2 |
 | python-fastapi-route r05 | py-fastapi | python-add-fastapi-route | codegen | - | True | 1 |
-| python-pytest-test r05 | py-fastapi | python-add-pytest-test | codegen | - | True | 3 |
-| typescript-next-route r05 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 318 |
-| python-orm-field r06 | py-fastapi | python-add-orm-field | codegen | - | True | 3 |
+| python-pytest-test r05 | py-fastapi | python-add-pytest-test | codegen | - | True | 2 |
+| typescript-next-route r05 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 302 |
+| python-orm-field r06 | py-fastapi | python-add-orm-field | codegen | - | True | 4 |
 | python-pydantic-schema r06 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 2 |
 | python-fastapi-route r06 | py-fastapi | python-add-fastapi-route | codegen | - | True | 1 |
 | python-pytest-test r06 | py-fastapi | python-add-pytest-test | codegen | - | True | 2 |
-| typescript-next-route r06 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 370 |
-| python-orm-field r07 | py-fastapi | python-add-orm-field | codegen | - | True | 3 |
-| python-pydantic-schema r07 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 2 |
+| typescript-next-route r06 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 335 |
+| python-orm-field r07 | py-fastapi | python-add-orm-field | codegen | - | True | 5 |
+| python-pydantic-schema r07 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 4 |
 | python-fastapi-route r07 | py-fastapi | python-add-fastapi-route | codegen | - | True | 1 |
 | python-pytest-test r07 | py-fastapi | python-add-pytest-test | codegen | - | True | 2 |
-| typescript-next-route r07 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 317 |
+| typescript-next-route r07 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 330 |
 | python-orm-field r08 | py-fastapi | python-add-orm-field | codegen | - | True | 4 |
-| python-pydantic-schema r08 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 2 |
+| python-pydantic-schema r08 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 3 |
 | python-fastapi-route r08 | py-fastapi | python-add-fastapi-route | codegen | - | True | 1 |
 | python-pytest-test r08 | py-fastapi | python-add-pytest-test | codegen | - | True | 2 |
-| typescript-next-route r08 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 340 |
-| python-orm-field r09 | py-fastapi | python-add-orm-field | codegen | - | True | 3 |
-| python-pydantic-schema r09 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 3 |
+| typescript-next-route r08 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 345 |
+| python-orm-field r09 | py-fastapi | python-add-orm-field | codegen | - | True | 4 |
+| python-pydantic-schema r09 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 4 |
 | python-fastapi-route r09 | py-fastapi | python-add-fastapi-route | codegen | - | True | 1 |
-| python-pytest-test r09 | py-fastapi | python-add-pytest-test | codegen | - | True | 3 |
-| typescript-next-route r09 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 355 |
+| python-pytest-test r09 | py-fastapi | python-add-pytest-test | codegen | - | True | 2 |
+| typescript-next-route r09 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 307 |
 | python-orm-field r10 | py-fastapi | python-add-orm-field | codegen | - | True | 3 |
 | python-pydantic-schema r10 | py-fastapi | python-add-pydantic-schema | codegen | - | True | 2 |
-| python-fastapi-route r10 | py-fastapi | python-add-fastapi-route | codegen | - | True | 1 |
-| python-pytest-test r10 | py-fastapi | python-add-pytest-test | codegen | - | True | 1 |
-| typescript-next-route r10 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 319 |
+| python-fastapi-route r10 | py-fastapi | python-add-fastapi-route | codegen | - | True | 2 |
+| python-pytest-test r10 | py-fastapi | python-add-pytest-test | codegen | - | True | 2 |
+| typescript-next-route r10 | ts-nextjs | typescript-add-next-route | codegen | typescript_compile,get_json,post_json | True | 332 |

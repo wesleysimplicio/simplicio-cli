@@ -21,7 +21,23 @@ from simplicio.scratch.stack_registry import Stack, StackRegistry, slugify_proje
 
 
 def test_example_plan_validates() -> None:
-    plan = validate_plan(EXAMPLE_PLAN)
+    plan = validate_plan(
+        {
+            **EXAMPLE_PLAN,
+            "tasks": [
+                {
+                    "id": "T01-unsupported",
+                    "depends_on": [],
+                    "goal": "Summarize quarterly revenue from an external source",
+                    "target": "src/reports/summary.py",
+                    "criteria": "- requires project-specific business logic",
+                    "constraints": "- no deterministic executor applies",
+                    "verify": "pytest tests/reports/test_summary.py",
+                }
+            ],
+            "estimated_total_tasks": 1,
+        }
+    )
     assert plan.project_name == "condo-mgmt"
     assert plan.estimated_total_tasks == len(plan.tasks)
 
@@ -406,13 +422,28 @@ def test_generate_plan_passes_stack_template_version(monkeypatch) -> None:
 
 
 def test_executor_scaffolds_tree_in_stub_mode() -> None:
-    """Without SIMPLICIO_MODEL, executor still scaffolds the tree, runs install
-    (if not skipped), and logs each task as skipped. Used by smoke tests in CI
-    that don't have an LLM key."""
+    """Without SIMPLICIO_MODEL, unsupported tasks are recorded as skipped after
+    scaffolding. Deterministic codegen tasks may still pass without an LLM."""
     reg = StackRegistry()
     stack = reg.get("py-fastapi")
     assert stack is not None
-    plan = validate_plan(EXAMPLE_PLAN)
+    plan = validate_plan(
+        {
+            **EXAMPLE_PLAN,
+            "tasks": [
+                {
+                    "id": "T01-unsupported",
+                    "depends_on": [],
+                    "goal": "Summarize quarterly revenue from an external source",
+                    "target": "src/reports/summary.py",
+                    "criteria": "- requires project-specific business logic",
+                    "constraints": "- no deterministic executor applies",
+                    "verify": "pytest tests/reports/test_summary.py",
+                }
+            ],
+            "estimated_total_tasks": 1,
+        }
+    )
 
     # ensure no SIMPLICIO_MODEL leak from the test runner
     prev = os.environ.pop("SIMPLICIO_MODEL", None)

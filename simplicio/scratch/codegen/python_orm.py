@@ -20,6 +20,13 @@ class _FieldSpec:
     mapped_type: str
 
 
+@dataclass(frozen=True)
+class _ModelSpec:
+    model_name: str
+    table_name: str
+    fields: tuple[str, ...]
+
+
 class PythonAddOrmFieldExecutor(TaskExecutor):
     """Add one SQLAlchemy 2.0 ``Mapped[...]`` field to an existing model."""
 
@@ -39,11 +46,15 @@ class PythonAddOrmFieldExecutor(TaskExecutor):
         )
 
     def execute(self, task: Task, project_dir: Path, stack: Stack) -> CodegenResult:
+        model_spec = _parse_model_spec(task)
+        target = project_dir / task.target
+        if model_spec is not None and not target.exists():
+            return _create_model_file(target, model_spec)
+
         spec = _parse_field_spec(task)
         if spec is None:
             return _fallback("unsupported ORM field task shape")
 
-        target = project_dir / task.target
         if not target.is_file():
             return _fallback(f"target file not found: {task.target}")
 
@@ -112,11 +123,30 @@ def _parse_field_spec(task: Task) -> _FieldSpec | None:
     )
 
 
+def _parse_model_spec(task: Task) -> _ModelSpec | None:
+    text = _task_text(task)
+    lowered = text.lower()
+    if "model" not in lowered or "sqlalchemy" not in lowered:
+        return None
+    model_name = _parse_model_name(text) or _pascal_case(Path(task.target).stem)
+    if not model_name:
+        return None
+    fields = _parse_model_fields(text)
+    if not fields:
+        return None
+    return _ModelSpec(
+        model_name=model_name,
+        table_name=_parse_table_name(text) or f"{_snake_case(model_name)}s",
+        fields=tuple(fields),
+    )
+
+
 def _parse_model_name(text: str) -> str | None:
     patterns = [
+        r"\b(?:define|create|add)\s+(?:the\s+)?([A-Z][A-Za-z0-9_]*)\s+(?:SQLAlchemy\s+)?(?:ORM\s+)?model\b",
         r"\bclass\s+([A-Z][A-Za-z0-9_]*)\b",
         r"`([A-Z][A-Za-z0-9_]*)`\s+(?:ORM\s+)?model\b",
-        r"\b([A-Z][A-Za-z0-9_]*)\s+(?:ORM\s+)?model\b",
+        r"\b([A-Z][A-Za-z0-9_]*)\s+(?:SQLAlchemy\s+)?(?:ORM\s+)?model\b",
         r"\b(?:to|on|in)\s+(?:the\s+)?([A-Z][A-Za-z0-9_]*)\b",
     ]
     for pattern in patterns:
@@ -124,6 +154,54 @@ def _parse_model_name(text: str) -> str | None:
         if match:
             return match.group(1)
     return None
+
+
+def _parse_model_fields(text: str) -> list[str]:
+    match = re.search(
+        r"\bwith\s+([a-z_][a-z0-9_,\s]*(?:\s+and\s+[a-z_][a-z0-9_]*)?)\s+(?:fields|columns)\b",
+        text,
+        re.IGNORECASE,
+    )
+    if match:
+        raw = re.sub(r"\band\b", ",", match.group(1), flags=re.IGNORECASE)
+        fields = [
+            field.strip()
+            for field in raw.split(",")
+            if re.fullmatch(r"[a-z_][a-z0-9_]*", field.strip())
+        ]
+        if fields:
+            return list(dict.fromkeys(fields))
+
+    lowered = text.lower()
+    known = ["id", "name", "created_at", "updated_at"]
+    fields = [field for field in known if re.search(rf"\b{field}\b", lowered)]
+    return fields or ["id", "name"]
+
+
+def _parse_table_name(text: str) -> str | None:
+    match = re.search(
+        r"\btable\s+name\s+(?:is|=)\s+`?([a-z_][a-z0-9_]*)`?",
+        text,
+        re.IGNORECASE,
+    )
+    return match.group(1) if match else None
+
+
+def _pascal_case(value: str) -> str | None:
+    cleaned = re.sub(r"[^A-Za-z0-9]+", "_", value).strip("_")
+    if not cleaned:
+        return None
+    if cleaned.endswith("ies") and len(cleaned) > 3:
+        cleaned = f"{cleaned[:-3]}y"
+    elif cleaned.endswith("s") and len(cleaned) > 1:
+        cleaned = cleaned[:-1]
+    return "".join(part[:1].upper() + part[1:] for part in cleaned.split("_") if part)
+
+
+def _snake_case(value: str) -> str:
+    value = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", value)
+    value = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", value)
+    return value.lower()
 
 
 def _parse_field(text: str) -> tuple[str | None, str | None]:
@@ -201,6 +279,57 @@ def _class_has_field(node: ast.ClassDef, field_name: str) -> bool:
             if any(_target_name(target) == field_name for target in item.targets):
                 return True
     return False
+
+
+def _create_model_file(target: Path, spec: _ModelSpec) -> CodegenResult:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    field_lines = []
+    for field in spec.fields:
+        if field == "id":
+            field_lines.append("    id: Mapped[int] = mapped_column(primary_key=True)")
+        elif field.endswith("_id"):
+            field_lines.append(f"    {field}: Mapped[int]")
+        elif field == "created_at":
+            field_lines.append(
+                "    created_at: Mapped[datetime] = mapped_column("
+                "DateTime(timezone=True), server_default=func.now())"
+            )
+        elif field == "updated_at":
+            field_lines.append(
+                "    updated_at: Mapped[datetime | None] = mapped_column("
+                "DateTime(timezone=True), nullable=True)"
+            )
+        elif field in {"area", "amount", "total"}:
+            field_lines.append(f"    {field}: Mapped[float]")
+        else:
+            field_lines.append(f"    {field}: Mapped[str]")
+    content = "\n".join(
+        [
+            "from __future__ import annotations",
+            "",
+            "from datetime import datetime",
+            "",
+            "from sqlalchemy import DateTime, func",
+            "from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column",
+            "",
+            "",
+            "class Base(DeclarativeBase):",
+            "    pass",
+            "",
+            "",
+            f"class {spec.model_name}(Base):",
+            f'    __tablename__ = "{spec.table_name}"',
+            "",
+            *field_lines,
+            "",
+        ]
+    )
+    target.write_text(content, encoding="utf-8")
+    return CodegenResult(
+        passed=True,
+        files_modified=[target],
+        log=f"created SQLAlchemy model {spec.model_name} in {target.name}",
+    )
 
 
 def _fallback(log: str) -> CodegenResult:

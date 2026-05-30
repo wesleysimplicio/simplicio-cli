@@ -78,6 +78,54 @@ def test_python_add_fastapi_route_adds_router_scaffold_when_missing(tmp_path):
     assert "async def create_user() -> dict[str, str]:" in updated
 
 
+def test_python_add_fastapi_route_creates_recipe_crud_router(tmp_path):
+    main_path = tmp_path / "src/main.py"
+    main_path.parent.mkdir(parents=True)
+    main_path.write_text(
+        """from fastapi import FastAPI
+
+
+def create_app() -> FastAPI:
+    app = FastAPI()
+
+    @app.get("/health")
+    async def health() -> dict[str, str]:
+        return {"status": "ok"}
+
+    return app
+""",
+        encoding="utf-8",
+    )
+
+    result = PythonAddFastApiRouteExecutor().execute(
+        Task(
+            id="T03-api-routes",
+            goal="Implement CRUD routes for App.",
+            target="src/api/routes/apps.py",
+            criteria="- list, create, read, update, and delete routes are present\n- route prefix is /apps",
+            constraints="- raise FastAPI HTTPException for missing records",
+            verify="pytest tests/api/test_apps.py -q",
+        ),
+        tmp_path,
+        _stack(tmp_path),
+    )
+
+    route_path = tmp_path / "src/api/routes/apps.py"
+    assert result.passed is True
+    assert route_path in result.files_modified
+    generated = route_path.read_text(encoding="utf-8")
+    ast.parse(generated)
+    assert 'router = APIRouter(prefix="/apps", tags=["app"])' in generated
+    assert "async def create_app(payload: AppCreate) -> AppRead:" in generated
+    assert (
+        '@router.delete("/{app_id}", status_code=status.HTTP_204_NO_CONTENT)'
+        in generated
+    )
+    assert "from api.routes.apps import router as app_router" in main_path.read_text(
+        encoding="utf-8"
+    )
+
+
 def test_python_add_fastapi_route_falls_back_for_ambiguous_route(tmp_path):
     route_path = _write_route(tmp_path, "router = object()\n")
     original = route_path.read_text(encoding="utf-8")

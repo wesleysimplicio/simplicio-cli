@@ -389,8 +389,11 @@ def _render_imports(fields: list[_ModelField]) -> str:
     for module in sorted(type_imports):
         names = ", ".join(sorted(type_imports[module]))
         imports.append(f"from {module} import {names}")
-    imports.append("from pydantic import BaseModel, ConfigDict")
-    return "\n".join(imports)
+    pydantic_import = "from pydantic import BaseModel, ConfigDict"
+    if not imports:
+        return pydantic_import
+    type_import_block = "\n".join(imports)
+    return f"{type_import_block}\n\n{pydantic_import}"
 
 
 def _needed_type_imports(fields: list[_ModelField]) -> dict[str, set[str]]:

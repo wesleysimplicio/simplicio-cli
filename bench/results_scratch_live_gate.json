@@ -7,8 +7,9 @@
   },
   "matrix": {
     "goals": 1,
-    "plan_only": true,
+    "plan_only": false,
     "planned_runs": 1,
+    "post_verify": true,
     "release_planned_runs": 75,
     "selected_runs": 1,
     "skip_install": false,
@@ -27,24 +28,65 @@
         "--name",
         "gate-g01-py-fastapi",
         "--dest",
-        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-plan-smoke\\projects",
-        "--json",
-        "--plan-only"
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\projects",
+        "--json"
       ],
-      "duration_s": 0.126,
-      "e2e_green": null,
+      "duration_s": 6.04,
+      "e2e_green": true,
       "goal": "CRUD app for condo units with owner contact search",
       "goal_index": 1,
       "json_parse_error": "",
       "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "pytest",
+              "-q"
+            ],
+            "duration_s": 1.096,
+            "fallback_for": "pytest -q",
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "..                                                                       [100%]\n2 passed in 0.40s\n",
+            "timed_out": false
+          },
+          {
+            "command": [
+              "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+              "-m",
+              "ruff",
+              "check",
+              "src",
+              "tests"
+            ],
+            "duration_s": 0.203,
+            "fallback_for": "ruff check src tests",
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "All checks passed!\n",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 1.299,
+        "enabled": true,
+        "passed": true
+      },
       "project_name": "gate-g01-py-fastapi",
       "returncode": 0,
       "run_number": 1,
-      "scaffold_clean": null,
+      "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g01-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
-      "stdout_tail": " []\n    },\n    {\n      \"id\": \"T02-api-schemas\",\n      \"goal\": \"Create Pydantic schemas for App create, update, and read flows.\",\n      \"target\": \"src/api/schemas/app.py\",\n      \"criteria\": \"- AppCreate, AppUpdate, and AppRead schemas exist\\\\n- optional update fields are supported\",\n      \"constraints\": \"- keep schemas framework-agnostic\",\n      \"verify\": \"pytest tests/api/test_apps.py -q\",\n      \"depends_on\": [\n        \"T01-db-model\"\n      ]\n    },\n    {\n      \"id\": \"T03-api-routes\",\n      \"goal\": \"Implement CRUD routes for App.\",\n      \"target\": \"src/api/routes/apps.py\",\n      \"criteria\": \"- list, create, read, update, and delete routes are present\\\\n- route prefix is /apps\",\n      \"constraints\": \"- raise FastAPI HTTPException for missing records\",\n      \"verify\": \"pytest tests/api/test_apps.py -q\",\n      \"depends_on\": [\n        \"T01-db-model\",\n        \"T02-api-schemas\"\n      ]\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"goal\": \"Cover the App CRUD router with route tests.\",\n      \"target\": \"tests/api/test_apps.py\",\n      \"criteria\": \"- create/list/read/update/delete paths are tested\\\\n- missing app returns 404\",\n      \"constraints\": \"- use FastAPI TestClient\",\n      \"verify\": \"pytest tests/api/test_apps.py -q\",\n      \"depends_on\": [\n        \"T03-api-routes\"\n      ]\n    }\n  ],\n  \"deps_to_install\": [\n    \"sqlalchemy>=2\",\n    \"pydantic>=2\"\n  ],\n  \"deps_dev\": [\n    \"pytest>=8\",\n    \"httpx>=0.27\"\n  ],\n  \"test_command\": \"pytest -q\",\n  \"lint_command\": \"ruff check src tests\"\n}\n",
-      "tasks_passed": 0,
+      "stdout_tail": "l,\n      \"duration_ms\": 2,\n      \"log_tail\": \"created CRUD FastAPI router for App\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\\\projects\\\\gate-g01-py-fastapi\\\\src\\\\api\\\\routes\\\\apps.py, C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\\\projects\\\\gate-g01-py-fastapi\\\\src\\\\main.py\",\n      \"generated_skill\": null\n    },\n    {\n      \"id\": \"T04-api-tests\",\n      \"target\": \"tests/api/test_apps.py\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"python-add-pytest-test\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\\\projects\\\\gate-g01-py-fastapi\\\\tests\\\\api\\\\test_apps.py\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated CRUD API pytest for App\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-scratch-live-gate-postverify-codegen-report-20260530092305\\\\projects\\\\gate-g01-py-fastapi\\\\tests\\\\api\\\\test_apps.py\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 4,\n  \"tasks_total\": 4,\n  \"metrics\": {\n    \"tasks_total\": 4,\n    \"tasks_codegen\": 4,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 39,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 39\n  },\n  \"elapsed_s\": 5.88\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 4,
       "tasks_total": 4,
       "timed_out": false
     }
@@ -52,13 +94,12 @@
   "scope": "live scratch v0.5 gate execution slice; partial runs are evidence only for the executed slice and do not replace the full 75-run gate",
   "summary": {
     "average_cost_usd": null,
-    "e2e_green": 0,
-    "e2e_green_rate": 0.0,
-    "elapsed_s": 0.126,
-    "median_wall_clock_s": 0.126,
+    "e2e_green": 1,
+    "e2e_green_rate": 1.0,
+    "elapsed_s": 7.35,
+    "median_wall_clock_s": 6.04,
     "missing_release_evidence": [
       "full 15 goals x 5 pilot stacks live matrix",
-      "scaffold and end-to-end execution, not only plan validation",
       "average cost measurement",
       "SkillOpt human approval evidence >=80%"
     ],
@@ -66,16 +107,18 @@
     "planner_valid_rate": 1.0,
     "release_gates": {
       "average_cost_le_1": null,
-      "e2e_green_ge_80": null,
+      "e2e_green_ge_80": true,
       "full_75_run_matrix": false,
       "median_wall_clock_le_8m": true,
       "planner_valid_ge_90": true,
       "release_ready": false,
-      "scaffold_clean_ge_95": null,
+      "scaffold_clean_ge_95": true,
       "skillopt_human_approval_ge_80": false
     },
-    "scaffold_clean": 0,
-    "scaffold_clean_rate": 0.0,
+    "scaffold_clean": 1,
+    "scaffold_clean_rate": 1.0,
+    "task_all_passed": 1,
+    "task_all_passed_rate": 1.0,
     "timed_out": 0,
     "total_runs": 1
   },

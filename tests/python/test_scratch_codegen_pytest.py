@@ -86,6 +86,30 @@ def test_python_add_pytest_test_generates_runnable_happy_path(tmp_path):
     assert completed.returncode == 0, completed.stdout + completed.stderr
 
 
+def test_python_add_pytest_test_generates_recipe_crud_flow(tmp_path):
+    result = PythonAddPytestTestExecutor().execute(
+        Task(
+            id="T04-api-tests",
+            goal="Cover the App CRUD router with route tests.",
+            target="tests/api/test_apps.py",
+            criteria="- create/list/read/update/delete paths are tested\n- missing app returns 404",
+            constraints="- use FastAPI TestClient",
+            verify="pytest tests/api/test_apps.py -q",
+        ),
+        tmp_path,
+        _stack(tmp_path),
+    )
+
+    test_path = tmp_path / "tests/api/test_apps.py"
+    assert result.passed is True
+    assert result.fallback_to_llm is False
+    generated = test_path.read_text(encoding="utf-8")
+    ast.parse(generated)
+    assert "def test_app_crud_flow() -> None:" in generated
+    assert 'client.post("/apps", json={"name": "Demo"})' in generated
+    assert 'missing = client.get(f"/apps/{item_id}")' in generated
+
+
 def test_python_add_pytest_test_falls_back_when_function_cannot_be_resolved(tmp_path):
     _write_pyproject(tmp_path)
 

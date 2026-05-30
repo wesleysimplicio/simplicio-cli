@@ -70,6 +70,34 @@ class User(Base):
     )
 
 
+def test_python_add_orm_field_creates_recipe_model_file(tmp_path):
+    target = tmp_path / "src/db/app.py"
+
+    result = PythonAddOrmFieldExecutor().execute(
+        Task(
+            id="T01-db-model",
+            goal="Define the App SQLAlchemy model.",
+            target="src/db/app.py",
+            criteria="- App class exists with id, name, and created_at fields\n- table name is apps",
+            constraints="- use SQLAlchemy 2.0 declarative style",
+            verify="pytest tests/db/test_app.py -q",
+        ),
+        tmp_path,
+        _stack(tmp_path),
+    )
+
+    assert result.passed is True
+    assert result.fallback_to_llm is False
+    assert result.files_modified == [target]
+    generated = target.read_text(encoding="utf-8")
+    ast.parse(generated)
+    assert "class App(Base):" in generated
+    assert '__tablename__ = "apps"' in generated
+    assert "id: Mapped[int] = mapped_column(primary_key=True)" in generated
+    assert "name: Mapped[str]" in generated
+    assert "created_at: Mapped[datetime]" in generated
+
+
 def test_python_add_orm_field_falls_back_when_model_shape_is_unsupported(tmp_path):
     models_path = _write_models(
         tmp_path,

@@ -7,13 +7,14 @@ import subprocess
 
 from bench.run_scratch_live_gate import (
     _parse_json_stdout,
+    _summarize,
     run_live_gate,
     write_reports,
 )
 
 
-def _completed(cmd, stdout, returncode=0):
-    return subprocess.CompletedProcess(cmd, returncode, stdout, "")
+def _completed(cmd, stdout, returncode=0, stderr=""):
+    return subprocess.CompletedProcess(cmd, returncode, stdout, stderr)
 
 
 def test_live_gate_runs_plan_only_slice(tmp_path) -> None:
@@ -52,8 +53,50 @@ def test_live_gate_runs_plan_only_slice(tmp_path) -> None:
 
 
 def test_live_gate_runs_execution_slice(tmp_path) -> None:
+    project_dir = tmp_path / "live" / "projects" / "gate-g01-py-fastapi"
+    project_dir.mkdir(parents=True)
+
     def fake_runner(cmd, **_kwargs):
+        if isinstance(cmd, list) and len(cmd) > 2 and cmd[2] in {"pytest", "ruff"}:
+            return _completed(cmd, "ok\n")
+        if isinstance(cmd, str):
+            return _completed(cmd, "", returncode=1, stderr=f"{cmd} not recognized")
         assert "--plan-only" not in cmd
+        return _completed(
+            cmd,
+            json.dumps(
+                {
+                    "project_dir": str(project_dir),
+                    "files_written": ["src/main.py"],
+                    "tasks_passed": 2,
+                    "tasks_total": 2,
+                }
+            ),
+        )
+
+    result = run_live_gate(
+        work_dir=tmp_path / "live",
+        stacks=("py-fastapi",),
+        goals=("CRUD app for condo units",),
+        skip_install=True,
+        post_verify=True,
+        runner=fake_runner,
+    )
+
+    row = result["runs"][0]
+    summary = result["summary"]
+    assert row["planner_valid"] is True
+    assert row["scaffold_clean"] is True
+    assert row["task_all_passed"] is True
+    assert row["e2e_green"] is True
+    assert row["post_verify"]["passed"] is True
+    assert summary["scaffold_clean_rate"] == 1.0
+    assert summary["e2e_green_rate"] == 1.0
+    assert summary["release_gates"]["full_75_run_matrix"] is False
+
+
+def test_live_gate_requires_project_dir_for_post_verify(tmp_path) -> None:
+    def fake_runner(cmd, **_kwargs):
         return _completed(
             cmd,
             json.dumps(
@@ -69,17 +112,113 @@ def test_live_gate_runs_execution_slice(tmp_path) -> None:
         work_dir=tmp_path / "live",
         stacks=("py-fastapi",),
         goals=("CRUD app for condo units",),
-        skip_install=True,
+        post_verify=True,
+        runner=fake_runner,
+    )
+
+    row = result["runs"][0]
+    assert row["e2e_green"] is False
+    assert row["post_verify"]["error"] == "missing project_dir"
+
+
+def test_live_gate_requires_post_verify_for_e2e_metric(tmp_path) -> None:
+    def fake_runner(cmd, **_kwargs):
+        return _completed(
+            cmd,
+            json.dumps(
+                {
+                    "files_written": ["src/main.py"],
+                    "tasks_passed": 2,
+                    "tasks_total": 2,
+                }
+            ),
+        )
+
+    result = run_live_gate(
+        work_dir=tmp_path / "live",
+        stacks=("py-fastapi",),
+        goals=("CRUD app for condo units",),
         runner=fake_runner,
     )
 
     row = result["runs"][0]
     summary = result["summary"]
-    assert row["planner_valid"] is True
-    assert row["scaffold_clean"] is True
-    assert row["e2e_green"] is True
-    assert summary["scaffold_clean_rate"] == 1.0
-    assert summary["e2e_green_rate"] == 1.0
+    assert row["task_all_passed"] is True
+    assert row["e2e_green"] is None
+    assert summary["release_gates"]["e2e_green_ge_80"] is None
+    assert (
+        "post-scratch stack test/lint verification"
+        in summary["missing_release_evidence"]
+    )
+
+
+def test_live_gate_handles_timeout_bytes_in_reports(tmp_path) -> None:
+    def fake_runner(cmd, **_kwargs):
+        raise subprocess.TimeoutExpired(cmd, 1, output=b"partial", stderr=b"err")
+
+    result = run_live_gate(
+        work_dir=tmp_path / "live",
+        stacks=("py-fastapi",),
+        goals=("CRUD app for condo units",),
+        post_verify=True,
+        runner=fake_runner,
+    )
+    json_path = tmp_path / "timeout.json"
+    md_path = tmp_path / "timeout.md"
+
+    row = result["runs"][0]
+    assert row["timed_out"] is True
+    assert row["stdout_tail"] == "partial"
+    assert row["stderr_tail"] == "err"
+    assert row["post_verify"]["error"] == "scratch command timed out"
+    write_reports(result, json_path, md_path)
+    assert '"timed_out": true' in json_path.read_text(encoding="utf-8")
+
+
+def test_live_gate_marks_malformed_task_counts_failed(tmp_path) -> None:
+    def fake_runner(cmd, **_kwargs):
+        return _completed(
+            cmd,
+            json.dumps(
+                {
+                    "project_dir": str(tmp_path),
+                    "files_written": ["src/main.py"],
+                    "tasks_passed": "two",
+                    "tasks_total": 2,
+                }
+            ),
+        )
+
+    result = run_live_gate(
+        work_dir=tmp_path / "live",
+        stacks=("py-fastapi",),
+        goals=("CRUD app for condo units",),
+        runner=fake_runner,
+    )
+
+    row = result["runs"][0]
+    assert row["planner_valid"] is False
+    assert row["task_all_passed"] is False
+    assert row["error"] == "tasks_passed must be an integer"
+
+
+def test_live_gate_full_matrix_requires_official_pairs() -> None:
+    rows = [
+        {
+            "goal": "not an official goal",
+            "stack": "py-fastapi",
+            "planner_valid": True,
+            "scaffold_clean": True,
+            "task_all_passed": True,
+            "e2e_green": True,
+            "duration_s": 1,
+            "timed_out": False,
+        }
+        for _ in range(75)
+    ]
+
+    summary = _summarize(rows, 1.0, plan_only=False, post_verify=True)
+
     assert summary["release_gates"]["full_75_run_matrix"] is False
 
 
