@@ -633,16 +633,29 @@ def run() -> int:
             }
             sp_msg = ""
             if INCLUDE_SP:
+                # MANDATE 2026-05-30: sp ALWAYS runs as N=200 real subagents
+                # via kernel.subagent_runtime + modal vote. Same change as
+                # the exec bench. BENCH_SP_SUBAGENTS=N overrides the default 200.
+                from sp_fanout_helper import sp_fanout_complete
                 sp_prompt = SP_PROMPT_REGEX.format(
                     sp_runtime=SP_RUNTIME, cli_contract=com_prompt)
-                sp_res = llm_call(model, sp_prompt)
-                sp_flags = score(sp_res["text"], c["checks"])
+                sp_res_full = sp_fanout_complete(model, sp_prompt)
+                sp_text = sp_res_full.get("text", "")
+                sp_flags = score(sp_text, c["checks"])
                 p_h = sum(sp_flags); sp_hits += p_h
                 row["sp_hits"] = p_h; row["sp_flags"] = sp_flags
-                row["sp_usage"] = {k: sp_res[k] for k in usage_sp}
-                for k in usage_sp:
-                    usage_sp[k] += sp_res[k]
-                sp_msg = f"  sp {p_h}/{t}"
+                row["sp_subagents"] = sp_res_full.get("subagents", 0)
+                row["sp_uniq"] = sp_res_full.get("uniq", 0)
+                row["sp_modal_count"] = sp_res_full.get("modal_count", 0)
+                row["sp_usage"] = {
+                    "prompt_tokens": 0, "completion_tokens": 0,
+                    "total_tokens": sp_res_full.get("tokens", 0),
+                    "elapsed_ms": sp_res_full.get("ms", 0),
+                }
+                usage_sp["total_tokens"] += sp_res_full.get("tokens", 0)
+                usage_sp["elapsed_ms"] += sp_res_full.get("ms", 0)
+                sp_msg = (f"  sp {p_h}/{t}[N={sp_res_full.get('subagents',0)},"
+                          f"u={sp_res_full.get('uniq',0)}]")
             ag_msg = ""
             if INCLUDE_AGENTS:
                 ag_res = _agents_iterate_regex(model, c, com_prompt)
@@ -655,14 +668,31 @@ def run() -> int:
                 ag_msg = f"  ag {a_h}/{t}({ag_res['attempts']})"
             spag_msg = ""
             if INCLUDE_SP_AG:
-                # 5th side for regex bench: sp-wrapped cli as the seed of the
-                # verify-loop. Same composition as the exec bench cli+sp+ag.
-                sp_seed = SP_PROMPT_REGEX.format(
+                # 5th side: N=200 sp-fanout modal first. If modal misses any
+                # regex pattern, retry via verify-loop. Composition + retry on
+                # top of fan-out.
+                from sp_fanout_helper import sp_fanout_complete
+                sp_prompt = SP_PROMPT_REGEX.format(
                     sp_runtime=SP_RUNTIME, cli_contract=com_prompt)
-                spag_res = _agents_iterate_regex(model, c, sp_seed)
+                modal_full = sp_fanout_complete(model, sp_prompt)
+                modal_flags = score(modal_full.get("text", ""), c["checks"])
+                if sum(modal_flags) == len(c["checks"]):
+                    spag_res = {
+                        "text": modal_full["text"], "flags": modal_flags,
+                        "hits": sum(modal_flags), "attempts": 1,
+                        "total_tokens": modal_full.get("tokens", 0),
+                        "elapsed_ms": modal_full.get("ms", 0),
+                        "prompt_tokens": 0, "completion_tokens": 0,
+                    }
+                else:
+                    spag_res = _agents_iterate_regex(model, c, sp_prompt)
+                    spag_res["total_tokens"] = spag_res.get("total_tokens", 0) + modal_full.get("tokens", 0)
+                    spag_res["elapsed_ms"] = spag_res.get("elapsed_ms", 0) + modal_full.get("ms", 0)
                 sa_h = spag_res["hits"]; spag_hits += sa_h
-                row["spag_hits"] = sa_h; row["spag_flags"] = spag_res["flags"]
+                row["spag_hits"] = sa_h
+                row["spag_flags"] = spag_res["flags"]
                 row["spag_attempts"] = spag_res["attempts"]
+                row["spag_modal_uniq"] = modal_full.get("uniq", 0)
                 row["spag_usage"] = {k: spag_res[k] for k in usage_spag}
                 for k in usage_spag:
                     usage_spag[k] += spag_res[k]

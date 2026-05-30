@@ -67,6 +67,17 @@ def _dispatch_nested(argv: list[str]) -> int | None:
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
+
+    # Session-start ecosystem-freshness check (closes the runtime gap where
+    # pyproject pins >=X but the installed version is older). Idempotent +
+    # opt-out via SIMPLICIO_NO_AUTO_UPGRADE=1. See simplicio/ecosystem.py.
+    try:
+        from .ecosystem import maybe_run_session_start
+        maybe_run_session_start()
+    except Exception as e:
+        # Never let the freshness check break the CLI.
+        print(f"simplicio: ecosystem check skipped ({e})", file=sys.stderr)
+
     nested = _dispatch_nested(argv)
     if nested is not None:
         return nested

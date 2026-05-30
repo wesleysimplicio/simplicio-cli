@@ -313,6 +313,43 @@ def one(model: str, case: dict, prompt: str, snaps: dict) -> dict:
             "error": res.get("error")}
 
 
+def one_sp_fanout(model: str, case: dict, sp_prompt: str, snaps: dict) -> dict:
+    """sp side via REAL N=200 subagents through SubagentRuntime + modal vote.
+
+    Per the 2026-05-30 mandate: sp ALWAYS runs as fan-out, never single-call.
+    The single-call sp path was empirically a regression vs cli alone in
+    ≤8B models (v13 bench). N is configurable via BENCH_SP_SUBAGENTS (default
+    200). Tokens reported are summed across all subagents.
+    """
+    from sp_fanout_helper import sp_fanout_complete
+    reset_target(case, snaps)
+    res = sp_fanout_complete(model, sp_prompt)
+    if res.get("error"):
+        reset_target(case, snaps)
+        return {"passed": False, "tokens": 0, "ms": res.get("ms", 0),
+                "tail": f"FANOUT_ERR: {res['error']}", "error": res["error"],
+                "subagents": res.get("subagents", 0), "uniq": 0,
+                "modal_count": 0}
+    code = extract_php(res["text"])
+    (WORK / case["target"]).write_text(code, encoding="utf-8")
+    hidden_dst = None
+    if case.get("hidden_test"):
+        hidden_dst = WORK / "tests" / "unit" / "Core" / "Hidden" / case["hidden_test"]
+        hidden_dst.write_text(
+            (HIDDEN_TPL / case["hidden_test"]).read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+    passed, tail = run_phpunit()
+    if hidden_dst is not None:
+        hidden_dst.unlink(missing_ok=True)
+    reset_target(case, snaps)
+    return {"passed": passed, "tokens": res.get("tokens", 0),
+            "ms": res.get("ms", 0), "tail": tail, "error": None,
+            "subagents": res.get("subagents", 0),
+            "uniq": res.get("uniq", 0),
+            "modal_count": res.get("modal_count", 0)}
+
+
 def run() -> int:
     if not MODELS:
         raise SystemExit("set BENCH_MODELS")
@@ -337,10 +374,16 @@ def run() -> int:
             row = {"id": c["id"], "sem": s, "com": w}
             sp_msg = ""
             if INCLUDE_SP:
-                p = one(model, c, SP_PROMPT.format(
-                    sp_runtime=SP_RUNTIME, cli_contract=cli_contract), snaps)
+                # MANDATE 2026-05-30: sp ALWAYS runs as N=200 real subagents
+                # via kernel.subagent_runtime + modal vote. Single-call sp
+                # was empirically a regression — never again.
+                sp_prompt = SP_PROMPT.format(
+                    sp_runtime=SP_RUNTIME, cli_contract=cli_contract)
+                p = one_sp_fanout(model, c, sp_prompt, snaps)
                 sp_pass += int(p["passed"]); row["sp"] = p
-                sp_msg = f"  cli+sp {'PASS' if p['passed'] else 'fail'}"
+                sp_msg = (f"  cli+sp {'PASS' if p['passed'] else 'fail'}"
+                          f"[N={p.get('subagents',0)},u={p.get('uniq',0)},"
+                          f"modal={p.get('modal_count',0)}]")
             ag_msg = ""
             if INCLUDE_AGENTS:
                 a = agents_iterate(model, c, cli_contract, snaps)
@@ -349,16 +392,23 @@ def run() -> int:
                           f"({a['attempts']}/{AGENTS_MAX_ATTEMPTS})")
             spag_msg = ""
             if INCLUDE_SP_AG:
-                # 5th side: verify-loop seeded with the sp-wrapped cli contract.
-                # Tests whether the runtime preamble + retry feedback compose
-                # (does the agent loop recover the sp regressions we documented
-                # in SIMPLICIO_PROMPT_ADJUSTMENTS.md?).
-                sp_seed = SP_PROMPT.format(
+                # 5th side: verify-loop seeded by the MODAL output from N=200
+                # sp-fanout. So the loop fixes the modal vote, not a single
+                # sp-wrapped completion. Composition + retry on top of fan-out.
+                sp_prompt = SP_PROMPT.format(
                     sp_runtime=SP_RUNTIME, cli_contract=cli_contract)
-                pa = agents_iterate(model, c, sp_seed, snaps)
+                modal = one_sp_fanout(model, c, sp_prompt, snaps)
+                if modal.get("passed"):
+                    # modal already passes — no need to invoke verify-loop
+                    pa = {**modal, "attempts": 1}
+                else:
+                    # seed the agents loop with the modal text as previous attempt
+                    seed = sp_prompt
+                    pa = agents_iterate(model, c, seed, snaps)
+                    pa["modal_seed_uniq"] = modal.get("uniq", 0)
                 spag_pass += int(pa["passed"]); row["spag"] = pa
                 spag_msg = (f"  cli+sp+ag {'PASS' if pa['passed'] else 'fail'}"
-                            f"({pa['attempts']}/{AGENTS_MAX_ATTEMPTS})")
+                            f"({pa.get('attempts', 0)}/{AGENTS_MAX_ATTEMPTS})")
             rows.append(row)
             print(f"  {c['id']:25s} baseline {'PASS' if s['passed'] else 'fail'}  "
                   f"cli {'PASS' if w['passed'] else 'fail'}{sp_msg}{ag_msg}{spag_msg}")
