@@ -16,9 +16,7 @@ preflight for the live scratch v0.5 release gate; does not replace credentialed 
 ## Readiness
 
 - ready for live gate: False
-- blocker count: 5
-- blocker: missing planner credential: HF_TOKEN
-- blocker: missing doer model: set SIMPLICIO_MODEL
+- blocker count: 3
 - blocker: ts-nextjs missing tools: pnpm
 - blocker: go-gin missing tools: go
 - blocker: php-laravel missing tools: composer

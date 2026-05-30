@@ -131,7 +131,7 @@ def _planner_readiness() -> dict[str, Any]:
     cfg = planner_cfg(require_key=False)
     model = str(cfg["model"])
     if cfg["shell_out"]:
-        cli = model.split("/", 1)[0]
+        cli = _shell_out_command(model)
         path = _which(cli)
         return {
             "model": model,
@@ -164,7 +164,7 @@ def _doer_readiness() -> dict[str, Any]:
             "blocker": "missing doer model: set SIMPLICIO_MODEL",
         }
     if raw.startswith(("codex-cli/", "claude-cli/")):
-        cli = raw.split("/", 1)[0]
+        cli = _shell_out_command(raw)
         path = _which(cli)
         return {
             "model": raw,
@@ -209,6 +209,14 @@ def _doer_env_key(model: str) -> str:
         "openai": "OPENAI_API_KEY",
         "openrouter": "OPENROUTER_API_KEY",
     }.get(prefix, "SIMPLICIO_API_KEY")
+
+
+def _shell_out_command(model: str) -> str:
+    prefix = model.split("/", 1)[0]
+    return {
+        "claude-cli": "claude",
+        "codex-cli": "codex",
+    }.get(prefix, prefix)
 
 
 def _which(command: str) -> str | None:

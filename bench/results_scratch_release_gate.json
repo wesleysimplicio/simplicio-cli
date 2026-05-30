@@ -2,11 +2,12 @@
   "benchmark": "scratch-release-gate",
   "date": "2026-05-30",
   "doer": {
-    "blocker": "missing doer model: set SIMPLICIO_MODEL",
-    "credential": "missing",
-    "kind": "unset",
-    "model": "",
-    "ready": false
+    "blocker": "doer shell-out CLI not found: codex",
+    "cli_path": "C:\\Users\\wesley.simplicio\\AppData\\Roaming\\npm\\codex.CMD",
+    "credential": "not-needed",
+    "kind": "shell-out",
+    "model": "codex-cli/default",
+    "ready": true
   },
   "environment": {
     "platform": "Windows-11-10.0.22631-SP0",
@@ -41,12 +42,12 @@
     "CRUD app for service requests with priority queue"
   ],
   "planner": {
-    "blocker": "missing planner credential: HF_TOKEN",
-    "credential": "missing",
-    "env_key": "HF_TOKEN",
-    "kind": "api",
-    "model": "deepseek-ai/DeepSeek-V3.1",
-    "ready": false
+    "blocker": "planner shell-out CLI not found: codex",
+    "cli_path": "C:\\Users\\wesley.simplicio\\AppData\\Roaming\\npm\\codex.CMD",
+    "credential": "not-needed",
+    "kind": "shell-out",
+    "model": "codex-cli/default",
+    "ready": true
   },
   "scope": "preflight for the live scratch v0.5 release gate; does not replace credentialed planner/doer execution",
   "stacks": [
@@ -119,10 +120,8 @@
     }
   ],
   "summary": {
-    "blocker_count": 5,
+    "blocker_count": 3,
     "blockers": [
-      "missing planner credential: HF_TOKEN",
-      "missing doer model: set SIMPLICIO_MODEL",
       "ts-nextjs missing tools: pnpm",
       "go-gin missing tools: go",
       "php-laravel missing tools: composer"
