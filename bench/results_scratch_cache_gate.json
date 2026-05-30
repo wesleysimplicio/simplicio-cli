@@ -33,22 +33,38 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-data-export-service-wit",
       "tasks": 36
+    },
+    {
+      "duration_ms": 153664,
+      "goal": "Build a FastAPI notification preference service with channel rules",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-notification-preference",
+      "tasks": 27
+    },
+    {
+      "duration_ms": 119108,
+      "goal": "Build a FastAPI incident escalation service with severity routing",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-incident-escalation-ser",
+      "tasks": 28
     }
   ],
-  "cold_elapsed_s": 768.575,
+  "cold_elapsed_s": 1041.349,
   "cold_stats": {
     "bust": false,
-    "bytes": 35610,
+    "bytes": 32610,
     "enabled": true,
     "entries": 2,
     "hit_rate": 0.0,
     "hits": 0,
     "max_mb": 500,
-    "mb": 0.034,
-    "misses": 4,
-    "oldest_age_s": 149.124,
-    "puts": 4,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-02-03\\cache",
+    "mb": 0.031,
+    "misses": 6,
+    "oldest_age_s": 119.112,
+    "puts": 6,
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-04-05\\cache",
     "ttl_days": 30
   },
   "date": "2026-05-30",
@@ -72,14 +88,14 @@
   },
   "matrix": {
     "corpus_total_goals": 50,
-    "merged_slices": 2,
-    "selected_goals": 4
+    "merged_slices": 3,
+    "selected_goals": 6
   },
   "scope": "cold/warm scratch planner cache measurement; this proves planner cache replay for identical prompts. Optional live-gate input links the cache evidence to the shared real scratch release corpus without overstating the cold/warm sample size.",
   "stack": "py-fastapi",
   "summary": {
-    "cold_plans_valid": 4,
-    "cold_puts": 4,
+    "cold_plans_valid": 6,
+    "cold_puts": 6,
     "live_corpus": {
       "e2e_green": 75,
       "e2e_green_rate": 1.0,
@@ -103,11 +119,11 @@
       "warm_hit_rate_ge_80": true,
       "warm_plans_all_valid": true
     },
-    "total_goals": 4,
+    "total_goals": 6,
     "warm_hit_rate": 1.0,
-    "warm_hits": 4,
+    "warm_hits": 6,
     "warm_misses": 0,
-    "warm_plans_valid": 4
+    "warm_plans_valid": 6
   },
   "warm_cases": [
     {
@@ -141,22 +157,38 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-data-export-service-wit",
       "tasks": 36
+    },
+    {
+      "duration_ms": 5,
+      "goal": "Build a FastAPI notification preference service with channel rules",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-notification-preference",
+      "tasks": 27
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI incident escalation service with severity routing",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-incident-escalation-ser",
+      "tasks": 28
     }
   ],
-  "warm_elapsed_s": 0.013,
+  "warm_elapsed_s": 0.022,
   "warm_stats": {
     "bust": false,
-    "bytes": 35610,
+    "bytes": 32610,
     "enabled": true,
     "entries": 2,
     "hit_rate": 1.0,
-    "hits": 4,
+    "hits": 6,
     "max_mb": 500,
-    "mb": 0.034,
+    "mb": 0.031,
     "misses": 0,
-    "oldest_age_s": 149.13,
+    "oldest_age_s": 119.121,
     "puts": 0,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-02-03\\cache",
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-04-05\\cache",
     "ttl_days": 30
   }
 }

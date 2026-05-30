@@ -93,7 +93,7 @@
       "present": true,
       "real_corpus": true,
       "warm_hit_rate": 1.0,
-      "warm_hits": 4,
+      "warm_hits": 6,
       "warm_misses": 0
     },
     "scratch_live_gate": {
