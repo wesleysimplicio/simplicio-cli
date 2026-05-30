@@ -108,15 +108,20 @@ def test_registry_lists_pilot_stacks() -> None:
     reg = StackRegistry()
     slugs = {s.slug for s in reg.list()}
     assert {
+        "bash-cli",
         "go-gin",
+        "go-cli",
+        "go-echo",
         "js-express",
         "php-laravel",
+        "php-vanilla",
         "py-cli",
         "py-django",
         "py-fastapi",
         "py-flask",
         "react-vite",
         "rust-axum",
+        "rust-cli",
         "ts-nextjs",
     } <= slugs
 
@@ -150,10 +155,20 @@ def test_registry_filters_by_tag() -> None:
     ("slug", "language", "framework", "test_command"),
     [
         ("js-express", "JavaScript", "Express", "npm test"),
+        ("bash-cli", "Bash", "shellcheck", "bats test"),
+        ("go-cli", "Go", "Cobra", "go test ./..."),
+        ("go-echo", "Go", "Echo", "go test ./..."),
+        (
+            "php-vanilla",
+            "PHP",
+            "Composer",
+            "vendor/bin/phpunit --configuration phpunit.xml",
+        ),
         ("py-cli", "Python", "Typer", "pytest -q"),
         ("py-django", "Python", "Django", "python manage.py test"),
         ("py-flask", "Python", "Flask", "pytest -q"),
         ("react-vite", "TypeScript", "React", "npm test"),
+        ("rust-cli", "Rust", "Clap", "cargo test"),
     ],
 )
 def test_registry_loads_expansion_stack_metadata(
@@ -174,7 +189,18 @@ def test_registry_loads_expansion_stack_metadata(
 
 @pytest.mark.parametrize(
     "slug",
-    ["js-express", "py-cli", "py-django", "py-flask", "react-vite"],
+    [
+        "bash-cli",
+        "go-cli",
+        "go-echo",
+        "js-express",
+        "php-vanilla",
+        "py-cli",
+        "py-django",
+        "py-flask",
+        "react-vite",
+        "rust-cli",
+    ],
 )
 def test_expansion_stacks_render_minimal_project(slug: str) -> None:
     reg = StackRegistry()

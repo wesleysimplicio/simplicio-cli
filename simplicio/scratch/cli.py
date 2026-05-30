@@ -294,10 +294,24 @@ def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
         "react-vite"
     ):
         return "react-vite"
+    if any(k in g for k in ("bash", "shell script", "shell cli")) and reg.get(
+        "bash-cli"
+    ):
+        return "bash-cli"
     if any(k in g for k in ("axum", "rust ")) and reg.get("rust-axum"):
         return "rust-axum"
+    if any(k in g for k in ("rust cli", "clap ")) and reg.get("rust-cli"):
+        return "rust-cli"
     if "laravel" in g and reg.get("php-laravel"):
         return "php-laravel"
+    if any(k in g for k in ("plain php", "phpunit", "vanilla php")) and reg.get(
+        "php-vanilla"
+    ):
+        return "php-vanilla"
+    if any(k in g for k in ("echo", "go api")) and reg.get("go-echo"):
+        return "go-echo"
+    if any(k in g for k in ("go cli", "cobra", "viper")) and reg.get("go-cli"):
+        return "go-cli"
     if any(k in g for k in (" go ", "golang", "gin ")) and reg.get("go-gin"):
         return "go-gin"
     return None
