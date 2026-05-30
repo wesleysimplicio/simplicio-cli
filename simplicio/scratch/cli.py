@@ -276,6 +276,10 @@ def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
     if any(k in g for k in ("nextjs", "next.js", "next ", "vercel")):
         if reg.get("ts-nextjs"):
             return "ts-nextjs"
+    if any(k in g for k in ("nestjs", "nest.js", "nest ")) and reg.get("ts-nestjs"):
+        return "ts-nestjs"
+    if "remix" in g and reg.get("ts-remix"):
+        return "ts-remix"
     if "fastapi" in g and reg.get("py-fastapi"):
         return "py-fastapi"
     if "django" in g and reg.get("py-django"):
@@ -308,6 +312,14 @@ def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
         "php-vanilla"
     ):
         return "php-vanilla"
+    if "symfony" in g and reg.get("php-symfony"):
+        return "php-symfony"
+    if any(k in g for k in ("rails", "ruby on rails")) and reg.get("ruby-rails"):
+        return "ruby-rails"
+    if any(k in g for k in ("asp.net", "aspnet", "c# api")) and reg.get(
+        "csharp-aspnet"
+    ):
+        return "csharp-aspnet"
     if any(k in g for k in ("echo", "go api")) and reg.get("go-echo"):
         return "go-echo"
     if any(k in g for k in ("go cli", "cobra", "viper")) and reg.get("go-cli"):

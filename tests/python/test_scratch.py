@@ -109,11 +109,13 @@ def test_registry_lists_pilot_stacks() -> None:
     slugs = {s.slug for s in reg.list()}
     assert {
         "bash-cli",
+        "csharp-aspnet",
         "go-gin",
         "go-cli",
         "go-echo",
         "js-express",
         "php-laravel",
+        "php-symfony",
         "php-vanilla",
         "py-cli",
         "py-django",
@@ -123,6 +125,9 @@ def test_registry_lists_pilot_stacks() -> None:
         "rust-axum",
         "rust-cli",
         "ts-nextjs",
+        "ts-nestjs",
+        "ts-remix",
+        "ruby-rails",
     } <= slugs
 
 
@@ -156,8 +161,10 @@ def test_registry_filters_by_tag() -> None:
     [
         ("js-express", "JavaScript", "Express", "npm test"),
         ("bash-cli", "Bash", "shellcheck", "bats test"),
+        ("csharp-aspnet", "C#", "ASP.NET Core", "dotnet test"),
         ("go-cli", "Go", "Cobra", "go test ./..."),
         ("go-echo", "Go", "Echo", "go test ./..."),
+        ("php-symfony", "PHP", "Symfony", "vendor/bin/phpunit"),
         (
             "php-vanilla",
             "PHP",
@@ -168,7 +175,10 @@ def test_registry_filters_by_tag() -> None:
         ("py-django", "Python", "Django", "python manage.py test"),
         ("py-flask", "Python", "Flask", "pytest -q"),
         ("react-vite", "TypeScript", "React", "npm test"),
+        ("ruby-rails", "Ruby", "Rails", "bin/rails test"),
         ("rust-cli", "Rust", "Clap", "cargo test"),
+        ("ts-nestjs", "TypeScript", "NestJS", "npm test"),
+        ("ts-remix", "TypeScript", "Remix", "npm test"),
     ],
 )
 def test_registry_loads_expansion_stack_metadata(
@@ -191,15 +201,20 @@ def test_registry_loads_expansion_stack_metadata(
     "slug",
     [
         "bash-cli",
+        "csharp-aspnet",
         "go-cli",
         "go-echo",
         "js-express",
+        "php-symfony",
         "php-vanilla",
         "py-cli",
         "py-django",
         "py-flask",
         "react-vite",
+        "ruby-rails",
         "rust-cli",
+        "ts-nestjs",
+        "ts-remix",
     ],
 )
 def test_expansion_stacks_render_minimal_project(slug: str) -> None:
