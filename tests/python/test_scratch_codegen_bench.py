@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from bench.run_scratch_codegen import (
     build_cases,
+    capture_llm_baseline,
     load_llm_baseline,
     run_benchmark,
+    write_llm_baseline,
     write_reports,
 )
 
@@ -95,3 +97,88 @@ def test_scratch_codegen_bench_loads_baseline_file(tmp_path) -> None:
     assert baseline["total_cases"] == 10
     assert baseline["pass_rate"] == 0.8
     assert baseline["avg_llm_ms"] == 9000
+
+
+def test_scratch_codegen_bench_captures_llm_baseline_without_codegen(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    from simplicio import pipeline
+
+    generate_calls: list[str] = []
+
+    def fake_generate(prompt: str, feedback: str | None = None) -> str:
+        generate_calls.append(prompt)
+        return "\n".join(
+            [
+                "diff --git a/src/app.py b/src/app.py",
+                "--- a/src/app.py",
+                "+++ b/src/app.py",
+                "@@ -0,0 +1 @@",
+                "+print('ok')",
+                "",
+                "TEST: pytest -q",
+            ]
+        )
+
+    def fake_apply_and_test(output, root, bound_paths=None):
+        return True, "baseline passed"
+
+    monkeypatch.setenv("SIMPLICIO_MODEL", "fake-llm/baseline")
+    monkeypatch.setattr(pipeline, "generate", fake_generate)
+    monkeypatch.setattr(pipeline, "_apply_and_test", fake_apply_and_test)
+
+    baseline = capture_llm_baseline(
+        work_dir=tmp_path / "baseline",
+        repeat=1,
+        include_typescript=False,
+    )
+
+    summary = baseline["summary"]
+    assert summary["total_cases"] == 4
+    assert summary["passed_cases"] == 4
+    assert summary["pass_rate"] == 1.0
+    assert summary["avg_llm_ms"] >= 0
+    assert summary["model"] == "fake-llm/baseline"
+    assert len(generate_calls) == 4
+    assert all(row["execution_mode"] == "llm" for row in baseline["cases"])
+
+    baseline_path = tmp_path / "captured-baseline.json"
+    write_llm_baseline(baseline, baseline_path)
+    loaded = load_llm_baseline(baseline_path)
+    assert loaded["pass_rate"] == 1.0
+    assert loaded["avg_llm_ms"] > 0
+
+
+def test_scratch_codegen_bench_requires_model_for_baseline(tmp_path, monkeypatch):
+    monkeypatch.delenv("SIMPLICIO_MODEL", raising=False)
+
+    try:
+        capture_llm_baseline(
+            work_dir=tmp_path / "baseline",
+            repeat=1,
+            include_typescript=False,
+        )
+    except RuntimeError as exc:
+        assert "SIMPLICIO_MODEL" in str(exc)
+    else:  # pragma: no cover - assertion guard
+        raise AssertionError("expected missing model to block baseline capture")
+
+
+def test_scratch_codegen_bench_writes_captured_baseline(tmp_path, monkeypatch) -> None:
+    baseline = {
+        "benchmark": "scratch-codegen-llm-baseline",
+        "summary": {
+            "total_cases": 4,
+            "pass_rate": 0.5,
+            "avg_llm_ms": 12000,
+        },
+    }
+    json_path = tmp_path / "baseline.json"
+
+    write_llm_baseline(baseline, json_path)
+    loaded = load_llm_baseline(json_path)
+
+    assert loaded["total_cases"] == 4
+    assert loaded["pass_rate"] == 0.5
+    assert loaded["avg_llm_ms"] == 12000

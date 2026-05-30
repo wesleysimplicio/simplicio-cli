@@ -61,7 +61,9 @@ def test_mapper_consumes_project_map_and_precedent_index(tmp_path):
         },
     )
 
-    block = prompt_module._mapper(str(tmp_path), "src/app.py", goal="update service test")
+    block = prompt_module._mapper(
+        str(tmp_path), "src/app.py", goal="update service test"
+    )
 
     assert "project-map.json" in block
     assert "src/app.py" in block
@@ -100,12 +102,26 @@ def test_precedent_index_ranks_candidates_without_embedding(tmp_path):
     assert "Payment helper" not in block
 
 
+def test_precedent_unknown_stack_falls_back_without_keyerror(tmp_path):
+    block = build_precedent_block(
+        str(tmp_path),
+        "Python + FastAPI",
+        "Add a FastAPI route",
+        k=1,
+    )
+
+    assert "[PRECEDENT]" in block
+    assert "no stack-specific precedent scanner" in block
+
+
 def test_prompt_adds_model_adaptation_and_decomposition(tmp_path, monkeypatch):
     target = tmp_path / "src" / "feature.py"
     target.parent.mkdir(parents=True)
     target.write_text("print('ok')\n", encoding="utf-8")
     monkeypatch.setenv("SIMPLICIO_MODEL", "tiny-local")
-    monkeypatch.setattr(prompt_module, "build_precedent_block", lambda *a, **k: "[PRECEDENT]\nnone")
+    monkeypatch.setattr(
+        prompt_module, "build_precedent_block", lambda *a, **k: "[PRECEDENT]\nnone"
+    )
     monkeypatch.setattr(prompt_module, "build_skill_block", lambda *a, **k: "")
 
     rendered = prompt_module.build_prompt(
@@ -153,7 +169,9 @@ def _valid_pipeline_diff():
     )
 
 
-def test_pipeline_static_fixer_skips_llm_retry_when_verify_passes(tmp_path, monkeypatch):
+def test_pipeline_static_fixer_skips_llm_retry_when_verify_passes(
+    tmp_path, monkeypatch
+):
     monkeypatch.setenv("SIMPLICIO_DISABLE_RUN_LOG", "1")
     generate_calls = []
     apply_calls = {"count": 0}
@@ -177,14 +195,24 @@ def test_pipeline_static_fixer_skips_llm_retry_when_verify_passes(tmp_path, monk
         lambda log, root: FixerResult("missing-pip-package", True, "installed fastapi"),
     )
 
-    result = pipeline.run_task(str(tmp_path), "python", "add api", "src/app.py", "- passes", "- small", quiet=True)
+    result = pipeline.run_task(
+        str(tmp_path),
+        "python",
+        "add api",
+        "src/app.py",
+        "- passes",
+        "- small",
+        quiet=True,
+    )
 
     assert result["applied"] is True
     assert len(generate_calls) == 1
     assert apply_calls["count"] == 2
 
 
-def test_pipeline_retries_with_llm_when_static_fixer_does_not_resolve(tmp_path, monkeypatch):
+def test_pipeline_retries_with_llm_when_static_fixer_does_not_resolve(
+    tmp_path, monkeypatch
+):
     monkeypatch.setenv("SIMPLICIO_DISABLE_RUN_LOG", "1")
     generate_calls = []
     apply_calls = {"count": 0}
@@ -211,14 +239,24 @@ def test_pipeline_retries_with_llm_when_static_fixer_does_not_resolve(tmp_path, 
     monkeypatch.setattr(pipeline, "_apply_and_test", fake_apply_and_test)
     monkeypatch.setattr(pipeline, "try_static_fixers", fake_fixers)
 
-    result = pipeline.run_task(str(tmp_path), "python", "add api", "src/app.py", "- passes", "- small", quiet=True)
+    result = pipeline.run_task(
+        str(tmp_path),
+        "python",
+        "add api",
+        "src/app.py",
+        "- passes",
+        "- small",
+        quiet=True,
+    )
 
     assert result["applied"] is True
     assert len(generate_calls) == 2
     assert generate_calls[1] is not None
 
 
-def test_static_fixers_reduce_retry_calls_in_synthetic_pipeline_case(tmp_path, monkeypatch):
+def test_static_fixers_reduce_retry_calls_in_synthetic_pipeline_case(
+    tmp_path, monkeypatch
+):
     monkeypatch.setenv("SIMPLICIO_DISABLE_RUN_LOG", "1")
 
     def run_case(root, fixer_enabled):
@@ -244,7 +282,15 @@ def test_static_fixers_reduce_retry_calls_in_synthetic_pipeline_case(tmp_path, m
         monkeypatch.setattr(pipeline, "build_prompt", lambda *args, **kwargs: "prompt")
         monkeypatch.setattr(pipeline, "_apply_and_test", fake_apply_and_test)
         monkeypatch.setattr(pipeline, "try_static_fixers", fake_fixers)
-        pipeline.run_task(str(root), "python", "add api", "src/app.py", "- passes", "- small", quiet=True)
+        pipeline.run_task(
+            str(root),
+            "python",
+            "add api",
+            "src/app.py",
+            "- passes",
+            "- small",
+            quiet=True,
+        )
         return len(generate_calls)
 
     baseline_calls = run_case(tmp_path / "baseline", fixer_enabled=False)
@@ -267,15 +313,23 @@ def test_benchmark_writes_observability_log(tmp_path, monkeypatch):
     ]
     cases_path = tmp_path / "cases.json"
     cases_path.write_text(json.dumps(cases), encoding="utf-8")
-    monkeypatch.setattr(bench, "generate", lambda prompt, *args, **kwargs: "diff --git a/src/app.py b/src/app.py")
-    monkeypatch.setattr(bench, "build_prompt", lambda *args, **kwargs: "structured prompt")
+    monkeypatch.setattr(
+        bench,
+        "generate",
+        lambda prompt, *args, **kwargs: "diff --git a/src/app.py b/src/app.py",
+    )
+    monkeypatch.setattr(
+        bench, "build_prompt", lambda *args, **kwargs: "structured prompt"
+    )
     monkeypatch.setenv("SIMPLICIO_PROMPT_VARIANT", "mapper-v1")
 
     bench.run_bench(str(tmp_path), "python", str(cases_path))
 
     run_log = tmp_path / ".simplicio" / "runs.jsonl"
     assert run_log.exists()
-    events = [json.loads(line) for line in run_log.read_text(encoding="utf-8").splitlines()]
+    events = [
+        json.loads(line) for line in run_log.read_text(encoding="utf-8").splitlines()
+    ]
     assert {event["mode"] for event in events} == {"baseline", "pipeline"}
     assert all(event["prompt_variant"] == "mapper-v1" for event in events)
     assert all("tokens_estimated" in event for event in events)

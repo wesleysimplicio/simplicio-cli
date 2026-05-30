@@ -8,9 +8,11 @@ plus it reads SIMPLICIO_TEST_CMD from the environment. We adapt one Task
 from the plan into one pipeline.run invocation, with SIMPLICIO_TEST_CMD
 temporarily set to the per-task verify command.
 """
+
 from __future__ import annotations
 
 import os
+import json
 from pathlib import Path
 
 from .plan_schema import Task
@@ -44,5 +46,10 @@ def run_task(task: Task, project_dir: Path, stack: Stack) -> tuple[bool, str]:
         else:
             os.environ["SIMPLICIO_TEST_CMD"] = prev_test_cmd
 
-    passed = output is not None
-    return passed, (output or "(pipeline returned None — task did not converge)")[:1500]
+    if output is None:
+        return False, "(pipeline returned None — task did not converge)"
+    if isinstance(output, str):
+        log = output
+    else:
+        log = json.dumps(output, indent=2, sort_keys=True)
+    return True, log[:1500]

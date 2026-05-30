@@ -27,6 +27,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from simplicio.scratch.executor import execute_plan  # noqa: E402
+from simplicio.scratch.codegen import registry as codegen_registry  # noqa: E402
 from simplicio.scratch.plan_schema import Plan, Task  # noqa: E402
 from simplicio.scratch.stack_registry import Stack  # noqa: E402
 
@@ -247,6 +248,72 @@ def run_benchmark(
     }
 
 
+def capture_llm_baseline(
+    *,
+    work_dir: Path | None = None,
+    repeat: int = 1,
+    include_typescript: bool = True,
+) -> dict[str, Any]:
+    """Capture an equivalent LLM path baseline with mechanical executors disabled."""
+    if repeat < 1:
+        raise ValueError("repeat must be >= 1")
+    model = os.environ.get("SIMPLICIO_MODEL", "").strip()
+    if not model:
+        raise RuntimeError("SIMPLICIO_MODEL must be set to capture an LLM baseline")
+
+    owned_temp = False
+    if work_dir is None:
+        work_dir = Path(tempfile.mkdtemp(prefix="simplicio-scratch-llm-baseline-"))
+        owned_temp = True
+    work_dir.mkdir(parents=True, exist_ok=True)
+
+    cases = build_cases(include_typescript=include_typescript)
+    projects_parent = work_dir / "projects"
+    templates_parent = work_dir / "templates"
+    projects_parent.mkdir(parents=True, exist_ok=True)
+    templates_parent.mkdir(parents=True, exist_ok=True)
+
+    old_executors = codegen_registry._DEFAULT_EXECUTORS
+    codegen_registry._DEFAULT_EXECUTORS = []
+    rows: list[dict[str, Any]] = []
+    t0 = time.perf_counter()
+    try:
+        for run_index in range(1, repeat + 1):
+            for case in cases:
+                rows.append(
+                    _run_llm_baseline_case(
+                        case,
+                        run_index=run_index,
+                        projects_parent=projects_parent,
+                        templates_parent=templates_parent,
+                    )
+                )
+    finally:
+        codegen_registry._DEFAULT_EXECUTORS = old_executors
+
+    elapsed_s = round(time.perf_counter() - t0, 3)
+    summary = _summarize_llm_baseline(rows, elapsed_s, model)
+    return {
+        "benchmark": "scratch-codegen-llm-baseline",
+        "source": "captured by bench/run_scratch_codegen.py --capture-llm-baseline-json",
+        "scope": (
+            "equivalent LLM scratch-task baseline with mechanical executors "
+            "disabled; intended as input to --llm-baseline-json"
+        ),
+        "work_dir": "$WORK_DIR",
+        "work_dir_owned_by_runner": owned_temp,
+        "repeat": repeat,
+        "include_typescript": include_typescript,
+        "environment": {
+            "python": sys.version.split()[0],
+            "platform": platform.platform(),
+            "model": model,
+        },
+        "summary": summary,
+        "cases": rows,
+    }
+
+
 def _run_case(
     case: BenchCase,
     *,
@@ -295,6 +362,65 @@ def _run_case(
         "actual_executor": executor,
         "expected_executor_match": expected_match,
         "passed": task_passed and expected_match and validation["passed"],
+        "task_passed": task_passed,
+        "validation": validation,
+        "execution_mode": task.execution_mode if task is not None else "missing",
+        "duration_ms": task.duration_ms if task is not None else 0,
+        "metrics": report.metrics,
+        "log_tail": _redact_text(task.log_tail[-300:], work_dir)
+        if task is not None
+        else "",
+    }
+
+
+def _run_llm_baseline_case(
+    case: BenchCase,
+    *,
+    run_index: int,
+    projects_parent: Path,
+    templates_parent: Path,
+) -> dict[str, Any]:
+    project_name = f"llm-{case.name}-r{run_index:02d}"
+    template_root = templates_parent / project_name
+    _write_seed_tree(template_root / "tree", case.seed_files)
+    stack = Stack(
+        slug=case.stack_slug,
+        path=template_root,
+        meta={
+            "language": case.language,
+            "framework": case.framework,
+            "template_version": "bench-scratch-codegen-v1",
+        },
+    )
+    plan = _plan_for_case(case, project_name)
+
+    try:
+        report = execute_plan(plan, stack, projects_parent, skip_install=True)
+    except Exception as exc:  # pragma: no cover - defensive bench reporting
+        return {
+            "name": case.name,
+            "run_index": run_index,
+            "stack": case.stack_slug,
+            "passed": False,
+            "execution_mode": "failed",
+            "duration_ms": 0,
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+
+    task = report.task_results[0] if report.task_results else None
+    task_passed = bool(task and task.passed)
+    work_dir = projects_parent.parent
+    validation = (
+        _validate_generated_case(case, report.project_dir, work_dir)
+        if task_passed
+        else {"passed": False, "checks": [], "log": "LLM task did not pass"}
+    )
+    return {
+        "name": case.name,
+        "run_index": run_index,
+        "stack": case.stack_slug,
+        "project_dir": _redact_path(report.project_dir, work_dir),
+        "passed": task_passed and validation["passed"],
         "task_passed": task_passed,
         "validation": validation,
         "execution_mode": task.execution_mode if task is not None else "missing",
@@ -524,6 +650,35 @@ def _summarize(
     return summary
 
 
+def _summarize_llm_baseline(
+    rows: list[dict[str, Any]],
+    elapsed_s: float,
+    model: str,
+) -> dict[str, Any]:
+    total_cases = len(rows)
+    passed_cases = sum(1 for row in rows if row.get("passed"))
+    durations = [
+        int(row.get("duration_ms", 0))
+        for row in rows
+        if int(row.get("duration_ms", 0)) > 0
+    ]
+    avg_llm_ms = max(1, _avg(durations)) if durations else 0
+    return {
+        "total_cases": total_cases,
+        "passed_cases": passed_cases,
+        "failed_cases": total_cases - passed_cases,
+        "pass_rate": _ratio(passed_cases, total_cases),
+        "avg_llm_ms": avg_llm_ms,
+        "elapsed_s": elapsed_s,
+        "model": model,
+        "release_gates": {
+            "baseline_present": total_cases > 0,
+            "baseline_has_successful_cases": passed_cases > 0,
+            "baseline_latency_measured": bool(durations),
+        },
+    }
+
+
 def load_llm_baseline(path: Path) -> dict[str, Any]:
     """Load a captured LLM baseline summary for executor-vs-LLM comparison."""
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -559,6 +714,11 @@ def _normalize_llm_baseline(
     if normalized["avg_llm_ms"] <= 0:
         raise ValueError("LLM baseline avg_llm_ms must be > 0")
     return normalized
+
+
+def write_llm_baseline(result: dict[str, Any], json_path: Path) -> None:
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
 
 
 def _ratio(numerator: int, denominator: int) -> float:
@@ -779,19 +939,52 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "summary.avg_llm_ms for executor-vs-LLM gate comparison."
         ),
     )
+    parser.add_argument(
+        "--capture-llm-baseline-json",
+        type=Path,
+        help=(
+            "Capture an equivalent LLM baseline with mechanical executors "
+            "disabled, write it to this JSON path, then compare against it."
+        ),
+    )
     parser.add_argument("--quiet", action="store_true")
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    if args.llm_baseline_json and args.capture_llm_baseline_json:
+        print(
+            "choose only one of --llm-baseline-json or --capture-llm-baseline-json",
+            file=sys.stderr,
+        )
+        return 2
+
+    llm_baseline = None
+    work_dir = args.work_dir
+    if args.capture_llm_baseline_json:
+        baseline_work_dir = work_dir / "llm-baseline" if work_dir else None
+        codegen_work_dir = work_dir / "codegen" if work_dir else None
+        try:
+            captured = capture_llm_baseline(
+                work_dir=baseline_work_dir,
+                repeat=args.repeat,
+                include_typescript=not args.no_typescript,
+            )
+        except RuntimeError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        write_llm_baseline(captured, args.capture_llm_baseline_json)
+        llm_baseline = captured
+        work_dir = codegen_work_dir
+    elif args.llm_baseline_json:
+        llm_baseline = load_llm_baseline(args.llm_baseline_json)
+
     result = run_benchmark(
-        work_dir=args.work_dir,
+        work_dir=work_dir,
         repeat=args.repeat,
         include_typescript=not args.no_typescript,
-        llm_baseline=load_llm_baseline(args.llm_baseline_json)
-        if args.llm_baseline_json
-        else None,
+        llm_baseline=llm_baseline,
     )
     write_reports(result, args.json_output, args.md_output)
     if not args.quiet:
