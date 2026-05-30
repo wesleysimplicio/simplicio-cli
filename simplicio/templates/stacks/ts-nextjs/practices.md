@@ -19,8 +19,9 @@
 - Forms: server actions with progressive enhancement (`<form action={action}>`)
 
 ## Tests
-- `vitest` for unit + integration; `@testing-library/react` for component tests
-- One `.test.tsx` per source file; named after the source module
+- `pnpm tsc --noEmit` is the default scratch gate for generated app-router code
+- `vitest` may be added for unit + integration; use `@testing-library/react` for component tests
+- One `.test.tsx` per tested source file; named after the source module
 - Playwright spec per user-facing flow under `playwright/`
 
 ## API design
@@ -32,5 +33,5 @@
 ## Tasks planner SHOULD produce
 - Order: tsconfig + ESLint setup → db client → schema → route handlers → components → e2e
 - Each task touches ONE file
-- `verify` per task references the test file directly (e.g. `pnpm vitest run src/lib/db.test.ts`)
-- `test_command` = `pnpm vitest run`; `lint_command` = `pnpm eslint .`
+- `verify` per task uses `pnpm tsc --noEmit` until a concrete test file exists
+- `test_command` = `pnpm tsc --noEmit`; `lint_command` = `pnpm eslint .`

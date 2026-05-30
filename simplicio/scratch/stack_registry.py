@@ -8,6 +8,7 @@ A stack template is a directory with:
   tree/            — files literally copied at scaffold time (placeholders
                      {project_name} and {goal} are rendered by executor)
 """
+
 from __future__ import annotations
 
 import json
@@ -16,6 +17,8 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterator, Optional
+
+_TREE_CACHE_DIRS = {"__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache"}
 
 
 def _stacks_root() -> Path:
@@ -30,6 +33,7 @@ def _stacks_root() -> Path:
 @dataclass
 class Stack:
     """A single stack template loaded from disk."""
+
     slug: str
     path: Path
     meta: dict = field(default_factory=dict)
@@ -38,22 +42,28 @@ class Stack:
     verify: dict = field(default_factory=dict)
 
     @property
-    def language(self) -> str: return self.meta.get("language", "?")
+    def language(self) -> str:
+        return self.meta.get("language", "?")
 
     @property
-    def framework(self) -> str: return self.meta.get("framework", "?")
+    def framework(self) -> str:
+        return self.meta.get("framework", "?")
 
     @property
-    def version(self) -> str: return self.meta.get("template_version", "0.0.0")
+    def version(self) -> str:
+        return self.meta.get("template_version", "0.0.0")
 
     @property
-    def test_command(self) -> str: return self.verify.get("test", "")
+    def test_command(self) -> str:
+        return self.verify.get("test", "")
 
     @property
-    def lint_command(self) -> str: return self.verify.get("lint", "")
+    def lint_command(self) -> str:
+        return self.verify.get("lint", "")
 
     @property
-    def install_command(self) -> str: return self.verify.get("install", "")
+    def install_command(self) -> str:
+        return self.verify.get("install", "")
 
     def tree_files(self) -> Iterator[Path]:
         """Yield every file under tree/ recursively."""
@@ -61,6 +71,8 @@ class Stack:
         if not tree.is_dir():
             return
         for p in tree.rglob("*"):
+            if _is_ignored_tree_cache(p, tree):
+                continue
             if p.is_file():
                 yield p
 
@@ -72,6 +84,8 @@ class Stack:
         if not tree.is_dir():
             return written
         for src in tree.rglob("*"):
+            if _is_ignored_tree_cache(src, tree):
+                continue
             rel = src.relative_to(tree)
             out = dest / rel
             if src.is_dir():
@@ -84,9 +98,15 @@ class Stack:
             # break naive formatting. Only known variables are substituted.
             for key, value in vars.items():
                 content = content.replace("{" + key + "}", str(value))
-            out.write_text(content, encoding="utf-8")
+            with out.open("w", encoding="utf-8", newline="\n") as fh:
+                fh.write(content)
             written.append(out)
         return written
+
+
+def _is_ignored_tree_cache(path: Path, tree: Path) -> bool:
+    rel = path.relative_to(tree)
+    return any(part in _TREE_CACHE_DIRS for part in rel.parts)
 
 
 class StackRegistry:

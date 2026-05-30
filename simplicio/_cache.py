@@ -1,29 +1,5 @@
-"""_cache.py — content-addressed cache for LLM completions.
+"""Content-addressed completion cache for provider outputs."""
 
-Key = SHA256 of canonical JSON of (provider_id, model, prompt, kwargs).
-Value = {timestamp, model, prompt_hash, completion, usage}.
-
-Invariants:
-- Reads are race-safe (we use os.replace for atomic writes; partial files
-  are never observed).
-- TTL is checked at READ time via file mtime; expired files yield miss
-  and are unlinked.
-- Bust via SIMPLICIO_BUST_CACHE=1 forces miss in the current process for
-  all keys (no on-disk delete; downstream put still happens).
-- Disable via SIMPLICIO_CACHE=0 makes every operation a no-op.
-- Size cap via SIMPLICIO_CACHE_MAX_MB (default 500 MB); eviction is LRU
-  by mtime when a put would push us over the cap.
-- Hash includes template_version when supplied so changing the stack
-  template invalidates all of its derived prompts.
-
-Layout on disk:
-
-  ~/.simplicio/cache/
-    completions/
-      ab/abcdef0123456789...json    # the cache entry
-      ...
-    index.jsonl                      # append-only audit log
-"""
 from __future__ import annotations
 
 import hashlib
@@ -32,288 +8,246 @@ import os
 import shutil
 import tempfile
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 
-# ----- config ----- #
+def _env_flag(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() not in {"0", "false", "no", "off"}
 
 
-def _enabled() -> bool:
-    return os.environ.get("SIMPLICIO_CACHE", "1").strip() not in (
-        "0", "false", "False", "no", "off",
-    )
-
-
-def _bust() -> bool:
-    return os.environ.get("SIMPLICIO_BUST_CACHE", "0").strip() in (
-        "1", "true", "True", "yes", "on",
-    )
-
-
-def _ttl_days() -> int:
+def _env_float(name: str, default: float) -> float:
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
     try:
-        return int(os.environ.get("SIMPLICIO_CACHE_TTL_DAYS", "30"))
+        return float(raw)
     except ValueError:
-        return 30
+        return default
 
 
-def _max_mb() -> int:
-    try:
-        return int(os.environ.get("SIMPLICIO_CACHE_MAX_MB", "500"))
-    except ValueError:
-        return 500
-
-
-def _root() -> Path:
+def _cache_root() -> Path:
     override = os.environ.get("SIMPLICIO_CACHE_DIR")
     if override:
         return Path(override)
-    home = Path(os.environ.get("HOME", str(Path.home())))
-    return home / ".simplicio" / "cache"
+    return Path.home() / ".simplicio" / "cache"
 
 
-# ----- key construction ----- #
-
-
-def make_key(provider_id: str, model: str, prompt: str,
-             **kwargs: Any) -> str:
-    """Stable SHA256 hex digest of the canonical inputs.
-
-    Extra kwargs (temperature, max_tokens, template_version, ...) are
-    folded into the hash; passing template_version="0.2.0" produces a
-    different key than template_version="0.1.0" for an otherwise identical
-    prompt — the mechanism we use to invalidate when a stack template
-    bumps.
-    """
+def make_key(provider_id: str, model: str, prompt: str, **kwargs: Any) -> str:
     payload = {
+        "v": 1,
         "provider_id": provider_id,
         "model": model,
         "prompt": prompt,
-        **{k: v for k, v in sorted(kwargs.items()) if v is not None},
+        "kwargs": kwargs,
     }
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"),
-                           ensure_ascii=False).encode("utf-8")
-    return hashlib.sha256(canonical).hexdigest()
-
-
-# ----- result ADT ----- #
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 @dataclass
 class CacheEntry:
     completion: str
-    usage: dict
-    model: str
-    timestamp: float
+    provider_id: str = ""
+    model: str = ""
+    created_at: float = field(default_factory=time.time)
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-    @classmethod
-    def from_json(cls, data: dict) -> "CacheEntry":
-        return cls(
-            completion=data["completion"],
-            usage=data.get("usage", {}),
-            model=data.get("model", "?"),
-            timestamp=data.get("timestamp", time.time()),
-        )
-
-    def to_json(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "completion": self.completion,
-            "usage": self.usage,
+            "provider_id": self.provider_id,
             "model": self.model,
-            "timestamp": self.timestamp,
+            "created_at": self.created_at,
+            "metadata": dict(self.metadata),
         }
 
-
-@dataclass
-class CacheStats:
-    entries: int
-    size_bytes: int
-    oldest_age_days: float
-    enabled: bool
-    bust_active: bool
-    root: str
-
-
-# ----- the cache itself ----- #
+    @classmethod
+    def from_dict(cls, payload: Dict[str, Any]) -> "CacheEntry":
+        return cls(
+            completion=str(payload.get("completion", "")),
+            provider_id=str(payload.get("provider_id", "")),
+            model=str(payload.get("model", "")),
+            created_at=float(payload.get("created_at") or time.time()),
+            metadata=dict(payload.get("metadata") or {}),
+        )
 
 
 class CompletionCache:
-    """Disk-backed cache for LLM completions. Thread-safety: each entry
-    is written atomically via tempfile + os.replace. Multiple workers
-    writing the same key are race-tolerant — last writer wins, no half
-    files."""
-
-    def __init__(self, root: Optional[Path] = None) -> None:
-        self.root = root or _root()
-        # Directory creation is lazy — we only mkdir on first put so that
-        # a read-only environment can still call cache.get() without
-        # surprises.
+    def __init__(
+        self,
+        root: Optional[Path] = None,
+        *,
+        ttl_days: Optional[float] = None,
+        max_mb: Optional[float] = None,
+    ) -> None:
+        self.root = Path(root) if root is not None else _cache_root()
+        self.ttl_days = (
+            ttl_days
+            if ttl_days is not None
+            else _env_float("SIMPLICIO_CACHE_TTL_DAYS", 30)
+        )
+        self.max_mb = (
+            max_mb if max_mb is not None else _env_float("SIMPLICIO_CACHE_MAX_MB", 500)
+        )
+        self.hits = 0
+        self.misses = 0
+        self.puts = 0
 
     @property
-    def completions_dir(self) -> Path:
-        return self.root / "completions"
+    def enabled(self) -> bool:
+        return _env_flag("SIMPLICIO_CACHE", True)
 
     @property
-    def index_path(self) -> Path:
-        return self.root / "index.jsonl"
+    def bust(self) -> bool:
+        return _env_flag("SIMPLICIO_BUST_CACHE", False)
 
-    def _entry_path(self, key: str) -> Path:
-        return self.completions_dir / key[:2] / f"{key}.json"
-
-    # ---- main API ---- #
+    def path_for(self, key: str) -> Path:
+        return self.root / key[:2] / f"{key}.json"
 
     def get(self, key: str) -> Optional[CacheEntry]:
-        """Return the cached completion if present, fresh, and bust is off."""
-        if not _enabled() or _bust():
+        if not self.enabled or self.bust:
+            self.misses += 1
             return None
-        path = self._entry_path(key)
+        path = self.path_for(key)
         try:
-            mtime = path.stat().st_mtime
-        except FileNotFoundError:
-            return None
-        # TTL check
-        ttl_seconds = _ttl_days() * 86400
-        if (time.time() - mtime) > ttl_seconds:
-            # Best-effort cleanup; do not raise if it fails (race with
-            # another process is fine).
-            try: path.unlink()
-            except OSError: pass
+            if not path.exists():
+                self.misses += 1
+                return None
+            if self._is_expired(path):
+                self._safe_unlink(path)
+                self.misses += 1
+                return None
+        except OSError:
+            self.misses += 1
             return None
         try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            # Malformed cache file — treat as miss; try to remove so it
-            # does not haunt future reads.
-            try: path.unlink()
-            except OSError: pass
+            with path.open("r", encoding="utf-8") as handle:
+                entry = CacheEntry.from_dict(json.load(handle))
+                self.hits += 1
+                return entry
+        except (OSError, ValueError, TypeError):
+            self._safe_unlink(path)
+            self.misses += 1
             return None
-        # touch mtime so this entry counts as recently-used for LRU
-        os.utime(path, None)
-        self._log("hit", key)
-        return CacheEntry.from_json(data)
 
     def put(self, key: str, entry: CacheEntry) -> None:
-        """Atomically write the cache entry. No-op when cache is disabled."""
-        if not _enabled():
+        if not self.enabled:
             return
-        path = self._entry_path(key)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        # Write to a temp file in the same directory and then os.replace
-        # so concurrent readers never see a partial file.
-        fd, tmp_path = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
+        path = self.path_for(key)
         try:
-            with os.fdopen(fd, "w", encoding="utf-8") as fh:
-                json.dump(entry.to_json(), fh, ensure_ascii=False)
-            os.replace(tmp_path, path)
-        except Exception:
-            # On any failure clean up the tempfile and swallow — caching
-            # is a side concern; never break the caller.
-            try: os.unlink(tmp_path)
-            except OSError: pass
+            path.parent.mkdir(parents=True, exist_ok=True)
+            fd, tmp_name = tempfile.mkstemp(
+                prefix=f".{path.stem}.",
+                suffix=".tmp",
+                dir=str(path.parent),
+            )
+        except OSError:
             return
-        self._log("put", key)
-        # Best-effort size enforcement
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                json.dump(entry.to_dict(), handle, sort_keys=True)
+            try:
+                os.replace(tmp_name, path)
+            except OSError:
+                return
+        finally:
+            if os.path.exists(tmp_name):
+                self._safe_unlink(Path(tmp_name))
+        self.puts += 1
         self._evict_if_needed()
 
     def clear(self) -> int:
-        """Delete the entire cache directory. Returns the count of entries
-        removed."""
-        if not self.completions_dir.is_dir():
-            return 0
-        count = sum(1 for _ in self.completions_dir.rglob("*.json"))
-        shutil.rmtree(self.completions_dir, ignore_errors=True)
-        # We DO NOT remove the index.jsonl — audit log persists across
-        # cache clears so we can reason about historical hit rate.
-        return count
+        n = self.stats()["entries"]
+        if self.root.exists():
+            shutil.rmtree(self.root)
+        return int(n)
 
-    def stats(self) -> CacheStats:
-        entries = 0
-        size_bytes = 0
-        oldest_mtime = time.time()
-        if self.completions_dir.is_dir():
-            for p in self.completions_dir.rglob("*.json"):
-                try:
-                    st = p.stat()
-                except FileNotFoundError:
-                    continue
-                entries += 1
-                size_bytes += st.st_size
-                if st.st_mtime < oldest_mtime:
-                    oldest_mtime = st.st_mtime
-        age_days = (time.time() - oldest_mtime) / 86400 if entries else 0.0
-        return CacheStats(
-            entries=entries,
-            size_bytes=size_bytes,
-            oldest_age_days=round(age_days, 1),
-            enabled=_enabled(),
-            bust_active=_bust(),
-            root=str(self.root),
-        )
+    def stats(self) -> Dict[str, Any]:
+        files = list(self._files())
+        total_bytes = sum(path.stat().st_size for path in files if path.exists())
+        now = time.time()
+        oldest = None
+        if files:
+            oldest = max(0.0, now - min(path.stat().st_mtime for path in files))
+        return {
+            "enabled": self.enabled,
+            "bust": self.bust,
+            "root": str(self.root),
+            "entries": len(files),
+            "hits": self.hits,
+            "misses": self.misses,
+            "puts": self.puts,
+            "hit_rate": round(self.hits / (self.hits + self.misses), 4)
+            if self.hits + self.misses
+            else 0.0,
+            "bytes": total_bytes,
+            "mb": round(total_bytes / (1024 * 1024), 3),
+            "oldest_age_s": round(oldest, 3) if oldest is not None else None,
+            "ttl_days": self.ttl_days,
+            "max_mb": self.max_mb,
+        }
 
-    # ---- internals ---- #
-
-    def _log(self, action: str, key: str) -> None:
-        """Append a single JSONL line to the audit log. Never raises."""
+    def _files(self) -> list[Path]:
         try:
-            self.root.mkdir(parents=True, exist_ok=True)
-            with self.index_path.open("a", encoding="utf-8") as fh:
-                fh.write(json.dumps({
-                    "ts": time.time(),
-                    "action": action,
-                    "key": key[:16],  # truncate to save space
-                }) + "\n")
+            if not self.root.exists():
+                return []
+            return [path for path in self.root.rglob("*.json") if path.is_file()]
         except OSError:
-            pass
+            return []
 
-    def _evict_if_needed(self) -> int:
-        """LRU eviction when over the size cap. Returns the count removed."""
-        cap_bytes = _max_mb() * 1024 * 1024
-        if cap_bytes <= 0:
-            return 0
-        if not self.completions_dir.is_dir():
-            return 0
-        # Gather files with mtime so we can sort by LRU
-        files: list[tuple[float, int, Path]] = []
-        total = 0
-        for p in self.completions_dir.rglob("*.json"):
-            try:
-                st = p.stat()
-            except FileNotFoundError:
-                continue
-            files.append((st.st_mtime, st.st_size, p))
-            total += st.st_size
-        if total <= cap_bytes:
-            return 0
-        files.sort()  # oldest first
-        removed = 0
-        for mtime, size, path in files:
-            if total <= cap_bytes:
+    def _is_expired(self, path: Path) -> bool:
+        if self.ttl_days <= 0:
+            return False
+        max_age = self.ttl_days * 86400
+        return (time.time() - path.stat().st_mtime) > max_age
+
+    def _evict_if_needed(self) -> None:
+        max_bytes = int(max(0.0, self.max_mb) * 1024 * 1024)
+        if max_bytes <= 0:
+            return
+        files = self._files()
+        total = sum(path.stat().st_size for path in files if path.exists())
+        if total <= max_bytes:
+            return
+        for path in sorted(files, key=lambda p: p.stat().st_mtime):
+            size = path.stat().st_size
+            self._safe_unlink(path)
+            total -= size
+            if total <= max_bytes:
                 break
-            try:
-                path.unlink()
-                total -= size
-                removed += 1
-            except OSError:
-                continue
-        return removed
+
+    @staticmethod
+    def _safe_unlink(path: Path) -> None:
+        try:
+            path.unlink()
+        except OSError:
+            return
 
 
-# Module-level singleton so providers.py can call cache.get/put without
-# rebuilding the cache instance per call.
-_singleton: Optional[CompletionCache] = None
+_cache: Optional[CompletionCache] = None
 
 
 def cache() -> CompletionCache:
-    global _singleton
-    if _singleton is None:
-        _singleton = CompletionCache()
-    return _singleton
+    global _cache
+    if _cache is None:
+        _cache = CompletionCache()
+    return _cache
 
 
 def reset_for_tests() -> None:
-    """Test hook: drop the singleton so monkeypatched envvars take effect
-    on the next cache() call."""
-    global _singleton
-    _singleton = None
+    global _cache
+    _cache = None
+
+
+__all__ = [
+    "CacheEntry",
+    "CompletionCache",
+    "cache",
+    "make_key",
+    "reset_for_tests",
+]

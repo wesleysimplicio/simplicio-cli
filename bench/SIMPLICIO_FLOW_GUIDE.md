@@ -7,6 +7,11 @@ Documento técnico cobrindo os **dois caminhos principais** do CLI atual:
 
 Plus os auxiliares `doctor`, `skill new`, `index`, `detect`.
 
+> **Status no HEAD atual:** este guia preserva o mapa de fluxo citado pela
+> issue #33 e pelo roadmap `bench/LLM_REDUCTION_ROADMAP.md`. Alguns números de
+> chamada LLM neste documento são estimativas de design; os gates atuais devem
+> ser lidos nos relatórios versionados em `bench/results_*.md`.
+
 Todos os caminhos compartilham a camada de **providers**, que decide
 entre 6 rotas (Anthropic native, OpenAI-compat, OAuth shell-out, etc.)
 e tem **duas pools separadas**: doer (`generate`) e planner (`planner_complete`).

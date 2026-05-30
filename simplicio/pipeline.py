@@ -1,11 +1,13 @@
 """pipeline.py — build -> generate -> validate -> test -> fix (loop)."""
 from dataclasses import dataclass
+import fnmatch
 import os, re, subprocess
 from .observability import estimate_tokens, log_run
+from .pipeline_fixers import try_static_fixers
 from .prompt import build_prompt
 from .providers import generate
 
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS = 5
 
 @dataclass
 class ValidationResult:
@@ -18,7 +20,40 @@ class FailureClassification:
     kind: str
     guidance: str
 
-def validate_generated_output(output):
+def extract_changed_files(output):
+    text = output or ""
+    files = []
+    for match in re.finditer(r"^diff --git a/(.+?) b/(.+?)$", text, flags=re.M):
+        files.append(match.group(2).strip())
+    for match in re.finditer(r"^\+\+\+ b/(.+?)$", text, flags=re.M):
+        files.append(match.group(1).strip())
+    return list(dict.fromkeys(f for f in files if f and f != "/dev/null"))
+
+def _matches_bound(path, patterns):
+    normalized = path.replace(os.sep, "/").lstrip("./")
+    for raw in patterns or []:
+        pattern = str(raw).replace(os.sep, "/").lstrip("./")
+        if fnmatch.fnmatch(normalized, pattern):
+            return True
+        if pattern.endswith("/**"):
+            prefix = pattern[:-3].rstrip("/")
+            if normalized == prefix or normalized.startswith(f"{prefix}/"):
+                return True
+    return False
+
+def _bound_path_warnings(files, bound_paths):
+    if not bound_paths:
+        return []
+    outside = [path for path in files if not _matches_bound(path, bound_paths)]
+    if not outside:
+        return []
+    return [
+        "diff touches path outside bound paths: "
+        + ", ".join(outside)
+        + f" (allowed: {', '.join(bound_paths)})"
+    ]
+
+def validate_generated_output(output, bound_paths=None):
     text = output or ""
     hints = []
     has_diff = bool(re.search(r"^diff --git |^--- .+\n\+\+\+ ", text, flags=re.M))
@@ -29,6 +64,7 @@ def validate_generated_output(output):
         hints.append("include a TEST block or concrete test code")
     if re.search(r"(?i)\b(pseudocode|placeholder|todo: implement)\b", text):
         hints.append("replace placeholders with executable code")
+    hints.extend(_bound_path_warnings(extract_changed_files(output), bound_paths))
     return ValidationResult(
         ok=not hints,
         reason="ok" if not hints else "; ".join(hints),
@@ -64,10 +100,10 @@ def build_retry_feedback(attempt, validation=None, test_log=""):
     lines.append("Return the full corrected DIFF + TEST block only.")
     return "\n".join(lines)
 
-def _apply_and_test(output, root):
+def _apply_and_test(output, root, bound_paths=None):
     os.makedirs(os.path.join(root, ".simplicio"), exist_ok=True)
     open(os.path.join(root, ".simplicio/last_output.txt"), "w").write(output or "")
-    validation = validate_generated_output(output)
+    validation = validate_generated_output(output, bound_paths)
     if not validation.ok:
         return False, f"pre-apply validation failed: {validation.reason}"
     # PLUG: extract diff -> git apply; extract test. Here we run the test command.
@@ -75,13 +111,47 @@ def _apply_and_test(output, root):
     p = subprocess.run(cmd, shell=True, cwd=root, capture_output=True, text=True)
     return p.returncode == 0, (p.stdout + p.stderr)[-2000:]
 
-def run(root, stack, goal, target, criteria, constraints):
+def _diff_summary(files_changed):
+    if not files_changed:
+        return "no changed files reported"
+    return "changed " + ", ".join(files_changed)
+
+def _task_result(task_id, prompt, output, *, applied, warnings=None):
+    files_changed = extract_changed_files(output)
+    return {
+        "task_id": task_id,
+        "applied": bool(applied),
+        "files_changed": files_changed,
+        "tokens_used": {
+            "prompt": estimate_tokens(prompt),
+            "completion": estimate_tokens(output or ""),
+        },
+        "cost_usd": 0.0,
+        "diff_summary": _diff_summary(files_changed),
+        "warnings": warnings or [],
+    }
+
+def run_task(root, stack, goal, target, criteria, constraints, *,
+             dry_run_task=False, bound_paths=None, quiet=False):
     prompt = build_prompt(root, stack, goal, target, criteria, constraints)
+    if dry_run_task:
+        output = generate(prompt)
+        validation = validate_generated_output(output, bound_paths)
+        warnings = [] if validation.ok else [validation.reason]
+        return _task_result(target, prompt, output, applied=False, warnings=warnings)
+
     feedback = None
+    last_output = ""
+    last_validation = None
+    last_log = ""
     for t in range(1, MAX_ATTEMPTS + 1):
-        print(f"--- attempt {t} (provider={os.environ.get('SIMPLICIO_PROVIDER','claude')}) ---")
+        if not quiet:
+            print(f"--- attempt {t} (provider={os.environ.get('SIMPLICIO_PROVIDER','claude')}) ---")
         output = generate(prompt, feedback)
-        ok, log = _apply_and_test(output, root)
+        last_output = output or ""
+        last_validation = validate_generated_output(output, bound_paths)
+        ok, log = _apply_and_test(output, root, bound_paths)
+        last_log = log
         log_run(root, {
             "mode": "pipeline",
             "attempt": t,
@@ -92,9 +162,43 @@ def run(root, stack, goal, target, criteria, constraints):
             "stack": stack,
         })
         if ok:
-            print("PASSED the contract. DONE.")
-            return output
-        print("failed:", log[:300])
-        feedback = build_retry_feedback(t + 1, validate_generated_output(output), log)
-    print("attempts exhausted — manual review needed.")
+            if not quiet:
+                print("PASSED the contract. DONE.")
+            return _task_result(target, prompt, output, applied=True)
+        fixer_result = try_static_fixers(log, root)
+        if fixer_result.applied:
+            ok, fixed_log = _apply_and_test(output, root, bound_paths)
+            log_run(root, {
+                "mode": "fixer",
+                "attempt": t,
+                "ok": ok,
+                "fixer": fixer_result.fixer,
+                "details": fixer_result.details,
+                "failure_class": "none" if ok else classify_failure(fixed_log).kind,
+                "target": target,
+                "stack": stack,
+            })
+            last_log = fixed_log
+            log = fixed_log if ok else f"{fixer_result.details}\n{fixed_log}"
+            if ok:
+                if not quiet:
+                    print(f"PASSED after static fixer {fixer_result.fixer}. DONE.")
+                return _task_result(target, prompt, output, applied=True)
+        if not quiet:
+            print("failed:", log[:300])
+        feedback = build_retry_feedback(t + 1, last_validation, log)
+    if not quiet:
+        print("attempts exhausted — manual review needed.")
+    warnings = []
+    if last_validation and not last_validation.ok:
+        warnings.append(last_validation.reason)
+    elif last_log:
+        warnings.append(last_log[:500])
+    return _task_result(target, prompt, last_output, applied=False, warnings=warnings)
+
+def run(root, stack, goal, target, criteria, constraints, bound_paths=None):
+    result = run_task(root, stack, goal, target, criteria, constraints,
+                      bound_paths=bound_paths)
+    if result["applied"]:
+        return result
     return None

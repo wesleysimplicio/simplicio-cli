@@ -11,6 +11,11 @@
 > regride pass-rate em nenhum bench, (3) reduz custo de doer/planner em ≥30%
 > no cenário típico (scratch + 12 tasks).
 
+> **Status no HEAD atual:** este documento preserva o roadmap original citado
+> pela issue #33. Evidência executável atualizada vive em
+> `bench/results_scratch_codegen.*`, `bench/results_static_fixers.*` e
+> `bench/results_scratch_release_gate.*`.
+
 ---
 
 ## 1. Mapa atual — onde o LLM é chamado e por quê

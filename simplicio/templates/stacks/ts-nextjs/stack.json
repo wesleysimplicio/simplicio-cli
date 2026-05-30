@@ -5,7 +5,7 @@
   "framework": "Next.js 14 (app router)",
   "framework_version": "^14.2",
   "package_manager": "pnpm",
-  "test_runner": "vitest",
+  "test_runner": "tsc",
   "e2e_runner": "playwright",
   "linter": "eslint",
   "deps_required": ["next@^14.2", "react@^18", "react-dom@^18"],

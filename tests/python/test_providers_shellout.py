@@ -4,12 +4,23 @@ These providers spawn a logged-in CLI subprocess instead of calling an HTTP
 API, so we mock subprocess.run and verify argv shape, env injection, and
 error handling.
 """
+
 import subprocess
 from unittest.mock import patch, MagicMock
 
 import pytest
 
 from simplicio import providers
+from simplicio._cache import reset_for_tests
+
+
+@pytest.fixture(autouse=True)
+def isolated_completion_cache(tmp_path, monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_CACHE_DIR", str(tmp_path / "cache"))
+    monkeypatch.delenv("SIMPLICIO_BUST_CACHE", raising=False)
+    reset_for_tests()
+    yield
+    reset_for_tests()
 
 
 def _ok(stdout="ok"):
@@ -31,13 +42,15 @@ def test_claude_cli_builds_argv_and_injects_guard(monkeypatch):
     assert out == "hello"
     args, kwargs = run.call_args
     cmd = args[0]
-    assert cmd[0] == "claude"
+    assert cmd[0] in {"claude", "claude.cmd", "claude.exe"}
     assert cmd[1] == "-p"
     assert cmd[2] == "write hello"
     assert "--model" in cmd and "sonnet" in cmd
     assert kwargs["env"]["SIMPLICIO_HOOK_GUARD"] == "1"
     assert kwargs["env"]["SIMPLICIO_SKIP_AUTO_INIT"] == "1"
     assert kwargs["capture_output"] is True
+    assert kwargs["encoding"] == "utf-8"
+    assert kwargs["errors"] == "replace"
     assert kwargs["timeout"] == 600
 
 
@@ -50,10 +63,13 @@ def test_codex_cli_builds_argv_with_model_then_prompt(monkeypatch):
 
     assert out == "done"
     cmd = run.call_args[0][0]
-    assert cmd[:2] == ["codex", "exec"]
+    kwargs = run.call_args[1]
+    assert cmd[0] in {"codex", "codex.cmd", "codex.exe"}
+    assert cmd[1] == "exec"
     assert "--model" in cmd
     assert cmd.index("gpt-5") == cmd.index("--model") + 1
-    assert cmd[-1] == "refactor x"
+    assert cmd[-1] == "-"
+    assert kwargs["input"] == "refactor x"
 
 
 def test_claude_cli_skips_model_flag_for_default(monkeypatch):
@@ -112,8 +128,10 @@ def test_shell_out_timeout_raises_friendly(monkeypatch):
     monkeypatch.setenv("SIMPLICIO_MODEL", "claude-cli/sonnet")
     monkeypatch.delenv("SIMPLICIO_API_KEY", raising=False)
 
-    with patch("subprocess.run",
-               side_effect=subprocess.TimeoutExpired(cmd="claude", timeout=600)):
+    with patch(
+        "subprocess.run",
+        side_effect=subprocess.TimeoutExpired(cmd="claude", timeout=600),
+    ):
         with pytest.raises(SystemExit) as exc:
             providers.generate("x")
 

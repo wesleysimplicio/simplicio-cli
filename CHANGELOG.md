@@ -5,7 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.4] — 2026-05-30
+
+### Added
+- Commit `.simplicio/project-map.json` and `.simplicio/precedent-index.json`
+  so downstream LLM executions can load the repository map directly.
+
+## [0.4.3] — 2026-05-29
+
+### Changed
+- Align Simplicio ecosystem dependency floors with the latest published
+  releases: `simplicio-mapper>=0.6.1` and `simplicio-prompt>=1.12.0`.
+- Synchronize the package runtime `__version__` with the PyPI release version.
+
+## [0.4.2] — 2026-05-29
+
+### Added
+- `simplicio task --dry-run-task --json` for SendSprint orchestration. It
+  generates the would-be task output, returns the stable
+  `{task_id, applied, files_changed, tokens_used, cost_usd, diff_summary,
+  warnings}` JSON contract, and does not write `.simplicio/last_output.txt` or
+  run the test/apply loop.
+- `simplicio task --bound-paths <glob>` repeatable edit-surface guard. Generated
+  diffs outside the allowed globs are refused before the test loop and reported
+  as JSON warnings.
 
 ### Changed
 - **`rust/simplicio-core`: PyO3 `0.22` → `0.28`** (manual major dependency bump,

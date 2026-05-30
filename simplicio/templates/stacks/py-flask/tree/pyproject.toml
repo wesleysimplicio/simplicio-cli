@@ -1,0 +1,13 @@
+[project]
+name = "{project_name}"
+version = "0.1.0"
+description = "{goal}"
+requires-python = ">=3.12"
+dependencies = ["flask>=3.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
