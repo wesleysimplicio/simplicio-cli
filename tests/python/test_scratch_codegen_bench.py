@@ -5,6 +5,7 @@ from __future__ import annotations
 from bench.run_scratch_codegen import (
     build_cases,
     capture_llm_baseline,
+    load_live_gate_evidence,
     load_llm_baseline,
     run_benchmark,
     write_llm_baseline,
@@ -94,6 +95,104 @@ def test_scratch_codegen_bench_compares_captured_llm_baseline(tmp_path) -> None:
     assert "LLM baseline pass-rate" not in "\n".join(
         summary["missing_release_evidence"]
     )
+
+
+def test_scratch_codegen_bench_consumes_live_gate_evidence(tmp_path) -> None:
+    live_gate = {
+        "source": "fixture-live-gate",
+        "summary": {
+            "total_runs": 75,
+            "e2e_green": 75,
+            "e2e_green_rate": 1.0,
+            "release_gates": {
+                "full_75_run_matrix": True,
+                "e2e_green_ge_80": True,
+            },
+        },
+        "runs": [
+            {
+                "stack": "py-fastapi",
+                "e2e_green": True,
+                "scratch_metrics": {
+                    "tasks_total": 4,
+                    "tasks_codegen": 4,
+                    "tasks_llm": 0,
+                    "tasks_failed": 0,
+                    "avg_codegen_ms": 50,
+                },
+            }
+        ],
+    }
+    result = run_benchmark(
+        work_dir=tmp_path / "bench",
+        repeat=1,
+        include_typescript=False,
+        llm_baseline={
+            "source": "fixture-llm",
+            "summary": {
+                "total_cases": 4,
+                "pass_rate": 0.75,
+                "avg_llm_ms": 10000,
+            },
+        },
+        live_gate=live_gate,
+    )
+
+    summary = result["summary"]
+    gates = summary["release_gates"]
+    assert summary["live_corpus"]["total_runs"] == 75
+    assert summary["live_corpus"]["tasks_codegen"] == 4
+    assert summary["live_corpus"]["tasks_llm"] == 0
+    assert gates["real_50_scratch_corpus"] is True
+    assert gates["real_mechanical_share_ge_30"] is True
+    assert gates["real_e2e_green_ge_80"] is True
+    assert gates["real_executor_pass_rate_ge_llm"] is None
+    assert gates["real_latency_reduction_ge_50"] is None
+    assert gates["zero_feature_regression_live"] is True
+    assert summary["live_latency_reduction_vs_task_baseline"] >= 0.50
+    assert summary["missing_release_evidence"] == [
+        "real scratch LLM baseline for executor pass-rate comparison",
+        "real scratch LLM baseline for task latency comparison",
+    ]
+
+
+def test_scratch_codegen_bench_loads_live_gate_file(tmp_path) -> None:
+    live_gate_path = tmp_path / "live-gate.json"
+    live_gate_path.write_text(
+        """
+        {
+          "summary": {
+            "total_runs": 50,
+            "e2e_green": 50,
+            "e2e_green_rate": 1.0,
+            "release_gates": {
+              "full_75_run_matrix": false,
+              "e2e_green_ge_80": true
+            }
+          },
+          "runs": [
+            {
+              "stack": "py-fastapi",
+              "scratch_metrics": {
+                "tasks_total": 2,
+                "tasks_codegen": 1,
+                "tasks_llm": 1,
+                "tasks_failed": 0,
+                "avg_codegen_ms": 25
+              }
+            }
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    loaded = load_live_gate_evidence(live_gate_path)
+
+    assert loaded["total_runs"] == 50
+    assert loaded["codegen_share"] == 0.5
+    assert loaded["avg_codegen_ms"] == 25
+    assert loaded["stacks"] == ["py-fastapi"]
 
 
 def test_scratch_codegen_bench_loads_baseline_file(tmp_path) -> None:

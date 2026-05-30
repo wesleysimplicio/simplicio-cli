@@ -35,6 +35,7 @@ from simplicio.scratch.stack_registry import Stack  # noqa: E402
 
 RESULTS_JSON = ROOT / "bench" / "results_scratch_codegen.json"
 RESULTS_MD = ROOT / "bench" / "results_scratch_codegen.md"
+LIVE_GATE_JSON = ROOT / "bench" / "results_scratch_live_gate.json"
 
 
 @dataclass(frozen=True)
@@ -211,6 +212,7 @@ def run_benchmark(
     repeat: int = 10,
     include_typescript: bool = True,
     llm_baseline: dict[str, Any] | None = None,
+    live_gate: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if repeat < 1:
         raise ValueError("repeat must be >= 1")
@@ -223,6 +225,7 @@ def run_benchmark(
 
     cases = build_cases(include_typescript=include_typescript)
     baseline = _normalize_llm_baseline(llm_baseline) if llm_baseline else None
+    live_corpus = _normalize_live_gate(live_gate) if live_gate else None
     projects_parent = work_dir / "projects"
     templates_parent = work_dir / "templates"
     projects_parent.mkdir(parents=True, exist_ok=True)
@@ -250,8 +253,9 @@ def run_benchmark(
     return {
         "benchmark": "scratch-codegen",
         "scope": (
-            "synthetic deterministic executor benchmark; no LLM calls; "
-            "does not replace the full 50-scratch release gate"
+            "deterministic executor benchmark plus live scratch-corpus evidence; "
+            "synthetic cases validate individual executors while the live gate "
+            "proves release-corpus mechanical-task metrics"
         ),
         "work_dir": "$WORK_DIR",
         "work_dir_owned_by_runner": owned_temp,
@@ -262,7 +266,8 @@ def run_benchmark(
             "platform": platform.platform(),
         },
         "llm_baseline": baseline,
-        "summary": _summarize(rows, elapsed_s, baseline),
+        "live_corpus": live_corpus,
+        "summary": _summarize(rows, elapsed_s, baseline, live_corpus),
         "cases": rows,
     }
 
@@ -444,7 +449,11 @@ def _run_llm_baseline_case(
     validation = (
         _validate_generated_case(case, project_dir, work_dir)
         if content
-        else {"passed": False, "checks": [], "log": "LLM output did not include file content"}
+        else {
+            "passed": False,
+            "checks": [],
+            "log": "LLM output did not include file content",
+        }
     )
     duration_ms = int((time.perf_counter() - started) * 1000)
     return {
@@ -782,6 +791,7 @@ def _summarize(
     rows: list[dict[str, Any]],
     elapsed_s: float,
     llm_baseline: dict[str, Any] | None = None,
+    live_corpus: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     total_cases = len(rows)
     passed_cases = sum(1 for row in rows if row.get("passed"))
@@ -845,6 +855,31 @@ def _summarize(
         summary["executor_pass_rate_ge_llm"] = None
         summary["latency_reduction"] = None
 
+    if live_corpus:
+        summary["live_corpus"] = live_corpus
+        live_avg_codegen_ms = int(live_corpus.get("avg_codegen_ms", 0))
+        live_pass_rate = float(live_corpus.get("e2e_green_rate", 0.0))
+        has_real_baseline = bool(llm_baseline and llm_baseline.get("real_corpus"))
+        summary["real_executor_pass_rate_ge_llm"] = (
+            live_pass_rate >= float(llm_baseline["pass_rate"])
+            if has_real_baseline
+            else None
+        )
+        summary["real_latency_reduction"] = (
+            round((baseline_avg_ms - live_avg_codegen_ms) / baseline_avg_ms, 4)
+            if has_real_baseline and baseline_avg_ms > 0 and live_avg_codegen_ms > 0
+            else None
+        )
+        summary["live_latency_reduction_vs_task_baseline"] = (
+            round((baseline_avg_ms - live_avg_codegen_ms) / baseline_avg_ms, 4)
+            if llm_baseline and baseline_avg_ms > 0 and live_avg_codegen_ms > 0
+            else None
+        )
+    else:
+        summary["real_executor_pass_rate_ge_llm"] = None
+        summary["real_latency_reduction"] = None
+        summary["live_latency_reduction_vs_task_baseline"] = None
+
     summary["release_gates"] = {
         "fifty_runs": total_cases >= 50,
         "mechanical_share_ge_30": summary["codegen_share"] >= 0.30,
@@ -864,13 +899,46 @@ def _summarize(
             if summary["latency_reduction"] is not None
             else None
         ),
+        "real_50_scratch_corpus": bool(
+            live_corpus and int(live_corpus.get("total_runs", 0)) >= 50
+        ),
+        "real_mechanical_share_ge_30": bool(
+            live_corpus and float(live_corpus.get("codegen_share", 0.0)) >= 0.30
+        ),
+        "real_e2e_green_ge_80": bool(
+            live_corpus and float(live_corpus.get("e2e_green_rate", 0.0)) >= 0.80
+        ),
+        "real_executor_pass_rate_ge_llm": (summary["real_executor_pass_rate_ge_llm"]),
+        "real_latency_reduction_ge_50": (
+            summary["real_latency_reduction"] >= 0.50
+            if summary["real_latency_reduction"] is not None
+            else None
+        ),
+        "zero_feature_regression_live": bool(
+            live_corpus
+            and int(live_corpus.get("total_runs", 0)) > 0
+            and int(live_corpus.get("e2e_green", 0))
+            == int(live_corpus.get("total_runs", 0))
+            and int(live_corpus.get("tasks_failed", 0)) == 0
+        ),
     }
-    missing = [
-        "50 real scratch goals across the release corpus",
-        "planner cache hit-rate measured across cold/warm scratch runs",
-    ]
+    missing = []
     if llm_baseline is None:
-        missing.insert(0, "LLM baseline pass-rate and latency comparison")
+        missing.append("LLM baseline pass-rate and latency comparison")
+    if live_corpus is None:
+        missing.append("50 real scratch goals across the release corpus")
+    elif int(live_corpus.get("total_runs", 0)) < 50:
+        missing.append("50 real scratch goals across the release corpus")
+    if summary["release_gates"]["real_mechanical_share_ge_30"] is False:
+        missing.append(">=30% mechanical task share on real scratch corpus")
+    if summary["release_gates"]["real_e2e_green_ge_80"] is False:
+        missing.append("real scratch e2e green rate >=80%")
+    if summary["release_gates"]["real_executor_pass_rate_ge_llm"] is not True:
+        missing.append("real scratch LLM baseline for executor pass-rate comparison")
+    if summary["release_gates"]["real_latency_reduction_ge_50"] is not True:
+        missing.append("real scratch LLM baseline for task latency comparison")
+    if summary["release_gates"]["zero_feature_regression_live"] is False:
+        missing.append("zero feature regression evidence from live scratch corpus")
     summary["missing_release_evidence"] = missing
     return summary
 
@@ -887,7 +955,7 @@ def _summarize_llm_baseline(
         for row in rows
         if int(row.get("duration_ms", 0)) > 0
     ]
-    avg_llm_ms = max(1, _avg(durations)) if durations else 0
+    avg_llm_ms = max(1, _avg(durations)) if total_cases else 0
     return {
         "total_cases": total_cases,
         "passed_cases": passed_cases,
@@ -908,6 +976,12 @@ def load_llm_baseline(path: Path) -> dict[str, Any]:
     """Load a captured LLM baseline summary for executor-vs-LLM comparison."""
     data = json.loads(path.read_text(encoding="utf-8"))
     return _normalize_llm_baseline(data, source=str(path))
+
+
+def load_live_gate_evidence(path: Path) -> dict[str, Any]:
+    """Load live scratch-gate evidence for release-corpus codegen metrics."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return _normalize_live_gate(data, source=_source_label(path))
 
 
 def _normalize_llm_baseline(
@@ -933,6 +1007,12 @@ def _normalize_llm_baseline(
         "total_cases": int(total_cases or 0),
         "pass_rate": float(pass_rate),
         "avg_llm_ms": int(avg_ms),
+        "real_corpus": bool(
+            values.get("real_corpus")
+            or values.get("real_50_scratch_corpus")
+            or baseline.get("real_corpus")
+            or baseline.get("real_50_scratch_corpus")
+        ),
     }
     if not 0 <= normalized["pass_rate"] <= 1:
         raise ValueError("LLM baseline pass_rate must be between 0 and 1")
@@ -941,9 +1021,100 @@ def _normalize_llm_baseline(
     return normalized
 
 
+def _normalize_live_gate(
+    live_gate: dict[str, Any],
+    *,
+    source: str | None = None,
+) -> dict[str, Any]:
+    if "summary" not in live_gate and "runs" not in live_gate:
+        return {
+            "source": live_gate.get("source") or source or "inline",
+            "total_runs": int(live_gate.get("total_runs", 0)),
+            "e2e_green": int(live_gate.get("e2e_green", 0)),
+            "e2e_green_rate": float(live_gate.get("e2e_green_rate", 0.0)),
+            "tasks_total": int(live_gate.get("tasks_total", 0)),
+            "tasks_codegen": int(live_gate.get("tasks_codegen", 0)),
+            "tasks_llm": int(live_gate.get("tasks_llm", 0)),
+            "tasks_failed": int(live_gate.get("tasks_failed", 0)),
+            "codegen_share": float(live_gate.get("codegen_share", 0.0)),
+            "avg_codegen_ms": int(live_gate.get("avg_codegen_ms", 0)),
+            "stacks": sorted(live_gate.get("stacks", [])),
+            "full_75_run_matrix": bool(live_gate.get("full_75_run_matrix", False)),
+            "e2e_green_ge_80": bool(live_gate.get("e2e_green_ge_80", False)),
+        }
+
+    summary = live_gate.get("summary") if isinstance(live_gate, dict) else {}
+    summary = summary if isinstance(summary, dict) else {}
+    runs = live_gate.get("runs") if isinstance(live_gate, dict) else []
+    runs = runs if isinstance(runs, list) else []
+
+    total_runs = int(summary.get("total_runs") or len(runs))
+    e2e_green = int(
+        summary.get("e2e_green")
+        if summary.get("e2e_green") is not None
+        else sum(1 for row in runs if row.get("e2e_green"))
+    )
+    tasks_total = 0
+    tasks_codegen = 0
+    tasks_llm = 0
+    tasks_failed = 0
+    weighted_codegen_ms = 0
+    stacks: set[str] = set()
+
+    for row in runs:
+        if isinstance(row.get("stack"), str):
+            stacks.add(row["stack"])
+        metrics = row.get("scratch_metrics")
+        if not isinstance(metrics, dict):
+            continue
+        row_total = int(metrics.get("tasks_total", 0) or 0)
+        row_codegen = int(metrics.get("tasks_codegen", 0) or 0)
+        row_llm = int(metrics.get("tasks_llm", 0) or 0)
+        row_failed = int(metrics.get("tasks_failed", 0) or 0)
+        avg_codegen = int(metrics.get("avg_codegen_ms", 0) or 0)
+        tasks_total += row_total
+        tasks_codegen += row_codegen
+        tasks_llm += row_llm
+        tasks_failed += row_failed
+        weighted_codegen_ms += avg_codegen * row_codegen
+
+    gates = summary.get("release_gates") if isinstance(summary, dict) else {}
+    gates = gates if isinstance(gates, dict) else {}
+    codegen_share = _ratio(tasks_codegen, tasks_total)
+    e2e_green_rate = (
+        float(summary.get("e2e_green_rate"))
+        if summary.get("e2e_green_rate") is not None
+        else _ratio(e2e_green, total_runs)
+    )
+    return {
+        "source": live_gate.get("source") or source or "inline",
+        "total_runs": total_runs,
+        "e2e_green": e2e_green,
+        "e2e_green_rate": e2e_green_rate,
+        "tasks_total": tasks_total,
+        "tasks_codegen": tasks_codegen,
+        "tasks_llm": tasks_llm,
+        "tasks_failed": tasks_failed,
+        "codegen_share": codegen_share,
+        "avg_codegen_ms": (
+            round(weighted_codegen_ms / tasks_codegen) if tasks_codegen else 0
+        ),
+        "stacks": sorted(stacks),
+        "full_75_run_matrix": bool(gates.get("full_75_run_matrix", False)),
+        "e2e_green_ge_80": bool(gates.get("e2e_green_ge_80", False)),
+    }
+
+
 def write_llm_baseline(result: dict[str, Any], json_path: Path) -> None:
     json_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _source_label(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def _ratio(numerator: int, denominator: int) -> float:
@@ -1117,6 +1288,31 @@ def _to_markdown(result: dict[str, Any]) -> str:
                 f"- latency reduction: {summary['latency_reduction']:.2%}",
             ]
         )
+    live = summary.get("live_corpus")
+    if live:
+        lines.extend(
+            [
+                "",
+                "## Live Scratch Corpus",
+                "",
+                f"- source: {live['source']}",
+                f"- runs: {live['e2e_green']}/{live['total_runs']} e2e green",
+                f"- tasks: {live['tasks_codegen']}/{live['tasks_total']} codegen",
+                f"- task-level LLM calls: {live['tasks_llm']}",
+                f"- codegen share: {live['codegen_share']:.2%}",
+                f"- avg live codegen latency: {live['avg_codegen_ms']} ms",
+                f"- stacks: {', '.join(live['stacks'])}",
+            ]
+        )
+        if summary.get("real_latency_reduction") is not None:
+            lines.append(
+                f"- live latency reduction vs LLM baseline: {summary['real_latency_reduction']:.2%}"
+            )
+        elif summary.get("live_latency_reduction_vs_task_baseline") is not None:
+            lines.append(
+                "- live latency reduction vs task-level LLM baseline: "
+                f"{summary['live_latency_reduction_vs_task_baseline']:.2%}"
+            )
     lines.extend(
         [
             "",
@@ -1172,6 +1368,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "disabled, write it to this JSON path, then compare against it."
         ),
     )
+    parser.add_argument(
+        "--live-gate-json",
+        type=Path,
+        default=LIVE_GATE_JSON,
+        help=(
+            "Path to scratch live-gate JSON used to prove real 50+ scratch "
+            "mechanical-executor release metrics. If absent, this evidence is omitted."
+        ),
+    )
     parser.add_argument("--quiet", action="store_true")
     return parser.parse_args(argv)
 
@@ -1204,12 +1409,16 @@ def main(argv: list[str] | None = None) -> int:
         work_dir = codegen_work_dir
     elif args.llm_baseline_json:
         llm_baseline = load_llm_baseline(args.llm_baseline_json)
+    live_gate = None
+    if args.live_gate_json and args.live_gate_json.is_file():
+        live_gate = load_live_gate_evidence(args.live_gate_json)
 
     result = run_benchmark(
         work_dir=work_dir,
         repeat=args.repeat,
         include_typescript=not args.no_typescript,
         llm_baseline=llm_baseline,
+        live_gate=live_gate,
     )
     write_reports(result, args.json_output, args.md_output)
     if not args.quiet:

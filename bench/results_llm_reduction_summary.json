@@ -55,7 +55,7 @@
       "total_cases": 50
     },
     "B_codegen": {
-      "avg_codegen_ms": 59,
+      "avg_codegen_ms": 61,
       "codegen_share": 1.0,
       "executor_pass_rate_ge_llm": true,
       "gate_passed": true,
@@ -63,8 +63,14 @@
       "llm_baseline_present": true,
       "pass_rate": 1.0,
       "present": true,
+      "real_corpus": true,
+      "real_e2e_green_ge_80": true,
+      "real_executor_pass_rate_ge_llm": false,
+      "real_latency_reduction_ge_50": false,
+      "real_mechanical_share_ge_30": true,
       "tasks_codegen": 60,
-      "total_tasks": 60
+      "total_tasks": 60,
+      "zero_feature_regression_live": true
     },
     "C_static_fixers": {
       "baseline_llm_calls": 100,
@@ -147,7 +153,7 @@
       "aggregate call-reduction proof across cache, recipes, fixers, and executors",
       "real fixer evidence from actual install/import/lint failures with non-faked package managers",
       "recipe path pass-rate compared with equivalent LLM path",
-      "planner cache hit-rate measured across cold/warm real scratch runs",
+      "real scratch LLM baseline for B/codegen pass-rate and latency",
       "SkillOpt human approval evidence >=80%"
     ],
     "modeled_baseline_calls": 19,
@@ -161,6 +167,12 @@
       "B_codegen_synthetic": true,
       "B_executor_pass_rate_ge_llm": true,
       "B_latency_reduction_ge_50": true,
+      "B_real_50_scratch_corpus": true,
+      "B_real_e2e_green_ge_80": true,
+      "B_real_executor_pass_rate_ge_llm": false,
+      "B_real_latency_reduction_ge_50": false,
+      "B_real_mechanical_share_ge_30": true,
+      "B_zero_feature_regression_live": true,
       "C_static_fixers_synthetic": true,
       "D_cache_synthetic": true,
       "local_synthetic_gates_pass": true,

@@ -149,6 +149,24 @@ def _summarize_levers(inputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
                 "executor_pass_rate_ge_llm",
             ),
             "latency_reduction_ge_50": _gate(codegen, "latency_reduction_ge_50"),
+            "real_corpus": _gate(codegen, "real_50_scratch_corpus"),
+            "real_mechanical_share_ge_30": _gate(
+                codegen,
+                "real_mechanical_share_ge_30",
+            ),
+            "real_e2e_green_ge_80": _gate(codegen, "real_e2e_green_ge_80"),
+            "real_executor_pass_rate_ge_llm": _gate(
+                codegen,
+                "real_executor_pass_rate_ge_llm",
+            ),
+            "real_latency_reduction_ge_50": _gate(
+                codegen,
+                "real_latency_reduction_ge_50",
+            ),
+            "zero_feature_regression_live": _gate(
+                codegen,
+                "zero_feature_regression_live",
+            ),
         },
         "scratch_preflight": {
             "present": inputs["preflight"]["present"],
@@ -200,6 +218,20 @@ def _summarize_gates(levers: dict[str, Any]) -> dict[str, Any]:
         "B_codegen_llm_baseline_present": levers["B_codegen"]["llm_baseline_present"],
         "B_executor_pass_rate_ge_llm": levers["B_codegen"]["executor_pass_rate_ge_llm"],
         "B_latency_reduction_ge_50": levers["B_codegen"]["latency_reduction_ge_50"],
+        "B_real_50_scratch_corpus": levers["B_codegen"]["real_corpus"],
+        "B_real_mechanical_share_ge_30": levers["B_codegen"][
+            "real_mechanical_share_ge_30"
+        ],
+        "B_real_e2e_green_ge_80": levers["B_codegen"]["real_e2e_green_ge_80"],
+        "B_real_executor_pass_rate_ge_llm": levers["B_codegen"][
+            "real_executor_pass_rate_ge_llm"
+        ],
+        "B_real_latency_reduction_ge_50": levers["B_codegen"][
+            "real_latency_reduction_ge_50"
+        ],
+        "B_zero_feature_regression_live": levers["B_codegen"][
+            "zero_feature_regression_live"
+        ],
         "scratch_live_matrix_complete": levers["scratch_live_gate"]["full_matrix"],
         "scratch_live_e2e_green_ge_80": levers["scratch_live_gate"]["e2e_green_ge_80"],
     }
@@ -278,6 +310,16 @@ def _missing_release_evidence(
         )
     if not gates["B_codegen_llm_baseline_present"]:
         missing.append("captured LLM baseline for executor pass-rate and latency")
+    if not gates["B_real_50_scratch_corpus"]:
+        missing.append("B/codegen real 50-scratch corpus")
+    if not gates["B_real_mechanical_share_ge_30"]:
+        missing.append("B/codegen real mechanical task share >=30%")
+    if not gates["B_real_executor_pass_rate_ge_llm"]:
+        missing.append("B/codegen real executor pass-rate >= LLM baseline")
+    if not gates["B_real_latency_reduction_ge_50"]:
+        missing.append("B/codegen real task latency reduction >=50%")
+    if not gates["B_zero_feature_regression_live"]:
+        missing.append("B/codegen zero feature regression evidence")
     if not gates["A_recipe_llm_baseline_present"]:
         missing.append("recipe path pass-rate compared with equivalent LLM path")
     if not gates["scratch_preflight_ready"]:
@@ -295,10 +337,28 @@ def _canonical_missing(values: list[str]) -> list[str]:
         lower = text.casefold()
         if not text:
             continue
-        if "50 real scratch" in lower or "real 50-scratch" in lower:
+        if "b/codegen real 50-scratch" in lower:
+            canonical.append("B/codegen real 50-scratch corpus")
+        elif "50 real scratch" in lower or "real 50-scratch" in lower:
             canonical.append(
                 "real 50-scratch corpus shared by cache, recipes, fixers, and executors"
             )
+        elif "real scratch llm baseline" in lower:
+            canonical.append(
+                "real scratch LLM baseline for B/codegen pass-rate and latency"
+            )
+        elif "real mechanical task share" in lower:
+            canonical.append("B/codegen real mechanical task share >=30%")
+        elif "real executor pass-rate" in lower:
+            canonical.append(
+                "real scratch LLM baseline for B/codegen pass-rate and latency"
+            )
+        elif "real task latency reduction" in lower:
+            canonical.append(
+                "real scratch LLM baseline for B/codegen pass-rate and latency"
+            )
+        elif "zero feature regression" in lower:
+            canonical.append("B/codegen zero feature regression evidence")
         elif "aggregate call-reduction" in lower:
             canonical.append(
                 "aggregate call-reduction proof across cache, recipes, fixers, and executors"
@@ -399,7 +459,8 @@ def _to_markdown(result: dict[str, Any]) -> str:
                 f"codegen share {levers['B_codegen']['codegen_share']:.2%}, "
                 f"pass-rate {levers['B_codegen']['pass_rate']:.2%}, "
                 f"avg {levers['B_codegen']['avg_codegen_ms']} ms | "
-                f"LLM baseline {levers['B_codegen']['llm_baseline_present']} |"
+                f"LLM baseline {levers['B_codegen']['llm_baseline_present']}, "
+                f"real corpus {levers['B_codegen']['real_corpus']} |"
             ),
             (
                 f"| scratch preflight | "
