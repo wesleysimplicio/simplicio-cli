@@ -1,0 +1,99 @@
+{
+  "benchmark": "scratch-cache-gate",
+  "cache_dir": "$WORK_DIR/cache",
+  "cold_cases": [
+    {
+      "duration_ms": 150643,
+      "goal": "Build a FastAPI audit log service with export filters and retention policy",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-audit-log-service-with",
+      "tasks": 26
+    },
+    {
+      "duration_ms": 163199,
+      "goal": "Build a FastAPI feature flag service with rollout rules and audit trail",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-feature-flag-service-wi",
+      "tasks": 35
+    }
+  ],
+  "cold_elapsed_s": 313.843,
+  "cold_stats": {
+    "bust": false,
+    "bytes": 34579,
+    "enabled": true,
+    "entries": 2,
+    "hit_rate": 0.0,
+    "hits": 0,
+    "max_mb": 500,
+    "mb": 0.033,
+    "misses": 2,
+    "oldest_age_s": 163.202,
+    "puts": 2,
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate\\cache",
+    "ttl_days": 30
+  },
+  "date": "2026-05-30",
+  "environment": {
+    "planner": "codex-cli/default",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "python": "3.14.3"
+  },
+  "scope": "cold/warm scratch planner cache measurement; this proves planner cache replay for identical prompts but does not replace the full 50-real-scratch release corpus",
+  "stack": "py-fastapi",
+  "summary": {
+    "cold_plans_valid": 2,
+    "cold_puts": 2,
+    "missing_release_evidence": [
+      "50 real scratch goals across the release corpus",
+      "aggregate call-reduction proof across cache, recipes, fixers, and executors"
+    ],
+    "release_gates": {
+      "cold_populated_cache": true,
+      "real_50_scratch_corpus": false,
+      "warm_hit_rate_ge_80": true,
+      "warm_plans_all_valid": true
+    },
+    "total_goals": 2,
+    "warm_hit_rate": 1.0,
+    "warm_hits": 2,
+    "warm_misses": 0,
+    "warm_plans_valid": 2
+  },
+  "warm_cases": [
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI audit log service with export filters and retention policy",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-audit-log-service-with",
+      "tasks": 26
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI feature flag service with rollout rules and audit trail",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-feature-flag-service-wi",
+      "tasks": 35
+    }
+  ],
+  "warm_elapsed_s": 0.005,
+  "warm_stats": {
+    "bust": false,
+    "bytes": 34579,
+    "enabled": true,
+    "entries": 2,
+    "hit_rate": 1.0,
+    "hits": 2,
+    "max_mb": 500,
+    "mb": 0.033,
+    "misses": 0,
+    "oldest_age_s": 163.207,
+    "puts": 0,
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate\\cache",
+    "ttl_days": 30
+  }
+}
