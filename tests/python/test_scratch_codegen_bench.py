@@ -29,7 +29,13 @@ def test_scratch_codegen_bench_runs_keyless_python_cases(tmp_path) -> None:
     assert summary["tasks_codegen"] == 4
     assert summary["llm_calls"] == 0
     assert summary["planner_calls"] == 0
+    assert summary["post_validated_cases"] == 0
+    assert summary["post_validation_failed_cases"] == 0
     assert summary["release_gates"]["llm_baseline_present"] is False
+    assert (
+        summary["release_gates"]["typescript_next_route_compiles_and_responds_json"]
+        is False
+    )
 
 
 def test_scratch_codegen_bench_writes_reports(tmp_path) -> None:

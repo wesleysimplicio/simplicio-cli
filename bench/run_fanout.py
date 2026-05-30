@@ -1,7 +1,7 @@
 """
 run_fanout.py — REAL fan-out benchmark using simplicio-prompt's SubagentRuntime.
 
-For each N in (1, 8, 32, 64-default, 200), launches N parallel LLM calls
+For each N in BENCH_FANOUT_NS (default: 200), launches N parallel LLM calls
 through `kernel.subagent_runtime.SubagentRuntime` (the simplicio-prompt kernel)
 on the SAME sistema-sindico PHP-modification task, with `temperature=0.7` to
 induce real per-call variance. Every subagent output is scored by REAL PHPUnit
@@ -13,7 +13,7 @@ values, plus tokens, cost, and elapsed wall-clock.
 This is the only honest test of simplicio-prompt's fan-out value prop on this
 codebase: the kernel actually executes N real subagent calls (not just embeds
 the runtime as prompt text), and the question we're answering is "does
-sp-default 64 buy you anything over single? does 200 buy you more than 64?".
+the N=200 sp default beat single-call and stay inside the release cost cap?".
 
 Usage:
   BENCH_SINDICO_SRC=/path/to/sistema-sindico \
@@ -44,6 +44,7 @@ WORK = Path(os.environ.get("BENCH_SINDICO_WORK", "/tmp/sindico_work_fanout"))
 RESULTS_JSON = ROOT / "bench" / "results_fanout.json"
 RESULTS_MD = ROOT / "bench" / "results_fanout.md"
 RESULTS_PDF = ROOT / "bench" / "results_fanout.pdf"
+SP_DEFAULT_N = 200
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_offline as ro  # noqa: E402  # _lat1
@@ -453,8 +454,9 @@ def write_reports(
     n_tasks = len(by_task)
     task_ids = [c["id"] for c in tasks]
 
+    ns_label = ", ".join(str(n) for n in ns)
     md = [
-        "# Fan-out benchmark — regex vs functional, 4 models × N ∈ {64, 200, 600}",
+        f"# Fan-out benchmark — regex vs functional, 4 models × N ∈ {{{ns_label}}}",
         "",
         f"Date: **{time.strftime('%Y-%m-%d')}**  ",
         "Engine: `kernel.subagent_runtime.SubagentRuntime` from "
@@ -465,7 +467,9 @@ def write_reports(
         "— real PHP 8 condominium system on GitHub.  ",
         "Models: " + ", ".join(f"`{m}`" for m in models) + "  ",
         "N values: "
-        + ", ".join(f"**{n}**" + (" *(sp default)*" if n == 64 else "") for n in ns)
+        + ", ".join(
+            f"**{n}**" + (" *(sp default)*" if n == SP_DEFAULT_N else "") for n in ns
+        )
         + "  ",
         f"Tasks: **{n_tasks}** real engineering changes across "
         "`src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing "
@@ -504,7 +508,7 @@ def write_reports(
             if not sub:
                 continue
             a = _agg(sub)
-            label = f"**{n}**" + (" *(default)*" if n == 64 else "")
+            label = f"**{n}**" + (" *(default)*" if n == SP_DEFAULT_N else "")
             md.append(
                 f"| `{m}` | {label} | "
                 f"{a['fn_pass']}/{a['completed']} ({a['fn_pct']}%) | "
@@ -526,7 +530,7 @@ def write_reports(
         a = _agg(_filter(rows, n=n))
         gap = a["rx_pct"] - a["fn_pct"]
         md.append(
-            f"| **{n}**{' *(default)*' if n == 64 else ''} | "
+            f"| **{n}**{' *(default)*' if n == SP_DEFAULT_N else ''} | "
             f"{a['fn_pass']}/{a['completed']} ({a['fn_pct']}%) | "
             f"{a['rx_full']}/{a['completed']} ({a['rx_pct']}%) | "
             f"**{gap:+d}** | "

@@ -12,6 +12,8 @@ import argparse
 import json
 import os
 import platform
+import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -280,6 +282,7 @@ def _run_case(
     expected_match = executor == case.expected_executor
     task_passed = bool(task and task.passed)
     work_dir = projects_parent.parent
+    validation = _validate_generated_case(case, report.project_dir, work_dir)
     return {
         "name": case.name,
         "run_index": run_index,
@@ -288,8 +291,9 @@ def _run_case(
         "expected_executor": case.expected_executor,
         "actual_executor": executor,
         "expected_executor_match": expected_match,
-        "passed": task_passed and expected_match,
+        "passed": task_passed and expected_match and validation["passed"],
         "task_passed": task_passed,
+        "validation": validation,
         "execution_mode": task.execution_mode if task is not None else "missing",
         "duration_ms": task.duration_ms if task is not None else 0,
         "metrics": report.metrics,
@@ -304,6 +308,104 @@ def _write_seed_tree(tree: Path, seed_files: dict[str, str]) -> None:
         path = tree / rel_path
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
+
+
+def _validate_generated_case(
+    case: BenchCase,
+    project_dir: Path,
+    work_dir: Path,
+) -> dict[str, Any]:
+    if case.expected_executor == "typescript-add-next-route":
+        return _validate_next_route(project_dir / case.task.target, work_dir)
+    return {"passed": True, "checks": [], "log": "no post-validation required"}
+
+
+def _validate_next_route(route_path: Path, work_dir: Path) -> dict[str, Any]:
+    if not route_path.is_file():
+        return {
+            "passed": False,
+            "checks": ["route_file_exists"],
+            "log": f"missing generated route file: {_redact_path(route_path, work_dir)}",
+        }
+
+    node = shutil.which("node") or shutil.which("node.exe")
+    if node is None:
+        return {
+            "passed": False,
+            "checks": ["node_available"],
+            "log": "node was not found; cannot validate generated Next route",
+        }
+
+    typescript_dir = _find_typescript_package(route_path.parent)
+    if typescript_dir is None:
+        return {
+            "passed": False,
+            "checks": ["typescript_available"],
+            "log": "typescript package was not found; cannot compile generated route",
+        }
+
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", suffix=".cjs", delete=False
+    ) as handle:
+        handle.write(_NEXT_ROUTE_VALIDATOR_SCRIPT)
+        script = Path(handle.name)
+    try:
+        proc = subprocess.run(
+            [node, str(script), str(route_path), str(typescript_dir)],
+            cwd=route_path.parent,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+        return {
+            "passed": False,
+            "checks": ["typescript_compile", "route_runtime"],
+            "log": f"Next route validation failed: {exc}",
+        }
+    finally:
+        try:
+            script.unlink()
+        except OSError:
+            pass
+
+    output = ((proc.stdout or "") + (proc.stderr or "")).strip()
+    if proc.returncode != 0:
+        return {
+            "passed": False,
+            "checks": ["typescript_compile", "route_runtime"],
+            "log": _redact_text(output[-1500:], work_dir),
+        }
+    try:
+        payload = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        return {
+            "passed": False,
+            "checks": ["typescript_compile", "route_runtime"],
+            "log": _redact_text(output[-1500:], work_dir),
+        }
+    payload["log"] = _redact_text(str(payload.get("log", "")), work_dir)
+    return payload
+
+
+def _find_typescript_package(start: Path) -> Path | None:
+    candidates = [
+        start / "node_modules" / "typescript",
+        Path.cwd() / "node_modules" / "typescript",
+    ]
+    cache = os.environ.get("SIMPLICIO_TS_MORPH_CACHE")
+    if cache:
+        candidates.append(Path(cache) / "node_modules" / "typescript")
+    candidates.append(
+        Path(tempfile.gettempdir())
+        / "simplicio-ts-morph-node"
+        / "node_modules"
+        / "typescript"
+    )
+    for candidate in candidates:
+        if (candidate / "package.json").is_file():
+            return candidate
+    return None
 
 
 def _plan_for_case(case: BenchCase, project_name: str) -> Plan:
@@ -337,6 +439,15 @@ def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
     )
     total_tasks = codegen_tasks + llm_tasks + skipped_tasks + failed_tasks
     matched = sum(1 for row in rows if row.get("expected_executor_match"))
+    post_validated = sum(
+        1
+        for row in rows
+        if row.get("validation", {}).get("passed")
+        and row.get("validation", {}).get("checks")
+    )
+    post_validation_failed = sum(
+        1 for row in rows if not row.get("validation", {}).get("passed", True)
+    )
     codegen_durations = [
         int(row.get("duration_ms", 0))
         for row in rows
@@ -355,6 +466,8 @@ def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
         "tasks_failed": failed_tasks,
         "codegen_share": _ratio(codegen_tasks, total_tasks),
         "avg_codegen_ms": _avg(codegen_durations),
+        "post_validated_cases": post_validated,
+        "post_validation_failed_cases": post_validation_failed,
         "elapsed_s": elapsed_s,
         "planner_calls": 0,
         "llm_calls": llm_tasks,
@@ -363,6 +476,14 @@ def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
         "fifty_runs": total_cases >= 50,
         "mechanical_share_ge_30": summary["codegen_share"] >= 0.30,
         "executor_pass_rate_100": summary["pass_rate"] == 1.0,
+        "typescript_next_route_compiles_and_responds_json": any(
+            row.get("name") == "typescript-next-route"
+            and row.get("validation", {}).get("passed")
+            and {"typescript_compile", "get_json", "post_json"}.issubset(
+                set(row.get("validation", {}).get("checks", []))
+            )
+            for row in rows
+        ),
         "llm_baseline_present": False,
         "latency_reduction_ge_50": None,
     }
@@ -398,6 +519,108 @@ def _redact_text(text: str, root: Path) -> str:
     )
 
 
+_NEXT_ROUTE_VALIDATOR_SCRIPT = r"""
+const fs = require("fs");
+const moduleApi = require("module");
+const path = require("path");
+const ts = require(process.argv[3]);
+
+const routePath = process.argv[2];
+const checks = [];
+
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+const compilerOptions = {
+  target: ts.ScriptTarget.ES2022,
+  module: ts.ModuleKind.CommonJS,
+  strict: true,
+  esModuleInterop: true,
+  skipLibCheck: true,
+  moduleResolution: ts.ModuleResolutionKind.Node10,
+  lib: ["lib.es2022.d.ts", "lib.dom.d.ts"],
+};
+const program = ts.createProgram([routePath], compilerOptions);
+const diagnostics = ts.getPreEmitDiagnostics(program)
+  .filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error);
+if (diagnostics.length) {
+  const formatted = ts.formatDiagnosticsWithColorAndContext(diagnostics, {
+    getCanonicalFileName: (fileName) => fileName,
+    getCurrentDirectory: () => process.cwd(),
+    getNewLine: () => "\n",
+  });
+  fail(`TypeScript compile failed:\n${formatted}`);
+}
+checks.push("typescript_compile");
+
+const source = fs.readFileSync(routePath, "utf8");
+const compiled = ts.transpileModule(source, { compilerOptions }).outputText;
+const routeModule = { exports: {} };
+const routeRequire = moduleApi.createRequire(path.resolve(routePath));
+const wrapper = new Function(
+  "exports",
+  "require",
+  "module",
+  "__filename",
+  "__dirname",
+  compiled,
+);
+wrapper(
+  routeModule.exports,
+  routeRequire,
+  routeModule,
+  routePath,
+  path.dirname(routePath),
+);
+
+async function main() {
+  if (typeof Response !== "function" || typeof Request !== "function") {
+    fail("Node runtime does not expose Request/Response globals");
+  }
+  if (typeof routeModule.exports.GET !== "function") {
+    fail("generated route does not export GET");
+  }
+  const getResponse = await routeModule.exports.GET();
+  if (!(getResponse instanceof Response) || getResponse.status !== 200) {
+    fail("GET did not return a 200 Response");
+  }
+  const getJson = await getResponse.json();
+  if (!Array.isArray(getJson)) {
+    fail("GET did not return a JSON array");
+  }
+  checks.push("get_json");
+
+  if (typeof routeModule.exports.POST !== "function") {
+    fail("generated route does not export POST");
+  }
+  const postRequest = new Request("http://localhost/api/units", {
+    method: "POST",
+    body: JSON.stringify({ name: "Apt 101" }),
+    headers: { "content-type": "application/json" },
+  });
+  const postResponse = await routeModule.exports.POST(postRequest);
+  if (!(postResponse instanceof Response) || postResponse.status !== 201) {
+    fail("POST did not return a 201 Response");
+  }
+  const postJson = await postResponse.json();
+  if (!postJson || postJson.name !== "Apt 101") {
+    fail("POST did not echo a JSON object");
+  }
+  checks.push("post_json");
+
+  console.log(JSON.stringify({
+    passed: true,
+    checks,
+    log: "generated route compiled and returned JSON from GET/POST",
+  }));
+}
+
+main().catch((error) => fail(error && error.stack ? error.stack : String(error)));
+"""
+
+
 def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> None:
     json_path.parent.mkdir(parents=True, exist_ok=True)
     md_path.parent.mkdir(parents=True, exist_ok=True)
@@ -418,6 +641,8 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- codegen share: {summary['codegen_share']:.2%}",
         f"- expected executor match: {summary['expected_executor_match_rate']:.2%}",
         f"- avg codegen latency: {summary['avg_codegen_ms']} ms",
+        f"- post-validated cases: {summary['post_validated_cases']}",
+        f"- post-validation failures: {summary['post_validation_failed_cases']}",
         f"- planner calls: {summary['planner_calls']}",
         f"- llm calls: {summary['llm_calls']}",
         "",
@@ -431,18 +656,21 @@ def _to_markdown(result: dict[str, Any]) -> str:
             "",
             "## Cases",
             "",
-            "| case | stack | executor | mode | passed | duration_ms |",
-            "| --- | --- | --- | --- | --- | ---: |",
+            "| case | stack | executor | mode | post-validation | passed | duration_ms |",
+            "| --- | --- | --- | --- | --- | --- | ---: |",
         ]
     )
     for row in result["cases"]:
+        validation = row.get("validation", {})
+        validation_text = ",".join(validation.get("checks", [])) or "-"
         lines.append(
-            "| {name} r{run_index:02d} | {stack} | {executor} | {mode} | {passed} | {duration} |".format(
+            "| {name} r{run_index:02d} | {stack} | {executor} | {mode} | {validation} | {passed} | {duration} |".format(
                 name=row["name"],
                 run_index=row["run_index"],
                 stack=row["stack"],
                 executor=row.get("actual_executor") or "",
                 mode=row.get("execution_mode") or "",
+                validation=validation_text,
                 passed=row.get("passed"),
                 duration=row.get("duration_ms", 0),
             )
