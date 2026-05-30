@@ -145,22 +145,86 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-key-fob-lifecycle-servi",
       "tasks": 28
+    },
+    {
+      "duration_ms": 122199,
+      "goal": "Build a FastAPI work order triage service with SLA timers",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-work-order-triage-servi",
+      "tasks": 35
+    },
+    {
+      "duration_ms": 151573,
+      "goal": "Build a FastAPI occupancy analytics service with monthly summaries",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-occupancy-analytics-ser",
+      "tasks": 26
+    },
+    {
+      "duration_ms": 69349,
+      "goal": "Build a FastAPI service request intake flow with duplicate detection",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-service-request-intake",
+      "tasks": 21
+    },
+    {
+      "duration_ms": 43473,
+      "goal": "Build a FastAPI lease compliance service with document reminders",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-lease-compliance-servic",
+      "tasks": 24
+    },
+    {
+      "duration_ms": 105069,
+      "goal": "Build a FastAPI inspection checklist service with photo evidence slots",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-inspection-checklist-se",
+      "tasks": 26
+    },
+    {
+      "duration_ms": 117279,
+      "goal": "Build a FastAPI utility meter ingestion service with anomaly flags",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-utility-meter-ingestion",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 161922,
+      "goal": "Build a FastAPI budget variance service with approval thresholds",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-budget-variance-service",
+      "tasks": 37
+    },
+    {
+      "duration_ms": 72315,
+      "goal": "Build a FastAPI invoice dispute workflow with reviewer assignment",
+      "pass": "cold",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-invoice-dispute-workflo",
+      "tasks": 18
     }
   ],
-  "cold_elapsed_s": 2701.369,
+  "cold_elapsed_s": 3544.557,
   "cold_stats": {
     "bust": false,
-    "bytes": 67236,
+    "bytes": 59933,
     "enabled": true,
     "entries": 4,
     "hit_rate": 0.0,
     "hits": 0,
     "max_mb": 500,
-    "mb": 0.064,
-    "misses": 18,
-    "oldest_age_s": 374.873,
-    "puts": 18,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-14-17\\cache",
+    "mb": 0.057,
+    "misses": 26,
+    "oldest_age_s": 351.521,
+    "puts": 26,
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-22-25\\cache",
     "ttl_days": 30
   },
   "date": "2026-05-30",
@@ -184,14 +248,14 @@
   },
   "matrix": {
     "corpus_total_goals": 50,
-    "merged_slices": 7,
-    "selected_goals": 18
+    "merged_slices": 9,
+    "selected_goals": 26
   },
   "scope": "cold/warm scratch planner cache measurement; this proves planner cache replay for identical prompts. Optional live-gate input links the cache evidence to the shared real scratch release corpus without overstating the cold/warm sample size.",
   "stack": "py-fastapi",
   "summary": {
-    "cold_plans_valid": 18,
-    "cold_puts": 18,
+    "cold_plans_valid": 26,
+    "cold_puts": 26,
     "live_corpus": {
       "e2e_green": 75,
       "e2e_green_rate": 1.0,
@@ -215,11 +279,11 @@
       "warm_hit_rate_ge_80": true,
       "warm_plans_all_valid": true
     },
-    "total_goals": 18,
+    "total_goals": 26,
     "warm_hit_rate": 1.0,
-    "warm_hits": 18,
+    "warm_hits": 26,
     "warm_misses": 0,
-    "warm_plans_valid": 18
+    "warm_plans_valid": 26
   },
   "warm_cases": [
     {
@@ -365,22 +429,86 @@
       "passed": true,
       "project_name": "p-build-a-fastapi-key-fob-lifecycle-servi",
       "tasks": 28
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI work order triage service with SLA timers",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-work-order-triage-servi",
+      "tasks": 35
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI occupancy analytics service with monthly summaries",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-occupancy-analytics-ser",
+      "tasks": 26
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI service request intake flow with duplicate detection",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-service-request-intake",
+      "tasks": 21
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI lease compliance service with document reminders",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-lease-compliance-servic",
+      "tasks": 24
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI inspection checklist service with photo evidence slots",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-inspection-checklist-se",
+      "tasks": 26
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI utility meter ingestion service with anomaly flags",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-utility-meter-ingestion",
+      "tasks": 25
+    },
+    {
+      "duration_ms": 3,
+      "goal": "Build a FastAPI budget variance service with approval thresholds",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-budget-variance-service",
+      "tasks": 37
+    },
+    {
+      "duration_ms": 2,
+      "goal": "Build a FastAPI invoice dispute workflow with reviewer assignment",
+      "pass": "warm",
+      "passed": true,
+      "project_name": "p-build-a-fastapi-invoice-dispute-workflo",
+      "tasks": 18
     }
   ],
-  "warm_elapsed_s": 0.062,
+  "warm_elapsed_s": 0.088,
   "warm_stats": {
     "bust": false,
-    "bytes": 67236,
+    "bytes": 59933,
     "enabled": true,
     "entries": 4,
     "hit_rate": 1.0,
-    "hits": 18,
+    "hits": 26,
     "max_mb": 500,
-    "mb": 0.064,
+    "mb": 0.057,
     "misses": 0,
-    "oldest_age_s": 374.886,
+    "oldest_age_s": 351.535,
     "puts": 0,
-    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-14-17\\cache",
+    "root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-cache-gate-22-25\\cache",
     "ttl_days": 30
   }
 }
