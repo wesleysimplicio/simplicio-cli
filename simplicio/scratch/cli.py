@@ -304,6 +304,8 @@ def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
         return "bash-cli"
     if any(k in g for k in ("axum", "rust ")) and reg.get("rust-axum"):
         return "rust-axum"
+    if "leptos" in g and reg.get("rust-leptos"):
+        return "rust-leptos"
     if any(k in g for k in ("rust cli", "clap ")) and reg.get("rust-cli"):
         return "rust-cli"
     if "laravel" in g and reg.get("php-laravel"):
@@ -334,6 +336,16 @@ def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
         return "kotlin-ktor"
     if any(k in g for k in ("phoenix", "elixir")) and reg.get("elixir-phoenix"):
         return "elixir-phoenix"
+    if "flutter" in g and reg.get("dart-flutter"):
+        return "dart-flutter"
+    if any(k in g for k in ("android", "jetpack compose")) and reg.get(
+        "kotlin-android"
+    ):
+        return "kotlin-android"
+    if any(k in g for k in ("vapor", "swift api")) and reg.get("swift-vapor"):
+        return "swift-vapor"
+    if any(k in g for k in ("swiftui", "ios app", "iphone")) and reg.get("swift-ios"):
+        return "swift-ios"
     if any(k in g for k in ("echo", "go api")) and reg.get("go-echo"):
         return "go-echo"
     if any(k in g for k in ("go cli", "cobra", "viper")) and reg.get("go-cli"):
