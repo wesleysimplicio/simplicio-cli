@@ -8,6 +8,7 @@ synthetic declarative recipe benchmark; validates match-before-planner coverage 
 - matched: 30
 - match rate: 60.00%
 - valid recipe plans: 30
+- recipe plan pass-rate: 100.00%
 - planner calls saved: 30
 
 ## Release Gate Status
@@ -17,7 +18,17 @@ synthetic declarative recipe benchmark; validates match-before-planner coverage 
 - matched_plans_valid: True
 - expected_match_accuracy_100: True
 - real_scratch_corpus: False
-- llm_pass_rate_baseline_present: False
+- llm_pass_rate_baseline_present: True
+- llm_baseline_covers_matched_cases: True
+- recipe_plan_pass_rate_ge_llm: True
+
+## LLM Baseline
+
+- source: captured by bench/run_scratch_recipes.py --capture-llm-baseline-json
+- cases: 30
+- pass rate: 100.00%
+- avg LLM latency: 35494 ms
+- recipe pass-rate >= LLM: True
 
 ## Cases
 

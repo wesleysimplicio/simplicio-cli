@@ -132,6 +132,10 @@ def _summarize_levers(inputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
                 recipes,
                 "llm_pass_rate_baseline_present",
             ),
+            "recipe_plan_pass_rate_ge_llm": _gate(
+                recipes,
+                "recipe_plan_pass_rate_ge_llm",
+            ),
         },
         "B_codegen": {
             "present": inputs["codegen"]["present"],
@@ -215,6 +219,9 @@ def _summarize_gates(levers: dict[str, Any]) -> dict[str, Any]:
             and levers["A_recipes"]["real_corpus"]
         ),
         "A_recipe_llm_baseline_present": levers["A_recipes"]["llm_baseline_present"],
+        "A_recipe_pass_rate_ge_llm": levers["A_recipes"][
+            "recipe_plan_pass_rate_ge_llm"
+        ],
         "B_codegen_llm_baseline_present": levers["B_codegen"]["llm_baseline_present"],
         "B_executor_pass_rate_ge_llm": levers["B_codegen"]["executor_pass_rate_ge_llm"],
         "B_latency_reduction_ge_50": levers["B_codegen"]["latency_reduction_ge_50"],
@@ -322,6 +329,8 @@ def _missing_release_evidence(
         missing.append("B/codegen zero feature regression evidence")
     if not gates["A_recipe_llm_baseline_present"]:
         missing.append("recipe path pass-rate compared with equivalent LLM path")
+    if not gates["A_recipe_pass_rate_ge_llm"]:
+        missing.append("recipe path pass-rate >= equivalent LLM path")
     if not gates["scratch_preflight_ready"]:
         missing.append("scratch live-gate preflight must be ready before the matrix")
     if not gates["scratch_live_matrix_complete"]:

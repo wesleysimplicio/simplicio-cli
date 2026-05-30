@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import platform
+import subprocess
 import sys
 import time
 from dataclasses import dataclass
@@ -22,11 +24,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from simplicio.scratch.recipes import RecipeRegistry  # noqa: E402
-from simplicio.scratch.stack_registry import slugify_project  # noqa: E402
+from simplicio.scratch import planner as scratch_planner  # noqa: E402
+from simplicio.scratch.plan_schema import validate_plan  # noqa: E402
+from simplicio.scratch.stack_registry import StackRegistry, slugify_project  # noqa: E402
 
 
 RESULTS_JSON = ROOT / "bench" / "results_scratch_recipes.json"
 RESULTS_MD = ROOT / "bench" / "results_scratch_recipes.md"
+LLM_BASELINE_JSON = ROOT / "bench" / "results_scratch_recipes_llm_baseline.json"
 
 
 @dataclass(frozen=True)
@@ -97,7 +102,11 @@ def build_cases() -> list[RecipeCase]:
     ] + [RecipeCase(stack, goal, False) for stack, goal in misses]
 
 
-def run_benchmark(cases: list[RecipeCase] | None = None) -> dict[str, Any]:
+def run_benchmark(
+    cases: list[RecipeCase] | None = None,
+    *,
+    llm_baseline: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     registry = RecipeRegistry()
     rows = []
     t0 = time.perf_counter()
@@ -154,12 +163,115 @@ def run_benchmark(cases: list[RecipeCase] | None = None) -> dict[str, Any]:
             "python": sys.version.split()[0],
             "platform": platform.platform(),
         },
-        "summary": _summarize(rows, elapsed_s),
+        "llm_baseline": _normalize_llm_baseline(llm_baseline) if llm_baseline else None,
+        "summary": _summarize(
+            rows,
+            elapsed_s,
+            _normalize_llm_baseline(llm_baseline) if llm_baseline else None,
+        ),
         "cases": rows,
     }
 
 
-def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
+def capture_llm_baseline(
+    *,
+    work_dir: Path,
+    cases: list[RecipeCase] | None = None,
+    case_limit: int | None = None,
+) -> dict[str, Any]:
+    """Capture an equivalent planner LLM baseline with recipe matching bypassed."""
+    planner_route = os.environ.get("SIMPLICIO_PLANNER", "").strip()
+    if not planner_route:
+        raise RuntimeError(
+            "SIMPLICIO_PLANNER must be set to capture a recipe LLM baseline"
+        )
+
+    work_dir.mkdir(parents=True, exist_ok=True)
+    baseline_cases = [case for case in cases or build_cases() if case.expected_match]
+    if case_limit is not None:
+        baseline_cases = baseline_cases[: max(0, case_limit)]
+
+    rows = []
+    t0 = time.perf_counter()
+    for case in baseline_cases:
+        rows.append(_run_llm_baseline_case(case, work_dir))
+
+    elapsed_s = round(time.perf_counter() - t0, 3)
+    return {
+        "benchmark": "scratch-recipes-llm-baseline",
+        "source": "captured by bench/run_scratch_recipes.py --capture-llm-baseline-json",
+        "scope": (
+            "equivalent planner LLM baseline for matched recipe goals; recipe "
+            "matching is bypassed and the planner output is schema-validated"
+        ),
+        "work_dir": "$WORK_DIR",
+        "date": time.strftime("%Y-%m-%d"),
+        "environment": {
+            "python": sys.version.split()[0],
+            "platform": platform.platform(),
+            "planner": planner_route,
+        },
+        "summary": _summarize_llm_baseline(rows, elapsed_s, planner_route),
+        "cases": rows,
+    }
+
+
+def _run_llm_baseline_case(case: RecipeCase, work_dir: Path) -> dict[str, Any]:
+    registry = StackRegistry()
+    stack = registry.get(case.stack)
+    project_name = slugify_project(case.goal)
+    case_dir = work_dir / project_name
+    case_dir.mkdir(parents=True, exist_ok=True)
+    _ensure_git_repo(case_dir)
+    started = time.perf_counter()
+    previous_cwd = Path.cwd()
+    try:
+        os.chdir(case_dir)
+        prompt = scratch_planner._build_prompt(stack, case.goal, project_name)
+        raw = scratch_planner.planner_complete(prompt, template_version=stack.version)
+        parsed = scratch_planner._extract_json(raw)
+        if parsed is None:
+            raise ValueError("planner output did not contain a JSON object")
+        plan = validate_plan(parsed)
+        stack_matches = plan.stack == case.stack
+        passed = bool(plan.tasks) and stack_matches
+        error = "" if passed else f"plan stack mismatch: {plan.stack} != {case.stack}"
+        task_count = len(plan.tasks)
+    except Exception as exc:  # pragma: no cover - defensive report detail
+        passed = False
+        error = f"{type(exc).__name__}: {exc}"
+        task_count = 0
+    finally:
+        os.chdir(previous_cwd)
+
+    return {
+        "stack": case.stack,
+        "goal": case.goal,
+        "expected_recipe": case.expected_recipe,
+        "passed": passed,
+        "task_count": task_count,
+        "duration_ms": int((time.perf_counter() - started) * 1000),
+        "error": error,
+    }
+
+
+def _ensure_git_repo(path: Path) -> None:
+    if (path / ".git").is_dir():
+        return
+    subprocess.run(
+        ["git", "init", "-q"],
+        cwd=path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def _summarize(
+    rows: list[dict[str, Any]],
+    elapsed_s: float,
+    llm_baseline: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     total = len(rows)
     matched = sum(1 for row in rows if row["matched"])
     valid = sum(1 for row in rows if row["plan_valid"])
@@ -167,6 +279,7 @@ def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
     recipe_correct = sum(1 for row in rows if row["expected_recipe_correct"])
     planner_calls_saved = sum(int(row["planner_calls_saved"]) for row in rows)
     match_rate = round(matched / total, 4) if total else 0.0
+    recipe_plan_pass_rate = round(valid / matched, 4) if matched else 0.0
     summary = {
         "total_cases": total,
         "matched_cases": matched,
@@ -176,22 +289,112 @@ def _summarize(rows: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
         "expected_match_accuracy": round(match_correct / total, 4) if total else 0.0,
         "expected_recipe_accuracy": round(recipe_correct / total, 4) if total else 0.0,
         "planner_calls_saved": planner_calls_saved,
+        "recipe_plan_pass_rate": recipe_plan_pass_rate,
         "elapsed_s": elapsed_s,
     }
+    if llm_baseline:
+        summary["llm_baseline"] = llm_baseline
+        summary["recipe_plan_pass_rate_ge_llm"] = recipe_plan_pass_rate >= float(
+            llm_baseline["pass_rate"]
+        )
+    else:
+        summary["recipe_plan_pass_rate_ge_llm"] = None
     summary["release_gates"] = {
         "fifty_goal_corpus": total >= 50,
         "recipe_match_ge_40": match_rate >= 0.40,
         "matched_plans_valid": valid == matched,
         "expected_match_accuracy_100": match_correct == total,
         "real_scratch_corpus": False,
-        "llm_pass_rate_baseline_present": False,
+        "llm_pass_rate_baseline_present": llm_baseline is not None,
+        "llm_baseline_covers_matched_cases": (
+            int(llm_baseline.get("total_cases", 0)) >= matched
+            if llm_baseline
+            else False
+        ),
+        "recipe_plan_pass_rate_ge_llm": summary["recipe_plan_pass_rate_ge_llm"],
     }
     summary["missing_release_evidence"] = [
         "real 50-scratch corpus",
-        "recipe path pass-rate compared with equivalent LLM planner/doer path",
         "aggregate call-reduction proof across cache, recipes, fixers, and executors",
     ]
+    if not summary["release_gates"]["llm_pass_rate_baseline_present"]:
+        summary["missing_release_evidence"].append(
+            "recipe path pass-rate compared with equivalent LLM path"
+        )
+    elif not summary["release_gates"]["llm_baseline_covers_matched_cases"]:
+        summary["missing_release_evidence"].append(
+            "LLM recipe baseline covering all matched recipe cases"
+        )
+    elif summary["release_gates"]["recipe_plan_pass_rate_ge_llm"] is not True:
+        summary["missing_release_evidence"].append(
+            "recipe path pass-rate >= equivalent LLM path"
+        )
     return summary
+
+
+def _summarize_llm_baseline(
+    rows: list[dict[str, Any]],
+    elapsed_s: float,
+    planner_route: str,
+) -> dict[str, Any]:
+    total = len(rows)
+    passed = sum(1 for row in rows if row["passed"])
+    durations = [
+        int(row.get("duration_ms", 0))
+        for row in rows
+        if int(row.get("duration_ms", 0)) > 0
+    ]
+    return {
+        "total_cases": total,
+        "passed_cases": passed,
+        "failed_cases": total - passed,
+        "pass_rate": round(passed / total, 4) if total else 0.0,
+        "avg_llm_ms": max(1, round(sum(durations) / len(durations)))
+        if durations
+        else 0,
+        "elapsed_s": elapsed_s,
+        "planner": planner_route,
+    }
+
+
+def load_llm_baseline(path: Path) -> dict[str, Any]:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return _normalize_llm_baseline(data, source=_source_label(path))
+
+
+def write_llm_baseline(result: dict[str, Any], path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _normalize_llm_baseline(
+    baseline: dict[str, Any],
+    *,
+    source: str | None = None,
+) -> dict[str, Any]:
+    summary = baseline.get("summary")
+    values = summary if isinstance(summary, dict) else baseline
+    pass_rate = values.get("pass_rate")
+    avg_ms = values.get("avg_llm_ms")
+    total_cases = values.get("total_cases")
+    if total_cases is None:
+        cases = baseline.get("cases", [])
+        total_cases = len(cases) if isinstance(cases, list) else 0
+    if pass_rate is None or avg_ms is None:
+        raise ValueError("LLM baseline must include pass_rate and avg_llm_ms")
+    return {
+        "source": baseline.get("source") or source or "inline",
+        "total_cases": int(total_cases or 0),
+        "pass_rate": float(pass_rate),
+        "avg_llm_ms": int(avg_ms),
+    }
+
+
+def _source_label(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> None:
@@ -214,6 +417,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- matched: {summary['matched_cases']}",
         f"- match rate: {summary['match_rate']:.2%}",
         f"- valid recipe plans: {summary['valid_recipe_plans']}",
+        f"- recipe plan pass-rate: {summary['recipe_plan_pass_rate']:.2%}",
         f"- planner calls saved: {summary['planner_calls_saved']}",
         "",
         "## Release Gate Status",
@@ -221,6 +425,20 @@ def _to_markdown(result: dict[str, Any]) -> str:
     ]
     for gate, value in summary["release_gates"].items():
         lines.append(f"- {gate}: {value}")
+    baseline = summary.get("llm_baseline")
+    if baseline:
+        lines.extend(
+            [
+                "",
+                "## LLM Baseline",
+                "",
+                f"- source: {baseline['source']}",
+                f"- cases: {baseline['total_cases']}",
+                f"- pass rate: {baseline['pass_rate']:.2%}",
+                f"- avg LLM latency: {baseline['avg_llm_ms']} ms",
+                f"- recipe pass-rate >= LLM: {summary['recipe_plan_pass_rate_ge_llm']}",
+            ]
+        )
     lines.extend(
         [
             "",
@@ -248,13 +466,53 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
+    parser.add_argument(
+        "--llm-baseline-json",
+        type=Path,
+        help="Path to a captured recipe LLM baseline JSON.",
+    )
+    parser.add_argument(
+        "--capture-llm-baseline-json",
+        type=Path,
+        help="Capture a planner LLM baseline for matched recipe goals.",
+    )
+    parser.add_argument(
+        "--baseline-case-limit",
+        type=int,
+        help="Limit matched recipe cases when capturing an LLM baseline.",
+    )
+    parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--quiet", action="store_true")
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    result = run_benchmark()
+    if args.llm_baseline_json and args.capture_llm_baseline_json:
+        print(
+            "choose only one of --llm-baseline-json or --capture-llm-baseline-json",
+            file=sys.stderr,
+        )
+        return 2
+    llm_baseline = None
+    if args.capture_llm_baseline_json:
+        baseline_work_dir = args.work_dir or (
+            ROOT / ".tmp" / "scratch-recipes-llm-baseline"
+        )
+        try:
+            captured = capture_llm_baseline(
+                work_dir=baseline_work_dir,
+                case_limit=args.baseline_case_limit,
+            )
+        except RuntimeError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        write_llm_baseline(captured, args.capture_llm_baseline_json)
+        llm_baseline = captured
+    elif args.llm_baseline_json:
+        llm_baseline = load_llm_baseline(args.llm_baseline_json)
+
+    result = run_benchmark(llm_baseline=llm_baseline)
     write_reports(result, args.json_output, args.md_output)
     if not args.quiet:
         print(json.dumps(result["summary"], indent=2, sort_keys=True))

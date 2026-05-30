@@ -46,12 +46,13 @@
   "levers": {
     "A_recipes": {
       "gate_passed": true,
-      "llm_baseline_present": false,
+      "llm_baseline_present": true,
       "match_rate": 0.6,
       "matched_cases": 30,
       "planner_calls_saved": 30,
       "present": true,
       "real_corpus": false,
+      "recipe_plan_pass_rate_ge_llm": true,
       "total_cases": 50
     },
     "B_codegen": {
@@ -152,7 +153,6 @@
       "real 50-scratch corpus shared by cache, recipes, fixers, and executors",
       "aggregate call-reduction proof across cache, recipes, fixers, and executors",
       "real fixer evidence from actual install/import/lint failures with non-faked package managers",
-      "recipe path pass-rate compared with equivalent LLM path",
       "real scratch LLM baseline for B/codegen pass-rate and latency",
       "SkillOpt human approval evidence >=80%"
     ],
@@ -161,7 +161,8 @@
     "modeled_reduction": 0.6842,
     "release_evidence_complete": false,
     "release_gates": {
-      "A_recipe_llm_baseline_present": false,
+      "A_recipe_llm_baseline_present": true,
+      "A_recipe_pass_rate_ge_llm": true,
       "A_recipes_synthetic": true,
       "B_codegen_llm_baseline_present": true,
       "B_codegen_synthetic": true,

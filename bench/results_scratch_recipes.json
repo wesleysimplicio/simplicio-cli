@@ -3,7 +3,7 @@
   "cases": [
     {
       "actual_recipe": "crud-resource",
-      "duration_ms": 6,
+      "duration_ms": 11,
       "error": "",
       "expected_match": true,
       "expected_match_correct": true,
@@ -757,27 +757,42 @@
     "platform": "Windows-11-10.0.22631-SP0",
     "python": "3.14.3"
   },
+  "llm_baseline": {
+    "avg_llm_ms": 35494,
+    "pass_rate": 1.0,
+    "source": "captured by bench/run_scratch_recipes.py --capture-llm-baseline-json",
+    "total_cases": 30
+  },
   "scope": "synthetic declarative recipe benchmark; validates match-before-planner coverage and plan schema integrity but does not replace the real 50-scratch release gate",
   "summary": {
-    "elapsed_s": 0.008,
+    "elapsed_s": 0.014,
     "expected_match_accuracy": 1.0,
     "expected_recipe_accuracy": 1.0,
+    "llm_baseline": {
+      "avg_llm_ms": 35494,
+      "pass_rate": 1.0,
+      "source": "captured by bench/run_scratch_recipes.py --capture-llm-baseline-json",
+      "total_cases": 30
+    },
     "match_rate": 0.6,
     "matched_cases": 30,
     "missed_cases": 20,
     "missing_release_evidence": [
       "real 50-scratch corpus",
-      "recipe path pass-rate compared with equivalent LLM planner/doer path",
       "aggregate call-reduction proof across cache, recipes, fixers, and executors"
     ],
     "planner_calls_saved": 30,
+    "recipe_plan_pass_rate": 1.0,
+    "recipe_plan_pass_rate_ge_llm": true,
     "release_gates": {
       "expected_match_accuracy_100": true,
       "fifty_goal_corpus": true,
-      "llm_pass_rate_baseline_present": false,
+      "llm_baseline_covers_matched_cases": true,
+      "llm_pass_rate_baseline_present": true,
       "matched_plans_valid": true,
       "real_scratch_corpus": false,
-      "recipe_match_ge_40": true
+      "recipe_match_ge_40": true,
+      "recipe_plan_pass_rate_ge_llm": true
     },
     "total_cases": 50,
     "valid_recipe_plans": 30
