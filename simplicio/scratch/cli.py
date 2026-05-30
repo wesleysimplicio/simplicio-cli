@@ -11,10 +11,12 @@ directly. Top-level surface:
 from __future__ import annotations
 
 import argparse
+import inspect
 import json
 import os
 import sys
 from pathlib import Path
+from typing import Any
 
 from ..providers import planner_info
 from .planner import PlannerError, generate_plan
@@ -40,6 +42,10 @@ def _add_scratch_args(p: argparse.ArgumentParser) -> None:
                    help="print available stack templates")
     p.add_argument("--show-stack", default=None, metavar="SLUG",
                    help="print readme + metadata for one stack")
+    p.add_argument("--list-recipes", action="store_true",
+                   help="print registered scratch plan recipes")
+    p.add_argument("--slot", action="append", default=[], metavar="KEY=VALUE",
+                   help="fill a required recipe slot; may be repeated")
     p.add_argument("--json", action="store_true",
                    help="emit machine-readable JSON output where applicable")
 
@@ -86,6 +92,131 @@ def _cmd_show(reg: StackRegistry, slug: str, as_json: bool) -> int:
     return 0
 
 
+def _load_recipe_registry() -> Any | None:
+    try:
+        from .recipes import RecipeRegistry
+    except ModuleNotFoundError as exc:
+        if exc.name in {"simplicio.scratch.recipes", f"{__package__}.recipes"}:
+            return None
+        raise
+
+    reg = RecipeRegistry()
+    load = getattr(reg, "load", None)
+    if callable(load):
+        load()
+    return reg
+
+
+def _attr(obj: Any, name: str, default: Any = None) -> Any:
+    if isinstance(obj, dict):
+        return obj.get(name, default)
+    return getattr(obj, name, default)
+
+
+def _iter_recipes(reg: Any) -> list[Any]:
+    for attr in ("list", "all", "recipes", "_recipes"):
+        value = getattr(reg, attr, None)
+        if callable(value):
+            value = value()
+        if value:
+            if isinstance(value, dict):
+                return list(value.values())
+            return list(value)
+    return []
+
+
+def _recipe_summary(recipe: Any) -> dict[str, Any]:
+    matches = _attr(recipe, "matches", []) or []
+    patterns = [getattr(pattern, "pattern", str(pattern)) for pattern in matches]
+    slots = (
+        _attr(recipe, "slots_spec", None)
+        or _attr(recipe, "slots", None)
+        or {}
+    )
+    if isinstance(slots, dict):
+        slot_names = sorted(str(key) for key in slots)
+    else:
+        slot_names = [str(slot) for slot in slots]
+    return {
+        "name": _attr(recipe, "name", "<unnamed>"),
+        "description": _attr(recipe, "description", ""),
+        "applies_to": list(_attr(recipe, "applies_to", []) or []),
+        "slots": slot_names,
+        "matches": patterns,
+    }
+
+
+def _cmd_list_recipes(as_json: bool) -> int:
+    reg = _load_recipe_registry()
+    if reg is None:
+        print(
+            "error: recipe registry is not available in this checkout",
+            file=sys.stderr,
+        )
+        return 2
+
+    recipes = [_recipe_summary(recipe) for recipe in _iter_recipes(reg)]
+    if as_json:
+        print(json.dumps(recipes, indent=2))
+        return 0
+    if not recipes:
+        print("(no scratch recipes registered)")
+        return 0
+
+    print(f"{'recipe':24s}  {'stacks':24s}  slots")
+    print("-" * 74)
+    for recipe in recipes:
+        stacks = ",".join(recipe["applies_to"]) or "-"
+        slots = ",".join(recipe["slots"]) or "-"
+        print(f"{recipe['name']:24s}  {stacks:24s}  {slots}")
+        if recipe["description"]:
+            print(f"  {recipe['description']}")
+        for pattern in recipe["matches"]:
+            print(f"  match: {pattern}")
+    return 0
+
+
+def _parse_slots(raw_slots: list[str]) -> dict[str, str]:
+    slots: dict[str, str] = {}
+    for raw in raw_slots:
+        key, sep, value = raw.partition("=")
+        key = key.strip()
+        value = value.strip()
+        if not sep or not key:
+            raise ValueError(f"invalid --slot {raw!r}; use --slot key=value")
+        if not value:
+            raise ValueError(
+                f"slot '{key}' requires a value; pass --slot {key}=X"
+            )
+        slots[key] = value
+    return slots
+
+
+def _generate_plan_with_slots(
+    stack: Any,
+    goal: str,
+    project_name: str,
+    slots: dict[str, str],
+) -> Any:
+    params = inspect.signature(generate_plan).parameters
+    if "slots" in params:
+        return generate_plan(stack, goal, project_name, slots=slots)
+    if "recipe_slots" in params:
+        return generate_plan(stack, goal, project_name, recipe_slots=slots)
+    if not slots:
+        return generate_plan(stack, goal, project_name)
+
+    previous = os.environ.get("SIMPLICIO_RECIPE_SLOTS")
+    os.environ["SIMPLICIO_RECIPE_SLOTS"] = json.dumps(slots, sort_keys=True)
+    try:
+        return generate_plan(stack, goal, project_name)
+    finally:
+        if previous is None:
+            os.environ.pop("SIMPLICIO_RECIPE_SLOTS", None)
+        else:
+            os.environ["SIMPLICIO_RECIPE_SLOTS"] = previous
+
+
 def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
     """Very small rule-based heuristic. v1 leaves the heavy lift to the planner;
     here we only catch the obvious cases so the user does not have to type
@@ -124,6 +255,12 @@ def _cmd_scratch(args: argparse.Namespace, reg: StackRegistry) -> int:
               f"`simplicio scratch --list-stacks`.", file=sys.stderr)
         return 2
 
+    try:
+        slots = _parse_slots(args.slot)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
     project_name = args.name or slugify_project(goal)
 
     if args.planner:
@@ -132,11 +269,17 @@ def _cmd_scratch(args: argparse.Namespace, reg: StackRegistry) -> int:
     print(f"[scratch] stack:   {stack.slug} ({stack.language} / {stack.framework})",
           file=sys.stderr)
     print(f"[scratch] project: {project_name}", file=sys.stderr)
-    print(f"[scratch] planner: {planner_info()}", file=sys.stderr)
+    try:
+        planner = planner_info()
+    except SystemExit as exc:
+        planner = f"unavailable ({exc})"
+    print(f"[scratch] planner: {planner}", file=sys.stderr)
+    if slots:
+        print(f"[scratch] slots:   {', '.join(sorted(slots))}", file=sys.stderr)
     print(f"[scratch] generating plan...", file=sys.stderr)
 
     try:
-        plan = generate_plan(stack, goal, project_name)
+        plan = _generate_plan_with_slots(stack, goal, project_name, slots)
     except PlannerError as e:
         print(f"[scratch] planner failed: {e}", file=sys.stderr)
         return 3
@@ -199,4 +342,6 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_list(reg, args.json)
     if args.show_stack:
         return _cmd_show(reg, args.show_stack, args.json)
+    if args.list_recipes:
+        return _cmd_list_recipes(args.json)
     return _cmd_scratch(args, reg)

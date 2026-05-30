@@ -10,6 +10,16 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from simplicio import providers
+from simplicio._cache import reset_for_tests
+
+
+@pytest.fixture(autouse=True)
+def isolated_completion_cache(tmp_path, monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_CACHE_DIR", str(tmp_path / "cache"))
+    monkeypatch.delenv("SIMPLICIO_BUST_CACHE", raising=False)
+    reset_for_tests()
+    yield
+    reset_for_tests()
 
 
 def _ok(stdout="ok"):

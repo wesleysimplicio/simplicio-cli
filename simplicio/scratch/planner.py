@@ -13,6 +13,7 @@ from typing import Optional
 
 from ..providers import planner_complete
 from .plan_schema import Plan, PlanValidationError, validate_plan, EXAMPLE_PLAN
+from .recipes import RecipeRegistry, RecipeSlotError
 from .stack_registry import Stack
 
 
@@ -119,10 +120,26 @@ def _extract_json(text: str) -> Optional[dict]:
     return None
 
 
-def generate_plan(stack: Stack, goal: str, project_name: str) -> Plan:
+def generate_plan(
+    stack: Stack,
+    goal: str,
+    project_name: str,
+    slots: dict[str, str] | None = None,
+) -> Plan:
     """Run the planner up to PLANNER_MAX_RETRIES + 1 times.
     Each retry feeds the previous validation diff back as additional context.
     """
+    try:
+        registry = RecipeRegistry()
+        recipe_match = registry.match(goal, stack.slug, slot_overrides=slots)
+        if recipe_match is not None:
+            return registry.get(recipe_match.recipe_name, stack.slug).instantiate(
+                recipe_match,
+                project_name,
+            )
+    except RecipeSlotError as e:
+        raise PlannerError(str(e)) from e
+
     prompt = _build_prompt(stack, goal, project_name)
     feedback: Optional[list[str]] = None
     last_raw_text = ""
