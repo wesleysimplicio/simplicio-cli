@@ -1,6 +1,6 @@
 # Scratch Recipe Benchmark
 
-synthetic declarative recipe benchmark; validates match-before-planner coverage and plan schema integrity but does not replace the real 50-scratch release gate
+synthetic declarative recipe benchmark; validates match-before-planner coverage and plan schema integrity; optional live-gate input proves recipe coverage on the real scratch release corpus
 
 ## Summary
 
@@ -17,7 +17,10 @@ synthetic declarative recipe benchmark; validates match-before-planner coverage 
 - recipe_match_ge_40: True
 - matched_plans_valid: True
 - expected_match_accuracy_100: True
-- real_scratch_corpus: False
+- real_scratch_corpus: True
+- real_recipe_match_ge_40: True
+- real_recipe_plans_valid: True
+- real_e2e_green_ge_80: True
 - llm_pass_rate_baseline_present: True
 - llm_baseline_covers_matched_cases: True
 - recipe_plan_pass_rate_ge_llm: True
@@ -29,6 +32,18 @@ synthetic declarative recipe benchmark; validates match-before-planner coverage 
 - pass rate: 100.00%
 - avg LLM latency: 35494 ms
 - recipe pass-rate >= LLM: True
+
+## Live Recipe Corpus
+
+- source: bench/results_scratch_live_gate.json
+- runs: 75
+- matched: 75
+- match rate: 100.00%
+- valid recipe plans: 75
+- recipe plan pass-rate: 100.00%
+- planner calls saved: 75
+- e2e green: 75/75
+- stacks: go-gin, php-laravel, py-fastapi, rust-axum, ts-nextjs
 
 ## Cases
 

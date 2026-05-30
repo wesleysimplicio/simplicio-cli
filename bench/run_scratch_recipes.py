@@ -32,6 +32,7 @@ from simplicio.scratch.stack_registry import StackRegistry, slugify_project  # n
 RESULTS_JSON = ROOT / "bench" / "results_scratch_recipes.json"
 RESULTS_MD = ROOT / "bench" / "results_scratch_recipes.md"
 LLM_BASELINE_JSON = ROOT / "bench" / "results_scratch_recipes_llm_baseline.json"
+LIVE_GATE_JSON = ROOT / "bench" / "results_scratch_live_gate.json"
 
 
 @dataclass(frozen=True)
@@ -106,8 +107,11 @@ def run_benchmark(
     cases: list[RecipeCase] | None = None,
     *,
     llm_baseline: dict[str, Any] | None = None,
+    live_gate: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     registry = RecipeRegistry()
+    baseline = _normalize_llm_baseline(llm_baseline) if llm_baseline else None
+    live_corpus = _normalize_live_recipe_corpus(live_gate) if live_gate else None
     rows = []
     t0 = time.perf_counter()
     for case in cases or build_cases():
@@ -155,20 +159,17 @@ def run_benchmark(
         "benchmark": "scratch-recipes",
         "scope": (
             "synthetic declarative recipe benchmark; validates match-before-planner "
-            "coverage and plan schema integrity but does not replace the real "
-            "50-scratch release gate"
+            "coverage and plan schema integrity; optional live-gate input proves "
+            "recipe coverage on the real scratch release corpus"
         ),
         "date": time.strftime("%Y-%m-%d"),
         "environment": {
             "python": sys.version.split()[0],
             "platform": platform.platform(),
         },
-        "llm_baseline": _normalize_llm_baseline(llm_baseline) if llm_baseline else None,
-        "summary": _summarize(
-            rows,
-            elapsed_s,
-            _normalize_llm_baseline(llm_baseline) if llm_baseline else None,
-        ),
+        "llm_baseline": baseline,
+        "live_corpus": live_corpus,
+        "summary": _summarize(rows, elapsed_s, baseline, live_corpus),
         "cases": rows,
     }
 
@@ -271,6 +272,7 @@ def _summarize(
     rows: list[dict[str, Any]],
     elapsed_s: float,
     llm_baseline: dict[str, Any] | None = None,
+    live_corpus: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     total = len(rows)
     matched = sum(1 for row in rows if row["matched"])
@@ -299,12 +301,27 @@ def _summarize(
         )
     else:
         summary["recipe_plan_pass_rate_ge_llm"] = None
+    if live_corpus:
+        summary["live_corpus"] = live_corpus
     summary["release_gates"] = {
         "fifty_goal_corpus": total >= 50,
         "recipe_match_ge_40": match_rate >= 0.40,
         "matched_plans_valid": valid == matched,
         "expected_match_accuracy_100": match_correct == total,
-        "real_scratch_corpus": False,
+        "real_scratch_corpus": bool(
+            live_corpus and int(live_corpus.get("total_runs", 0)) >= 50
+        ),
+        "real_recipe_match_ge_40": bool(
+            live_corpus and float(live_corpus.get("match_rate", 0.0)) >= 0.40
+        ),
+        "real_recipe_plans_valid": bool(
+            live_corpus
+            and int(live_corpus.get("valid_recipe_plans", 0))
+            == int(live_corpus.get("matched_runs", 0))
+        ),
+        "real_e2e_green_ge_80": bool(
+            live_corpus and float(live_corpus.get("e2e_green_rate", 0.0)) >= 0.80
+        ),
         "llm_pass_rate_baseline_present": llm_baseline is not None,
         "llm_baseline_covers_matched_cases": (
             int(llm_baseline.get("total_cases", 0)) >= matched
@@ -314,9 +331,31 @@ def _summarize(
         "recipe_plan_pass_rate_ge_llm": summary["recipe_plan_pass_rate_ge_llm"],
     }
     summary["missing_release_evidence"] = [
-        "real 50-scratch corpus",
         "aggregate call-reduction proof across cache, recipes, fixers, and executors",
     ]
+    if not summary["release_gates"]["real_scratch_corpus"]:
+        summary["missing_release_evidence"].append("real 50-scratch recipe corpus")
+    if (
+        summary["release_gates"]["real_scratch_corpus"]
+        and not summary["release_gates"]["real_recipe_match_ge_40"]
+    ):
+        summary["missing_release_evidence"].append(
+            "real recipe match-rate >=40% on scratch corpus"
+        )
+    if (
+        summary["release_gates"]["real_scratch_corpus"]
+        and not summary["release_gates"]["real_recipe_plans_valid"]
+    ):
+        summary["missing_release_evidence"].append(
+            "real recipe plans valid on matched scratch corpus"
+        )
+    if (
+        summary["release_gates"]["real_scratch_corpus"]
+        and not summary["release_gates"]["real_e2e_green_ge_80"]
+    ):
+        summary["missing_release_evidence"].append(
+            "real recipe scratch e2e green rate >=80%"
+        )
     if not summary["release_gates"]["llm_pass_rate_baseline_present"]:
         summary["missing_release_evidence"].append(
             "recipe path pass-rate compared with equivalent LLM path"
@@ -362,6 +401,11 @@ def load_llm_baseline(path: Path) -> dict[str, Any]:
     return _normalize_llm_baseline(data, source=_source_label(path))
 
 
+def load_live_gate_evidence(path: Path) -> dict[str, Any]:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return _normalize_live_recipe_corpus(data, source=_source_label(path))
+
+
 def write_llm_baseline(result: dict[str, Any], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
@@ -387,6 +431,83 @@ def _normalize_llm_baseline(
         "total_cases": int(total_cases or 0),
         "pass_rate": float(pass_rate),
         "avg_llm_ms": int(avg_ms),
+    }
+
+
+def _normalize_live_recipe_corpus(
+    live_gate: dict[str, Any],
+    *,
+    source: str | None = None,
+) -> dict[str, Any]:
+    if "runs" not in live_gate:
+        return {
+            "source": live_gate.get("source") or source or "inline",
+            "total_runs": int(live_gate.get("total_runs", 0)),
+            "matched_runs": int(live_gate.get("matched_runs", 0)),
+            "valid_recipe_plans": int(live_gate.get("valid_recipe_plans", 0)),
+            "match_rate": float(live_gate.get("match_rate", 0.0)),
+            "recipe_plan_pass_rate": float(live_gate.get("recipe_plan_pass_rate", 0.0)),
+            "planner_calls_saved": int(live_gate.get("planner_calls_saved", 0)),
+            "e2e_green": int(live_gate.get("e2e_green", 0)),
+            "e2e_green_rate": float(live_gate.get("e2e_green_rate", 0.0)),
+            "stacks": sorted(live_gate.get("stacks", [])),
+            "cases": live_gate.get("cases", []),
+        }
+
+    registry = RecipeRegistry()
+    rows = []
+    runs = live_gate.get("runs")
+    runs = runs if isinstance(runs, list) else []
+    for run in runs:
+        stack = str(run.get("stack") or "")
+        goal = str(run.get("goal") or "")
+        match = None
+        plan_valid = False
+        task_count = 0
+        error = ""
+        if stack and goal:
+            try:
+                match = registry.match(goal, stack)
+                if match is not None:
+                    plan = registry.get(
+                        match.recipe_name, match.stack_slug
+                    ).instantiate(
+                        match,
+                        slugify_project(goal),
+                    )
+                    plan_valid = True
+                    task_count = len(plan.tasks)
+            except Exception as exc:  # pragma: no cover - defensive report detail
+                error = f"{type(exc).__name__}: {exc}"
+        rows.append(
+            {
+                "stack": stack,
+                "goal": goal,
+                "matched": match is not None,
+                "actual_recipe": match.recipe_name if match is not None else None,
+                "plan_valid": plan_valid,
+                "task_count": task_count,
+                "e2e_green": bool(run.get("e2e_green")),
+                "error": error,
+            }
+        )
+
+    total = len(rows)
+    matched = sum(1 for row in rows if row["matched"])
+    valid = sum(1 for row in rows if row["plan_valid"])
+    e2e_green = sum(1 for row in rows if row["e2e_green"])
+    return {
+        "source": live_gate.get("source") or source or "inline",
+        "total_runs": total,
+        "matched_runs": matched,
+        "valid_recipe_plans": valid,
+        "match_rate": round(matched / total, 4) if total else 0.0,
+        "recipe_plan_pass_rate": round(valid / matched, 4) if matched else 0.0,
+        "planner_calls_saved": matched,
+        "e2e_green": e2e_green,
+        "e2e_green_rate": round(e2e_green / total, 4) if total else 0.0,
+        "stacks": sorted({row["stack"] for row in rows if row["stack"]}),
+        "cases": rows,
     }
 
 
@@ -439,6 +560,24 @@ def _to_markdown(result: dict[str, Any]) -> str:
                 f"- recipe pass-rate >= LLM: {summary['recipe_plan_pass_rate_ge_llm']}",
             ]
         )
+    live = summary.get("live_corpus")
+    if live:
+        lines.extend(
+            [
+                "",
+                "## Live Recipe Corpus",
+                "",
+                f"- source: {live['source']}",
+                f"- runs: {live['total_runs']}",
+                f"- matched: {live['matched_runs']}",
+                f"- match rate: {live['match_rate']:.2%}",
+                f"- valid recipe plans: {live['valid_recipe_plans']}",
+                f"- recipe plan pass-rate: {live['recipe_plan_pass_rate']:.2%}",
+                f"- planner calls saved: {live['planner_calls_saved']}",
+                f"- e2e green: {live['e2e_green']}/{live['total_runs']}",
+                f"- stacks: {', '.join(live['stacks'])}",
+            ]
+        )
     lines.extend(
         [
             "",
@@ -481,6 +620,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=int,
         help="Limit matched recipe cases when capturing an LLM baseline.",
     )
+    parser.add_argument(
+        "--live-gate-json",
+        type=Path,
+        default=LIVE_GATE_JSON,
+        help="Path to scratch live-gate JSON used to prove real recipe corpus coverage.",
+    )
     parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--quiet", action="store_true")
     return parser.parse_args(argv)
@@ -512,7 +657,11 @@ def main(argv: list[str] | None = None) -> int:
     elif args.llm_baseline_json:
         llm_baseline = load_llm_baseline(args.llm_baseline_json)
 
-    result = run_benchmark(llm_baseline=llm_baseline)
+    live_gate = None
+    if args.live_gate_json and args.live_gate_json.is_file():
+        live_gate = load_live_gate_evidence(args.live_gate_json)
+
+    result = run_benchmark(llm_baseline=llm_baseline, live_gate=live_gate)
     write_reports(result, args.json_output, args.md_output)
     if not args.quiet:
         print(json.dumps(result["summary"], indent=2, sort_keys=True))

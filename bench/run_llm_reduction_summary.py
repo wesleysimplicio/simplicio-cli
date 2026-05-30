@@ -325,11 +325,11 @@ def _missing_release_evidence(
             continue
         summary = _summary(inputs, name)
         for entry in summary.get("missing_release_evidence", []):
+            if _is_generic_real_corpus_missing(str(entry)):
+                continue
             missing.append(str(entry))
     if not gates["real_50_scratch_corpus"]:
-        missing.append(
-            "real 50-scratch corpus shared by cache, recipes, fixers, and executors"
-        )
+        missing.append(_real_corpus_missing_text(inputs))
     if not gates["B_codegen_llm_baseline_present"]:
         missing.append("captured LLM baseline for executor pass-rate and latency")
     if not gates["B_real_50_scratch_corpus"]:
@@ -365,6 +365,8 @@ def _canonical_missing(values: list[str]) -> list[str]:
             continue
         if "b/codegen real 50-scratch" in lower:
             canonical.append("B/codegen real 50-scratch corpus")
+        elif "real 50-scratch corpus still missing for" in lower:
+            canonical.append(text)
         elif "50 real scratch" in lower or "real 50-scratch" in lower:
             canonical.append(
                 "real 50-scratch corpus shared by cache, recipes, fixers, and executors"
@@ -413,6 +415,24 @@ def _canonical_missing(values: list[str]) -> list[str]:
         else:
             canonical.append(text)
     return _dedupe(canonical)
+
+
+def _is_generic_real_corpus_missing(value: str) -> bool:
+    lower = " ".join(value.strip().split()).casefold()
+    return "50 real scratch" in lower or "real 50-scratch" in lower
+
+
+def _real_corpus_missing_text(inputs: dict[str, dict[str, Any]]) -> str:
+    missing = []
+    if not _gate(_summary(inputs, "cache"), "real_50_scratch_corpus"):
+        missing.append("cache")
+    if not _gate(_summary(inputs, "static_fixers"), "real_scratch_corpus"):
+        missing.append("static fixers")
+    if not _gate(_summary(inputs, "recipes"), "real_scratch_corpus"):
+        missing.append("recipes")
+    if not missing:
+        missing.append("aggregate proof")
+    return "real 50-scratch corpus still missing for " + ", ".join(missing)
 
 
 def _dedupe(values: list[str]) -> list[str]:
@@ -481,7 +501,8 @@ def _to_markdown(result: dict[str, Any]) -> str:
                 f"| A recipes | {levers['A_recipes']['gate_passed']} | "
                 f"match-rate {levers['A_recipes']['match_rate']:.2%}, "
                 f"planner calls saved {levers['A_recipes']['planner_calls_saved']} | "
-                f"LLM baseline {levers['A_recipes']['llm_baseline_present']} |"
+                f"LLM baseline {levers['A_recipes']['llm_baseline_present']}, "
+                f"real corpus {levers['A_recipes']['real_corpus']} |"
             ),
             (
                 f"| B codegen | {levers['B_codegen']['gate_passed']} | "

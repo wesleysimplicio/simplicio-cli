@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import json
+
 from bench.run_scratch_recipes import (
     RecipeCase,
     build_cases,
     capture_llm_baseline,
+    load_live_gate_evidence,
     load_llm_baseline,
     run_benchmark,
     write_llm_baseline,
@@ -76,12 +79,51 @@ def test_scratch_recipe_bench_compares_llm_baseline(tmp_path) -> None:
     )
 
 
+def test_scratch_recipe_bench_consumes_live_gate_corpus(tmp_path) -> None:
+    stacks = ["py-fastapi", "ts-nextjs", "go-gin", "rust-axum", "php-laravel"]
+    live_gate = {
+        "source": "fixture-live-gate",
+        "runs": [
+            {
+                "stack": stacks[index % len(stacks)],
+                "goal": f"CRUD app for condo unit {index} with owner contact search",
+                "e2e_green": True,
+            }
+            for index in range(50)
+        ],
+    }
+
+    result = run_benchmark(
+        [RecipeCase("py-fastapi", "CRUD API for Unit", True, "crud-resource")],
+        live_gate=live_gate,
+    )
+
+    summary = result["summary"]
+    live = summary["live_corpus"]
+    gates = summary["release_gates"]
+    assert live["total_runs"] == 50
+    assert live["matched_runs"] == 50
+    assert live["valid_recipe_plans"] == 50
+    assert live["planner_calls_saved"] == 50
+    assert gates["real_scratch_corpus"] is True
+    assert gates["real_recipe_match_ge_40"] is True
+    assert gates["real_recipe_plans_valid"] is True
+    assert gates["real_e2e_green_ge_80"] is True
+    assert "real 50-scratch recipe corpus" not in "\n".join(
+        summary["missing_release_evidence"]
+    )
+
+    live_gate_path = tmp_path / "live-gate.json"
+    live_gate_path.write_text(json.dumps(live_gate), encoding="utf-8")
+    loaded = load_live_gate_evidence(live_gate_path)
+    assert loaded["source"] == "fixture-live-gate"
+    assert loaded["match_rate"] == 1.0
+
+
 def test_scratch_recipe_bench_captures_planner_llm_baseline(
     tmp_path,
     monkeypatch,
 ) -> None:
-    import json
-
     from simplicio.scratch.plan_schema import EXAMPLE_PLAN
 
     calls: list[str] = []

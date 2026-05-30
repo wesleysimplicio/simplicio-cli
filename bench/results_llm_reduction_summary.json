@@ -51,7 +51,7 @@
       "matched_cases": 30,
       "planner_calls_saved": 30,
       "present": true,
-      "real_corpus": false,
+      "real_corpus": true,
       "recipe_plan_pass_rate_ge_llm": true,
       "total_cases": 50
     },
@@ -153,11 +153,11 @@
   "summary": {
     "local_synthetic_gates_pass": true,
     "missing_release_evidence": [
-      "real 50-scratch corpus shared by cache, recipes, fixers, and executors",
       "aggregate call-reduction proof across cache, recipes, fixers, and executors",
       "real fixer evidence from actual scratch install/import/lint failures",
       "real scratch LLM baseline for B/codegen pass-rate and latency",
-      "SkillOpt human approval evidence >=80%"
+      "SkillOpt human approval evidence >=80%",
+      "real 50-scratch corpus still missing for cache, static fixers"
     ],
     "modeled_baseline_calls": 19,
     "modeled_final_calls": 6,
