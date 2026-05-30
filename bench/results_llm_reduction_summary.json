@@ -1,0 +1,160 @@
+{
+  "benchmark": "llm-reduction-summary",
+  "date": "2026-05-30",
+  "environment": {
+    "platform": "Windows-11-10.0.22631-SP0",
+    "python": "3.14.3"
+  },
+  "inputs": {
+    "cache": {
+      "benchmark": "scratch-cache-gate",
+      "error": "",
+      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_cache_gate.json",
+      "present": true
+    },
+    "codegen": {
+      "benchmark": "scratch-codegen",
+      "error": "",
+      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_codegen.json",
+      "present": true
+    },
+    "preflight": {
+      "benchmark": "scratch-release-gate",
+      "error": "",
+      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_release_gate.json",
+      "present": true
+    },
+    "recipes": {
+      "benchmark": "scratch-recipes",
+      "error": "",
+      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_recipes.json",
+      "present": true
+    },
+    "static_fixers": {
+      "benchmark": "static-fixers",
+      "error": "",
+      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_static_fixers.json",
+      "present": true
+    }
+  },
+  "levers": {
+    "A_recipes": {
+      "gate_passed": true,
+      "llm_baseline_present": false,
+      "match_rate": 0.6,
+      "matched_cases": 30,
+      "planner_calls_saved": 30,
+      "present": true,
+      "real_corpus": false,
+      "total_cases": 50
+    },
+    "B_codegen": {
+      "avg_codegen_ms": 71,
+      "codegen_share": 1.0,
+      "executor_pass_rate_ge_llm": false,
+      "gate_passed": true,
+      "latency_reduction_ge_50": false,
+      "llm_baseline_present": false,
+      "pass_rate": 1.0,
+      "present": true,
+      "tasks_codegen": 50,
+      "total_tasks": 50
+    },
+    "C_static_fixers": {
+      "baseline_llm_calls": 100,
+      "fixer_resolved_rate": 0.8,
+      "gate_passed": true,
+      "present": true,
+      "real_corpus": false,
+      "retry_call_reduction": 0.4,
+      "with_fixer_llm_calls": 60
+    },
+    "D_cache": {
+      "gate_passed": true,
+      "present": true,
+      "real_corpus": false,
+      "warm_hit_rate": 1.0,
+      "warm_hits": 2,
+      "warm_misses": 0
+    },
+    "scratch_preflight": {
+      "blocker_count": 0,
+      "blockers": [],
+      "present": true,
+      "ready_for_live_gate": true
+    }
+  },
+  "modeled_call_path": {
+    "baseline_calls": 19,
+    "final_calls": 6,
+    "reduction": 0.6842,
+    "release_target_met": false,
+    "steps": [
+      {
+        "calls": 19,
+        "name": "baseline",
+        "note": "1 planner + 18 doer calls in the roadmap model"
+      },
+      {
+        "calls": 18,
+        "gate_passed": true,
+        "name": "D_cache",
+        "note": "warm cache removes the repeated planner call"
+      },
+      {
+        "calls": 16,
+        "gate_passed": true,
+        "name": "C_static_fixers",
+        "note": "static fixers reduce verify-loop retry calls"
+      },
+      {
+        "calls": 16,
+        "gate_passed": true,
+        "name": "A_recipes",
+        "note": "recipes save cold planner calls for matched common goals"
+      },
+      {
+        "calls": 6,
+        "gate_passed": true,
+        "name": "B_codegen",
+        "note": "mechanical executors replace common doer calls"
+      }
+    ],
+    "target_reduction": 0.68,
+    "target_reduction_met_locally": true
+  },
+  "scope": "aggregate issue #33 evidence view; separates local synthetic gates from the real release corpus and LLM-baseline gates",
+  "summary": {
+    "local_synthetic_gates_pass": true,
+    "missing_release_evidence": [
+      "real 50-scratch corpus shared by cache, recipes, fixers, and executors",
+      "aggregate call-reduction proof across cache, recipes, fixers, and executors",
+      "real fixer evidence from actual install/import/lint failures with non-faked package managers",
+      "recipe path pass-rate compared with equivalent LLM path",
+      "captured LLM baseline for executor pass-rate and latency",
+      "planner cache hit-rate measured across cold/warm real scratch runs",
+      "live v0.5 scratch matrix: 15 goals x 5 pilot stacks",
+      "SkillOpt human approval evidence >=80%"
+    ],
+    "modeled_baseline_calls": 19,
+    "modeled_final_calls": 6,
+    "modeled_reduction": 0.6842,
+    "release_evidence_complete": false,
+    "release_gates": {
+      "A_recipe_llm_baseline_present": false,
+      "A_recipes_synthetic": true,
+      "B_codegen_llm_baseline_present": false,
+      "B_codegen_synthetic": true,
+      "B_executor_pass_rate_ge_llm": false,
+      "B_latency_reduction_ge_50": false,
+      "C_static_fixers_synthetic": true,
+      "D_cache_synthetic": true,
+      "local_synthetic_gates_pass": true,
+      "real_50_scratch_corpus": false,
+      "release_evidence_complete": false,
+      "scratch_preflight_ready": true,
+      "target_reduction_met": false
+    },
+    "target_reduction_met": false
+  }
+}
