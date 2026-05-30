@@ -1,4 +1,5 @@
 import json
+import sys
 
 from simplicio import cli
 
@@ -20,6 +21,10 @@ def _diff(path):
         "TEST:",
         "assert True",
     ])
+
+
+def _true_cmd():
+    return f'"{sys.executable}" -c "raise SystemExit(0)"'
 
 
 def test_task_dry_run_json_does_not_touch_worktree(tmp_path, monkeypatch, capsys):
@@ -56,7 +61,7 @@ def test_task_dry_run_json_does_not_touch_worktree(tmp_path, monkeypatch, capsys
 def test_task_json_reports_normal_run(tmp_path, monkeypatch, capsys):
     _write(tmp_path / "frontend" / "app.ts", "old\n")
     monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
-    monkeypatch.setenv("SIMPLICIO_TEST_CMD", "true")
+    monkeypatch.setenv("SIMPLICIO_TEST_CMD", _true_cmd())
     monkeypatch.setattr("simplicio.pipeline.generate", lambda *a, **k: _diff("frontend/app.ts"))
 
     code = cli.main([
@@ -84,7 +89,7 @@ def test_task_bound_paths_refuses_out_of_scope_diff(tmp_path, monkeypatch, capsy
     _write(tmp_path / "frontend" / "app.ts", "old\n")
     _write(tmp_path / "backend" / "app.ts", "old\n")
     monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
-    monkeypatch.setenv("SIMPLICIO_TEST_CMD", "true")
+    monkeypatch.setenv("SIMPLICIO_TEST_CMD", _true_cmd())
     monkeypatch.setattr("simplicio.pipeline.generate", lambda *a, **k: _diff("backend/app.ts"))
 
     code = cli.main([

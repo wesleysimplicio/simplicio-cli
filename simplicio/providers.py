@@ -23,6 +23,8 @@ Three modes, picked by SIMPLICIO_MODEL prefix:
 """
 import os
 
+from ._cache import CacheEntry, cache, make_key
+
 
 def _cfg():
     return {
@@ -46,6 +48,16 @@ def _inline_feedback(prompt, feedback):
     if not feedback:
         return prompt
     return f"{prompt}\n\nThe test FAILED:\n{feedback}\nFix it. Same output format."
+
+
+def _provider_id(model, base):
+    if model.startswith("claude-cli/"):
+        return "claude-cli"
+    if model.startswith("codex-cli/"):
+        return "codex-cli"
+    if base:
+        return f"openai-compatible:{base.rstrip('/')}"
+    return "anthropic-native"
 
 
 def _shell_out(cmd, label):
@@ -101,12 +113,27 @@ def generate(prompt, feedback=None, max_tokens=4000):
             "set SIMPLICIO_MODEL (e.g. anthropic/claude-opus-4, claude-cli/sonnet, "
             "codex-cli/gpt-5, glm-4.6, llama3, claude-opus-4-7)"
         )
+    provider_id = _provider_id(model, c["base"])
+    key = make_key(
+        provider_id,
+        model,
+        prompt,
+        feedback=feedback,
+        max_tokens=max_tokens,
+    )
+    cached = cache().get(key)
+    if cached is not None:
+        return cached.completion
 
     # Path 3: shell out to a logged-in CLI. No API key needed.
     if model.startswith("claude-cli/"):
-        return _shell_out_claude(_inline_feedback(prompt, feedback), model.split("/", 1)[1])
+        out = _shell_out_claude(_inline_feedback(prompt, feedback), model.split("/", 1)[1])
+        cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
+        return out
     if model.startswith("codex-cli/"):
-        return _shell_out_codex(_inline_feedback(prompt, feedback), model.split("/", 1)[1])
+        out = _shell_out_codex(_inline_feedback(prompt, feedback), model.split("/", 1)[1])
+        cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
+        return out
 
     if not c["key"]:
         raise SystemExit(
@@ -121,14 +148,18 @@ def generate(prompt, feedback=None, max_tokens=4000):
         cli = anthropic.Anthropic(api_key=c["key"])
         r = cli.messages.create(model=model, max_tokens=max_tokens,
                                 messages=_msgs(prompt, feedback))
-        return next((b.text for b in r.content if b.type == "text"), "")
+        out = next((b.text for b in r.content if b.type == "text"), "")
+        cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
+        return out
 
     # Any OpenAI-compatible endpoint (OpenRouter, GLM, DeepSeek, local...)
     from openai import OpenAI
     cli = OpenAI(base_url=c["base"], api_key=c["key"])
     r = cli.chat.completions.create(model=model, max_tokens=max_tokens,
                                     messages=_msgs(prompt, feedback))
-    return r.choices[0].message.content
+    out = r.choices[0].message.content
+    cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
+    return out
 
 
 def info():

@@ -77,6 +77,12 @@ def main(argv=None):
     pb.add_argument("--root", default="."); pb.add_argument("--stack", default="angular")
     pb.add_argument("--cases", default="bench/cases.json")
 
+    pc = sub.add_parser("cache", help="inspect or clear completion cache")
+    pc_sub = pc.add_subparsers(dest="cache_cmd", required=True)
+    pc_stats = pc_sub.add_parser("stats", help="print completion cache statistics")
+    pc_stats.add_argument("--json", action="store_true")
+    pc_clear = pc_sub.add_parser("clear", help="clear completion cache")
+    pc_clear.add_argument("--force", action="store_true", help="required to clear")
 
     sub.add_parser("smoke", help="one proof call: connect+generate (needs SIMPLICIO_MODEL+KEY)")
 
@@ -102,6 +108,26 @@ def main(argv=None):
     elif a.cmd == "bench":
         from .bench import run_bench
         run_bench(a.root, a.stack, a.cases)
+    elif a.cmd == "cache":
+        from ._cache import cache
+        c = cache()
+        if a.cache_cmd == "stats":
+            stats = c.stats()
+            if a.json:
+                print(json.dumps(stats, sort_keys=True))
+            else:
+                print(f"root: {stats['root']}")
+                print(f"enabled: {stats['enabled']}  bust: {stats['bust']}")
+                print(f"entries: {stats['entries']}  size: {stats['mb']} MB")
+                print(f"ttl_days: {stats['ttl_days']}  max_mb: {stats['max_mb']}")
+            return 0
+        if a.cache_cmd == "clear":
+            if not a.force:
+                print("simplicio cache clear requires --force", file=sys.stderr)
+                return 2
+            removed = c.clear()
+            print(f"cleared {removed} cached completion(s)")
+            return 0
     elif a.cmd == "init":
         from .init import main as init_main
         argv = []
