@@ -18,7 +18,7 @@ aggregate issue #33 evidence view; separates local synthetic gates from the real
 | A recipes | True | match-rate 60.00%, planner calls saved 30 | LLM baseline False |
 | B codegen | True | codegen share 100.00%, pass-rate 100.00%, avg 61 ms | LLM baseline False |
 | scratch preflight | True | blockers 0 | ready for matrix execution |
-| scratch live gate | True | 30/30 e2e green, median 8.728 s | full matrix False |
+| scratch live gate | True | 45/45 e2e green, median 6.262 s | full matrix False |
 
 ## Modeled Call Path
 

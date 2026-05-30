@@ -84,14 +84,14 @@
       "warm_misses": 0
     },
     "scratch_live_gate": {
-      "e2e_green": 30,
+      "e2e_green": 45,
       "e2e_green_ge_80": true,
       "e2e_green_rate": 1.0,
       "full_matrix": false,
-      "median_wall_clock_s": 8.728,
+      "median_wall_clock_s": 6.262,
       "present": true,
       "release_ready": false,
-      "total_runs": 30
+      "total_runs": 45
     },
     "scratch_preflight": {
       "blocker_count": 0,

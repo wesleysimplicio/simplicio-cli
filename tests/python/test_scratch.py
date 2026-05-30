@@ -535,6 +535,31 @@ def test_executor_runs_ts_nextjs_crud_recipe_without_llm(monkeypatch) -> None:
         assert (report.project_dir / "src/app/condo_units/page.tsx").is_file()
 
 
+def test_executor_runs_rust_axum_crud_recipe_without_llm(monkeypatch) -> None:
+    monkeypatch.delenv("SIMPLICIO_MODEL", raising=False)
+    reg = StackRegistry()
+    stack = reg.get("rust-axum")
+    assert stack is not None
+
+    from simplicio.scratch.executor import execute_plan
+    from simplicio.scratch.planner import generate_plan
+
+    plan = generate_plan(
+        stack,
+        "CRUD app for condo units with owner contact search",
+        "rust-crud",
+    )
+
+    with tempfile.TemporaryDirectory() as td:
+        report = execute_plan(plan, stack, Path(td), skip_install=True)
+
+        assert report.tasks_total == 1
+        assert report.tasks_passed == 1
+        assert report.metrics["tasks_codegen"] == 1
+        assert report.task_results[0].codegen_executor == "rust-axum-crud"
+        assert (report.project_dir / "src/main.rs").is_file()
+
+
 def test_executor_refuses_existing_project_dir() -> None:
     reg = StackRegistry()
     stack = reg.get("py-fastapi")

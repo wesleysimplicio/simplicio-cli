@@ -8,12 +8,12 @@
   "matrix": {
     "goals": 15,
     "plan_only": false,
-    "planned_runs": 30,
+    "planned_runs": 45,
     "post_verify": true,
     "release_planned_runs": 75,
-    "selected_runs": 30,
+    "selected_runs": 45,
     "skip_install": false,
-    "stacks": 2
+    "stacks": 3
   },
   "runs": [
     {
@@ -156,6 +156,66 @@
         "-m",
         "simplicio.cli",
         "scratch",
+        "CRUD app for condo units with owner contact search",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g01-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 0.996,
+      "e2e_green": true,
+      "goal": "CRUD app for condo units with owner contact search",
+      "goal_index": 1,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 22.563,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": " Compiling httpdate v1.0.3\n   Compiling futures-task v0.3.32\n   Compiling futures-util v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling memchr v2.8.1\n   Compiling ryu v1.0.23\n   Compiling mime v0.3.17\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling socket2 v0.6.4\n   Compiling mio v1.2.1\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g01-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g01-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 22.24s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g01_rust_axum-723172f04ad980cd.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::condo_units_crud_routes_work ... ok\ntest tests::health_returns_ok ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 12.057,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "0.4.12\n    Checking percent-encoding v2.3.2\n    Checking tracing-core v0.1.36\n    Checking tower-layer v0.3.3\n    Checking zmij v1.0.21\n    Checking mime v0.3.17\n    Checking form_urlencoded v1.2.2\n    Checking ryu v1.0.23\n    Checking memchr v2.8.1\n    Checking futures-util v0.3.32\n    Checking matchit v0.8.4\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_path_to_error v0.1.20\n    Checking serde_json v1.0.150\n    Checking mio v1.2.1\n    Checking socket2 v0.6.4\n    Checking serde_urlencoded v0.7.1\n    Checking tokio v1.52.3\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g01-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g01-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.86s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 34.62,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g01-rust-axum",
+      "returncode": 0,
+      "run_number": 3,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g01-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": " \"files_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g01-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g01-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g01-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g01-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 2,\n      \"log_tail\": \"generated Axum CRUD routes for condo_units\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g01-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 2,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 2\n  },\n  \"elapsed_s\": 0.73\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
         "CRUD app for invoices with paid and overdue filters",
         "--stack",
         "py-fastapi",
@@ -214,7 +274,7 @@
       },
       "project_name": "gate-g02-py-fastapi",
       "returncode": 0,
-      "run_number": 3,
+      "run_number": 4,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g02-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -274,7 +334,7 @@
       },
       "project_name": "gate-g02-ts-nextjs",
       "returncode": 0,
-      "run_number": 4,
+      "run_number": 5,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g02-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -282,6 +342,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for invoices with paid and overdue filters",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g02-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 0.81,
+      "e2e_green": true,
+      "goal": "CRUD app for invoices with paid and overdue filters",
+      "goal_index": 2,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 20.647,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "mpiling sync_wrapper v1.0.2\n   Compiling serde_json v1.0.150\n   Compiling futures-util v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling mime v0.3.17\n   Compiling memchr v2.8.1\n   Compiling ryu v1.0.23\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g02-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g02-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 20.32s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g02_rust_axum-e8cab27cad9f4b1d.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::invoices_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 10.885,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "futures-task v0.3.32\n    Checking slab v0.4.12\n    Checking tracing-core v0.1.36\n    Checking httpdate v1.0.3\n    Checking zmij v1.0.21\n    Checking form_urlencoded v1.2.2\n    Checking memchr v2.8.1\n    Checking mime v0.3.17\n    Checking ryu v1.0.23\n    Checking matchit v0.8.4\n    Checking futures-util v0.3.32\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_path_to_error v0.1.20\n    Checking serde_json v1.0.150\n    Checking mio v1.2.1\n    Checking socket2 v0.6.4\n    Checking serde_urlencoded v0.7.1\n    Checking tokio v1.52.3\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g02-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g02-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.66s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 31.532,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g02-rust-axum",
+      "returncode": 0,
+      "run_number": 6,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g02-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": ",\n  \"files_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g02-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g02-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g02-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g02-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Axum CRUD routes for invoices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g02-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 1,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 1\n  },\n  \"elapsed_s\": 0.63\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -348,7 +468,7 @@
       },
       "project_name": "gate-g03-py-fastapi",
       "returncode": 0,
-      "run_number": 5,
+      "run_number": 7,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g03-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -408,7 +528,7 @@
       },
       "project_name": "gate-g03-ts-nextjs",
       "returncode": 0,
-      "run_number": 6,
+      "run_number": 8,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g03-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -416,6 +536,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for maintenance tickets with assignee status",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g03-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 0.631,
+      "e2e_green": true,
+      "goal": "CRUD app for maintenance tickets with assignee status",
+      "goal_index": 3,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 19.864,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "  Compiling tracing v0.1.44\n   Compiling atomic-waker v1.1.2\n   Compiling form_urlencoded v1.2.2\n   Compiling futures-util v0.3.32\n   Compiling ryu v1.0.23\n   Compiling mime v0.3.17\n   Compiling memchr v2.8.1\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g03-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g03-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.59s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g03_rust_axum-71937b1dca21d03d.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::maintenance_tickets_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 10.592,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "ic-waker v1.1.2\n    Checking tracing-core v0.1.36\n    Checking slab v0.4.12\n    Checking futures-task v0.3.32\n    Checking form_urlencoded v1.2.2\n    Checking zmij v1.0.21\n    Checking mime v0.3.17\n    Checking memchr v2.8.1\n    Checking ryu v1.0.23\n    Checking matchit v0.8.4\n    Checking futures-util v0.3.32\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_path_to_error v0.1.20\n    Checking serde_json v1.0.150\n    Checking mio v1.2.1\n    Checking socket2 v0.6.4\n    Checking serde_urlencoded v0.7.1\n    Checking tokio v1.52.3\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g03-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g03-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.39s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 30.456,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g03-rust-axum",
+      "returncode": 0,
+      "run_number": 9,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g03-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g03-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g03-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g03-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g03-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Axum CRUD routes for maintenance_tickets\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g03-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 0\n  },\n  \"elapsed_s\": 0.45\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -482,7 +662,7 @@
       },
       "project_name": "gate-g04-py-fastapi",
       "returncode": 0,
-      "run_number": 7,
+      "run_number": 10,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g04-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -542,7 +722,7 @@
       },
       "project_name": "gate-g04-ts-nextjs",
       "returncode": 0,
-      "run_number": 8,
+      "run_number": 11,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g04-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -550,6 +730,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for visitors with check-in and check-out timestamps",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g04-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 0.675,
+      "e2e_green": true,
+      "goal": "CRUD app for visitors with check-in and check-out timestamps",
+      "goal_index": 4,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 19.563,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": " Compiling percent-encoding v2.3.2\n   Compiling slab v0.4.12\n   Compiling futures-util v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling memchr v2.8.1\n   Compiling ryu v1.0.23\n   Compiling mime v0.3.17\n   Compiling matchit v0.8.4\n   Compiling http-body v1.0.1\n   Compiling syn v2.0.117\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g04-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g04-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.28s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g04_rust_axum-b56f2cc74b26de02.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::visitors_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 9.979,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "rapper v1.0.2\n    Checking percent-encoding v2.3.2\n    Checking slab v0.4.12\n    Checking tracing-core v0.1.36\n    Checking zmij v1.0.21\n    Checking mime v0.3.17\n    Checking memchr v2.8.1\n    Checking ryu v1.0.23\n    Checking matchit v0.8.4\n    Checking form_urlencoded v1.2.2\n    Checking futures-util v0.3.32\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_path_to_error v0.1.20\n    Checking serde_json v1.0.150\n    Checking socket2 v0.6.4\n    Checking mio v1.2.1\n    Checking tokio v1.52.3\n    Checking serde_urlencoded v0.7.1\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g04-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g04-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.76s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 29.542,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g04-rust-axum",
+      "returncode": 0,
+      "run_number": 12,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g04-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "\",\n  \"files_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g04-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g04-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g04-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g04-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Axum CRUD routes for visitors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g04-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 0\n  },\n  \"elapsed_s\": 0.5\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -616,7 +856,7 @@
       },
       "project_name": "gate-g05-py-fastapi",
       "returncode": 0,
-      "run_number": 9,
+      "run_number": 13,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g05-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -676,7 +916,7 @@
       },
       "project_name": "gate-g05-ts-nextjs",
       "returncode": 0,
-      "run_number": 10,
+      "run_number": 14,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g05-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -684,6 +924,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for amenity bookings with date conflict checks",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g05-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 1.321,
+      "e2e_green": true,
+      "goal": "CRUD app for amenity bookings with date conflict checks",
+      "goal_index": 5,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 18.839,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": ".3\n   Compiling tracing v0.1.44\n   Compiling httpdate v1.0.3\n   Compiling futures-util v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling mime v0.3.17\n   Compiling memchr v2.8.1\n   Compiling ryu v1.0.23\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g05-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g05-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.56s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g05_rust_axum-4d6bba32f92a4c04.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::amenity_bookings_crud_routes_work ... ok\ntest tests::health_returns_ok ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 9.882,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "er v1.0.2\n    Checking percent-encoding v2.3.2\n    Checking smallvec v1.15.1\n    Checking tracing-core v0.1.36\n    Checking zmij v1.0.21\n    Checking mime v0.3.17\n    Checking ryu v1.0.23\n    Checking futures-util v0.3.32\n    Checking memchr v2.8.1\n    Checking form_urlencoded v1.2.2\n    Checking matchit v0.8.4\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_json v1.0.150\n    Checking serde_path_to_error v0.1.20\n    Checking mio v1.2.1\n    Checking socket2 v0.6.4\n    Checking serde_urlencoded v0.7.1\n    Checking tokio v1.52.3\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g05-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g05-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.70s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 28.721,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g05-rust-axum",
+      "returncode": 0,
+      "run_number": 15,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g05-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "es_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g05-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g05-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g05-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g05-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Axum CRUD routes for amenity_bookings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g05-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 1,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 1\n  },\n  \"elapsed_s\": 1.18\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -750,7 +1050,7 @@
       },
       "project_name": "gate-g06-py-fastapi",
       "returncode": 0,
-      "run_number": 11,
+      "run_number": 16,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g06-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -810,7 +1110,7 @@
       },
       "project_name": "gate-g06-ts-nextjs",
       "returncode": 0,
-      "run_number": 12,
+      "run_number": 17,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g06-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -818,6 +1118,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for announcements with publish and archive state",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g06-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 0.719,
+      "e2e_green": true,
+      "goal": "CRUD app for announcements with publish and archive state",
+      "goal_index": 6,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 19.203,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "12\n   Compiling httpdate v1.0.3\n   Compiling tracing v0.1.44\n   Compiling futures-util v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling mime v0.3.17\n   Compiling memchr v2.8.1\n   Compiling ryu v1.0.23\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g06-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g06-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.91s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g06_rust_axum-604feef060aed0f6.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::announcements_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 9.805,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "-layer v0.3.3\n    Checking smallvec v1.15.1\n    Checking tracing-core v0.1.36\n    Checking atomic-waker v1.1.2\n    Checking futures-util v0.3.32\n    Checking form_urlencoded v1.2.2\n    Checking zmij v1.0.21\n    Checking ryu v1.0.23\n    Checking mime v0.3.17\n    Checking memchr v2.8.1\n    Checking matchit v0.8.4\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_json v1.0.150\n    Checking serde_path_to_error v0.1.20\n    Checking socket2 v0.6.4\n    Checking mio v1.2.1\n    Checking serde_urlencoded v0.7.1\n    Checking tokio v1.52.3\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g06-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g06-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.60s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 29.008,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g06-rust-axum",
+      "returncode": 0,
+      "run_number": 18,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g06-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "files_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g06-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g06-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g06-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g06-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Axum CRUD routes for announcements\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g06-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 0\n  },\n  \"elapsed_s\": 0.57\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -884,7 +1244,7 @@
       },
       "project_name": "gate-g07-py-fastapi",
       "returncode": 0,
-      "run_number": 13,
+      "run_number": 19,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g07-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -944,7 +1304,7 @@
       },
       "project_name": "gate-g07-ts-nextjs",
       "returncode": 0,
-      "run_number": 14,
+      "run_number": 20,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g07-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -952,6 +1312,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for documents with category filtering",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g07-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 1.394,
+      "e2e_green": true,
+      "goal": "CRUD app for documents with category filtering",
+      "goal_index": 7,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 18.961,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": ".2\n   Compiling tower-layer v0.3.3\n   Compiling slab v0.4.12\n   Compiling futures-util v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling ryu v1.0.23\n   Compiling mime v0.3.17\n   Compiling memchr v2.8.1\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling socket2 v0.6.4\n   Compiling mio v1.2.1\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g07-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g07-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.70s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g07_rust_axum-4fffc078fcdf1562.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::documents_crud_routes_work ... ok\ntest tests::health_returns_ok ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 10.004,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "ures-task v0.3.32\n    Checking slab v0.4.12\n    Checking tracing-core v0.1.36\n    Checking sync_wrapper v1.0.2\n    Checking form_urlencoded v1.2.2\n    Checking zmij v1.0.21\n    Checking mime v0.3.17\n    Checking memchr v2.8.1\n    Checking ryu v1.0.23\n    Checking matchit v0.8.4\n    Checking futures-util v0.3.32\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_path_to_error v0.1.20\n    Checking serde_json v1.0.150\n    Checking socket2 v0.6.4\n    Checking mio v1.2.1\n    Checking tokio v1.52.3\n    Checking serde_urlencoded v0.7.1\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g07-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g07-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.81s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 28.966,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g07-rust-axum",
+      "returncode": 0,
+      "run_number": 21,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g07-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "\n  \"files_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g07-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g07-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g07-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g07-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Axum CRUD routes for documents\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g07-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 1,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 1\n  },\n  \"elapsed_s\": 1.23\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -1018,7 +1438,7 @@
       },
       "project_name": "gate-g08-py-fastapi",
       "returncode": 0,
-      "run_number": 15,
+      "run_number": 22,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g08-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -1078,7 +1498,7 @@
       },
       "project_name": "gate-g08-ts-nextjs",
       "returncode": 0,
-      "run_number": 16,
+      "run_number": 23,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g08-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -1086,6 +1506,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for vendors with active contract tracking",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g08-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 0.777,
+      "e2e_green": true,
+      "goal": "CRUD app for vendors with active contract tracking",
+      "goal_index": 8,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 18.936,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "ing atomic-waker v1.1.2\n   Compiling percent-encoding v2.3.2\n   Compiling futures-util v0.3.32\n   Compiling ryu v1.0.23\n   Compiling form_urlencoded v1.2.2\n   Compiling mime v0.3.17\n   Compiling memchr v2.8.1\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g08-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g08-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.67s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g08_rust_axum-fe5cb2913ba198da.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::vendors_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 9.805,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "date v1.0.3\n    Checking tower-layer v0.3.3\n    Checking tracing-core v0.1.36\n    Checking sync_wrapper v1.0.2\n    Checking form_urlencoded v1.2.2\n    Checking futures-util v0.3.32\n    Checking zmij v1.0.21\n    Checking ryu v1.0.23\n    Checking mime v0.3.17\n    Checking memchr v2.8.1\n    Checking matchit v0.8.4\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking mio v1.2.1\n    Checking socket2 v0.6.4\n    Checking serde v1.0.228\n    Checking serde_json v1.0.150\n    Checking serde_path_to_error v0.1.20\n    Checking tokio v1.52.3\n    Checking serde_urlencoded v0.7.1\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g08-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g08-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.60s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 28.74,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g08-rust-axum",
+      "returncode": 0,
+      "run_number": 24,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g08-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "\",\n  \"files_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g08-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g08-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g08-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g08-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Axum CRUD routes for vendors\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g08-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 0\n  },\n  \"elapsed_s\": 0.61\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -1152,7 +1632,7 @@
       },
       "project_name": "gate-g09-py-fastapi",
       "returncode": 0,
-      "run_number": 17,
+      "run_number": 25,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g09-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -1212,7 +1692,7 @@
       },
       "project_name": "gate-g09-ts-nextjs",
       "returncode": 0,
-      "run_number": 18,
+      "run_number": 26,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g09-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -1220,6 +1700,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for inventory items with low-stock flag",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g09-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 0.727,
+      "e2e_green": true,
+      "goal": "CRUD app for inventory items with low-stock flag",
+      "goal_index": 9,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 19.505,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": " Compiling tracing v0.1.44\n   Compiling futures-task v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling mime v0.3.17\n   Compiling futures-util v0.3.32\n   Compiling ryu v1.0.23\n   Compiling memchr v2.8.1\n   Compiling matchit v0.8.4\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling syn v2.0.117\n   Compiling axum-core v0.5.6\n   Compiling socket2 v0.6.4\n   Compiling mio v1.2.1\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g09-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g09-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.11s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g09_rust_axum-93e0ae9dccb4988c.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::inventory_items_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 9.87,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "king httpdate v1.0.3\n    Checking slab v0.4.12\n    Checking smallvec v1.15.1\n    Checking tracing-core v0.1.36\n    Checking zmij v1.0.21\n    Checking form_urlencoded v1.2.2\n    Checking ryu v1.0.23\n    Checking mime v0.3.17\n    Checking memchr v2.8.1\n    Checking futures-util v0.3.32\n    Checking matchit v0.8.4\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_json v1.0.150\n    Checking serde_path_to_error v0.1.20\n    Checking socket2 v0.6.4\n    Checking mio v1.2.1\n    Checking tokio v1.52.3\n    Checking serde_urlencoded v0.7.1\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g09-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g09-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.66s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 29.375,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g09-rust-axum",
+      "returncode": 0,
+      "run_number": 27,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g09-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "les_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g09-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g09-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g09-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g09-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Axum CRUD routes for inventory_items\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g09-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 1,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 1\n  },\n  \"elapsed_s\": 0.54\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -1286,7 +1826,7 @@
       },
       "project_name": "gate-g10-py-fastapi",
       "returncode": 0,
-      "run_number": 19,
+      "run_number": 28,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g10-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -1346,7 +1886,7 @@
       },
       "project_name": "gate-g10-ts-nextjs",
       "returncode": 0,
-      "run_number": 20,
+      "run_number": 29,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g10-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -1354,6 +1894,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for package deliveries with resident pickup",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g10-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 2.793,
+      "e2e_green": true,
+      "goal": "CRUD app for package deliveries with resident pickup",
+      "goal_index": 10,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 19.149,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": " Compiling serde_json v1.0.150\n   Compiling smallvec v1.15.1\n   Compiling futures-util v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling ryu v1.0.23\n   Compiling mime v0.3.17\n   Compiling memchr v2.8.1\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g10-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g10-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.87s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g10_rust_axum-8e3c4281bdceedc3.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::package_deliveries_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 10.091,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "king smallvec v1.15.1\n    Checking slab v0.4.12\n    Checking tracing-core v0.1.36\n    Checking httpdate v1.0.3\n    Checking form_urlencoded v1.2.2\n    Checking zmij v1.0.21\n    Checking mime v0.3.17\n    Checking ryu v1.0.23\n    Checking memchr v2.8.1\n    Checking futures-util v0.3.32\n    Checking matchit v0.8.4\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_path_to_error v0.1.20\n    Checking serde_json v1.0.150\n    Checking socket2 v0.6.4\n    Checking mio v1.2.1\n    Checking tokio v1.52.3\n    Checking serde_urlencoded v0.7.1\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g10-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g10-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.88s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 29.24,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g10-rust-axum",
+      "returncode": 0,
+      "run_number": 30,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g10-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g10-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g10-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g10-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g10-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Axum CRUD routes for package_deliveries\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g10-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 0\n  },\n  \"elapsed_s\": 2.64\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -1420,7 +2020,7 @@
       },
       "project_name": "gate-g11-py-fastapi",
       "returncode": 0,
-      "run_number": 21,
+      "run_number": 31,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g11-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -1480,7 +2080,7 @@
       },
       "project_name": "gate-g11-ts-nextjs",
       "returncode": 0,
-      "run_number": 22,
+      "run_number": 32,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g11-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -1488,6 +2088,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for parking spaces with vehicle assignment",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g11-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 3.212,
+      "e2e_green": true,
+      "goal": "CRUD app for parking spaces with vehicle assignment",
+      "goal_index": 11,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 18.93,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "  Compiling tracing v0.1.44\n   Compiling atomic-waker v1.1.2\n   Compiling form_urlencoded v1.2.2\n   Compiling futures-util v0.3.32\n   Compiling memchr v2.8.1\n   Compiling mime v0.3.17\n   Compiling ryu v1.0.23\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling socket2 v0.6.4\n   Compiling mio v1.2.1\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g11-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g11-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.64s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g11_rust_axum-e37da8aa6f177217.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::parking_spaces_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 10.223,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "v0.3.3\n    Checking percent-encoding v2.3.2\n    Checking tracing-core v0.1.36\n    Checking sync_wrapper v1.0.2\n    Checking zmij v1.0.21\n    Checking futures-util v0.3.32\n    Checking ryu v1.0.23\n    Checking mime v0.3.17\n    Checking memchr v2.8.1\n    Checking matchit v0.8.4\n    Checking form_urlencoded v1.2.2\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_path_to_error v0.1.20\n    Checking serde_json v1.0.150\n    Checking mio v1.2.1\n    Checking socket2 v0.6.4\n    Checking serde_urlencoded v0.7.1\n    Checking tokio v1.52.3\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g11-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g11-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.99s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 29.152,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g11-rust-axum",
+      "returncode": 0,
+      "run_number": 33,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g11-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "iles_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g11-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g11-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g11-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g11-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Axum CRUD routes for parking_spaces\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g11-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 1,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 1\n  },\n  \"elapsed_s\": 3.02\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -1554,7 +2214,7 @@
       },
       "project_name": "gate-g12-py-fastapi",
       "returncode": 0,
-      "run_number": 23,
+      "run_number": 34,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g12-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -1614,7 +2274,7 @@
       },
       "project_name": "gate-g12-ts-nextjs",
       "returncode": 0,
-      "run_number": 24,
+      "run_number": 35,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g12-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -1622,6 +2282,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for board meetings with minutes status",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g12-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 2.792,
+      "e2e_green": true,
+      "goal": "CRUD app for board meetings with minutes status",
+      "goal_index": 12,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 19.245,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "0.3.32\n   Compiling http v1.4.1\n   Compiling tracing v0.1.44\n   Compiling futures-util v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling memchr v2.8.1\n   Compiling ryu v1.0.23\n   Compiling mime v0.3.17\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g12-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g12-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.96s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g12_rust_axum-9a8265fa9b3ddc04.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::board_meetings_crud_routes_work ... ok\ntest tests::health_returns_ok ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 10.246,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "g tower-layer v0.3.3\n    Checking tracing-core v0.1.36\n    Checking httpdate v1.0.3\n    Checking slab v0.4.12\n    Checking form_urlencoded v1.2.2\n    Checking zmij v1.0.21\n    Checking memchr v2.8.1\n    Checking ryu v1.0.23\n    Checking mime v0.3.17\n    Checking matchit v0.8.4\n    Checking futures-util v0.3.32\n    Checking tracing v0.1.44\n    Checking http v1.4.1\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_path_to_error v0.1.20\n    Checking serde_json v1.0.150\n    Checking mio v1.2.1\n    Checking socket2 v0.6.4\n    Checking tokio v1.52.3\n    Checking serde_urlencoded v0.7.1\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g12-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g12-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.05s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 29.491,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g12-rust-axum",
+      "returncode": 0,
+      "run_number": 36,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g12-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "iles_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g12-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g12-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g12-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g12-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Axum CRUD routes for board_meetings\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g12-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 0\n  },\n  \"elapsed_s\": 2.61\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -1688,7 +2408,7 @@
       },
       "project_name": "gate-g13-py-fastapi",
       "returncode": 0,
-      "run_number": 25,
+      "run_number": 37,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g13-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -1748,7 +2468,7 @@
       },
       "project_name": "gate-g13-ts-nextjs",
       "returncode": 0,
-      "run_number": 26,
+      "run_number": 38,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g13-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -1756,6 +2476,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for access devices with revocation state",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g13-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 0.689,
+      "e2e_green": true,
+      "goal": "CRUD app for access devices with revocation state",
+      "goal_index": 13,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 19.665,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": ".3\n   Compiling slab v0.4.12\n   Compiling tower-layer v0.3.3\n   Compiling form_urlencoded v1.2.2\n   Compiling futures-util v0.3.32\n   Compiling ryu v1.0.23\n   Compiling memchr v2.8.1\n   Compiling mime v0.3.17\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g13-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g13-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.37s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g13_rust_axum-f5fda9073e0dd865.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::access_devices_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 9.776,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "nt-encoding v2.3.2\n    Checking tower-layer v0.3.3\n    Checking tracing-core v0.1.36\n    Checking slab v0.4.12\n    Checking zmij v1.0.21\n    Checking ryu v1.0.23\n    Checking form_urlencoded v1.2.2\n    Checking mime v0.3.17\n    Checking memchr v2.8.1\n    Checking matchit v0.8.4\n    Checking futures-util v0.3.32\n    Checking tracing v0.1.44\n    Checking http v1.4.1\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_json v1.0.150\n    Checking serde_path_to_error v0.1.20\n    Checking mio v1.2.1\n    Checking socket2 v0.6.4\n    Checking tokio v1.52.3\n    Checking serde_urlencoded v0.7.1\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g13-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g13-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.57s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 29.441,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g13-rust-axum",
+      "returncode": 0,
+      "run_number": 39,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g13-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "iles_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g13-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g13-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g13-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g13-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 1,\n      \"log_tail\": \"generated Axum CRUD routes for access_devices\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g13-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 1,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 1\n  },\n  \"elapsed_s\": 0.54\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -1822,7 +2602,7 @@
       },
       "project_name": "gate-g14-py-fastapi",
       "returncode": 0,
-      "run_number": 27,
+      "run_number": 40,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g14-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -1882,7 +2662,7 @@
       },
       "project_name": "gate-g14-ts-nextjs",
       "returncode": 0,
-      "run_number": 28,
+      "run_number": 41,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g14-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -1890,6 +2670,66 @@
       "task_all_passed": true,
       "tasks_passed": 2,
       "tasks_total": 2,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for payments with receipt reference",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g14-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 1.415,
+      "e2e_green": true,
+      "goal": "CRUD app for payments with receipt reference",
+      "goal_index": 14,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 19.198,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "piling serde_json v1.0.150\n   Compiling futures-task v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling futures-util v0.3.32\n   Compiling ryu v1.0.23\n   Compiling mime v0.3.17\n   Compiling memchr v2.8.1\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling mio v1.2.1\n   Compiling socket2 v0.6.4\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g14-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g14-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.93s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g14_rust_axum-8bbfd8453696efa6.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::payments_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 10.183,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "ask v0.3.32\n    Checking tracing-core v0.1.36\n    Checking sync_wrapper v1.0.2\n    Checking tower-layer v0.3.3\n    Checking zmij v1.0.21\n    Checking memchr v2.8.1\n    Checking form_urlencoded v1.2.2\n    Checking mime v0.3.17\n    Checking ryu v1.0.23\n    Checking matchit v0.8.4\n    Checking futures-util v0.3.32\n    Checking http v1.4.1\n    Checking tracing v0.1.44\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_path_to_error v0.1.20\n    Checking serde_json v1.0.150\n    Checking mio v1.2.1\n    Checking socket2 v0.6.4\n    Checking serde_urlencoded v0.7.1\n    Checking tokio v1.52.3\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g14-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g14-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.97s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 29.38,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g14-rust-axum",
+      "returncode": 0,
+      "run_number": 42,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g14-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": ",\n  \"files_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g14-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g14-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g14-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g14-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Axum CRUD routes for payments\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g14-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 0\n  },\n  \"elapsed_s\": 1.27\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
       "timed_out": false
     },
     {
@@ -1956,7 +2796,7 @@
       },
       "project_name": "gate-g15-py-fastapi",
       "returncode": 0,
-      "run_number": 29,
+      "run_number": 43,
       "scaffold_clean": true,
       "stack": "py-fastapi",
       "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g15-py-fastapi\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
@@ -2016,7 +2856,7 @@
       },
       "project_name": "gate-g15-ts-nextjs",
       "returncode": 0,
-      "run_number": 30,
+      "run_number": 44,
       "scaffold_clean": true,
       "stack": "ts-nextjs",
       "stderr_tail": "[scratch] stack:   ts-nextjs (TypeScript 5 / Next.js 14 (app router))\n[scratch] project: gate-g15-ts-nextjs\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 2 tasks\n",
@@ -2025,21 +2865,81 @@
       "tasks_passed": 2,
       "tasks_total": 2,
       "timed_out": false
+    },
+    {
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for service requests with priority queue",
+        "--stack",
+        "rust-axum",
+        "--name",
+        "gate-g15-rust-axum",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects",
+        "--json"
+      ],
+      "duration_s": 0.719,
+      "e2e_green": true,
+      "goal": "CRUD app for service requests with priority queue",
+      "goal_index": 15,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "cargo test",
+            "duration_s": 19.919,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "piling futures-task v0.3.32\n   Compiling sync_wrapper v1.0.2\n   Compiling futures-util v0.3.32\n   Compiling form_urlencoded v1.2.2\n   Compiling mime v0.3.17\n   Compiling ryu v1.0.23\n   Compiling memchr v2.8.1\n   Compiling matchit v0.8.4\n   Compiling syn v2.0.117\n   Compiling http-body v1.0.1\n   Compiling http-body-util v0.1.3\n   Compiling axum-core v0.5.6\n   Compiling socket2 v0.6.4\n   Compiling mio v1.2.1\n   Compiling serde_path_to_error v0.1.20\n   Compiling tokio-macros v2.7.0\n   Compiling serde_derive v1.0.228\n   Compiling tokio v1.52.3\n   Compiling serde_urlencoded v0.7.1\n   Compiling hyper v1.10.1\n   Compiling tower v0.5.3\n   Compiling hyper-util v0.1.20\n   Compiling axum v0.8.9\n   Compiling gate-g15-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g15-rust-axum)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.61s\n     Running unittests src\\main.rs (target\\debug\\deps\\gate_g15_rust_axum-3f7e7821102afc1e.exe)\n",
+            "stdout_tail": "\nrunning 2 tests\ntest tests::health_returns_ok ... ok\ntest tests::service_requests_crud_routes_work ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+            "timed_out": false
+          },
+          {
+            "command": "cargo clippy --all-targets -- -D warnings",
+            "duration_s": 10.028,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "ncoding v2.3.2\n    Checking tracing-core v0.1.36\n    Checking httpdate v1.0.3\n    Checking sync_wrapper v1.0.2\n    Checking futures-util v0.3.32\n    Checking zmij v1.0.21\n    Checking memchr v2.8.1\n    Checking mime v0.3.17\n    Checking ryu v1.0.23\n    Checking matchit v0.8.4\n    Checking form_urlencoded v1.2.2\n    Checking tracing v0.1.44\n    Checking http v1.4.1\n    Checking http-body v1.0.1\n    Checking http-body-util v0.1.3\n    Checking axum-core v0.5.6\n    Checking serde v1.0.228\n    Checking serde_json v1.0.150\n    Checking serde_path_to_error v0.1.20\n    Checking socket2 v0.6.4\n    Checking mio v1.2.1\n    Checking serde_urlencoded v0.7.1\n    Checking tokio v1.52.3\n    Checking hyper v1.10.1\n    Checking tower v0.5.3\n    Checking hyper-util v0.1.20\n    Checking axum v0.8.9\n    Checking gate-g15-rust-axum v0.1.0 (C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-live-rust-axum-15\\projects\\gate-g15-rust-axum)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.82s\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 29.948,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g15-rust-axum",
+      "returncode": 0,
+      "run_number": 45,
+      "scaffold_clean": true,
+      "stack": "rust-axum",
+      "stderr_tail": "[scratch] stack:   rust-axum (Rust 1.82 / Axum)\n[scratch] project: gate-g15-rust-axum\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "es_written\": [\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g15-rust-axum\\\\Cargo.toml\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g15-rust-axum\\\\README.md\",\n    \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g15-rust-axum\\\\src\\\\main.rs\"\n  ],\n  \"install_ok\": true,\n  \"install_log_tail\": \"    Updating crates.io index\\n     Locking 52 packages to latest compatible versions\\n      Adding matchit v0.8.4 (available: v0.8.6)\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-axum-crud\",\n      \"target\": \"src/main.rs\",\n      \"passed\": true,\n      \"execution_mode\": \"codegen\",\n      \"codegen_executor\": \"rust-axum-crud\",\n      \"files_modified\": [\n        \"C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g15-rust-axum\\\\src\\\\main.rs\"\n      ],\n      \"skipped\": null,\n      \"duration_ms\": 0,\n      \"log_tail\": \"generated Axum CRUD routes for service_requests\\nfiles_modified=C:\\\\Users\\\\wesley.simplicio\\\\Pictures\\\\m\\\\tmp\\\\simplicio-live-rust-axum-15\\\\projects\\\\gate-g15-rust-axum\\\\src\\\\main.rs\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 1,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 1.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 0\n  },\n  \"elapsed_s\": 0.55\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
+      "timed_out": false
     }
   ],
   "scope": "live scratch v0.5 gate execution slice; partial runs are evidence only for the executed slice and do not replace the full 75-run gate",
   "summary": {
     "average_cost_usd": null,
-    "e2e_green": 30,
+    "e2e_green": 45,
     "e2e_green_rate": 1.0,
-    "elapsed_s": 390.476,
-    "median_wall_clock_s": 8.728,
+    "elapsed_s": 857.779,
+    "median_wall_clock_s": 6.262,
     "missing_release_evidence": [
       "full 15 goals x 5 pilot stacks live matrix",
       "average cost measurement",
       "SkillOpt human approval evidence >=80%"
     ],
-    "planner_valid": 30,
+    "planner_valid": 45,
     "planner_valid_rate": 1.0,
     "release_gates": {
       "average_cost_le_1": null,
@@ -2051,12 +2951,12 @@
       "scaffold_clean_ge_95": true,
       "skillopt_human_approval_ge_80": false
     },
-    "scaffold_clean": 30,
+    "scaffold_clean": 45,
     "scaffold_clean_rate": 1.0,
-    "task_all_passed": 30,
+    "task_all_passed": 45,
     "task_all_passed_rate": 1.0,
     "timed_out": 0,
-    "total_runs": 30
+    "total_runs": 45
   },
   "work_dir": "$WORK_DIR"
 }

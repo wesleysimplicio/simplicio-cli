@@ -37,6 +37,12 @@ MATCH_CASES = [
     ("py-fastapi", "admin panel for Booking", "admin-crud", "Booking"),
     ("ts-nextjs", "admin CRUD for Tenant", "admin-crud", "Tenant"),
     ("ts-nextjs", "backoffice to manage Subscription", "admin-crud", "Subscription"),
+    (
+        "rust-axum",
+        "CRUD app for condo units with owner contact search",
+        "crud-resource",
+        "CondoUnits",
+    ),
 ]
 
 
@@ -59,6 +65,8 @@ def test_registry_loads_three_pilot_recipes_for_each_stack() -> None:
     for stack_slug in ("py-fastapi", "ts-nextjs"):
         names = {recipe.name for recipe in registry.list(stack_slug)}
         assert {"crud-resource", "auth-jwt", "admin-crud"} <= names
+
+    assert {recipe.name for recipe in registry.list("rust-axum")} == {"crud-resource"}
 
 
 @pytest.mark.parametrize(
@@ -179,3 +187,20 @@ def test_ts_nextjs_crud_recipe_renders_multi_word_entity() -> None:
 
     assert plan.tasks[0].target == "src/app/api/condo_units/route.ts"
     assert plan.tasks[1].target == "src/app/condo_units/page.tsx"
+
+
+def test_rust_axum_crud_recipe_renders_multi_word_entity() -> None:
+    registry = RecipeRegistry()
+    match = registry.match(
+        "CRUD app for condo units with owner contact search",
+        "rust-axum",
+    )
+    assert match is not None
+
+    plan = registry.get("crud-resource", "rust-axum").instantiate(
+        match,
+        "demo-app",
+    )
+
+    assert plan.tasks[0].target == "src/main.rs"
+    assert "route prefix is /condo_units" in plan.tasks[0].criteria
