@@ -74,7 +74,15 @@ where = ["."]
 include = ["simplicio*"]
 
 [tool.setuptools.package-data]
-simplicio = ["templates/*.md", "templates/*.sh"]
+simplicio = [
+  "templates/*.md",
+  "templates/*.sh",
+  "templates/recipes/**/*.json",
+  "templates/recipes/**/*.yaml",
+  "templates/recipes/**/*.yml",
+  "templates/stacks/**/*",
+  "templates/stacks/*/tree/.gitignore",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

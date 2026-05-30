@@ -39,6 +39,7 @@ class TaskResult:
     skipped_reason: Optional[str] = None
     duration_ms: int = 0
     log_tail: str = ""
+    generated_skill: Optional[str] = None
 
 
 @dataclass
@@ -97,6 +98,7 @@ class ExecutorReport:
                     "skipped": t.skipped_reason,
                     "duration_ms": t.duration_ms,
                     "log_tail": t.log_tail[-400:],
+                    "generated_skill": t.generated_skill,
                 }
                 for t in self.task_results
             ],
@@ -161,12 +163,30 @@ def _execute_one_task(task: Task, project_dir: Path, stack: Stack) -> TaskResult
     simplicio.pipeline via the adapter."""
     t0 = time.perf_counter()
     codegen_log = ""
+    skill_log, generated_skill = _ensure_required_skill(task, project_dir)
+    if skill_log.startswith("skill-opt failed:"):
+        ms = int((time.perf_counter() - t0) * 1000)
+        return TaskResult(
+            id=task.id,
+            target=task.target,
+            passed=False,
+            duration_ms=ms,
+            execution_mode="failed",
+            skipped_reason="required skill generation failed",
+            log_tail=skill_log,
+        )
 
     codegen_result = try_execute(task, project_dir, stack)
     if codegen_result is not None:
         codegen_log = codegen_result.log
         if codegen_result.passed or not codegen_result.fallback_to_llm:
-            return _task_result_from_codegen(task, t0, codegen_result)
+            return _task_result_from_codegen(
+                task,
+                t0,
+                codegen_result,
+                skill_log=skill_log,
+                generated_skill=generated_skill,
+            )
 
     if not os.environ.get("SIMPLICIO_MODEL"):
         # smoke-test mode: log the task but mark as skipped (no LLM call made)
@@ -181,7 +201,8 @@ def _execute_one_task(task: Task, project_dir: Path, stack: Stack) -> TaskResult
             duration_ms=ms,
             execution_mode="skipped",
             skipped_reason="no SIMPLICIO_MODEL set; task generation skipped",
-            log_tail=f"{fallback_note}goal={task.goal[:200]}",
+            log_tail=f"{skill_log}{fallback_note}goal={task.goal[:200]}",
+            generated_skill=generated_skill,
         )
 
     try:
@@ -195,11 +216,15 @@ def _execute_one_task(task: Task, project_dir: Path, stack: Stack) -> TaskResult
             duration_ms=ms,
             execution_mode="failed",
             skipped_reason=f"adapter import failed: {e}",
+            log_tail=skill_log,
+            generated_skill=generated_skill,
         )
 
     passed, log = run_task(task, project_dir, stack)
     if codegen_log:
         log = f"codegen fallback: {codegen_log}\n\n{log}"
+    if skill_log:
+        log = f"{skill_log}{log}"
     ms = int((time.perf_counter() - t0) * 1000)
     return TaskResult(
         id=task.id,
@@ -208,11 +233,17 @@ def _execute_one_task(task: Task, project_dir: Path, stack: Stack) -> TaskResult
         execution_mode="llm" if passed else "failed",
         duration_ms=ms,
         log_tail=log,
+        generated_skill=generated_skill,
     )
 
 
 def _task_result_from_codegen(
-    task: Task, started_at: float, result: CodegenResult
+    task: Task,
+    started_at: float,
+    result: CodegenResult,
+    *,
+    skill_log: str = "",
+    generated_skill: Optional[str] = None,
 ) -> TaskResult:
     ms = int((time.perf_counter() - started_at) * 1000)
     files = ", ".join(str(path) for path in result.files_modified)
@@ -225,8 +256,35 @@ def _task_result_from_codegen(
         codegen_executor=result.executor_name,
         files_modified=[str(path) for path in result.files_modified],
         duration_ms=ms,
-        log_tail=f"{result.log}{suffix}".strip(),
+        log_tail=f"{skill_log}{result.log}{suffix}".strip(),
+        generated_skill=generated_skill,
     )
+
+
+def _ensure_required_skill(
+    task: Task,
+    project_dir: Path,
+) -> tuple[str, Optional[str]]:
+    required = (task.required_skill or "").strip()
+    if not required:
+        return "", None
+
+    from . import skill_opt
+
+    skills_root = project_dir / ".skills"
+    try:
+        slug, markdown = skill_opt.generate_skill_doc(
+            required,
+            skills_root=skills_root,
+        )
+        path = skill_opt.install_skill(slug, markdown, skills_root=skills_root)
+    except skill_opt.SkillOptError as exc:
+        return f"skill-opt failed: {exc}", None
+    except SystemExit as exc:
+        return f"skill-opt failed: {exc}", None
+
+    rel = path.relative_to(project_dir).as_posix()
+    return f"skill-opt generated {rel} with review_required=true\n", rel
 
 
 def _avg_ms(tasks: list[TaskResult]) -> int:
@@ -282,6 +340,11 @@ def execute_plan(
                         "constraints": t.constraints,
                         "verify": t.verify,
                         "depends_on": t.depends_on,
+                        **(
+                            {"required_skill": t.required_skill}
+                            if t.required_skill
+                            else {}
+                        ),
                     }
                     for t in plan.tasks
                 ],

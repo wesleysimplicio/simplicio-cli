@@ -1,0 +1,6 @@
+{
+  "install": "composer install",
+  "test": "php artisan test",
+  "test_runner": "php artisan test",
+  "lint": "vendor/bin/pint --test"
+}

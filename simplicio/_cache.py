@@ -87,11 +87,16 @@ class CompletionCache:
     ) -> None:
         self.root = Path(root) if root is not None else _cache_root()
         self.ttl_days = (
-            ttl_days if ttl_days is not None else _env_float("SIMPLICIO_CACHE_TTL_DAYS", 30)
+            ttl_days
+            if ttl_days is not None
+            else _env_float("SIMPLICIO_CACHE_TTL_DAYS", 30)
         )
         self.max_mb = (
             max_mb if max_mb is not None else _env_float("SIMPLICIO_CACHE_MAX_MB", 500)
         )
+        self.hits = 0
+        self.misses = 0
+        self.puts = 0
 
     @property
     def enabled(self) -> bool:
@@ -106,21 +111,28 @@ class CompletionCache:
 
     def get(self, key: str) -> Optional[CacheEntry]:
         if not self.enabled or self.bust:
+            self.misses += 1
             return None
         path = self.path_for(key)
         try:
             if not path.exists():
+                self.misses += 1
                 return None
             if self._is_expired(path):
                 self._safe_unlink(path)
+                self.misses += 1
                 return None
         except OSError:
+            self.misses += 1
             return None
         try:
             with path.open("r", encoding="utf-8") as handle:
-                return CacheEntry.from_dict(json.load(handle))
+                entry = CacheEntry.from_dict(json.load(handle))
+                self.hits += 1
+                return entry
         except (OSError, ValueError, TypeError):
             self._safe_unlink(path)
+            self.misses += 1
             return None
 
     def put(self, key: str, entry: CacheEntry) -> None:
@@ -146,6 +158,7 @@ class CompletionCache:
         finally:
             if os.path.exists(tmp_name):
                 self._safe_unlink(Path(tmp_name))
+        self.puts += 1
         self._evict_if_needed()
 
     def clear(self) -> int:
@@ -166,6 +179,12 @@ class CompletionCache:
             "bust": self.bust,
             "root": str(self.root),
             "entries": len(files),
+            "hits": self.hits,
+            "misses": self.misses,
+            "puts": self.puts,
+            "hit_rate": round(self.hits / (self.hits + self.misses), 4)
+            if self.hits + self.misses
+            else 0.0,
             "bytes": total_bytes,
             "mb": round(total_bytes / (1024 * 1024), 3),
             "oldest_age_s": round(oldest, 3) if oldest is not None else None,

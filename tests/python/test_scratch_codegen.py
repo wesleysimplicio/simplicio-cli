@@ -102,3 +102,41 @@ def test_codegen_fallback_preserves_existing_stub_mode(tmp_path, monkeypatch):
     assert result.passed is False
     assert result.skipped_reason == "no SIMPLICIO_MODEL set; task generation skipped"
     assert "codegen fallback: shape unsupported" in result.log_tail
+
+
+def test_required_skill_generates_review_gated_skill_before_stub_mode(
+    tmp_path,
+    monkeypatch,
+):
+    task = _task()
+    task.required_skill = "Create Liquibase migrations safely"
+    monkeypatch.setattr(codegen_registry, "_DEFAULT_EXECUTORS", [])
+    monkeypatch.delenv("SIMPLICIO_MODEL", raising=False)
+
+    from simplicio.scratch import skill_opt
+
+    def fake_generate_skill_doc(description, skills_root=None, planner_model=None):
+        assert description == "Create Liquibase migrations safely"
+        assert skills_root == tmp_path / ".skills"
+        return (
+            "liquibase-migrations",
+            "---\n"
+            "name: liquibase-migrations\n"
+            "description: Create migrations safely\n"
+            "auto_generated:\n"
+            "  review_required: true\n"
+            "---\n"
+            "# liquibase-migrations\n",
+        )
+
+    monkeypatch.setattr(skill_opt, "generate_skill_doc", fake_generate_skill_doc)
+
+    result = _execute_one_task(task, tmp_path, _stack(tmp_path))
+
+    skill_path = tmp_path / ".skills/liquibase-migrations/SKILL.md"
+    assert result.execution_mode == "skipped"
+    assert result.generated_skill == ".skills/liquibase-migrations/SKILL.md"
+    assert (
+        "skill-opt generated .skills/liquibase-migrations/SKILL.md" in result.log_tail
+    )
+    assert "review_required: true" in skill_path.read_text(encoding="utf-8")

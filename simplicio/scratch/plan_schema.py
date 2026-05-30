@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 
 SCHEMA_VERSION = "1.0"
@@ -29,6 +29,7 @@ class Task:
     constraints: str
     verify: str
     depends_on: list[str] = field(default_factory=list)
+    required_skill: Optional[str] = None
 
 
 @dataclass
@@ -144,6 +145,11 @@ def validate_plan(raw: dict) -> Plan:
         v = _need(tr, "verify", str, errors, path) or ""
         d = tr.get("depends_on", [])
         deps = _list_of_str(d, errors, f"{path}.depends_on")
+        required_skill = tr.get("required_skill")
+        if required_skill is not None and not isinstance(required_skill, str):
+            errors.append(
+                f"{path}.required_skill must be str, got {type(required_skill).__name__}"
+            )
         if g and t and c and co and v:
             tasks.append(
                 Task(
@@ -154,6 +160,7 @@ def validate_plan(raw: dict) -> Plan:
                     constraints=co,
                     verify=v,
                     depends_on=deps,
+                    required_skill=required_skill,
                 )
             )
 
