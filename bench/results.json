@@ -1,5 +1,5 @@
 {
-  "gguf:/root/models/Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf": {
+  "gguf:/root/models/Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf": {
     "rows": [
       {
         "goal": "Hide the Delete button when the current user is not an admin.",
@@ -22,14 +22,14 @@
           true
         ],
         "sem_quality": {
-          "len": 1646,
+          "len": 1411,
           "has_diff_block": false,
           "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 6
+          "criteria_keywords_hit": 5
         },
         "com_quality": {
-          "len": 1832,
+          "len": 1526,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -37,15 +37,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 32,
-          "completion_tokens": 378,
-          "total_tokens": 410,
-          "elapsed_ms": 51280
+          "completion_tokens": 326,
+          "total_tokens": 358,
+          "elapsed_ms": 42365
         },
         "com_usage": {
           "prompt_tokens": 211,
-          "completion_tokens": 402,
-          "total_tokens": 613,
-          "elapsed_ms": 54894
+          "completion_tokens": 324,
+          "total_tokens": 535,
+          "elapsed_ms": 43502
         }
       },
       {
@@ -69,30 +69,30 @@
           true
         ],
         "sem_quality": {
-          "len": 1270,
+          "len": 1066,
           "has_diff_block": false,
-          "has_test_block": true,
+          "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 10
         },
         "com_quality": {
-          "len": 2274,
+          "len": 2242,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 9
+          "criteria_keywords_hit": 10
         },
         "sem_usage": {
           "prompt_tokens": 30,
-          "completion_tokens": 273,
-          "total_tokens": 303,
-          "elapsed_ms": 36898
+          "completion_tokens": 241,
+          "total_tokens": 271,
+          "elapsed_ms": 29555
         },
         "com_usage": {
           "prompt_tokens": 205,
           "completion_tokens": 512,
           "total_tokens": 717,
-          "elapsed_ms": 70657
+          "elapsed_ms": 66137
         }
       },
       {
@@ -123,7 +123,7 @@
           "criteria_keywords_hit": 7
         },
         "com_quality": {
-          "len": 1953,
+          "len": 2014,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -133,13 +133,13 @@
           "prompt_tokens": 33,
           "completion_tokens": 89,
           "total_tokens": 122,
-          "elapsed_ms": 12189
+          "elapsed_ms": 11218
         },
         "com_usage": {
           "prompt_tokens": 210,
-          "completion_tokens": 470,
-          "total_tokens": 680,
-          "elapsed_ms": 65358
+          "completion_tokens": 487,
+          "total_tokens": 697,
+          "elapsed_ms": 63073
         }
       },
       {
@@ -165,14 +165,14 @@
           true
         ],
         "sem_quality": {
-          "len": 1452,
+          "len": 1608,
           "has_diff_block": false,
-          "has_test_block": true,
+          "has_test_block": false,
           "target_mentioned": false,
           "criteria_keywords_hit": 11
         },
         "com_quality": {
-          "len": 2261,
+          "len": 2249,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -180,22 +180,22 @@
         },
         "sem_usage": {
           "prompt_tokens": 42,
-          "completion_tokens": 314,
-          "total_tokens": 356,
-          "elapsed_ms": 42247
+          "completion_tokens": 362,
+          "total_tokens": 404,
+          "elapsed_ms": 43926
         },
         "com_usage": {
           "prompt_tokens": 230,
           "completion_tokens": 512,
           "total_tokens": 742,
-          "elapsed_ms": 69621
+          "elapsed_ms": 63550
         }
       },
       {
         "goal": "Render the export menu item only for users in the 'analytics' group.",
         "stack": "react",
         "sem_hits": 1,
-        "com_hits": 4,
+        "com_hits": 5,
         "total": 5,
         "sem_flags": [
           false,
@@ -209,17 +209,17 @@
           true,
           true,
           true,
-          false
+          true
         ],
         "sem_quality": {
-          "len": 1105,
+          "len": 1271,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
           "criteria_keywords_hit": 10
         },
         "com_quality": {
-          "len": 1545,
+          "len": 1605,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -227,15 +227,15 @@
         },
         "sem_usage": {
           "prompt_tokens": 34,
-          "completion_tokens": 264,
-          "total_tokens": 298,
-          "elapsed_ms": 35562
+          "completion_tokens": 292,
+          "total_tokens": 326,
+          "elapsed_ms": 35375
         },
         "com_usage": {
           "prompt_tokens": 212,
-          "completion_tokens": 417,
-          "total_tokens": 629,
-          "elapsed_ms": 57845
+          "completion_tokens": 431,
+          "total_tokens": 643,
+          "elapsed_ms": 54684
         }
       },
       {
@@ -261,30 +261,30 @@
           true
         ],
         "sem_quality": {
-          "len": 2228,
+          "len": 2370,
           "has_diff_block": false,
           "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 12
+          "criteria_keywords_hit": 13
         },
         "com_quality": {
-          "len": 1907,
+          "len": 2002,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 13
+          "criteria_keywords_hit": 10
         },
         "sem_usage": {
           "prompt_tokens": 39,
-          "completion_tokens": 487,
-          "total_tokens": 526,
-          "elapsed_ms": 66034
+          "completion_tokens": 512,
+          "total_tokens": 551,
+          "elapsed_ms": 62872
         },
         "com_usage": {
           "prompt_tokens": 222,
           "completion_tokens": 512,
           "total_tokens": 734,
-          "elapsed_ms": 69158
+          "elapsed_ms": 63732
         }
       },
       {
@@ -308,14 +308,14 @@
           true
         ],
         "sem_quality": {
-          "len": 2058,
+          "len": 1794,
           "has_diff_block": false,
-          "has_test_block": true,
+          "has_test_block": false,
           "target_mentioned": false,
           "criteria_keywords_hit": 14
         },
         "com_quality": {
-          "len": 1999,
+          "len": 1938,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
@@ -325,13 +325,13 @@
           "prompt_tokens": 40,
           "completion_tokens": 512,
           "total_tokens": 552,
-          "elapsed_ms": 68757
+          "elapsed_ms": 61412
         },
         "com_usage": {
           "prompt_tokens": 229,
           "completion_tokens": 512,
           "total_tokens": 741,
-          "elapsed_ms": 70397
+          "elapsed_ms": 65692
         }
       },
       {
@@ -355,37 +355,37 @@
           true
         ],
         "sem_quality": {
-          "len": 1283,
+          "len": 1517,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 7
+          "criteria_keywords_hit": 5
         },
         "com_quality": {
-          "len": 2353,
+          "len": 2552,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 3
+          "criteria_keywords_hit": 7
         },
         "sem_usage": {
           "prompt_tokens": 37,
-          "completion_tokens": 278,
-          "total_tokens": 315,
-          "elapsed_ms": 37248
+          "completion_tokens": 342,
+          "total_tokens": 379,
+          "elapsed_ms": 42021
         },
         "com_usage": {
           "prompt_tokens": 226,
           "completion_tokens": 512,
           "total_tokens": 738,
-          "elapsed_ms": 71028
+          "elapsed_ms": 67152
         }
       },
       {
         "goal": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
         "stack": "dotnet",
         "sem_hits": 1,
-        "com_hits": 4,
+        "com_hits": 5,
         "total": 5,
         "sem_flags": [
           false,
@@ -397,35 +397,35 @@
         "com_flags": [
           true,
           true,
-          false,
+          true,
           true,
           true
         ],
         "sem_quality": {
-          "len": 1566,
+          "len": 1496,
           "has_diff_block": false,
           "has_test_block": true,
           "target_mentioned": false,
-          "criteria_keywords_hit": 4
+          "criteria_keywords_hit": 3
         },
         "com_quality": {
-          "len": 2498,
+          "len": 2262,
           "has_diff_block": true,
           "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 7
+          "criteria_keywords_hit": 6
         },
         "sem_usage": {
           "prompt_tokens": 37,
-          "completion_tokens": 361,
-          "total_tokens": 398,
-          "elapsed_ms": 48701
+          "completion_tokens": 348,
+          "total_tokens": 385,
+          "elapsed_ms": 42545
         },
         "com_usage": {
           "prompt_tokens": 230,
           "completion_tokens": 512,
           "total_tokens": 742,
-          "elapsed_ms": 69786
+          "elapsed_ms": 66385
         }
       },
       {
@@ -449,63 +449,63 @@
           true
         ],
         "sem_quality": {
-          "len": 2243,
+          "len": 2295,
           "has_diff_block": false,
           "has_test_block": false,
           "target_mentioned": false,
-          "criteria_keywords_hit": 8
+          "criteria_keywords_hit": 9
         },
         "com_quality": {
-          "len": 907,
+          "len": 2194,
           "has_diff_block": true,
-          "has_test_block": false,
+          "has_test_block": true,
           "target_mentioned": true,
-          "criteria_keywords_hit": 9
+          "criteria_keywords_hit": 11
         },
         "sem_usage": {
           "prompt_tokens": 36,
-          "completion_tokens": 490,
-          "total_tokens": 526,
-          "elapsed_ms": 66745
+          "completion_tokens": 512,
+          "total_tokens": 548,
+          "elapsed_ms": 63973
         },
         "com_usage": {
           "prompt_tokens": 228,
-          "completion_tokens": 224,
-          "total_tokens": 452,
-          "elapsed_ms": 31930
+          "completion_tokens": 512,
+          "total_tokens": 740,
+          "elapsed_ms": 65924
         }
       }
     ],
     "sem_hits": 17,
-    "com_hits": 46,
+    "com_hits": 48,
     "total": 52,
     "sem_pct": 32,
-    "com_pct": 88,
+    "com_pct": 92,
     "quality_sem": {
-      "len": 15221,
+      "len": 15198,
       "has_diff_block": 0,
-      "has_test_block": 6,
+      "has_test_block": 3,
       "target_mentioned": 0,
       "criteria_keywords_hit": 87
     },
     "quality_com": {
-      "len": 19529,
+      "len": 20584,
       "has_diff_block": 10,
-      "has_test_block": 9,
+      "has_test_block": 10,
       "target_mentioned": 10,
-      "criteria_keywords_hit": 90
+      "criteria_keywords_hit": 93
     },
     "usage_sem": {
       "prompt_tokens": 360,
-      "completion_tokens": 3446,
-      "total_tokens": 3806,
-      "elapsed_ms": 465661
+      "completion_tokens": 3536,
+      "total_tokens": 3896,
+      "elapsed_ms": 435262
     },
     "usage_com": {
       "prompt_tokens": 2203,
-      "completion_tokens": 4585,
-      "total_tokens": 6788,
-      "elapsed_ms": 630674
+      "completion_tokens": 4826,
+      "total_tokens": 7029,
+      "elapsed_ms": 619831
     }
   }
 }
