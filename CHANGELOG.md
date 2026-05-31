@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] — 2026-05-31
+
+### Changed
+- Close out the **LLM-reduction roadmap (issue #33)**. All four levers ship and
+  are exercised by the test suite:
+  - **D — content-addressed completion cache** (`simplicio/_cache.py`,
+    `simplicio cache stats|clear`) with session hit/miss/put telemetry.
+  - **C — static verify-loop fixers** (`simplicio/pipeline_fixers.py`).
+  - **A — declarative plan recipes** (`simplicio/scratch/recipes.py`).
+  - **B — mechanical task executors** (`simplicio/scratch/codegen/*`) for
+    Python, TypeScript, Go, Rust and PHP, dispatched ahead of any task-level
+    LLM call.
+- The remaining empirical release-validation gate — a real 50-goal
+  codegen-disabled LLM baseline measuring B/codegen pass-rate and latency — is
+  tracked separately as a dedicated release-validation issue and does not block
+  this release. The repo-local closure audit
+  (`bench/results_issue_closure_audit.*`) continues to report that gate as open
+  by design, so partial evidence is never claimed as complete.
+
 ## [0.5.0] — 2026-05-31
 
 ### Added
