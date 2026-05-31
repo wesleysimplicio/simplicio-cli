@@ -5,8 +5,8 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 ## Matrix
 
 - release planned runs: 75
-- selected matrix runs: 4
-- selected runs: 4
+- selected matrix runs: 5
+- selected runs: 5
 - plan only: False
 - skip install: False
 - post verify: True
@@ -14,14 +14,16 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## Summary
 
-- planner valid: 3/4 (75.00%)
-- scaffold clean: 3 (100.00%)
-- task all passed: 1 (25.00%)
-- e2e green: 1 (33.33%)
-- median wall-clock: 262.135 s
+- planner valid: 4/5 (80.00%)
+- scaffold clean: 4 (100.00%)
+- task all passed: 2 (40.00%)
+- e2e green: 2 (50.00%)
+- median wall-clock: 233.421 s
 - average cost: None
 - lines generated: 0
 - lines modified: 0
+- runtime tool preflight: True
+- missing runtime tools: none
 - release ready: False
 
 ## Release Gate Status
@@ -42,6 +44,14 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 - approval rate: 0.00%
 - invalid review rows: 0
 
+## Runtime Tool Preflight
+
+- required tools: `go`, `pytest`, `ruff`
+- available tools: `go`, `pytest`, `ruff`
+- missing tools: none
+- checked commands: 4
+- unchecked commands: 0
+
 ## Runs
 
 | # | stack | goal_index | rc | planner | scaffold | tasks | e2e | duration_s |
@@ -50,6 +60,7 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 | 2 | go-gin | 1 | 0 | True | True | True | True | 204.707 |
 | 3 | go-gin | 2 | 1 | True | True | False | False | 262.135 |
 | 4 | go-gin | 3 | 1 | True | True | False | False | 393.191 |
+| 5 | go-gin | 4 | 0 | True | True | True | True | 98.077 |
 
 ## Missing Release Evidence
 

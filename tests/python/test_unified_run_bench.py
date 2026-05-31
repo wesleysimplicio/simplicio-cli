@@ -462,3 +462,45 @@ def test_unified_run_bench_main_accepts_live_results(tmp_path) -> None:
     assert rc == 0
     assert payload["summary"]["evidence_level"] == "partial-live"
     assert payload["summary"]["live_row_count"] == 1
+
+
+def test_unified_run_bench_example_live_results_fixture_stays_partial_live(
+    tmp_path,
+) -> None:
+    fixture_path = ROOT / "bench/fixtures/unified_run_live_results.example.json"
+    fixture_payload = json.loads(fixture_path.read_text(encoding="utf-8"))
+    json_path = tmp_path / "out.json"
+    md_path = tmp_path / "out.md"
+
+    rc = main(
+        [
+            "--live-results-json",
+            str(fixture_path),
+            "--json-output",
+            str(json_path),
+            "--md-output",
+            str(md_path),
+            "--quiet",
+        ]
+    )
+
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    live_row = next(row for row in payload["rows"] if row["fixture"] is False)
+    artifact = live_row["artifacts"][0]
+
+    assert rc == 0
+    assert fixture_payload["release_evidence"] is False
+    assert fixture_payload["release_ready"] is False
+    assert fixture_payload["rows"][0]["artifacts"][0] == {
+        "path": "bench/run_unified_run_bench.py",
+        "sha256": _artifact_sha256("bench/run_unified_run_bench.py"),
+        "kind": "dod-evidence",
+    }
+    assert payload["summary"]["evidence_level"] == "partial-live"
+    assert payload["summary"]["release_ready"] is False
+    assert payload["summary"]["live_row_count"] == 1
+    assert (
+        payload["summary"]["live_row_count"]
+        < payload["summary"]["expected_row_count"]
+    )
+    assert artifact["verified"] is True

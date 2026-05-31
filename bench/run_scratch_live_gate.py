@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import platform
 import re
+import shutil
 import shlex
 import statistics
 import subprocess
@@ -32,6 +34,7 @@ from simplicio.scratch.stack_registry import StackRegistry  # noqa: E402
 
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n(?P<body>.*?)\n---", re.DOTALL)
 _FIELD_RE = re.compile(r"^(?P<key>[A-Za-z0-9_-]+):\s*(?P<value>.*?)\s*$")
+_ENV_ASSIGNMENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=.*$")
 
 RESULTS_JSON = ROOT / "bench" / "results_scratch_live_gate.json"
 RESULTS_MD = ROOT / "bench" / "results_scratch_live_gate.md"
@@ -81,6 +84,12 @@ def run_live_gate(
     if max_runs is not None:
         matrix = matrix[:max_runs]
 
+    selected_stacks = tuple(dict.fromkeys(stack for _goal_index, stack in matrix))
+    runtime_tool_preflight = _post_verify_tool_preflight(
+        selected_stacks,
+        enabled=post_verify and not plan_only,
+        registry=registry,
+    )
     rows = []
     t0 = time.perf_counter()
     for run_number, (goal_index, stack) in enumerate(matrix, start=1):
@@ -109,6 +118,7 @@ def run_live_gate(
         plan_only=plan_only,
         post_verify=post_verify,
         skillopt_review=skillopt_review,
+        runtime_tool_preflight=runtime_tool_preflight,
     )
     return {
         "benchmark": "scratch-live-gate",
@@ -361,6 +371,9 @@ def _post_verify(
         ("test", stack.test_command),
         ("lint", stack.lint_command),
     ]
+    runtime_tool_preflight = _command_tool_preflight(
+        [(stack_slug, name, command) for name, command in commands]
+    )
     rows = []
     started = time.perf_counter()
     for name, command in commands:
@@ -385,8 +398,162 @@ def _post_verify(
         "enabled": True,
         "passed": bool(ran) and all(row.get("passed") for row in ran),
         "duration_s": round(time.perf_counter() - started, 3),
+        "runtime_tool_preflight": runtime_tool_preflight,
         "commands": rows,
     }
+
+
+def _post_verify_tool_preflight(
+    stack_slugs: tuple[str, ...],
+    *,
+    enabled: bool,
+    registry: StackRegistry,
+) -> dict[str, Any]:
+    if not enabled:
+        return _empty_runtime_tool_preflight(enabled=False)
+
+    command_specs = []
+    unknown_stacks = []
+    for stack_slug in stack_slugs:
+        stack = registry.get(stack_slug)
+        if stack is None:
+            unknown_stacks.append(stack_slug)
+            continue
+        command_specs.extend(
+            [
+                (stack_slug, "test", stack.test_command),
+                (stack_slug, "lint", stack.lint_command),
+            ]
+        )
+    preflight = _command_tool_preflight(command_specs)
+    if unknown_stacks:
+        preflight["unknown_stacks"] = unknown_stacks
+    return preflight
+
+
+def _command_tool_preflight(
+    command_specs: list[tuple[str, str, str]],
+) -> dict[str, Any]:
+    rows = []
+    for stack_slug, name, command in command_specs:
+        row: dict[str, Any] = {
+            "stack": stack_slug,
+            "name": name,
+            "command": command or "",
+        }
+        if command:
+            row.update(_runtime_tool_check(command))
+        else:
+            row.update(
+                {
+                    "tool": None,
+                    "available": None,
+                    "path": None,
+                    "skipped": True,
+                    "diagnostic": "empty post-verify command",
+                }
+            )
+        rows.append(row)
+
+    checked = [row for row in rows if row.get("available") is not None]
+    available_tools = sorted(
+        {str(row["tool"]) for row in checked if row.get("available")}
+    )
+    missing_tools = sorted(
+        {str(row["tool"]) for row in checked if row.get("available") is False}
+    )
+    return {
+        "enabled": True,
+        "scope": "post_verify",
+        "commands": rows,
+        "required_tools": sorted({str(row["tool"]) for row in checked}),
+        "available_tools": available_tools,
+        "missing_tools": missing_tools,
+        "checked_commands": len(checked),
+        "unchecked_commands": sum(1 for row in rows if row.get("available") is None),
+    }
+
+
+def _empty_runtime_tool_preflight(*, enabled: bool) -> dict[str, Any]:
+    return {
+        "enabled": enabled,
+        "scope": "post_verify",
+        "commands": [],
+        "required_tools": [],
+        "available_tools": [],
+        "missing_tools": [],
+        "checked_commands": 0,
+        "unchecked_commands": 0,
+    }
+
+
+def _runtime_tool_check(command: str) -> dict[str, Any]:
+    try:
+        parts = shlex.split(command)
+    except ValueError as exc:
+        return {
+            "tool": None,
+            "available": None,
+            "path": None,
+            "diagnostic": f"could not parse command: {exc}",
+        }
+    tool = _runtime_tool_name(parts)
+    if not tool:
+        return {
+            "tool": None,
+            "available": None,
+            "path": None,
+            "diagnostic": "no runtime tool found in command",
+        }
+    if _is_project_local_tool(tool):
+        return {
+            "tool": tool,
+            "available": None,
+            "path": None,
+            "diagnostic": "project-local command; availability checked by post-verify",
+        }
+
+    path = shutil.which(tool)
+    if path:
+        return {
+            "tool": tool,
+            "available": True,
+            "path": path,
+            "diagnostic": "found on PATH",
+        }
+    fallback = _python_module_fallback(command)
+    if fallback and importlib.util.find_spec(str(fallback[2])) is not None:
+        return {
+            "tool": tool,
+            "available": True,
+            "path": None,
+            "fallback_available": True,
+            "diagnostic": "missing from PATH; Python module fallback available",
+        }
+    return {
+        "tool": tool,
+        "available": False,
+        "path": None,
+        "diagnostic": "missing from PATH",
+    }
+
+
+def _runtime_tool_name(parts: list[str]) -> str | None:
+    for part in parts:
+        if part == "env" or _ENV_ASSIGNMENT_RE.match(part):
+            continue
+        return part
+    return None
+
+
+def _is_project_local_tool(tool: str) -> bool:
+    return (
+        tool.startswith(".")
+        or tool.startswith("/")
+        or tool.startswith("\\")
+        or "/" in tool
+        or "\\" in tool
+    )
 
 
 def _run_verify_command(
@@ -577,6 +744,7 @@ def _summarize(
     plan_only: bool,
     post_verify: bool,
     skillopt_review: dict[str, Any] | None = None,
+    runtime_tool_preflight: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     total = len(rows)
     planner_valid = sum(1 for row in rows if row.get("planner_valid"))
@@ -607,6 +775,9 @@ def _summarize(
         for row in rows
     )
     skillopt = _normalize_skillopt_review(skillopt_review)
+    runtime_tools = runtime_tool_preflight or _empty_runtime_tool_preflight(
+        enabled=post_verify and not plan_only
+    )
     release_gates = {
         "full_75_run_matrix": _has_full_release_matrix(rows),
         "planner_valid_ge_90": planner_valid_rate >= 0.90 if total else False,
@@ -643,6 +814,7 @@ def _summarize(
         "avg_lines_generated_per_run": _ratio(lines_generated_total, total),
         "avg_lines_modified_per_run": _ratio(lines_modified_total, total),
         "skillopt_review": skillopt,
+        "runtime_tool_preflight": runtime_tools,
         "elapsed_s": elapsed_s,
         "release_gates": release_gates,
         "missing_release_evidence": _missing_release_evidence(
@@ -913,6 +1085,18 @@ def merge_results(
                 current.get("summary", {}).get("skillopt_review")
                 or existing.get("summary", {}).get("skillopt_review")
             ),
+            runtime_tool_preflight=_post_verify_tool_preflight(
+                tuple(
+                    dict.fromkeys(
+                        str(row.get("stack"))
+                        for row in rows
+                        if row.get("stack")
+                    )
+                ),
+                enabled=bool(current_matrix.get("post_verify"))
+                and not bool(current_matrix.get("plan_only")),
+                registry=StackRegistry(),
+            ),
         ),
     }
 
@@ -968,6 +1152,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
     summary = result["summary"]
     matrix = result["matrix"]
     skillopt = summary.get("skillopt_review") or {}
+    runtime_tools = summary.get("runtime_tool_preflight") or {}
     lines = [
         "# Scratch Live Gate",
         "",
@@ -993,6 +1178,11 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- average cost: {summary['average_cost_usd']}",
         f"- lines generated: {summary['lines_generated_total']}",
         f"- lines modified: {summary['lines_modified_total']}",
+        f"- runtime tool preflight: {runtime_tools.get('enabled', False)}",
+        (
+            "- missing runtime tools: "
+            f"{_format_markdown_list(runtime_tools.get('missing_tools') or [])}"
+        ),
         f"- release ready: {summary['release_gates']['release_ready']}",
         "",
         "## Release Gate Status",
@@ -1012,6 +1202,27 @@ def _to_markdown(result: dict[str, Any]) -> str:
             ),
             f"- approval rate: {float(skillopt.get('approval_rate', 0.0)):.2%}",
             f"- invalid review rows: {skillopt.get('invalid_reviews', 0)}",
+        ]
+    )
+    lines.extend(
+        [
+            "",
+            "## Runtime Tool Preflight",
+            "",
+            (
+                "- required tools: "
+                f"{_format_markdown_list(runtime_tools.get('required_tools') or [])}"
+            ),
+            (
+                "- available tools: "
+                f"{_format_markdown_list(runtime_tools.get('available_tools') or [])}"
+            ),
+            (
+                "- missing tools: "
+                f"{_format_markdown_list(runtime_tools.get('missing_tools') or [])}"
+            ),
+            f"- checked commands: {runtime_tools.get('checked_commands', 0)}",
+            f"- unchecked commands: {runtime_tools.get('unchecked_commands', 0)}",
         ]
     )
     lines.extend(
@@ -1042,6 +1253,10 @@ def _to_markdown(result: dict[str, Any]) -> str:
         lines.append(f"- {item}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _format_markdown_list(values: list[Any]) -> str:
+    return ", ".join(f"`{value}`" for value in values) if values else "none"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

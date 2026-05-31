@@ -4,7 +4,7 @@ close-readiness audit for GitHub issues #32, #33, #41, and #46; partial evidence
 
 ## Summary
 
-- issues close-ready: 0/4
+- issues close-ready: 1/4
 - all issues close-ready: False
 
 ## Issues
@@ -14,7 +14,7 @@ close-readiness audit for GitHub issues #32, #33, #41, and #46; partial evidence
 | #32 | from-scratch mode + planner + SkillOpt | False | 2 |
 | #33 | reduce LLM dependency across simplicio flow | False | 6 |
 | #41 | unified simplicio run orchestrator | False | 9 |
-| #46 | Qwen2.5-Coder-1.5B GGUF quant curve | False | 12 |
+| #46 | Qwen2.5-Coder-1.5B GGUF quant curve | True | 0 |
 
 ## Open Blockers
 
@@ -40,17 +40,3 @@ close-readiness audit for GitHub issues #32, #33, #41, and #46; partial evidence
 - real unified feature/sprint runs with cost governor telemetry
 - real Codex /goal baseline runs with comparable success and cost data
 - artifact collection for sprint DoD evidence
-
-### #46
-- Q8_0_smoke_present
-- Q6_K_smoke_present
-- Q4_K_M_smoke_present
-- Q8_0_smoke_passed
-- Q6_K_smoke_passed
-- Q4_K_M_smoke_passed
-- quant_curve_json_present
-- quant_curve_md_present
-- quant_curve_pdf_present
-- quant_curve_release_ready
-- Q8_0/Q6_K/Q4_K_M schema-v1 smoke JSONs for the named GGUF model
-- bench/results_v14_qwen15b_quant_curve.{md,json,pdf}

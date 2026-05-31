@@ -8,6 +8,7 @@ import subprocess
 
 import pytest
 
+import bench.run_scratch_live_gate as live_gate
 from bench.run_scratch_live_gate import (
     CODEGEN_DISABLED_RESULTS_JSON,
     CODEGEN_DISABLED_RESULTS_MD,
@@ -155,6 +156,90 @@ def test_live_gate_runs_execution_slice(tmp_path) -> None:
     assert summary["avg_lines_generated_per_run"] == 12.0
     assert summary["release_gates"]["average_cost_le_1"] is True
     assert summary["release_gates"]["full_75_run_matrix"] is False
+
+
+def test_live_gate_reports_missing_post_verify_runtime_tools(
+    tmp_path, monkeypatch
+) -> None:
+    project_dir = tmp_path / "live" / "projects" / "gate-g01-go-gin"
+    project_dir.mkdir(parents=True)
+    monkeypatch.setattr(live_gate.shutil, "which", lambda _tool: None)
+
+    def fake_runner(cmd, **_kwargs):
+        if isinstance(cmd, str):
+            return _completed(
+                cmd,
+                "",
+                returncode=1,
+                stderr=f"{cmd}: go: not found",
+            )
+        return _completed(
+            cmd,
+            json.dumps(
+                {
+                    "project_dir": str(project_dir),
+                    "files_written": ["main.go"],
+                    "tasks_passed": 1,
+                    "tasks_total": 1,
+                }
+            ),
+        )
+
+    result = run_live_gate(
+        work_dir=tmp_path / "live",
+        stacks=("go-gin",),
+        goals=("CRUD app for condo units",),
+        post_verify=True,
+        runner=fake_runner,
+    )
+    json_path = tmp_path / "live.json"
+    md_path = tmp_path / "live.md"
+    write_reports(result, json_path, md_path)
+
+    row = result["runs"][0]
+    preflight = result["summary"]["runtime_tool_preflight"]
+    assert preflight["enabled"] is True
+    assert preflight["required_tools"] == ["go"]
+    assert preflight["missing_tools"] == ["go"]
+    assert preflight["checked_commands"] == 2
+    assert row["post_verify"]["runtime_tool_preflight"]["missing_tools"] == ["go"]
+    assert row["post_verify"]["passed"] is False
+    assert row["e2e_green"] is False
+    assert result["summary"]["release_gates"]["release_ready"] is False
+    assert "- missing runtime tools: `go`" in md_path.read_text(encoding="utf-8")
+
+
+def test_live_gate_disables_runtime_tool_preflight_without_post_verify(
+    tmp_path, monkeypatch
+) -> None:
+    def fail_if_checked(_tool):
+        raise AssertionError("runtime tool preflight should be disabled")
+
+    monkeypatch.setattr(live_gate.shutil, "which", fail_if_checked)
+
+    def fake_runner(cmd, **_kwargs):
+        return _completed(
+            cmd,
+            json.dumps(
+                {
+                    "project_dir": str(tmp_path),
+                    "files_written": ["main.go"],
+                    "tasks_passed": 1,
+                    "tasks_total": 1,
+                }
+            ),
+        )
+
+    result = run_live_gate(
+        work_dir=tmp_path / "live",
+        stacks=("go-gin",),
+        goals=("CRUD app for condo units",),
+        runner=fake_runner,
+    )
+
+    preflight = result["summary"]["runtime_tool_preflight"]
+    assert preflight["enabled"] is False
+    assert preflight["missing_tools"] == []
 
 
 def test_live_gate_can_disable_codegen_for_llm_baseline(tmp_path) -> None:

@@ -30,13 +30,16 @@ def build_report(manifest_path: Path = MANIFEST) -> dict[str, Any]:
     rows = [_smoke_row(item) for item in manifest["required_quants"]]
     required_present = {row["quant"]: row["present"] for row in rows}
     required_passed = {row["quant"]: row["go_no_go_pass"] is True for row in rows}
-    missing = [row["quant"] for row in rows if not row["present"]]
+    missing_rows = [row for row in rows if not row["present"]]
+    missing = [row["quant"] for row in missing_rows]
     failed = [
         row["quant"]
         for row in rows
         if row["present"] and row["go_no_go_pass"] is not True
     ]
-    release_ready = not missing and not failed
+    required_smokes_complete = not missing
+    all_required_smokes_passed = required_smokes_complete and not failed
+    environment_setup_blockers = _environment_setup_blockers(missing_rows)
     return {
         "benchmark": "qwen15b-quant-curve",
         "issue": 46,
@@ -62,8 +65,12 @@ def build_report(manifest_path: Path = MANIFEST) -> dict[str, Any]:
             "required_quant_smokes_passed": required_passed,
             "missing_quant_smokes": missing,
             "failed_required_quant_smokes": failed,
-            "qwen15b_quant_curve_complete": release_ready,
-            "release_ready": release_ready,
+            "required_smokes_complete": required_smokes_complete,
+            "all_required_smokes_passed": all_required_smokes_passed,
+            "qwen15b_quant_curve_complete": required_smokes_complete,
+            "release_ready": required_smokes_complete,
+            "decision": _decision(required_smokes_complete, failed),
+            "environment_setup_blockers": environment_setup_blockers,
             "missing_release_evidence": _missing_release_evidence(missing, failed),
         },
     }
@@ -143,13 +150,40 @@ def _missing_release_evidence(missing: list[str], failed: list[str]) -> list[str
     blockers = []
     if missing:
         blockers.append("missing schema-v1 smoke JSONs: " + ", ".join(missing))
-    if failed:
-        blockers.append("failing schema-v1 smoke JSONs: " + ", ".join(failed))
     if blockers:
         blockers.append(
             "bench/results_v14_qwen15b_quant_curve.{json,md,pdf} not written"
         )
     return blockers
+
+
+def _decision(required_smokes_complete: bool, failed: list[str]) -> str:
+    if not required_smokes_complete:
+        return "incomplete: run required schema-v1 smoke JSONs before final report"
+    if failed:
+        return (
+            "not viable for schema-v1: required quant smokes failed; skip full "
+            "bench unless the smoke protocol changes"
+        )
+    return "viable for full bench: required quant smokes passed"
+
+
+def _environment_setup_blockers(
+    missing_rows: list[dict[str, Any]],
+) -> list[dict[str, str]]:
+    return [
+        {
+            "type": "missing_required_smoke_json",
+            "quant": row["quant"],
+            "smoke_json": row["smoke_json"],
+            "smoke_command": row["smoke_command"],
+            "blocker": (
+                "required schema-v1 smoke JSON is absent; run the manifest smoke "
+                "command after preparing its local model/runtime prerequisites"
+            ),
+        }
+        for row in missing_rows
+    ]
 
 
 def write_diagnostics(report: dict[str, Any], json_path: Path) -> None:
@@ -178,6 +212,7 @@ def _to_markdown(report: dict[str, Any]) -> str:
         "",
         f"- release ready: {summary['release_ready']}",
         f"- quant curve complete: {summary['qwen15b_quant_curve_complete']}",
+        f"- decision: {summary['decision']}",
         "- required quant smokes present: "
         + ", ".join(
             f"{quant}={present}"
@@ -207,6 +242,13 @@ def _to_markdown(report: dict[str, Any]) -> str:
     if summary["missing_release_evidence"]:
         lines.extend(["", "## Missing Release Evidence", ""])
         lines.extend(f"- {item}" for item in summary["missing_release_evidence"])
+    if summary["environment_setup_blockers"]:
+        lines.extend(["", "## Environment Setup Blockers", ""])
+        for blocker in summary["environment_setup_blockers"]:
+            lines.append(
+                f"- {blocker['quant']}: missing `{blocker['smoke_json']}`; "
+                f"run `{blocker['smoke_command']}`"
+            )
     lines.append("")
     return "\n".join(lines)
 
@@ -216,6 +258,7 @@ def _pdf_lines(report: dict[str, Any]) -> list[str]:
     lines = [
         "Qwen 1.5B Quant Curve",
         f"release ready: {summary['release_ready']}",
+        f"decision: {summary['decision']}",
         f"missing: {', '.join(summary['missing_quant_smokes']) or 'none'}",
         f"failed: {', '.join(summary['failed_required_quant_smokes']) or 'none'}",
     ]

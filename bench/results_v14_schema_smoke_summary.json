@@ -28,25 +28,55 @@
       "parse_ok_rate": 1.0,
       "quant": "unknown",
       "source": "bench/results_sp_schema_smoke_qwen3b.json"
+    },
+    {
+      "calls": 4,
+      "format": "schema-v1-smoke",
+      "go_no_go_pass": false,
+      "model": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\models\\qwen25-coder-15b-gguf\\Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf",
+      "parse_failed": 4,
+      "parse_ok": 0,
+      "parse_ok_rate": 0.0,
+      "quant": "Q4_K_M",
+      "source": "bench/results_v14_qwen15b_q4_k_m_smoke_schema_v1.json"
+    },
+    {
+      "calls": 4,
+      "format": "schema-v1-smoke",
+      "go_no_go_pass": false,
+      "model": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\models\\qwen25-coder-15b-gguf\\Qwen2.5-Coder-1.5B-Instruct-Q6_K.gguf",
+      "parse_failed": 4,
+      "parse_ok": 0,
+      "parse_ok_rate": 0.0,
+      "quant": "Q6_K",
+      "source": "bench/results_v14_qwen15b_q6_k_smoke_schema_v1.json"
+    },
+    {
+      "calls": 4,
+      "format": "schema-v1-smoke",
+      "go_no_go_pass": false,
+      "model": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\models\\qwen25-coder-15b-gguf\\Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf",
+      "parse_failed": 4,
+      "parse_ok": 0,
+      "parse_ok_rate": 0.0,
+      "quant": "Q8_0",
+      "source": "bench/results_v14_qwen15b_q8_0_smoke_schema_v1.json"
     }
   ],
   "scope": "incremental schema-smoke artifact summary; this does not replace the required Qwen2.5-Coder-1.5B GGUF quant curve",
   "summary": {
-    "failed_required_quant_smokes": [],
-    "go_no_go_failures": 0,
-    "go_no_go_passes": 2,
-    "input_files": 2,
-    "missing_quant_smokes": [
+    "failed_required_quant_smokes": [
       "Q8_0",
       "Q6_K",
       "Q4_K_M"
     ],
-    "missing_release_evidence": [
-      "Q8_0/Q6_K/Q4_K_M schema-v1 smoke JSONs for the named GGUF model",
-      "bench/results_v14_qwen15b_quant_curve.{md,json,pdf}"
-    ],
-    "qwen15b_quant_curve_complete": false,
-    "qwen15b_smokes": 0,
+    "go_no_go_failures": 3,
+    "go_no_go_passes": 2,
+    "input_files": 5,
+    "missing_quant_smokes": [],
+    "missing_release_evidence": [],
+    "qwen15b_quant_curve_complete": true,
+    "qwen15b_smokes": 3,
     "release_ready": false,
     "required_quant_smokes_passed": {
       "Q4_K_M": false,
@@ -54,9 +84,9 @@
       "Q8_0": false
     },
     "required_quant_smokes_present": {
-      "Q4_K_M": false,
-      "Q6_K": false,
-      "Q8_0": false
+      "Q4_K_M": true,
+      "Q6_K": true,
+      "Q8_0": true
     }
   }
 }

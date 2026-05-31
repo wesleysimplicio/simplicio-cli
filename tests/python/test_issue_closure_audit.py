@@ -20,6 +20,7 @@ def _paths(tmp_path) -> dict[str, object]:
         "quant_curve_json": tmp_path / "quant-curve.json",
         "quant_curve_md": tmp_path / "quant-curve.md",
         "quant_curve_pdf": tmp_path / "quant-curve.pdf",
+        "quant_curve_adr": tmp_path / "quant-curve-adr.md",
     }
     _write_json(
         paths["scratch_live_gate"],
@@ -107,7 +108,7 @@ def test_issue_closure_audit_keeps_partial_evidence_open(tmp_path) -> None:
     assert "B_real_executor_pass_rate_ge_llm" in result["issues"]["33"]["blockers"]
     assert "not_fixture_only" in result["issues"]["41"]["blockers"]
     assert "Q8_0_smoke_present" in result["issues"]["46"]["blockers"]
-    assert "Q8_0_smoke_passed" in result["issues"]["46"]["blockers"]
+    assert "quant_curve_adr_present" in result["issues"]["46"]["blockers"]
 
 
 def test_issue_closure_audit_passes_when_all_release_gates_are_true(tmp_path) -> None:
@@ -155,11 +156,11 @@ def test_issue_closure_audit_passes_when_all_release_gates_are_true(tmp_path) ->
                     "Q4_K_M": True,
                 },
                 "required_quant_smokes_passed": {
-                    "Q8_0": True,
-                    "Q6_K": True,
-                    "Q4_K_M": True,
+                    "Q8_0": False,
+                    "Q6_K": False,
+                    "Q4_K_M": False,
                 },
-                "failed_required_quant_smokes": [],
+                "failed_required_quant_smokes": ["Q8_0", "Q6_K", "Q4_K_M"],
                 "missing_release_evidence": [],
             },
         },
@@ -167,6 +168,7 @@ def test_issue_closure_audit_passes_when_all_release_gates_are_true(tmp_path) ->
     _write_json(paths["quant_curve_json"], {"summary": {"release_ready": True}})
     paths["quant_curve_md"].write_text("# curve\n", encoding="utf-8")
     paths["quant_curve_pdf"].write_bytes(b"%PDF-1.4\n")
+    paths["quant_curve_adr"].write_text("# decision\n", encoding="utf-8")
 
     result = run_audit(paths)
 

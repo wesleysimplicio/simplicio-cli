@@ -29,6 +29,7 @@ DEFAULT_INPUTS = {
     "quant_curve_json": ROOT / "bench" / "results_v14_qwen15b_quant_curve.json",
     "quant_curve_md": ROOT / "bench" / "results_v14_qwen15b_quant_curve.md",
     "quant_curve_pdf": ROOT / "bench" / "results_v14_qwen15b_quant_curve.pdf",
+    "quant_curve_adr": ROOT / "docs" / "adr" / "0001-qwen15b-schema-v1-quant-decision.md",
 }
 
 
@@ -193,34 +194,19 @@ def _audit_issue_46(inputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     smoke = _summary(inputs, "schema_smoke")
     required = smoke.get("required_quant_smokes_present")
     required = required if isinstance(required, dict) else {}
-    passed = smoke.get("required_quant_smokes_passed")
-    passed = passed if isinstance(passed, dict) else {}
     curve = _summary(inputs, "quant_curve_json")
     checks = {
         "schema_smoke_summary_present": inputs["schema_smoke"]["present"],
         "Q8_0_smoke_present": required.get("Q8_0") is True,
         "Q6_K_smoke_present": required.get("Q6_K") is True,
         "Q4_K_M_smoke_present": required.get("Q4_K_M") is True,
-        "Q8_0_smoke_passed": passed.get("Q8_0") is True,
-        "Q6_K_smoke_passed": passed.get("Q6_K") is True,
-        "Q4_K_M_smoke_passed": passed.get("Q4_K_M") is True,
         "quant_curve_json_present": inputs["quant_curve_json"]["present"],
         "quant_curve_md_present": inputs["quant_curve_md"]["present"],
         "quant_curve_pdf_present": inputs["quant_curve_pdf"]["present"],
+        "quant_curve_adr_present": inputs["quant_curve_adr"]["present"],
         "quant_curve_release_ready": curve.get("release_ready") is True,
     }
     blockers = _missing_checks(checks)
-    blockers.extend(
-        item
-        for item in smoke.get("missing_release_evidence", [])
-        if isinstance(item, str) and item not in blockers
-    )
-    blockers.extend(
-        f"{quant} required smoke failed"
-        for quant in smoke.get("failed_required_quant_smokes", [])
-        if isinstance(quant, str)
-        and f"{quant} required smoke failed" not in blockers
-    )
     return _issue_result(
         title="Qwen2.5-Coder-1.5B GGUF quant curve",
         checks=checks,

@@ -20,6 +20,11 @@ ROOT = Path(__file__).resolve().parent.parent
 RESULTS_JSON = ROOT / "bench" / "results_v14_schema_smoke_summary.json"
 RESULTS_MD = ROOT / "bench" / "results_v14_schema_smoke_summary.md"
 REQUIRED_QUANT_SMOKES = ("Q8_0", "Q6_K", "Q4_K_M")
+QWEN15B_QUANT_CURVE_ARTIFACTS = (
+    ROOT / "bench" / "results_v14_qwen15b_quant_curve.json",
+    ROOT / "bench" / "results_v14_qwen15b_quant_curve.md",
+    ROOT / "bench" / "results_v14_qwen15b_quant_curve.pdf",
+)
 
 
 def summarize_smokes(inputs: list[Path]) -> dict[str, Any]:
@@ -52,6 +57,9 @@ def summarize_smokes(inputs: list[Path]) -> dict[str, Any]:
         for quant, present in required_quant_smokes_present.items()
         if present and not required_quant_smokes_passed[quant]
     ]
+    qwen15b_quant_curve_complete = not missing_quant_smokes and all(
+        path.exists() for path in QWEN15B_QUANT_CURVE_ARTIFACTS
+    )
     return {
         "benchmark": "schema-smoke-summary",
         "issue": 46,
@@ -74,14 +82,24 @@ def summarize_smokes(inputs: list[Path]) -> dict[str, Any]:
             "required_quant_smokes_passed": required_quant_smokes_passed,
             "missing_quant_smokes": missing_quant_smokes,
             "failed_required_quant_smokes": failed_required_quant_smokes,
-            "qwen15b_quant_curve_complete": False,
+            "qwen15b_quant_curve_complete": qwen15b_quant_curve_complete,
             "release_ready": False,
-            "missing_release_evidence": [
-                "Q8_0/Q6_K/Q4_K_M schema-v1 smoke JSONs for the named GGUF model",
-                "bench/results_v14_qwen15b_quant_curve.{md,json,pdf}",
-            ],
+            "missing_release_evidence": _missing_release_evidence(
+                missing_quant_smokes
+            ),
         },
     }
+
+
+def _missing_release_evidence(missing_quant_smokes: list[str]) -> list[str]:
+    missing = []
+    if missing_quant_smokes:
+        missing.append(
+            "Q8_0/Q6_K/Q4_K_M schema-v1 smoke JSONs for the named GGUF model"
+        )
+    if not all(path.exists() for path in QWEN15B_QUANT_CURVE_ARTIFACTS):
+        missing.append("bench/results_v14_qwen15b_quant_curve.{md,json,pdf}")
+    return missing
 
 
 def _normalize(path: Path, payload: dict[str, Any]) -> dict[str, Any]:
@@ -249,10 +267,12 @@ def _to_markdown(summary: dict[str, Any]) -> str:
             f"{row['parse_ok']} | {row['calls']} | {row['go_no_go_pass']} |"
         )
     lines.extend(["", "## Missing Release Evidence", ""])
-    for item in meta["missing_release_evidence"]:
-        lines.append(f"- {item}")
-    lines.append("")
-    return "\n".join(lines)
+    if meta["missing_release_evidence"]:
+        for item in meta["missing_release_evidence"]:
+            lines.append(f"- {item}")
+    else:
+        lines.append("- none")
+    return "\n".join(lines) + "\n"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

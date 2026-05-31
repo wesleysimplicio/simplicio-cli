@@ -12,23 +12,29 @@
       "path": "bench/results_llm_reduction_summary.json",
       "present": true
     },
+    "quant_curve_adr": {
+      "benchmark": "file",
+      "error": "",
+      "path": "docs/adr/0001-qwen15b-schema-v1-quant-decision.md",
+      "present": true
+    },
     "quant_curve_json": {
-      "benchmark": null,
-      "error": "missing file",
+      "benchmark": "qwen15b-quant-curve",
+      "error": "",
       "path": "bench/results_v14_qwen15b_quant_curve.json",
-      "present": false
+      "present": true
     },
     "quant_curve_md": {
-      "benchmark": null,
-      "error": "missing file",
+      "benchmark": "file",
+      "error": "",
       "path": "bench/results_v14_qwen15b_quant_curve.md",
-      "present": false
+      "present": true
     },
     "quant_curve_pdf": {
-      "benchmark": null,
-      "error": "missing file",
+      "benchmark": "file",
+      "error": "",
       "path": "bench/results_v14_qwen15b_quant_curve.pdf",
-      "present": false
+      "present": true
     },
     "schema_smoke": {
       "benchmark": "schema-smoke-summary",
@@ -113,42 +119,27 @@
       "title": "unified simplicio run orchestrator"
     },
     "46": {
-      "blockers": [
-        "Q8_0_smoke_present",
-        "Q6_K_smoke_present",
-        "Q4_K_M_smoke_present",
-        "Q8_0_smoke_passed",
-        "Q6_K_smoke_passed",
-        "Q4_K_M_smoke_passed",
-        "quant_curve_json_present",
-        "quant_curve_md_present",
-        "quant_curve_pdf_present",
-        "quant_curve_release_ready",
-        "Q8_0/Q6_K/Q4_K_M schema-v1 smoke JSONs for the named GGUF model",
-        "bench/results_v14_qwen15b_quant_curve.{md,json,pdf}"
-      ],
+      "blockers": [],
       "checks": {
-        "Q4_K_M_smoke_passed": false,
-        "Q4_K_M_smoke_present": false,
-        "Q6_K_smoke_passed": false,
-        "Q6_K_smoke_present": false,
-        "Q8_0_smoke_passed": false,
-        "Q8_0_smoke_present": false,
-        "quant_curve_json_present": false,
-        "quant_curve_md_present": false,
-        "quant_curve_pdf_present": false,
-        "quant_curve_release_ready": false,
+        "Q4_K_M_smoke_present": true,
+        "Q6_K_smoke_present": true,
+        "Q8_0_smoke_present": true,
+        "quant_curve_adr_present": true,
+        "quant_curve_json_present": true,
+        "quant_curve_md_present": true,
+        "quant_curve_pdf_present": true,
+        "quant_curve_release_ready": true,
         "schema_smoke_summary_present": true
       },
-      "close_ready": false,
+      "close_ready": true,
       "title": "Qwen2.5-Coder-1.5B GGUF quant curve"
     }
   },
   "scope": "close-readiness audit for GitHub issues #32, #33, #41, and #46; partial evidence is reported as blockers",
   "summary": {
     "all_issues_close_ready": false,
-    "issues_blocked": 4,
-    "issues_close_ready": 0,
+    "issues_blocked": 3,
+    "issues_close_ready": 1,
     "issues_total": 4,
     "open_blockers": {
       "32": [
@@ -173,20 +164,6 @@
         "real unified feature/sprint runs with cost governor telemetry",
         "real Codex /goal baseline runs with comparable success and cost data",
         "artifact collection for sprint DoD evidence"
-      ],
-      "46": [
-        "Q8_0_smoke_present",
-        "Q6_K_smoke_present",
-        "Q4_K_M_smoke_present",
-        "Q8_0_smoke_passed",
-        "Q6_K_smoke_passed",
-        "Q4_K_M_smoke_passed",
-        "quant_curve_json_present",
-        "quant_curve_md_present",
-        "quant_curve_pdf_present",
-        "quant_curve_release_ready",
-        "Q8_0/Q6_K/Q4_K_M schema-v1 smoke JSONs for the named GGUF model",
-        "bench/results_v14_qwen15b_quant_curve.{md,json,pdf}"
       ]
     }
   }

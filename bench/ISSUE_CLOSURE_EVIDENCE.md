@@ -4,7 +4,7 @@ Date: 2026-05-31
 Repo: `wesleysimplicio/simplicio-dev-cli`
 Branch inspected: `codex/finish-github-issues`
 
-This file is a local evidence index for the currently open GitHub issues:
+This file is a local evidence index for the tracked GitHub issues:
 `#32`, `#33`, `#41`, and `#46`.
 
 Recently closed issue tracked here for historical closure evidence: `#37`.
@@ -19,14 +19,14 @@ Scope of this artifact:
 - The goal is to make each issue comment/closure posture explicit from
   repo-local evidence that already exists.
 
-## Current Open Issues
+## Tracked Issues
 
 | issue | title | local closure posture |
 | --- | --- | --- |
 | `#32` | from-scratch mode + planner + SkillOpt | keep open until SkillOpt human approval evidence is supplied |
 | `#33` | reduce LLM dependency across simplicio flow | keep open until remaining release evidence is complete |
 | `#41` | unified `simplicio run` orchestrator | keep open; F0/F1/F2/F3/F4 foundation plus F5 fixture schema are present, live bench still incomplete |
-| `#46` | Qwen2.5-Coder-1.5B GGUF quant curve | keep open; required quant curve artifacts are not present |
+| `#46` | Qwen2.5-Coder-1.5B GGUF quant curve | close-ready locally; required smokes and final negative decision artifacts are present |
 
 ## Recently Closed Issues
 
@@ -108,18 +108,24 @@ Repo-local evidence:
   duplicate merge rows are rejected by default, existing outputs are not
   overwritten without an explicit mode, and `--disable-codegen` defaults to
   separate `results_scratch_live_gate_codegen_disabled_baseline.*` outputs.
+- The same live-gate report now records a diagnostic-only runtime tool
+  preflight for post-verify commands, so missing tools such as `go`, `pytest`,
+  or `ruff` are visible in the JSON/Markdown evidence without suppressing the
+  actual post-verify result.
 - `bench/results_scratch_live_gate_codegen_disabled_baseline.{json,md}` now
   preserves the codegen-disabled baseline on the default path. It currently has
-  4 rows: one green `go-gin` run, one `py-fastapi` run that timed out after
-  900 seconds with codegen disabled, and two later `go-gin` rows that failed
-  because `go` was not on `PATH` during post-verify. It remains partial
-  evidence only: 4 rows are not the release corpus and do not prove B/codegen
-  pass-rate or latency against the full baseline.
+  5 rows: two green `go-gin` runs, one `py-fastapi` run that timed out after
+  900 seconds with codegen disabled, and two earlier `go-gin` rows that failed
+  because `go` was not on `PATH` during post-verify. The latest `go-gin` row
+  used a portable Go 1.22.12 runtime under `Pictures/m/tmp` and passed
+  `go test ./...` plus `go vet ./...`. It remains partial evidence only:
+  5 rows are not the release corpus and do not prove B/codegen pass-rate or
+  latency against the full baseline.
 - `bench/run_issue_closure_audit.py` and
   `bench/results_issue_closure_audit.{json,md}` now provide a machine-readable
-  close-readiness audit for #32/#33/#41/#46. The current audit reports `0/4`
-  issues close-ready and keeps the B/codegen baseline and SkillOpt gaps visible
-  for #33.
+  close-readiness audit for #32/#33/#41/#46. The current audit reports `1/4`
+  issues close-ready: #46 is ready to close, while #32/#33/#41 still show
+  blockers.
 
 Suggested comment:
 
@@ -224,9 +230,12 @@ Repo-local evidence:
   verified artifact object with `path`, `sha256`, and `kind`; string-only
   artifact labels remain accepted as diagnostic labels but cannot satisfy the
   release-ready sprint evidence gate.
+- `bench/fixtures/unified_run_live_results.example.json` documents the verified
+  artifact object input shape while explicitly remaining partial-only and not
+  release evidence.
 - `simplicio run --scope feature --json` and nested sprint feature execution
   now suppress pipeline progress logs so stdout remains parseable JSON.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `482
+- Validation in this worktree: `python -m pytest tests/python -q` -> `486
   passed, 3 skipped`.
 
 Suggested comment:
@@ -244,7 +253,7 @@ unified feature/sprint, and Codex `/goal` runs still need to be captured before
 
 ## Issue #46 Evidence
 
-Status: not close-ready.
+Status: close-ready locally with a negative viability decision.
 
 Repo-local evidence:
 
@@ -252,12 +261,18 @@ Repo-local evidence:
   2/12 cases, schema parse 0/8, and approximately 55 minutes per case.
 - `bench/smoke_schema_v1.py` is present and provides the cheap 4-call
   schema-v1 go/no-go smoke required before the full expensive quant bench.
+- The required Qwen2.5-Coder-1.5B GGUF smoke JSONs now exist for
+  `Q8_0`, `Q6_K`, and `Q4_K_M`:
+  `bench/results_v14_qwen15b_q8_0_smoke_schema_v1.json`,
+  `bench/results_v14_qwen15b_q6_k_smoke_schema_v1.json`, and
+  `bench/results_v14_qwen15b_q4_k_m_smoke_schema_v1.json`.
+  All three failed the schema-v1 go/no-go smoke with `parse_ok=0/4` and
+  `artifact_contract=0/4`.
 - `bench/run_schema_smoke_summary.py` plus
   `bench/results_v14_schema_smoke_summary.{json,md}` now summarize existing and
-  future smoke JSON artifacts without claiming the GGUF quant curve is complete.
-  The current summary has two legacy smoke inputs and zero Qwen 1.5B GGUF
-  schema-v1 smokes; it explicitly reports missing required quants
-  `Q8_0`, `Q6_K`, and `Q4_K_M`.
+  future smoke JSON artifacts without claiming the tested model is viable.
+  The current summary records the three required Qwen 1.5B GGUF smokes as
+  present and failed.
 - `bench/run_schema_smoke_summary.py --fail-missing-required-quants` can now
   turn missing or failing required quant smokes into an explicit non-zero gate
   while keeping the default summary command non-failing.
@@ -272,22 +287,29 @@ Repo-local evidence:
 - The quant-curve report runner also supports `--diagnostics-json` for
   incomplete diagnostic JSON without writing final `.md` or `.pdf` artifacts,
   and it reports failed smoke and quant-mismatch rows as blockers.
+- Missing required smoke JSONs now populate structured
+  `environment_setup_blockers` entries with the quant, expected smoke path, and
+  manifest command to run after the local GGUF runtime/model setup exists.
+- `bench/results_v14_qwen15b_quant_curve.{json,md,pdf}` are now present. The
+  final decision is that Qwen2.5-Coder-1.5B GGUF is not viable for schema-v1
+  under this smoke protocol, so the expensive v14 bench was intentionally not
+  run for these quants.
+- `docs/adr/0001-qwen15b-schema-v1-quant-decision.md` records the decision:
+  use 3B-class or larger local coder models as the practical lower bound for
+  schema-v1 until another 1.5B model or prompt protocol proves otherwise.
 - `bench/RESULTS_LOCAL_GGUF.md` contains older local Q5_K_M vs Q8_0 evidence
   from `bench/run_exec.py`, but it is not the requested v14 schema-v1 quant
   curve.
-- No matching required quant-curve result artifacts were found for:
-  `bench/results_v14_qwen15b_quant_curve.md`,
-  `bench/results_v14_qwen15b_quant_curve.json`,
-  or `bench/results_v14_qwen15b_quant_curve.pdf`.
 
 Suggested comment:
 
 ```text
-Current repo-local evidence is still partial for #46. The Q5_K_M v14 partial
-run exists and reports 2/12 cases with schema parse 0/8, `bench/smoke_schema_v1.py`
-now exists for the cheap go/no-go smoke, and there is older Q5_K_M vs Q8_0
-evidence from `bench/run_exec.py`. The requested schema-v1 quant curve is still
-missing: `bench/results_v14_qwen15b_quant_curve.{md,json,pdf}` is not present.
+The required Qwen2.5-Coder-1.5B GGUF smoke curve is complete. Q8_0, Q6_K, and
+Q4_K_M were all tested with the schema-v1 4-call smoke and all returned
+parse_ok=0/4, so none reached the go/no-go threshold for the expensive v14
+bench. `bench/results_v14_qwen15b_quant_curve.{json,md,pdf}` and ADR 0001
+record the negative decision: 1.5B GGUF is not viable for schema-v1 under this
+protocol.
 ```
 
 ## Recommended Next Actions
@@ -296,5 +318,4 @@ missing: `bench/results_v14_qwen15b_quant_curve.{md,json,pdf}` is not present.
    attached to the release reports.
 2. Continue `#41` by capturing and ingesting real F5 live rows for cli+ag,
    unified feature/sprint, and Codex `/goal`.
-3. For `#46`, run the required GGUF smokes and produce the quant-curve reports
-   before attempting to close the issue.
+3. Close `#46` with the completed negative quant-curve decision artifacts.

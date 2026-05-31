@@ -79,6 +79,22 @@ def test_quant_curve_report_blocks_when_smokes_are_missing(tmp_path: Path) -> No
     assert report["summary"]["release_ready"] is False
     assert report["summary"]["missing_quant_smokes"] == ["Q8_0", "Q6_K", "Q4_K_M"]
     assert all(row["present"] is False for row in report["rows"])
+    assert [
+        blocker["type"]
+        for blocker in report["summary"]["environment_setup_blockers"]
+    ] == [
+        "missing_required_smoke_json",
+        "missing_required_smoke_json",
+        "missing_required_smoke_json",
+    ]
+    assert [
+        blocker["quant"]
+        for blocker in report["summary"]["environment_setup_blockers"]
+    ] == ["Q8_0", "Q6_K", "Q4_K_M"]
+    assert all(
+        "required schema-v1 smoke JSON is absent" in blocker["blocker"]
+        for blocker in report["summary"]["environment_setup_blockers"]
+    )
 
 
 def test_quant_curve_report_writes_final_artifacts_only_when_ready(
@@ -112,6 +128,12 @@ def test_quant_curve_report_writes_final_artifacts_only_when_ready(
     assert json.loads(json_path.read_text(encoding="utf-8"))["summary"][
         "release_ready"
     ] is True
+    assert json.loads(json_path.read_text(encoding="utf-8"))["summary"][
+        "all_required_smokes_passed"
+    ] is True
+    assert json.loads(json_path.read_text(encoding="utf-8"))["summary"][
+        "environment_setup_blockers"
+    ] == []
     assert "release ready: True" in md_path.read_text(encoding="utf-8")
     assert pdf_path.read_bytes().startswith(b"%PDF-1.4")
 
@@ -177,6 +199,10 @@ def test_quant_curve_report_writes_incomplete_diagnostics_without_final_artifact
         "Q6_K",
         "Q4_K_M",
     ]
+    assert [
+        blocker["smoke_command"]
+        for blocker in diagnostics["summary"]["environment_setup_blockers"]
+    ] == ["run q8", "run q6", "run q4"]
     assert not json_path.exists()
     assert not md_path.exists()
     assert not pdf_path.exists()
@@ -206,7 +232,9 @@ def test_quant_curve_report_check_does_not_write_outputs(tmp_path: Path) -> None
     assert not json_path.exists()
 
 
-def test_quant_curve_report_blocks_failed_smoke_json(tmp_path: Path) -> None:
+def test_quant_curve_report_writes_final_artifacts_for_failed_smoke_decision(
+    tmp_path: Path,
+) -> None:
     manifest = _write_manifest(tmp_path)
     for quant in ("Q8_0", "Q6_K", "Q4_K_M"):
         _write_smoke(
@@ -217,13 +245,59 @@ def test_quant_curve_report_blocks_failed_smoke_json(tmp_path: Path) -> None:
 
     report = build_report(manifest)
 
-    assert report["summary"]["release_ready"] is False
+    assert report["summary"]["release_ready"] is True
+    assert report["summary"]["required_smokes_complete"] is True
+    assert report["summary"]["all_required_smokes_passed"] is False
     assert report["summary"]["missing_quant_smokes"] == []
+    assert report["summary"]["missing_release_evidence"] == []
+    assert report["summary"]["environment_setup_blockers"] == []
     assert report["summary"]["failed_required_quant_smokes"] == ["Q6_K"]
+    assert report["summary"]["decision"].startswith("not viable for schema-v1")
     failed_row = next(row for row in report["rows"] if row["quant"] == "Q6_K")
     assert failed_row["present"] is True
     assert failed_row["go_no_go_pass"] is False
     assert failed_row["error"] == "go/no-go failed"
+
+
+def test_quant_curve_report_main_writes_failed_smoke_decision_outputs(
+    tmp_path: Path,
+) -> None:
+    manifest = _write_manifest(tmp_path)
+    for quant in ("Q8_0", "Q6_K", "Q4_K_M"):
+        _write_smoke(
+            tmp_path / f"results_v14_qwen15b_{quant.lower()}_smoke_schema_v1.json",
+            quant,
+            passed=False,
+        )
+    json_path = tmp_path / "curve.json"
+    md_path = tmp_path / "curve.md"
+    pdf_path = tmp_path / "curve.pdf"
+
+    rc = main(
+        [
+            "--manifest",
+            str(manifest),
+            "--json-output",
+            str(json_path),
+            "--md-output",
+            str(md_path),
+            "--pdf-output",
+            str(pdf_path),
+            "--quiet",
+        ]
+    )
+
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    assert rc == 0
+    assert payload["summary"]["release_ready"] is True
+    assert payload["summary"]["all_required_smokes_passed"] is False
+    assert payload["summary"]["failed_required_quant_smokes"] == [
+        "Q8_0",
+        "Q6_K",
+        "Q4_K_M",
+    ]
+    assert "not viable for schema-v1" in md_path.read_text(encoding="utf-8")
+    assert pdf_path.read_bytes().startswith(b"%PDF-1.4")
 
 
 def test_quant_curve_report_blocks_quant_mismatch(tmp_path: Path) -> None:
@@ -243,7 +317,8 @@ def test_quant_curve_report_blocks_quant_mismatch(tmp_path: Path) -> None:
 
     report = build_report(manifest)
 
-    assert report["summary"]["release_ready"] is False
+    assert report["summary"]["release_ready"] is True
+    assert report["summary"]["all_required_smokes_passed"] is False
     assert report["summary"]["missing_quant_smokes"] == []
     assert report["summary"]["failed_required_quant_smokes"] == ["Q6_K"]
     mismatch_row = next(row for row in report["rows"] if row["quant"] == "Q6_K")
