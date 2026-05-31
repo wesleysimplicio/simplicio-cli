@@ -16,6 +16,9 @@ test-results/
 # Rust build artifacts
 rust/*/target/
 
+# local GGUF model blobs (kept out of git; see bench/RESULTS_LOCAL_GGUF.md)
+models/*.gguf
+models/.cache/
 # Local GGUF weights (Path 4 in-process llama backend)
 *.gguf
 /models/
