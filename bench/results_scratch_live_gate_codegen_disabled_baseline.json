@@ -1,0 +1,538 @@
+{
+  "benchmark": "scratch-live-gate",
+  "date": "2026-05-31",
+  "environment": {
+    "platform": "Windows-11-10.0.22631-SP0",
+    "python": "3.14.3"
+  },
+  "matrix": {
+    "disable_codegen": true,
+    "goals": 4,
+    "plan_only": false,
+    "planned_runs": 5,
+    "post_verify": true,
+    "release_planned_runs": 75,
+    "selected_runs": 5,
+    "skip_install": false,
+    "stacks": 2
+  },
+  "runs": [
+    {
+      "codegen_disabled": true,
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for condo units with owner contact search",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g01-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-codegen-disabled-baseline\\projects",
+        "--json"
+      ],
+      "duration_s": 900.047,
+      "e2e_green": null,
+      "error": "TIMEOUT after 900s",
+      "goal": "CRUD app for condo units with owner contact search",
+      "goal_index": 1,
+      "json_parse_error": "scratch command timed out before JSON output",
+      "planner_valid": false,
+      "post_verify": {
+        "enabled": true,
+        "error": "scratch command timed out",
+        "passed": false
+      },
+      "project_name": "gate-g01-py-fastapi",
+      "returncode": null,
+      "run_number": 1,
+      "scaffold_clean": null,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g01-py-fastapi\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "",
+      "task_all_passed": false,
+      "tasks_passed": 0,
+      "tasks_total": 0,
+      "timed_out": true
+    },
+    {
+      "codegen_disabled": true,
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for condo units with owner contact search",
+        "--stack",
+        "go-gin",
+        "--name",
+        "gate-g01-go-gin",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-no-codegen-baseline-go-gin-20260530-165952\\work\\projects",
+        "--json"
+      ],
+      "cost_usd": null,
+      "duration_s": 204.707,
+      "e2e_green": true,
+      "goal": "CRUD app for condo units with owner contact search",
+      "goal_index": 1,
+      "json_parse_error": "",
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "go test ./...",
+            "duration_s": 0.741,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "?   \tgate-g01-go-gin/cmd/server\t[no test files]\nok  \tgate-g01-go-gin/internal/http\t(cached)\n",
+            "timed_out": false
+          },
+          {
+            "command": "go vet ./...",
+            "duration_s": 8.841,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 9.582,
+        "enabled": true,
+        "passed": true
+      },
+      "project_name": "gate-g01-go-gin",
+      "returncode": 0,
+      "run_number": 2,
+      "scaffold_clean": true,
+      "scratch_metrics": {
+        "avg_codegen_ms": 0,
+        "avg_llm_ms": 197963,
+        "avg_task_ms": 197963,
+        "codegen_share": 0.0,
+        "tasks_codegen": 0,
+        "tasks_failed": 0,
+        "tasks_llm": 1,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "stack": "go-gin",
+      "stderr_tail": "[scratch] stack:   go-gin (Go 1.22 / Gin)\n[scratch] project: gate-g01-go-gin\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "golang.org/x/arch v0.8.0\\ngo: downloading github.com/klauspost/cpuid/v2 v2.2.7\\ngo: downloading github.com/bytedance/sonic/loader v0.1.1\\ngo: downloading github.com/twitchyliquid64/golang-asm v0.15.1\\ngo: downloading github.com/cloudwego/iasm v0.2.0\\ngo: downloading github.com/go-playground/assert/v2 v2.2.0\\ngo: downloading github.com/google/go-cmp v0.5.5\\ngo: downloading gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405\\ngo: downloading golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-gin-crud\",\n      \"target\": \"internal/http/router.go\",\n      \"passed\": true,\n      \"execution_mode\": \"llm\",\n      \"codegen_executor\": null,\n      \"files_modified\": [],\n      \"skipped\": null,\n      \"duration_ms\": 197963,\n      \"log_tail\": \"codegen fallback: codegen disabled by SIMPLICIO_DISABLE_CODEGEN\\n\\n{\\n  \\\"applied\\\": true,\\n  \\\"cost_usd\\\": 0.0,\\n  \\\"diff_summary\\\": \\\"changed internal/http/router.go\\\",\\n  \\\"files_changed\\\": [\\n    \\\"internal/http/router.go\\\"\\n  ],\\n  \\\"task_id\\\": \\\"internal/http/router.go\\\",\\n  \\\"tokens_used\\\": {\\n    \\\"completion\\\": 853,\\n    \\\"prompt\\\": 260\\n  },\\n  \\\"warnings\\\": []\\n}\",\n      \"generated_skill\": null\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 0,\n    \"tasks_llm\": 1,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 0.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 197963,\n    \"avg_task_ms\": 197963\n  },\n  \"elapsed_s\": 204.54\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
+      "timed_out": false
+    },
+    {
+      "codegen_disabled": true,
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for invoices with paid and overdue filters",
+        "--stack",
+        "go-gin",
+        "--name",
+        "gate-g02-go-gin",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-codegen-disabled-baseline\\projects",
+        "--json"
+      ],
+      "cost_usd": 0.0,
+      "duration_s": 262.135,
+      "e2e_green": false,
+      "goal": "CRUD app for invoices with paid and overdue filters",
+      "goal_index": 2,
+      "json_parse_error": "",
+      "line_stats": {
+        "files_changed": 0,
+        "files_created": 0,
+        "files_deleted": 0,
+        "lines_added": 0,
+        "lines_generated": 0,
+        "lines_modified": 0,
+        "lines_removed": 0
+      },
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "go test ./...",
+            "duration_s": 0.043,
+            "name": "test",
+            "passed": false,
+            "returncode": 1,
+            "stderr_tail": "'go' n\u00c3\u00a3o \u00c3\u00a9 reconhecido como um comando interno\nou externo, um programa oper\u00c3\u00a1vel ou um arquivo em lotes.\n",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "go vet ./...",
+            "duration_s": 0.042,
+            "name": "lint",
+            "passed": false,
+            "returncode": 1,
+            "stderr_tail": "'go' n\u00c3\u00a3o \u00c3\u00a9 reconhecido como um comando interno\nou externo, um programa oper\u00c3\u00a1vel ou um arquivo em lotes.\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 0.085,
+        "enabled": true,
+        "passed": false
+      },
+      "project_name": "gate-g02-go-gin",
+      "returncode": 1,
+      "run_number": 3,
+      "scaffold_clean": true,
+      "scratch_metrics": {
+        "avg_codegen_ms": 0,
+        "avg_llm_ms": 0,
+        "avg_task_ms": 261587,
+        "codegen_share": 0.0,
+        "files_changed_total": 0,
+        "files_created_total": 0,
+        "files_deleted_total": 0,
+        "lines_added_total": 0,
+        "lines_generated_total": 0,
+        "lines_modified_total": 0,
+        "lines_removed_total": 0,
+        "tasks_codegen": 0,
+        "tasks_failed": 1,
+        "tasks_llm": 0,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "stack": "go-gin",
+      "stderr_tail": "[scratch] stack:   go-gin (Go 1.22 / Gin)\n[scratch] project: gate-g02-go-gin\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "m\\\\tmp\\\\simplicio-scratch-codegen-disabled-baseline\\\\projects\\\\gate-g02-go-gin\\\\cmd\\\\server\\\\main.go\"\n  ],\n  \"install_ok\": false,\n  \"install_log_tail\": \"'go' n\\u00c3\\u00a3o \\u00c3\\u00a9 reconhecido como um comando interno\\nou externo, um programa oper\\u00c3\\u00a1vel ou um arquivo em lotes.\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-gin-crud\",\n      \"target\": \"internal/http/router.go\",\n      \"passed\": false,\n      \"execution_mode\": \"failed\",\n      \"codegen_executor\": null,\n      \"files_modified\": [],\n      \"skipped\": null,\n      \"duration_ms\": 261587,\n      \"log_tail\": \"codegen fallback: codegen disabled by SIMPLICIO_DISABLE_CODEGEN\\n\\n(pipeline returned None \\u2014 task did not converge)\",\n      \"generated_skill\": null,\n      \"line_stats\": {\n        \"files_created\": 0,\n        \"files_changed\": 0,\n        \"files_deleted\": 0,\n        \"lines_generated\": 0,\n        \"lines_modified\": 0,\n        \"lines_added\": 0,\n        \"lines_removed\": 0\n      },\n      \"file_line_stats\": []\n    }\n  ],\n  \"tasks_passed\": 0,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 0,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 1,\n    \"codegen_share\": 0.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 261587,\n    \"files_created_total\": 0,\n    \"files_changed_total\": 0,\n    \"files_deleted_total\": 0,\n    \"lines_generated_total\": 0,\n    \"lines_modified_total\": 0,\n    \"lines_added_total\": 0,\n    \"lines_removed_total\": 0\n  },\n  \"elapsed_s\": 261.65\n}\n",
+      "task_all_passed": false,
+      "tasks_passed": 0,
+      "tasks_total": 1,
+      "timed_out": false
+    },
+    {
+      "codegen_disabled": true,
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for maintenance tickets with assignee status",
+        "--stack",
+        "go-gin",
+        "--name",
+        "gate-g03-go-gin",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-codegen-disabled-baseline\\projects",
+        "--json"
+      ],
+      "cost_usd": 0.0,
+      "duration_s": 393.191,
+      "e2e_green": false,
+      "goal": "CRUD app for maintenance tickets with assignee status",
+      "goal_index": 3,
+      "json_parse_error": "",
+      "line_stats": {
+        "files_changed": 0,
+        "files_created": 0,
+        "files_deleted": 0,
+        "lines_added": 0,
+        "lines_generated": 0,
+        "lines_modified": 0,
+        "lines_removed": 0
+      },
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "go test ./...",
+            "duration_s": 0.04,
+            "name": "test",
+            "passed": false,
+            "returncode": 1,
+            "stderr_tail": "'go' n\u00c3\u00a3o \u00c3\u00a9 reconhecido como um comando interno\nou externo, um programa oper\u00c3\u00a1vel ou um arquivo em lotes.\n",
+            "stdout_tail": "",
+            "timed_out": false
+          },
+          {
+            "command": "go vet ./...",
+            "duration_s": 0.037,
+            "name": "lint",
+            "passed": false,
+            "returncode": 1,
+            "stderr_tail": "'go' n\u00c3\u00a3o \u00c3\u00a9 reconhecido como um comando interno\nou externo, um programa oper\u00c3\u00a1vel ou um arquivo em lotes.\n",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 0.077,
+        "enabled": true,
+        "passed": false
+      },
+      "project_name": "gate-g03-go-gin",
+      "returncode": 1,
+      "run_number": 4,
+      "scaffold_clean": true,
+      "scratch_metrics": {
+        "avg_codegen_ms": 0,
+        "avg_llm_ms": 0,
+        "avg_task_ms": 392512,
+        "codegen_share": 0.0,
+        "files_changed_total": 0,
+        "files_created_total": 0,
+        "files_deleted_total": 0,
+        "lines_added_total": 0,
+        "lines_generated_total": 0,
+        "lines_modified_total": 0,
+        "lines_removed_total": 0,
+        "tasks_codegen": 0,
+        "tasks_failed": 1,
+        "tasks_llm": 0,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "stack": "go-gin",
+      "stderr_tail": "[scratch] stack:   go-gin (Go 1.22 / Gin)\n[scratch] project: gate-g03-go-gin\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "\\m\\\\tmp\\\\simplicio-scratch-codegen-disabled-baseline\\\\projects\\\\gate-g03-go-gin\\\\cmd\\\\server\\\\main.go\"\n  ],\n  \"install_ok\": false,\n  \"install_log_tail\": \"'go' n\\u00c3\\u00a3o \\u00c3\\u00a9 reconhecido como um comando interno\\nou externo, um programa oper\\u00c3\\u00a1vel ou um arquivo em lotes.\\n\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-gin-crud\",\n      \"target\": \"internal/http/router.go\",\n      \"passed\": false,\n      \"execution_mode\": \"failed\",\n      \"codegen_executor\": null,\n      \"files_modified\": [],\n      \"skipped\": null,\n      \"duration_ms\": 392512,\n      \"log_tail\": \"codegen fallback: codegen disabled by SIMPLICIO_DISABLE_CODEGEN\\n\\n(pipeline returned None \\u2014 task did not converge)\",\n      \"generated_skill\": null,\n      \"line_stats\": {\n        \"files_created\": 0,\n        \"files_changed\": 0,\n        \"files_deleted\": 0,\n        \"lines_generated\": 0,\n        \"lines_modified\": 0,\n        \"lines_added\": 0,\n        \"lines_removed\": 0\n      },\n      \"file_line_stats\": []\n    }\n  ],\n  \"tasks_passed\": 0,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 0,\n    \"tasks_llm\": 0,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 1,\n    \"codegen_share\": 0.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 0,\n    \"avg_task_ms\": 392512,\n    \"files_created_total\": 0,\n    \"files_changed_total\": 0,\n    \"files_deleted_total\": 0,\n    \"lines_generated_total\": 0,\n    \"lines_modified_total\": 0,\n    \"lines_added_total\": 0,\n    \"lines_removed_total\": 0\n  },\n  \"elapsed_s\": 392.6\n}\n",
+      "task_all_passed": false,
+      "tasks_passed": 0,
+      "tasks_total": 1,
+      "timed_out": false
+    },
+    {
+      "codegen_disabled": true,
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for visitors with check-in and check-out timestamps",
+        "--stack",
+        "go-gin",
+        "--name",
+        "gate-g04-go-gin",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-codegen-disabled-baseline\\projects",
+        "--json"
+      ],
+      "cost_usd": null,
+      "duration_s": 98.077,
+      "e2e_green": true,
+      "goal": "CRUD app for visitors with check-in and check-out timestamps",
+      "goal_index": 4,
+      "json_parse_error": "",
+      "line_stats": {
+        "files_changed": 0,
+        "files_created": 0,
+        "files_deleted": 0,
+        "lines_added": 0,
+        "lines_generated": 0,
+        "lines_modified": 0,
+        "lines_removed": 0
+      },
+      "planner_valid": true,
+      "post_verify": {
+        "commands": [
+          {
+            "command": "go test ./...",
+            "duration_s": 1.179,
+            "name": "test",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "?   \tgate-g04-go-gin/cmd/server\t[no test files]\nok  \tgate-g04-go-gin/internal/http\t(cached)\n",
+            "timed_out": false
+          },
+          {
+            "command": "go vet ./...",
+            "duration_s": 5.912,
+            "name": "lint",
+            "passed": true,
+            "returncode": 0,
+            "stderr_tail": "",
+            "stdout_tail": "",
+            "timed_out": false
+          }
+        ],
+        "duration_s": 7.091,
+        "enabled": true,
+        "passed": true,
+        "runtime_tool_preflight": {
+          "available_tools": [
+            "go"
+          ],
+          "checked_commands": 2,
+          "commands": [
+            {
+              "available": true,
+              "command": "go test ./...",
+              "diagnostic": "found on PATH",
+              "name": "test",
+              "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\go-portable\\go\\bin\\go.EXE",
+              "stack": "go-gin",
+              "tool": "go"
+            },
+            {
+              "available": true,
+              "command": "go vet ./...",
+              "diagnostic": "found on PATH",
+              "name": "lint",
+              "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\go-portable\\go\\bin\\go.EXE",
+              "stack": "go-gin",
+              "tool": "go"
+            }
+          ],
+          "enabled": true,
+          "missing_tools": [],
+          "required_tools": [
+            "go"
+          ],
+          "scope": "post_verify",
+          "unchecked_commands": 0
+        }
+      },
+      "project_name": "gate-g04-go-gin",
+      "returncode": 0,
+      "run_number": 5,
+      "scaffold_clean": true,
+      "scratch_metrics": {
+        "avg_codegen_ms": 0,
+        "avg_llm_ms": 88222,
+        "avg_task_ms": 88222,
+        "codegen_share": 0.0,
+        "files_changed_total": 0,
+        "files_created_total": 0,
+        "files_deleted_total": 0,
+        "lines_added_total": 0,
+        "lines_generated_total": 0,
+        "lines_modified_total": 0,
+        "lines_removed_total": 0,
+        "tasks_codegen": 0,
+        "tasks_failed": 0,
+        "tasks_llm": 1,
+        "tasks_skipped": 0,
+        "tasks_total": 1
+      },
+      "stack": "go-gin",
+      "stderr_tail": "[scratch] stack:   go-gin (Go 1.22 / Gin)\n[scratch] project: gate-g04-go-gin\n[scratch] planner: planner=codex-cli/default (shell-out)\n[scratch] generating plan...\n[scratch] plan ok: 1 tasks\n",
+      "stdout_tail": "stall_ok\": true,\n  \"install_log_tail\": \"\",\n  \"tasks\": [\n    {\n      \"id\": \"T01-gin-crud\",\n      \"target\": \"internal/http/router.go\",\n      \"passed\": true,\n      \"execution_mode\": \"llm\",\n      \"codegen_executor\": null,\n      \"files_modified\": [],\n      \"skipped\": null,\n      \"duration_ms\": 88222,\n      \"log_tail\": \"codegen fallback: codegen disabled by SIMPLICIO_DISABLE_CODEGEN\\n\\n{\\n  \\\"applied\\\": true,\\n  \\\"cost_usd\\\": 0.0,\\n  \\\"diff_summary\\\": \\\"changed internal/http/router.go\\\",\\n  \\\"files_changed\\\": [\\n    \\\"internal/http/router.go\\\"\\n  ],\\n  \\\"task_id\\\": \\\"internal/http/router.go\\\",\\n  \\\"tokens_used\\\": {\\n    \\\"completion\\\": 582,\\n    \\\"prompt\\\": 264\\n  },\\n  \\\"warnings\\\": []\\n}\",\n      \"generated_skill\": null,\n      \"line_stats\": {\n        \"files_created\": 0,\n        \"files_changed\": 0,\n        \"files_deleted\": 0,\n        \"lines_generated\": 0,\n        \"lines_modified\": 0,\n        \"lines_added\": 0,\n        \"lines_removed\": 0\n      },\n      \"file_line_stats\": []\n    }\n  ],\n  \"tasks_passed\": 1,\n  \"tasks_total\": 1,\n  \"metrics\": {\n    \"tasks_total\": 1,\n    \"tasks_codegen\": 0,\n    \"tasks_llm\": 1,\n    \"tasks_skipped\": 0,\n    \"tasks_failed\": 0,\n    \"codegen_share\": 0.0,\n    \"avg_codegen_ms\": 0,\n    \"avg_llm_ms\": 88222,\n    \"avg_task_ms\": 88222,\n    \"files_created_total\": 0,\n    \"files_changed_total\": 0,\n    \"files_deleted_total\": 0,\n    \"lines_generated_total\": 0,\n    \"lines_modified_total\": 0,\n    \"lines_added_total\": 0,\n    \"lines_removed_total\": 0\n  },\n  \"elapsed_s\": 97.7\n}\n",
+      "task_all_passed": true,
+      "tasks_passed": 1,
+      "tasks_total": 1,
+      "timed_out": false
+    }
+  ],
+  "scope": "live scratch v0.5 gate execution slice; partial runs are evidence only for the executed slice and do not replace the full 75-run gate",
+  "summary": {
+    "average_cost_usd": null,
+    "avg_lines_generated_per_run": 0.0,
+    "avg_lines_modified_per_run": 0.0,
+    "e2e_green": 2,
+    "e2e_green_rate": 0.5,
+    "elapsed_s": 1875.039,
+    "lines_generated_total": 0,
+    "lines_modified_total": 0,
+    "median_wall_clock_s": 233.421,
+    "missing_release_evidence": [
+      "full 15 goals x 5 pilot stacks live matrix",
+      "average cost measurement",
+      "SkillOpt human approval evidence >=80%"
+    ],
+    "planner_valid": 4,
+    "planner_valid_rate": 0.8,
+    "release_gates": {
+      "average_cost_le_1": null,
+      "e2e_green_ge_80": false,
+      "full_75_run_matrix": false,
+      "median_wall_clock_le_8m": true,
+      "planner_valid_ge_90": false,
+      "release_ready": false,
+      "scaffold_clean_ge_95": true,
+      "skillopt_human_approval_ge_80": false
+    },
+    "runtime_tool_preflight": {
+      "available_tools": [
+        "go",
+        "pytest",
+        "ruff"
+      ],
+      "checked_commands": 4,
+      "commands": [
+        {
+          "available": true,
+          "command": "pytest -q",
+          "diagnostic": "missing from PATH; Python module fallback available",
+          "fallback_available": true,
+          "name": "test",
+          "path": null,
+          "stack": "py-fastapi",
+          "tool": "pytest"
+        },
+        {
+          "available": true,
+          "command": "ruff check src tests",
+          "diagnostic": "missing from PATH; Python module fallback available",
+          "fallback_available": true,
+          "name": "lint",
+          "path": null,
+          "stack": "py-fastapi",
+          "tool": "ruff"
+        },
+        {
+          "available": true,
+          "command": "go test ./...",
+          "diagnostic": "found on PATH",
+          "name": "test",
+          "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\go-portable\\go\\bin\\go.EXE",
+          "stack": "go-gin",
+          "tool": "go"
+        },
+        {
+          "available": true,
+          "command": "go vet ./...",
+          "diagnostic": "found on PATH",
+          "name": "lint",
+          "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\go-portable\\go\\bin\\go.EXE",
+          "stack": "go-gin",
+          "tool": "go"
+        }
+      ],
+      "enabled": true,
+      "missing_tools": [],
+      "required_tools": [
+        "go",
+        "pytest",
+        "ruff"
+      ],
+      "scope": "post_verify",
+      "unchecked_commands": 0
+    },
+    "scaffold_clean": 4,
+    "scaffold_clean_rate": 1.0,
+    "skillopt_review": {
+      "approval_rate": 0.0,
+      "approved": 0,
+      "artifact_verified": 0,
+      "duplicate_reviews": 0,
+      "gate_passed": false,
+      "invalid_reviews": 0,
+      "reviews": [],
+      "source": "inline",
+      "total_reviews": 0
+    },
+    "task_all_passed": 2,
+    "task_all_passed_rate": 0.4,
+    "timed_out": 1,
+    "total_runs": 5
+  },
+  "work_dir": "$WORK_DIR"
+}

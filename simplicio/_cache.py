@@ -196,7 +196,11 @@ class CompletionCache:
         try:
             if not self.root.exists():
                 return []
-            return [path for path in self.root.rglob("*.json") if path.is_file()]
+            return [
+                path
+                for path in self.root.rglob("*.json")
+                if path.is_file() and _is_completion_cache_file(self.root, path)
+            ]
         except OSError:
             return []
 
@@ -237,6 +241,18 @@ def cache() -> CompletionCache:
     if _cache is None:
         _cache = CompletionCache()
     return _cache
+
+
+def _is_completion_cache_file(root: Path, path: Path) -> bool:
+    try:
+        rel = path.relative_to(root)
+    except ValueError:
+        return False
+    return (
+        len(rel.parts) == 2
+        and len(path.stem) == 64
+        and rel.parts[0] == path.stem[:2]
+    )
 
 
 def reset_for_tests() -> None:

@@ -1,0 +1,100 @@
+{
+  "benchmark": "qwen15b-quant-curve",
+  "date": "2026-05-31",
+  "environment": {
+    "platform": "Windows-11-10.0.22631-SP0",
+    "python": "3.14.3"
+  },
+  "issue": 46,
+  "manifest": {
+    "final_artifacts": [
+      "bench/results_v14_qwen15b_quant_curve.json",
+      "bench/results_v14_qwen15b_quant_curve.md",
+      "bench/results_v14_qwen15b_quant_curve.pdf"
+    ],
+    "model_family": "Qwen2.5-Coder-1.5B-Instruct",
+    "path": "bench/qwen15b_quant_curve_manifest.json",
+    "required_quants": [
+      "Q8_0",
+      "Q6_K",
+      "Q4_K_M"
+    ],
+    "source_repo": "bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF"
+  },
+  "rows": [
+    {
+      "benchmark": "schema-v1-smoke",
+      "calls": 4,
+      "error": "go/no-go failed",
+      "filename": "Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf",
+      "go_no_go_pass": false,
+      "model": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\models\\qwen25-coder-15b-gguf\\Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf",
+      "parse_failed": 4,
+      "parse_ok": 0,
+      "parse_ok_rate": 0.0,
+      "present": true,
+      "quant": "Q8_0",
+      "sha256": "99d9bd6c77353078154851354eacec9986a5e43644cb6b1f4f6cb27a733a154c",
+      "smoke_command": "BENCH_GGUF_PATH=<models>/Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf python bench/smoke_schema_v1.py --calls 4",
+      "smoke_json": "bench/results_v14_qwen15b_q8_0_smoke_schema_v1.json"
+    },
+    {
+      "benchmark": "schema-v1-smoke",
+      "calls": 4,
+      "error": "go/no-go failed",
+      "filename": "Qwen2.5-Coder-1.5B-Instruct-Q6_K.gguf",
+      "go_no_go_pass": false,
+      "model": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\models\\qwen25-coder-15b-gguf\\Qwen2.5-Coder-1.5B-Instruct-Q6_K.gguf",
+      "parse_failed": 4,
+      "parse_ok": 0,
+      "parse_ok_rate": 0.0,
+      "present": true,
+      "quant": "Q6_K",
+      "sha256": "9913146653c6b5ee446421d8fbc2f51940bf6ed4fe4c6dd7b732917c68dc92d1",
+      "smoke_command": "BENCH_GGUF_PATH=<models>/Qwen2.5-Coder-1.5B-Instruct-Q6_K.gguf python bench/smoke_schema_v1.py --calls 4",
+      "smoke_json": "bench/results_v14_qwen15b_q6_k_smoke_schema_v1.json"
+    },
+    {
+      "benchmark": "schema-v1-smoke",
+      "calls": 4,
+      "error": "go/no-go failed",
+      "filename": "Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf",
+      "go_no_go_pass": false,
+      "model": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\models\\qwen25-coder-15b-gguf\\Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf",
+      "parse_failed": 4,
+      "parse_ok": 0,
+      "parse_ok_rate": 0.0,
+      "present": true,
+      "quant": "Q4_K_M",
+      "sha256": "cb190e0034c03e3dbedfb92ea7684233bd4468f08a62b9a30a9c663f024a27b2",
+      "smoke_command": "BENCH_GGUF_PATH=<models>/Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf python bench/smoke_schema_v1.py --calls 4",
+      "smoke_json": "bench/results_v14_qwen15b_q4_k_m_smoke_schema_v1.json"
+    }
+  ],
+  "scope": "final Qwen2.5-Coder-1.5B GGUF quant curve assembled from manifest-declared schema-v1 smoke artifacts",
+  "summary": {
+    "all_required_smokes_passed": false,
+    "decision": "not viable for schema-v1: required quant smokes failed; skip full bench unless the smoke protocol changes",
+    "environment_setup_blockers": [],
+    "failed_required_quant_smokes": [
+      "Q8_0",
+      "Q6_K",
+      "Q4_K_M"
+    ],
+    "missing_quant_smokes": [],
+    "missing_release_evidence": [],
+    "qwen15b_quant_curve_complete": true,
+    "release_ready": true,
+    "required_quant_smokes_passed": {
+      "Q4_K_M": false,
+      "Q6_K": false,
+      "Q8_0": false
+    },
+    "required_quant_smokes_present": {
+      "Q4_K_M": true,
+      "Q6_K": true,
+      "Q8_0": true
+    },
+    "required_smokes_complete": true
+  }
+}

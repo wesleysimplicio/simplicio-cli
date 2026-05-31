@@ -96,6 +96,18 @@ def test_rust_axum_generated_project_passes_cargo_test(tmp_path):
     cargo = shutil.which("cargo")
     if cargo is None:
         pytest.skip("cargo not available")
+    if shutil.which("rustc"):
+        rustc = subprocess.run(
+            ["rustc", "-vV"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+        if "host:" in rustc.stdout and "-msvc" in rustc.stdout and not shutil.which(
+            "link.exe"
+        ):
+            pytest.skip("MSVC Rust target needs link.exe")
 
     project = tmp_path / "project"
     project.mkdir()

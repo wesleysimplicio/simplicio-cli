@@ -153,6 +153,7 @@ def test_llm_reduction_summary_keeps_release_gap_explicit(tmp_path) -> None:
     assert any(
         "captured LLM baseline" in item for item in summary["missing_release_evidence"]
     )
+    assert result["inputs"]["cache"]["path"].endswith("cache.json")
 
 
 def test_llm_reduction_summary_proves_release_call_reduction(tmp_path) -> None:
