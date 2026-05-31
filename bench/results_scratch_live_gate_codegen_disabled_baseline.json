@@ -1,6 +1,6 @@
 {
   "benchmark": "scratch-live-gate",
-  "date": "2026-05-30",
+  "date": "2026-05-31",
   "environment": {
     "platform": "Windows-11-10.0.22631-SP0",
     "python": "3.14.3"
@@ -9,14 +9,54 @@
     "disable_codegen": true,
     "goals": 1,
     "plan_only": false,
-    "planned_runs": 1,
+    "planned_runs": 2,
     "post_verify": true,
     "release_planned_runs": 75,
-    "selected_runs": 1,
+    "selected_runs": 2,
     "skip_install": false,
-    "stacks": 1
+    "stacks": 2
   },
   "runs": [
+    {
+      "codegen_disabled": true,
+      "command": [
+        "C:\\Users\\wesley.simplicio\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "simplicio.cli",
+        "scratch",
+        "CRUD app for condo units with owner contact search",
+        "--stack",
+        "py-fastapi",
+        "--name",
+        "gate-g01-py-fastapi",
+        "--dest",
+        "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-scratch-codegen-disabled-baseline\\projects",
+        "--json"
+      ],
+      "duration_s": 900.047,
+      "e2e_green": null,
+      "error": "TIMEOUT after 900s",
+      "goal": "CRUD app for condo units with owner contact search",
+      "goal_index": 1,
+      "json_parse_error": "scratch command timed out before JSON output",
+      "planner_valid": false,
+      "post_verify": {
+        "enabled": true,
+        "error": "scratch command timed out",
+        "passed": false
+      },
+      "project_name": "gate-g01-py-fastapi",
+      "returncode": null,
+      "run_number": 1,
+      "scaffold_clean": null,
+      "stack": "py-fastapi",
+      "stderr_tail": "[scratch] stack:   py-fastapi (Python 3.12 / FastAPI)\n[scratch] project: gate-g01-py-fastapi\n[scratch] planner: unavailable (SIMPLICIO_PLANNER=deepseek-hf/deepseek-ai/DeepSeek-V3.1 requires HF_TOKEN)\n[scratch] generating plan...\n[scratch] plan ok: 4 tasks\n",
+      "stdout_tail": "",
+      "task_all_passed": false,
+      "tasks_passed": 0,
+      "tasks_total": 0,
+      "timed_out": true
+    },
     {
       "codegen_disabled": true,
       "command": [
@@ -69,7 +109,7 @@
       },
       "project_name": "gate-g01-go-gin",
       "returncode": 0,
-      "run_number": 1,
+      "run_number": 2,
       "scaffold_clean": true,
       "scratch_metrics": {
         "avg_codegen_ms": 0,
@@ -94,9 +134,13 @@
   "scope": "live scratch v0.5 gate execution slice; partial runs are evidence only for the executed slice and do not replace the full 75-run gate",
   "summary": {
     "average_cost_usd": null,
+    "avg_lines_generated_per_run": 0.0,
+    "avg_lines_modified_per_run": 0.0,
     "e2e_green": 1,
     "e2e_green_rate": 1.0,
-    "elapsed_s": 214.309,
+    "elapsed_s": 1114.356,
+    "lines_generated_total": 0,
+    "lines_modified_total": 0,
     "median_wall_clock_s": 204.707,
     "missing_release_evidence": [
       "full 15 goals x 5 pilot stacks live matrix",
@@ -104,13 +148,13 @@
       "SkillOpt human approval evidence >=80%"
     ],
     "planner_valid": 1,
-    "planner_valid_rate": 1.0,
+    "planner_valid_rate": 0.5,
     "release_gates": {
       "average_cost_le_1": null,
       "e2e_green_ge_80": true,
       "full_75_run_matrix": false,
       "median_wall_clock_le_8m": true,
-      "planner_valid_ge_90": true,
+      "planner_valid_ge_90": false,
       "release_ready": false,
       "scaffold_clean_ge_95": true,
       "skillopt_human_approval_ge_80": false
@@ -120,6 +164,8 @@
     "skillopt_review": {
       "approval_rate": 0.0,
       "approved": 0,
+      "artifact_verified": 0,
+      "duplicate_reviews": 0,
       "gate_passed": false,
       "invalid_reviews": 0,
       "reviews": [],
@@ -127,9 +173,9 @@
       "total_reviews": 0
     },
     "task_all_passed": 1,
-    "task_all_passed_rate": 1.0,
-    "timed_out": 0,
-    "total_runs": 1
+    "task_all_passed_rate": 0.5,
+    "timed_out": 1,
+    "total_runs": 2
   },
   "work_dir": "$WORK_DIR"
 }

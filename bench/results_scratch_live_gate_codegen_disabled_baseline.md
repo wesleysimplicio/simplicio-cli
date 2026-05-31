@@ -5,8 +5,8 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 ## Matrix
 
 - release planned runs: 75
-- selected matrix runs: 1
-- selected runs: 1
+- selected matrix runs: 2
+- selected runs: 2
 - plan only: False
 - skip install: False
 - post verify: True
@@ -14,18 +14,20 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## Summary
 
-- planner valid: 1/1 (100.00%)
+- planner valid: 1/2 (50.00%)
 - scaffold clean: 1 (100.00%)
-- task all passed: 1 (100.00%)
+- task all passed: 1 (50.00%)
 - e2e green: 1 (100.00%)
 - median wall-clock: 204.707 s
 - average cost: None
+- lines generated: 0
+- lines modified: 0
 - release ready: False
 
 ## Release Gate Status
 
 - full_75_run_matrix: False
-- planner_valid_ge_90: True
+- planner_valid_ge_90: False
 - scaffold_clean_ge_95: True
 - e2e_green_ge_80: True
 - median_wall_clock_le_8m: True
@@ -44,7 +46,8 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 | # | stack | goal_index | rc | planner | scaffold | tasks | e2e | duration_s |
 | ---: | --- | ---: | ---: | --- | --- | --- | --- | ---: |
-| 1 | go-gin | 1 | 0 | True | True | True | True | 204.707 |
+| 1 | py-fastapi | 1 | None | False | None | False | None | 900.047 |
+| 2 | go-gin | 1 | 0 | True | True | True | True | 204.707 |
 
 ## Missing Release Evidence
 

@@ -106,9 +106,11 @@ Repo-local evidence:
   overwritten without an explicit mode, and `--disable-codegen` defaults to
   separate `results_scratch_live_gate_codegen_disabled_baseline.*` outputs.
 - `bench/results_scratch_live_gate_codegen_disabled_baseline.{json,md}` now
-  preserves the older 1-run codegen-disabled live slice on that default path.
-  It remains partial evidence only: 1 run is not the release corpus and does
-  not prove B/codegen pass-rate or latency against the full baseline.
+  preserves the codegen-disabled baseline on the default path. It currently has
+  2 rows: one green `go-gin` run and one `py-fastapi` run that timed out after
+  900 seconds with codegen disabled. It remains partial evidence only: 2 rows
+  are not the release corpus and do not prove B/codegen pass-rate or latency
+  against the full baseline.
 - `bench/run_issue_closure_audit.py` and
   `bench/results_issue_closure_audit.{json,md}` now provide a machine-readable
   close-readiness audit for #32/#33/#41/#46. The current audit reports `0/4`
