@@ -68,7 +68,7 @@ Modelo medido: `deepseek/deepseek-v4-flash`.
 
 1. **Default para tarefas complexas (full-stack, schema v1, multi-arquivo):**
    modelo capaz (medido: `deepseek-v4-flash` → 100% com `cli+ag`; equivalentes:
-   Qwen2.5-Coder-32B, ou API frontier) **sempre com `cli+ag`**. O loop é o que
+   Qwen3-Coder-Next, ou API frontier — **evitar** Qwen2.5-Coder-32B: infla no regex (~80%) mas colapsa no exec real do sindico (16%)) **sempre com `cli+ag`**. O loop é o que
    fecha integração entre camadas. **Não** usar `cli+sp` como default (regride).
 
 2. **Default local/offline:** mínimo **3B** (piso medido p/ schema v1), **7B
