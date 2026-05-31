@@ -261,8 +261,8 @@ def local_call(model_id: str, prompt: str) -> dict:
 
 
 def llm_call(model: str, prompt: str, timeout: int = 120) -> dict:
-    if model.startswith("local:"):
-        return local_call(model.split(":", 1)[1], prompt)
+    if model.startswith("local:") or model.startswith("gguf:") or model.endswith(".gguf"):
+        return local_call(model.split(":", 1)[1] if ":" in model else model, prompt)
     if not API_KEY:
         raise SystemExit("set BENCH_API_KEY, HF_TOKEN, or OPENROUTER_API_KEY")
     body = json.dumps({
