@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import importlib
-import os
 
 import pytest
 
@@ -84,6 +83,29 @@ def test_shell_out_planner(monkeypatch: pytest.MonkeyPatch) -> None:
     cfg = P.planner_cfg()
     assert cfg["shell_out"] is True
     assert cfg["model"].startswith("claude-cli/")
+
+
+def test_local_llama_planner_runs_without_credentials(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, str | None, str, int]] = []
+
+    def fake_local_generate(
+        prompt: str,
+        feedback: str | None,
+        model: str,
+        max_tokens: int,
+    ) -> str:
+        calls.append((prompt, feedback, model, max_tokens))
+        return "local plan"
+
+    monkeypatch.setenv("SIMPLICIO_MODEL", "local-llama/default")
+    monkeypatch.setenv("SIMPLICIO_PLANNER", "local-llama/default")
+    monkeypatch.setenv("SIMPLICIO_BUST_CACHE", "1")
+    monkeypatch.setattr(P, "_local_generate", fake_local_generate)
+
+    assert P.planner_complete("plan this", max_tokens=123) == "local plan"
+    assert calls == [("plan this", None, "local-llama/default", 123)]
 
 
 def test_missing_credentials_clearly_signaled(

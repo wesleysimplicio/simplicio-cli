@@ -523,6 +523,8 @@ def planner_cfg(require_key=True):
 
 def _planner_provider_id(cfg):
     model = cfg["model"]
+    if model.startswith(LOCAL_MODEL_PREFIX):
+        return "planner:local-llama"
     if model.startswith("claude-cli/"):
         return "planner:claude-cli"
     if model.startswith("codex-cli/"):
@@ -575,6 +577,15 @@ def planner_complete(prompt, max_tokens=8192, temperature=0.1, template_version=
                 CacheEntry(out, provider_id=provider_id, model=p["model"]),
             )
             return out
+
+    if p["model"].startswith(LOCAL_MODEL_PREFIX):
+        out = _local_generate(prompt, None, p["model"], max_tokens)
+        _charge_if_budgeted(p["model"], prompt, out)
+        cache().put(
+            key,
+            CacheEntry(out, provider_id="planner:local-llama", model=p["model"]),
+        )
+        return out
 
     if not p["key"]:
         raise SystemExit(

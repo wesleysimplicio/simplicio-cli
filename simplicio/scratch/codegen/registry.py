@@ -8,6 +8,7 @@ from typing import Iterable
 from ..plan_schema import Task
 from ..stack_registry import Stack
 from .go_gin import GoGinCrudExecutor
+from .markdown_document import MarkdownDocumentExecutor
 from .php_laravel import PhpLaravelCrudRoutesExecutor
 from .python_fastapi import PythonAddFastApiRouteExecutor
 from .python_orm import PythonAddOrmFieldExecutor
@@ -19,6 +20,7 @@ from .typescript_next_route import TypeScriptAddNextRouteExecutor
 from .types import CodegenResult, TaskExecutor
 
 _DEFAULT_EXECUTORS: list[TaskExecutor] = [
+    MarkdownDocumentExecutor(),
     PythonAddOrmFieldExecutor(),
     PythonAddPydanticSchemaExecutor(),
     PythonAddFastApiRouteExecutor(),

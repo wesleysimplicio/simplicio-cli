@@ -240,3 +240,36 @@ def test_run_feature_applies_max_cost_to_provider_calls(tmp_path, monkeypatch):
     assert result["cost"]["budget_usd"] == "0.0001"
     assert "SIMPLICIO_MAX_COST" not in os.environ
     assert "SIMPLICIO_COST_SPENT_USD" not in os.environ
+
+
+def test_run_feature_uses_codegen_for_docs_marker_tasks(tmp_path):
+    marker = "SimplicioCode Desktop DEBUG E2E"
+
+    def fake_planner(stack, goal, project_name):
+        return _plan(
+            Task(
+                id="T01-doc-marker",
+                goal=(
+                    "Create or update docs/simplicio-code-desktop-debug-flow.md "
+                    f"with marker text `{marker}`."
+                ),
+                target="docs/simplicio-code-desktop-debug-flow.md",
+                criteria=f"- file contains marker text `{marker}`",
+                constraints="- keep the change limited to the requested evidence document",
+                verify=f'grep -q "{marker}" docs/simplicio-code-desktop-debug-flow.md',
+            )
+        )
+
+    result = run_feature(
+        root=str(tmp_path),
+        stack_slug="php-vanilla",
+        goal="validate desktop debug evidence",
+        planner=fake_planner,
+    )
+
+    assert result["applied"] is True
+    assert result["tasks"][0]["target"] == "docs/simplicio-code-desktop-debug-flow.md"
+    assert "codegen:markdown-doc-marker" in result["tasks"][0]["log"]
+    assert marker in (
+        tmp_path / "docs/simplicio-code-desktop-debug-flow.md"
+    ).read_text(encoding="utf-8")

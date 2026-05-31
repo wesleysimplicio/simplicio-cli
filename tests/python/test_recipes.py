@@ -55,6 +55,12 @@ MATCH_CASES = [
         "crud-resource",
         "CondoUnits",
     ),
+    (
+        "php-vanilla",
+        "Create or update `docs/simplicio-code-desktop-debug-flow.md` and include the marker text `SimplicioCode Desktop DEBUG E2E`.",
+        "docs-marker",
+        None,
+    ),
 ]
 
 
@@ -81,6 +87,7 @@ def test_registry_loads_three_pilot_recipes_for_each_stack() -> None:
     assert {recipe.name for recipe in registry.list("rust-axum")} == {"crud-resource"}
     assert {recipe.name for recipe in registry.list("go-gin")} == {"crud-resource"}
     assert {recipe.name for recipe in registry.list("php-laravel")} == {"crud-resource"}
+    assert {recipe.name for recipe in registry.list("php-vanilla")} == {"docs-marker"}
 
 
 @pytest.mark.parametrize(
@@ -148,6 +155,19 @@ def test_plan_from_recipe_skips_planner_for_match() -> None:
     assert plan is not None
     assert plan.stack == "py-fastapi"
     assert plan.tasks[0].target == "src/db/unit.py"
+
+
+def test_php_vanilla_docs_marker_recipe_targets_requested_document() -> None:
+    goal = (
+        "Create or update `docs/simplicio-code-desktop-debug-flow.md`. "
+        "Include the marker text `SimplicioCode Desktop DEBUG E2E`."
+    )
+    plan = plan_from_recipe(goal, "php-vanilla", "sindico")
+
+    assert plan is not None
+    assert plan.stack == "php-vanilla"
+    assert plan.tasks[0].target == "docs/simplicio-code-desktop-debug-flow.md"
+    assert "SimplicioCode Desktop DEBUG E2E" in plan.tasks[0].criteria
 
 
 def test_required_slot_error_mentions_slot_flag() -> None:
