@@ -5,10 +5,10 @@ Repo: `wesleysimplicio/simplicio-dev-cli`
 Branch inspected: `codex/finish-github-issues`
 
 This file is a local evidence index for the tracked open GitHub issues:
-`#32`, `#33`, and `#41`.
+`#33` and `#41`.
 
-Recently closed issues tracked here for historical closure evidence: `#37` and
-`#46`.
+Recently closed issues tracked here for historical closure evidence: `#32`,
+`#37`, and `#46`.
 Related implementation PR: `#47`
 (`https://github.com/wesleysimplicio/simplicio-dev-cli/pull/47`), currently
 open as a draft.
@@ -24,7 +24,6 @@ Scope of this artifact:
 
 | issue | title | local closure posture |
 | --- | --- | --- |
-| `#32` | from-scratch mode + planner + SkillOpt | close-ready locally; full live gate and six-agent SkillOpt review evidence now pass |
 | `#33` | reduce LLM dependency across simplicio flow | keep open until remaining release evidence is complete |
 | `#41` | unified `simplicio run` orchestrator | keep open; F0/F1/F2/F3/F4 foundation plus F5 fixture schema are present, live bench still incomplete |
 
@@ -32,12 +31,13 @@ Scope of this artifact:
 
 | issue | title | closure posture |
 | --- | --- | --- |
+| `#32` | from-scratch mode + planner + SkillOpt | closed on 2026-05-31 with full scratch live gate and six-agent SkillOpt review evidence |
 | `#37` | mechanical task executors via libcst/ts-morph | closed on 2026-05-31 as implementation-complete; remaining full-corpus release baseline stays tracked by `#33` |
 | `#46` | Qwen2.5-Coder-1.5B GGUF quant curve | closed on 2026-05-31 with completed negative schema-v1 viability decision artifacts |
 
 ## Issue #32 Evidence
 
-Status: close-ready locally under the current release gate.
+Status: closed on GitHub under the current release gate.
 
 Repo-local evidence:
 
@@ -324,9 +324,7 @@ protocol.
 
 ## Recommended Next Actions
 
-1. Close `#32` with the completed scratch live gate and six-agent SkillOpt
-   review evidence.
-2. Keep `#33` open until the real codegen-disabled baseline proves B/codegen
+1. Keep `#33` open until the real codegen-disabled baseline proves B/codegen
    pass-rate and latency across the release corpus.
-3. Continue `#41` by capturing and ingesting real F5 live rows for cli+ag,
+2. Continue `#41` by capturing and ingesting real F5 live rows for cli+ag,
    unified feature/sprint, and Codex `/goal`.
