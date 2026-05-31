@@ -1,6 +1,6 @@
 # Unified Run F5 Bench Fixture
 
-planned fixture comparison for cli+ag, unified feature/sprint, and Codex /goal; no LLM or external agent was invoked
+planned fixture comparison for cli+ag, unified feature/sprint, and Codex /goal; fixture rows are replaced by live rows when --live-results-json supplies comparable evidence
 
 ## Summary
 
@@ -13,6 +13,7 @@ planned fixture comparison for cli+ag, unified feature/sprint, and Codex /goal; 
 - rows: 12/12
 - release ready: False
 - ready for live run: True
+- live rows: 0/12
 
 ## Modes
 

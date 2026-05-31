@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from bench.run_schema_smoke_summary import (
+    REQUIRED_QUANT_SMOKES,
     _passes_smoke,
     main,
     summarize_smokes,
@@ -58,7 +60,13 @@ def test_schema_smoke_summary_normalizes_supported_formats(tmp_path):
         "Q6_K": False,
         "Q4_K_M": False,
     }
+    assert summary["summary"]["required_quant_smokes_passed"] == {
+        "Q8_0": True,
+        "Q6_K": False,
+        "Q4_K_M": False,
+    }
     assert summary["summary"]["missing_quant_smokes"] == ["Q6_K", "Q4_K_M"]
+    assert summary["summary"]["failed_required_quant_smokes"] == []
     assert summary["summary"]["release_ready"] is False
     assert {row["format"] for row in summary["rows"]} == {
         "schema-v1-smoke",
@@ -281,3 +289,62 @@ def test_schema_smoke_summary_main_passes_when_required_quants_present(tmp_path)
     )
 
     assert rc == 0
+
+
+def test_schema_smoke_summary_main_fails_when_required_quant_smoke_fails(tmp_path):
+    inputs = []
+    for quant, passed in (("Q8_0", True), ("Q6_K", False), ("Q4_K_M", True)):
+        smoke = tmp_path / f"results_v14_qwen15b_{quant.lower()}_smoke_schema_v1.json"
+        smoke.write_text(
+            json.dumps(
+                {
+                    "benchmark": "schema-v1-smoke",
+                    "model": "Qwen2.5-Coder-1.5B-Instruct",
+                    "quant": quant,
+                    "calls": 4,
+                    "go_no_go": {"pass": passed},
+                    "summary": {
+                        "parse_ok": 4 if passed else 1,
+                        "parse_failed": 0 if passed else 3,
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+        inputs.append(smoke)
+
+    rc = main(
+        [
+            "--inputs",
+            *[str(path) for path in inputs],
+            "--json-output",
+            str(tmp_path / "out.json"),
+            "--md-output",
+            str(tmp_path / "out.md"),
+            "--quiet",
+            "--fail-missing-required-quants",
+        ]
+    )
+    summary = json.loads((tmp_path / "out.json").read_text(encoding="utf-8"))[
+        "summary"
+    ]
+
+    assert rc == 1
+    assert summary["missing_quant_smokes"] == []
+    assert summary["failed_required_quant_smokes"] == ["Q6_K"]
+
+
+def test_qwen15b_quant_curve_manifest_covers_required_quants() -> None:
+    manifest = json.loads(
+        Path("bench/qwen15b_quant_curve_manifest.json").read_text(encoding="utf-8")
+    )
+
+    assert {row["quant"] for row in manifest["required_quants"]} == set(
+        REQUIRED_QUANT_SMOKES
+    )
+    assert all(row["filename"].endswith(".gguf") for row in manifest["required_quants"])
+    assert set(manifest["final_artifacts"]) == {
+        "bench/results_v14_qwen15b_quant_curve.json",
+        "bench/results_v14_qwen15b_quant_curve.md",
+        "bench/results_v14_qwen15b_quant_curve.pdf",
+    }

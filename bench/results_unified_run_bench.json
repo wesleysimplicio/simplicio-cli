@@ -74,10 +74,15 @@
   "phase": "F5",
   "rows": [
     {
+      "artifacts": [],
       "case_id": "single-file-task",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": true,
+      "cost_usd": null,
       "dod_gate_supported": false,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 1,
       "external_agent_invoked": false,
       "fixture": true,
@@ -89,13 +94,20 @@
       "planner_calls": 0,
       "replan_supported": false,
       "resume_state_supported": false,
-      "scope": "task"
+      "scope": "task",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "single-file-task",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": true,
+      "cost_usd": null,
       "dod_gate_supported": false,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 1,
       "external_agent_invoked": false,
       "fixture": true,
@@ -107,13 +119,20 @@
       "planner_calls": 0,
       "replan_supported": false,
       "resume_state_supported": false,
-      "scope": "task"
+      "scope": "task",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "single-file-task",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": true,
+      "cost_usd": null,
       "dod_gate_supported": false,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 1,
       "external_agent_invoked": false,
       "fixture": true,
@@ -127,13 +146,20 @@
       "planner_calls": 0,
       "replan_supported": false,
       "resume_state_supported": false,
-      "scope": "task"
+      "scope": "task",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "single-file-task",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": false,
+      "cost_usd": null,
       "dod_gate_supported": null,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 1,
       "external_agent_invoked": false,
       "fixture": true,
@@ -147,13 +173,20 @@
       "planner_calls": 0,
       "replan_supported": true,
       "resume_state_supported": null,
-      "scope": "task"
+      "scope": "task",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "feature-auth-flow",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": true,
+      "cost_usd": null,
       "dod_gate_supported": false,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 4,
       "external_agent_invoked": false,
       "fixture": true,
@@ -167,13 +200,20 @@
       "planner_calls": 0,
       "replan_supported": false,
       "resume_state_supported": false,
-      "scope": "feature"
+      "scope": "feature",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "feature-auth-flow",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": true,
+      "cost_usd": null,
       "dod_gate_supported": false,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 4,
       "external_agent_invoked": false,
       "fixture": true,
@@ -185,13 +225,20 @@
       "planner_calls": 1,
       "replan_supported": true,
       "resume_state_supported": false,
-      "scope": "feature"
+      "scope": "feature",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "feature-auth-flow",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": true,
+      "cost_usd": null,
       "dod_gate_supported": true,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 4,
       "external_agent_invoked": false,
       "fixture": true,
@@ -205,13 +252,20 @@
       "planner_calls": 0,
       "replan_supported": false,
       "resume_state_supported": false,
-      "scope": "feature"
+      "scope": "feature",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "feature-auth-flow",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": false,
+      "cost_usd": null,
       "dod_gate_supported": null,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 4,
       "external_agent_invoked": false,
       "fixture": true,
@@ -225,13 +279,20 @@
       "planner_calls": 0,
       "replan_supported": true,
       "resume_state_supported": null,
-      "scope": "feature"
+      "scope": "feature",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "sprint-checkout-hardening",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": true,
+      "cost_usd": null,
       "dod_gate_supported": false,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 7,
       "external_agent_invoked": false,
       "fixture": true,
@@ -245,13 +306,20 @@
       "planner_calls": 0,
       "replan_supported": false,
       "resume_state_supported": false,
-      "scope": "sprint"
+      "scope": "sprint",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "sprint-checkout-hardening",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": true,
+      "cost_usd": null,
       "dod_gate_supported": false,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 7,
       "external_agent_invoked": false,
       "fixture": true,
@@ -265,13 +333,20 @@
       "planner_calls": 2,
       "replan_supported": true,
       "resume_state_supported": false,
-      "scope": "sprint"
+      "scope": "sprint",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "sprint-checkout-hardening",
+      "command": "",
       "cost_cap_required": true,
       "cost_observable": true,
+      "cost_usd": null,
       "dod_gate_supported": true,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 7,
       "external_agent_invoked": false,
       "fixture": true,
@@ -283,13 +358,20 @@
       "planner_calls": 2,
       "replan_supported": true,
       "resume_state_supported": true,
-      "scope": "sprint"
+      "scope": "sprint",
+      "success": null,
+      "transcript_sha256": ""
     },
     {
+      "artifacts": [],
       "case_id": "sprint-checkout-hardening",
+      "command": "",
       "cost_cap_required": false,
       "cost_observable": false,
+      "cost_usd": null,
       "dod_gate_supported": null,
+      "duration_s": null,
+      "exit_code": null,
       "expected_task_runs": 7,
       "external_agent_invoked": false,
       "fixture": true,
@@ -303,10 +385,12 @@
       "planner_calls": 0,
       "replan_supported": true,
       "resume_state_supported": null,
-      "scope": "sprint"
+      "scope": "sprint",
+      "success": null,
+      "transcript_sha256": ""
     }
   ],
-  "scope": "planned fixture comparison for cli+ag, unified feature/sprint, and Codex /goal; no LLM or external agent was invoked",
+  "scope": "planned fixture comparison for cli+ag, unified feature/sprint, and Codex /goal; fixture rows are replaced by live rows when --live-results-json supplies comparable evidence",
   "summary": {
     "by_mode": {
       "cli_ag": {
@@ -360,6 +444,7 @@
     "external_codex_goal_run_present": false,
     "fixture_only": true,
     "head_to_head_ready_for_live_run": true,
+    "live_row_count": 0,
     "missing_live_evidence": [
       "real cli+ag runs on the controlled task, feature, and sprint cases",
       "real unified feature/sprint runs with cost governor telemetry",

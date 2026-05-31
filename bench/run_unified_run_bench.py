@@ -90,23 +90,37 @@ MODES: list[dict[str, Any]] = [
 ]
 
 
-def run_benchmark(cases: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+def run_benchmark(
+    cases: list[dict[str, Any]] | None = None,
+    *,
+    live_results: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     fixtures = _normalize_cases(cases or DEFAULT_CASES)
     rows = [
         _fixture_row(case, mode)
         for case in fixtures
         for mode in MODES
     ]
+    live_errors: list[str] = []
+    if live_results:
+        rows, live_errors = _merge_live_results(rows, live_results)
     summary = _summarize(rows, fixtures)
+    if live_errors:
+        summary["live_result_errors"] = live_errors
+        summary["release_ready"] = False
     return {
-        "benchmark": "unified-run-f5-fixture",
+        "benchmark": (
+            "unified-run-f5-live" if summary["evidence_level"] == "live"
+            else "unified-run-f5-fixture"
+        ),
         "issue": "#41",
         "phase": "F5",
         "scope": (
             "planned fixture comparison for cli+ag, unified feature/sprint, "
-            "and Codex /goal; no LLM or external agent was invoked"
+            "and Codex /goal; fixture rows are replaced by live rows when "
+            "--live-results-json supplies comparable evidence"
         ),
-        "fixture_only": True,
+        "fixture_only": summary["fixture_only"],
         "date": time.strftime("%Y-%m-%d"),
         "environment": {
             "python": sys.version.split()[0],
@@ -163,6 +177,13 @@ def _fixture_row(case: dict[str, Any], mode: dict[str, Any]) -> dict[str, Any]:
         "cost_observable": bool(mode["observable"]),
         "outcome": "planned",
         "notes": [],
+        "command": "",
+        "exit_code": None,
+        "duration_s": None,
+        "success": None,
+        "cost_usd": None,
+        "artifacts": [],
+        "transcript_sha256": "",
     }
 
     if mode_id == "cli_ag":
@@ -209,6 +230,63 @@ def _fixture_row(case: dict[str, Any], mode: dict[str, Any]) -> dict[str, Any]:
     return row
 
 
+def _merge_live_results(
+    fixture_rows: list[dict[str, Any]],
+    live_results: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[str]]:
+    rows_by_key = {
+        (row["case_id"], row["mode_id"]): dict(row)
+        for row in fixture_rows
+    }
+    errors = []
+    for index, live in enumerate(live_results, start=1):
+        case_id = str(live.get("case_id") or "").strip()
+        mode_id = str(live.get("mode_id") or "").strip()
+        key = (case_id, mode_id)
+        if key not in rows_by_key:
+            errors.append(f"live row {index} has unknown case/mode: {case_id}/{mode_id}")
+            continue
+        row = rows_by_key[key]
+        command = str(live.get("command") or "").strip()
+        exit_code = live.get("exit_code")
+        success = live.get("success")
+        duration_s = live.get("duration_s")
+        if not command or not isinstance(exit_code, int) or not isinstance(success, bool):
+            errors.append(
+                f"live row {index} missing required command, exit_code, or success"
+            )
+            continue
+        if duration_s is None:
+            errors.append(f"live row {index} missing duration_s")
+            continue
+        row.update(
+            {
+                "fixture": False,
+                "llm_invoked": bool(live.get("llm_invoked", mode_id != "cli_ag")),
+                "external_agent_invoked": bool(
+                    live.get("external_agent_invoked", mode_id == "codex_goal")
+                ),
+                "outcome": "live_success" if success else "live_failure",
+                "command": command,
+                "exit_code": exit_code,
+                "duration_s": float(duration_s),
+                "success": success,
+                "cost_usd": live.get("cost_usd"),
+                "artifacts": _string_list(live.get("artifacts")),
+                "transcript_sha256": str(live.get("transcript_sha256") or ""),
+                "notes": _string_list(live.get("notes")),
+            }
+        )
+        rows_by_key[key] = row
+    return list(rows_by_key.values()), errors
+
+
+def _string_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if str(item).strip()]
+
+
 def _summarize(
     rows: list[dict[str, Any]],
     cases: list[dict[str, Any]],
@@ -241,25 +319,47 @@ def _summarize(
         }
 
     expected_rows = len(cases) * len(MODES)
+    live_rows = [row for row in rows if row["fixture"] is False]
+    complete_live_matrix = len(live_rows) == expected_rows
+    all_live_success = complete_live_matrix and all(
+        row.get("success") is True for row in live_rows
+    )
+    codex_live = any(
+        row["mode_id"] == "codex_goal"
+        and row["fixture"] is False
+        and row["external_agent_invoked"] is True
+        and bool(row["transcript_sha256"])
+        for row in rows
+    )
     release_blockers = [
         "real cli+ag runs on the controlled task, feature, and sprint cases",
         "real unified feature/sprint runs with cost governor telemetry",
         "real Codex /goal baseline runs with comparable success and cost data",
         "artifact collection for sprint DoD evidence",
     ]
+    if complete_live_matrix:
+        release_blockers = []
+        if not all_live_success:
+            release_blockers.append("all live comparison rows must succeed")
+        if not codex_live:
+            release_blockers.append("Codex /goal live row needs transcript hash")
+        if not any(row.get("artifacts") for row in live_rows if row["scope"] == "sprint"):
+            release_blockers.append("artifact collection for sprint DoD evidence")
+    evidence_level = "live" if complete_live_matrix and not release_blockers else (
+        "partial-live" if live_rows else "fixture"
+    )
     return {
-        "fixture_only": True,
-        "evidence_level": "fixture",
+        "fixture_only": not live_rows,
+        "evidence_level": evidence_level,
         "case_count": len(cases),
         "mode_count": len(MODES),
         "row_count": len(rows),
         "expected_row_count": expected_rows,
+        "live_row_count": len(live_rows),
         "schema_fixture_complete": len(rows) == expected_rows,
         "real_llm_runs_present": any(row["llm_invoked"] for row in rows),
-        "external_codex_goal_run_present": any(
-            row["external_agent_invoked"] for row in rows
-        ),
-        "release_ready": False,
+        "external_codex_goal_run_present": codex_live,
+        "release_ready": evidence_level == "live" and not release_blockers,
         "release_blockers": release_blockers,
         "head_to_head_ready_for_live_run": len(rows) == expected_rows,
         "by_mode": by_mode,
@@ -338,6 +438,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
             "- ready for live run: "
             f"{summary['head_to_head_ready_for_live_run']}"
         ),
+        f"- live rows: {summary['live_row_count']}/{summary['expected_row_count']}",
         "",
         "## Modes",
         "",
@@ -390,6 +491,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
     parser.add_argument(
+        "--live-results-json",
+        type=Path,
+        help=(
+            "Optional live evidence JSON with rows keyed by case_id and mode_id. "
+            "Rows require command, exit_code, success, and duration_s."
+        ),
+    )
+    parser.add_argument(
         "--partial-results-json",
         type=Path,
         help=(
@@ -412,9 +521,23 @@ def _load_cases(path: Path | None) -> list[dict[str, Any]] | None:
     return data
 
 
+def _load_live_results(path: Path | None) -> list[dict[str, Any]] | None:
+    if path is None:
+        return None
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(data, dict):
+        data = data.get("rows", [])
+    if not isinstance(data, list):
+        raise ValueError("live results JSON must be a list or an object with a rows list")
+    return data
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    result = run_benchmark(_load_cases(args.fixture_json))
+    result = run_benchmark(
+        _load_cases(args.fixture_json),
+        live_results=_load_live_results(args.live_results_json),
+    )
     write_reports(result, args.json_output, args.md_output)
     if args.partial_results_json is not None:
         write_partial_results(result, args.partial_results_json)

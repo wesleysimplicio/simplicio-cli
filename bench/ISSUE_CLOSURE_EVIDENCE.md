@@ -59,6 +59,10 @@ Repo-local evidence:
 - `bench/run_scratch_live_gate.py` now requires `reviewed_at`, `path`, and
   `sha256` on every counted review row, verifies the artifact hash, and rejects
   duplicate SKILL.md artifacts so one file cannot count as multiple reviews.
+- The live gate now also validates the counted SKILL.md frontmatter, requiring
+  `auto_generated.by: skill-opt`, `source_goal`, `planner_model`, and
+  `review_required: true`, so a manually authored SKILL.md with a valid hash
+  cannot satisfy the SkillOpt approval gate.
 
 Suggested comment:
 
@@ -96,6 +100,11 @@ Repo-local evidence:
   duplicate merge rows are rejected by default, existing outputs are not
   overwritten without an explicit mode, and `--disable-codegen` defaults to
   separate `results_scratch_live_gate_codegen_disabled_baseline.*` outputs.
+- `bench/run_issue_closure_audit.py` and
+  `bench/results_issue_closure_audit.{json,md}` now provide a machine-readable
+  close-readiness audit for #32/#33/#41/#46. The current audit reports `0/4`
+  issues close-ready and keeps the B/codegen baseline and SkillOpt gaps visible
+  for #33.
 
 Suggested comment:
 
@@ -187,9 +196,14 @@ Repo-local evidence:
 - The F5 bench runner can now write a partial-live-observations JSON artifact
   for diagnostic-only live notes; it is explicitly marked `partial_only` and
   `release_evidence=false`.
+- The F5 bench runner can now ingest `--live-results-json` rows keyed by
+  `(case_id, mode_id)`. Fixture rows stay the default, and the report only
+  becomes `evidence_level=live` / `release_ready=true` when the full matrix has
+  successful live rows plus a Codex `/goal` transcript hash and sprint artifact
+  evidence.
 - `simplicio run --scope feature --json` and nested sprint feature execution
   now suppress pipeline progress logs so stdout remains parseable JSON.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `458
+- Validation in this worktree: `python -m pytest tests/python -q` -> `467
   passed, 3 skipped`.
 
 Suggested comment:
@@ -222,8 +236,11 @@ Repo-local evidence:
   schema-v1 smokes; it explicitly reports missing required quants
   `Q8_0`, `Q6_K`, and `Q4_K_M`.
 - `bench/run_schema_smoke_summary.py --fail-missing-required-quants` can now
-  turn those missing quant smokes into an explicit non-zero gate while keeping
-  the default summary command non-failing.
+  turn missing or failing required quant smokes into an explicit non-zero gate
+  while keeping the default summary command non-failing.
+- `bench/qwen15b_quant_curve_manifest.json` records the required Q8_0, Q6_K,
+  and Q4_K_M GGUF filenames, smoke output paths, and final quant-curve artifact
+  names. It is an execution manifest, not evidence.
 - `bench/RESULTS_LOCAL_GGUF.md` contains older local Q5_K_M vs Q8_0 evidence
   from `bench/run_exec.py`, but it is not the requested v14 schema-v1 quant
   curve.
@@ -246,6 +263,7 @@ missing: `bench/results_v14_qwen15b_quant_curve.{md,json,pdf}` is not present.
 
 1. Keep `#32` and `#33` open until SkillOpt human approval evidence is real and
    attached to the release reports.
-2. Continue `#41` with sprint UX hardening and the F5 unified-run bench.
-3. For `#46`, create the smoke harness and quant-curve reports before running
-   the long GGUF matrix.
+2. Continue `#41` by capturing and ingesting real F5 live rows for cli+ag,
+   unified feature/sprint, and Codex `/goal`.
+3. For `#46`, run the required GGUF smokes and produce the quant-curve reports
+   before attempting to close the issue.

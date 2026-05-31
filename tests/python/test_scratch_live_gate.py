@@ -32,7 +32,24 @@ def _skillopt_review_row(tmp_path, index: int, *, approved: bool = True) -> dict
     skill = f"generated-skill-{index:02d}"
     skill_path = tmp_path / skill / "SKILL.md"
     skill_path.parent.mkdir()
-    skill_path.write_text(f"---\nname: {skill}\n---\n", encoding="utf-8")
+    skill_path.write_text(
+        "\n".join(
+            [
+                "---",
+                f"name: {skill}",
+                "auto_generated:",
+                "  by: skill-opt",
+                "  source_goal: Generate audit workflow",
+                "  planner_model: test-planner",
+                "  review_required: true",
+                "---",
+                "",
+                f"# {skill}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
     return {
         "skill": skill,
         "path": str(skill_path),
@@ -440,6 +457,34 @@ def test_live_gate_rejects_duplicate_skillopt_review_artifacts(tmp_path) -> None
     assert evidence["total_reviews"] == 1
     assert evidence["invalid_reviews"] == 9
     assert evidence["duplicate_reviews"] == 9
+    assert evidence["gate_passed"] is False
+
+
+def test_live_gate_rejects_skillopt_review_for_manual_artifact(tmp_path) -> None:
+    skill_path = tmp_path / "manual-skill" / "SKILL.md"
+    skill_path.parent.mkdir()
+    skill_path.write_text(
+        "---\nname: manual-skill\nreview_required: true\n---\n",
+        encoding="utf-8",
+    )
+
+    evidence = _normalize_skillopt_review(
+        {
+            "reviews": [
+                {
+                    "skill": "manual-skill",
+                    "path": str(skill_path),
+                    "sha256": hashlib.sha256(skill_path.read_bytes()).hexdigest(),
+                    "reviewer": "wesley",
+                    "approved": True,
+                    "reviewed_at": "2026-05-31",
+                }
+            ]
+        }
+    )
+
+    assert evidence["total_reviews"] == 0
+    assert evidence["invalid_reviews"] == 1
     assert evidence["gate_passed"] is False
 
 

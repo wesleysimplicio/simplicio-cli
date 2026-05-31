@@ -32,6 +32,7 @@
   ],
   "scope": "incremental schema-smoke artifact summary; this does not replace the required Qwen2.5-Coder-1.5B GGUF quant curve",
   "summary": {
+    "failed_required_quant_smokes": [],
     "go_no_go_failures": 0,
     "go_no_go_passes": 2,
     "input_files": 2,
@@ -47,6 +48,11 @@
     "qwen15b_quant_curve_complete": false,
     "qwen15b_smokes": 0,
     "release_ready": false,
+    "required_quant_smokes_passed": {
+      "Q4_K_M": false,
+      "Q6_K": false,
+      "Q8_0": false
+    },
     "required_quant_smokes_present": {
       "Q4_K_M": false,
       "Q6_K": false,

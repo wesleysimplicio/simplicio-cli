@@ -37,8 +37,20 @@ def summarize_smokes(inputs: list[Path]) -> dict[str, Any]:
         quant: any(row["quant"] == quant for row in qwen15b_rows)
         for quant in REQUIRED_QUANT_SMOKES
     }
+    required_quant_smokes_passed = {
+        quant: any(
+            row["quant"] == quant and row["go_no_go_pass"] is True
+            for row in qwen15b_rows
+        )
+        for quant in REQUIRED_QUANT_SMOKES
+    }
     missing_quant_smokes = [
         quant for quant, present in required_quant_smokes_present.items() if not present
+    ]
+    failed_required_quant_smokes = [
+        quant
+        for quant, present in required_quant_smokes_present.items()
+        if present and not required_quant_smokes_passed[quant]
     ]
     return {
         "benchmark": "schema-smoke-summary",
@@ -59,7 +71,9 @@ def summarize_smokes(inputs: list[Path]) -> dict[str, Any]:
             "go_no_go_failures": sum(1 for row in rows if row["go_no_go_pass"] is False),
             "qwen15b_smokes": len(qwen15b_rows),
             "required_quant_smokes_present": required_quant_smokes_present,
+            "required_quant_smokes_passed": required_quant_smokes_passed,
             "missing_quant_smokes": missing_quant_smokes,
+            "failed_required_quant_smokes": failed_required_quant_smokes,
             "qwen15b_quant_curve_complete": False,
             "release_ready": False,
             "missing_release_evidence": [
@@ -213,7 +227,14 @@ def _to_markdown(summary: dict[str, Any]) -> str:
             f"{quant}={present}"
             for quant, present in meta["required_quant_smokes_present"].items()
         ),
+        "- required quant smokes passed: "
+        + ", ".join(
+            f"{quant}={passed}"
+            for quant, passed in meta["required_quant_smokes_passed"].items()
+        ),
         f"- missing quant smokes: {', '.join(meta['missing_quant_smokes']) or 'none'}",
+        "- failed required quant smokes: "
+        + (", ".join(meta["failed_required_quant_smokes"]) or "none"),
         f"- Qwen 1.5B quant curve complete: {meta['qwen15b_quant_curve_complete']}",
         f"- release ready: {meta['release_ready']}",
         "",
@@ -259,7 +280,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"wrote {args.md_output}")
     if (
         args.fail_missing_required_quants
-        and summary["summary"]["missing_quant_smokes"]
+        and (
+            summary["summary"]["missing_quant_smokes"]
+            or summary["summary"]["failed_required_quant_smokes"]
+        )
     ):
         return 1
     return 0

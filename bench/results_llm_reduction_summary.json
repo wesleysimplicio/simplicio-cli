@@ -1,6 +1,6 @@
 {
   "benchmark": "llm-reduction-summary",
-  "date": "2026-05-30",
+  "date": "2026-05-31",
   "environment": {
     "platform": "Windows-11-10.0.22631-SP0",
     "python": "3.14.3"
@@ -9,37 +9,37 @@
     "cache": {
       "benchmark": "scratch-cache-gate",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_cache_gate.json",
+      "path": "bench/results_scratch_cache_gate.json",
       "present": true
     },
     "codegen": {
       "benchmark": "scratch-codegen",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_codegen.json",
+      "path": "bench/results_scratch_codegen.json",
       "present": true
     },
     "live_gate": {
       "benchmark": "scratch-live-gate",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_live_gate.json",
+      "path": "bench/results_scratch_live_gate.json",
       "present": true
     },
     "preflight": {
       "benchmark": "scratch-release-gate",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_release_gate.json",
+      "path": "bench/results_scratch_release_gate.json",
       "present": true
     },
     "recipes": {
       "benchmark": "scratch-recipes",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_recipes.json",
+      "path": "bench/results_scratch_recipes.json",
       "present": true
     },
     "static_fixers": {
       "benchmark": "static-fixers",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_static_fixers.json",
+      "path": "bench/results_static_fixers.json",
       "present": true
     }
   },

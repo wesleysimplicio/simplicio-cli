@@ -12,6 +12,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import shlex
 import statistics
 import subprocess
@@ -28,6 +29,9 @@ if str(ROOT) not in sys.path:
 from bench.run_scratch_release_gate import PILOT_STACKS, RELEASE_GOALS  # noqa: E402
 from simplicio.scratch.stack_registry import StackRegistry  # noqa: E402
 
+
+_FRONTMATTER_RE = re.compile(r"\A---\s*\n(?P<body>.*?)\n---", re.DOTALL)
+_FIELD_RE = re.compile(r"^(?P<key>[A-Za-z0-9_-]+):\s*(?P<value>.*?)\s*$")
 
 RESULTS_JSON = ROOT / "bench" / "results_scratch_live_gate.json"
 RESULTS_MD = ROOT / "bench" / "results_scratch_live_gate.md"
@@ -707,6 +711,7 @@ def _normalize_skillopt_review(
         sha256 = str(row.get("sha256") or "").strip()
         artifact_key = _skillopt_artifact_key(artifact_path, sha256)
         artifact_verified = _skillopt_artifact_hash_matches(artifact_path, sha256)
+        artifact_frontmatter_valid = _skillopt_artifact_frontmatter_valid(artifact_path)
         if (
             not skill
             or not reviewer
@@ -715,6 +720,7 @@ def _normalize_skillopt_review(
             or not artifact_path
             or not sha256
             or artifact_verified is not True
+            or artifact_frontmatter_valid is not True
         ):
             invalid += 1
             continue
@@ -733,6 +739,7 @@ def _normalize_skillopt_review(
                 "path": artifact_path,
                 "sha256": sha256,
                 "artifact_verified": artifact_verified,
+                "artifact_frontmatter_valid": artifact_frontmatter_valid,
             }
         )
     total = len(normalized)
@@ -767,13 +774,46 @@ def _skillopt_artifact_key(path: str, expected_sha256: str) -> tuple[str, str]:
 def _skillopt_artifact_hash_matches(path: str, expected_sha256: str) -> bool:
     if not path or not expected_sha256:
         return False
-    artifact = Path(path)
-    if not artifact.is_absolute():
-        artifact = ROOT / artifact
+    artifact = _skillopt_artifact_path(path)
     if not artifact.is_file():
         return False
     actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
     return actual == expected_sha256
+
+
+def _skillopt_artifact_frontmatter_valid(path: str) -> bool:
+    artifact = _skillopt_artifact_path(path)
+    if not artifact.is_file():
+        return False
+    try:
+        fields = _skillopt_frontmatter(artifact.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError):
+        return False
+    return (
+        fields.get("review_required", "").lower() == "true"
+        and fields.get("by") == "skill-opt"
+        and bool(fields.get("source_goal"))
+        and bool(fields.get("planner_model"))
+    )
+
+
+def _skillopt_frontmatter(text: str) -> dict[str, str]:
+    match = _FRONTMATTER_RE.match(text)
+    if not match:
+        return {}
+    fields: dict[str, str] = {}
+    for line in match.group("body").splitlines():
+        parsed = _FIELD_RE.match(line.strip())
+        if parsed:
+            fields[parsed.group("key")] = parsed.group("value").strip('"')
+    return fields
+
+
+def _skillopt_artifact_path(path: str) -> Path:
+    artifact = Path(path)
+    if not artifact.is_absolute():
+        artifact = ROOT / artifact
+    return artifact
 
 
 def _has_full_release_matrix(rows: list[dict[str, Any]]) -> bool:

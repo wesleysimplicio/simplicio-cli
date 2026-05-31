@@ -86,6 +86,60 @@ def test_unified_run_bench_writes_partial_only_results(tmp_path) -> None:
     )
 
 
+def test_unified_run_bench_ingests_partial_live_results() -> None:
+    result = run_benchmark(
+        live_results=[
+            {
+                "case_id": "single-file-task",
+                "mode_id": "cli_ag",
+                "command": "simplicio task fix src/app.py",
+                "exit_code": 0,
+                "success": True,
+                "duration_s": 1.2,
+                "cost_usd": 0.0,
+            }
+        ]
+    )
+
+    live_row = next(row for row in result["rows"] if row["fixture"] is False)
+    assert result["benchmark"] == "unified-run-f5-fixture"
+    assert result["fixture_only"] is False
+    assert result["summary"]["evidence_level"] == "partial-live"
+    assert result["summary"]["live_row_count"] == 1
+    assert result["summary"]["release_ready"] is False
+    assert live_row["case_id"] == "single-file-task"
+    assert live_row["success"] is True
+
+
+def test_unified_run_bench_marks_complete_live_matrix_release_ready() -> None:
+    live_results = []
+    for case in run_benchmark()["cases"]:
+        for mode in ("cli_ag", "unified_feature", "unified_sprint", "codex_goal"):
+            live_results.append(
+                {
+                    "case_id": case["case_id"],
+                    "mode_id": mode,
+                    "command": f"run {case['case_id']} {mode}",
+                    "exit_code": 0,
+                    "success": True,
+                    "duration_s": 1.0,
+                    "llm_invoked": mode != "cli_ag",
+                    "external_agent_invoked": mode == "codex_goal",
+                    "transcript_sha256": "a" * 64 if mode == "codex_goal" else "",
+                    "artifacts": ["dod.json"] if case["scope"] == "sprint" else [],
+                }
+            )
+
+    result = run_benchmark(live_results=live_results)
+
+    assert result["benchmark"] == "unified-run-f5-live"
+    assert result["summary"]["evidence_level"] == "live"
+    assert result["summary"]["live_row_count"] == result["summary"]["expected_row_count"]
+    assert result["summary"]["external_codex_goal_run_present"] is True
+    assert result["summary"]["release_ready"] is True
+    assert result["summary"]["release_blockers"] == []
+
+
 def test_unified_run_bench_main_accepts_custom_fixture(tmp_path) -> None:
     fixture = tmp_path / "cases.json"
     fixture.write_text(
@@ -149,3 +203,43 @@ def test_unified_run_bench_main_writes_partial_results_json(tmp_path) -> None:
     assert main_payload["summary"]["release_ready"] is False
     assert partial_payload["partial_only"] is True
     assert partial_payload["release_evidence"] is False
+
+
+def test_unified_run_bench_main_accepts_live_results(tmp_path) -> None:
+    json_path = tmp_path / "out.json"
+    md_path = tmp_path / "out.md"
+    live_path = tmp_path / "live.json"
+    live_path.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "case_id": "single-file-task",
+                        "mode_id": "cli_ag",
+                        "command": "simplicio task fix src/app.py",
+                        "exit_code": 0,
+                        "success": True,
+                        "duration_s": 1.0,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    rc = main(
+        [
+            "--live-results-json",
+            str(live_path),
+            "--json-output",
+            str(json_path),
+            "--md-output",
+            str(md_path),
+            "--quiet",
+        ]
+    )
+
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    assert rc == 0
+    assert payload["summary"]["evidence_level"] == "partial-live"
+    assert payload["summary"]["live_row_count"] == 1
