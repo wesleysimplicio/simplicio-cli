@@ -1,0 +1,511 @@
+{
+  "gguf:/root/models/Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf": {
+    "rows": [
+      {
+        "goal": "Hide the Delete button when the current user is not an admin.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 4,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1411,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 5
+        },
+        "com_quality": {
+          "len": 1526,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 4
+        },
+        "sem_usage": {
+          "prompt_tokens": 32,
+          "completion_tokens": 326,
+          "total_tokens": 358,
+          "elapsed_ms": 42365
+        },
+        "com_usage": {
+          "prompt_tokens": 211,
+          "completion_tokens": 324,
+          "total_tokens": 535,
+          "elapsed_ms": 43502
+        }
+      },
+      {
+        "goal": "Disable the email field unless the profile role is editor.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 4,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1066,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 10
+        },
+        "com_quality": {
+          "len": 2242,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 10
+        },
+        "sem_usage": {
+          "prompt_tokens": 30,
+          "completion_tokens": 241,
+          "total_tokens": 271,
+          "elapsed_ms": 29555
+        },
+        "com_usage": {
+          "prompt_tokens": 205,
+          "completion_tokens": 512,
+          "total_tokens": 717,
+          "elapsed_ms": 66137
+        }
+      },
+      {
+        "goal": "Only show the audit log link for users with role 'auditor'.",
+        "stack": "angular",
+        "sem_hits": 1,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 370,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 7
+        },
+        "com_quality": {
+          "len": 2014,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 6
+        },
+        "sem_usage": {
+          "prompt_tokens": 33,
+          "completion_tokens": 89,
+          "total_tokens": 122,
+          "elapsed_ms": 11218
+        },
+        "com_usage": {
+          "prompt_tokens": 210,
+          "completion_tokens": 487,
+          "total_tokens": 697,
+          "elapsed_ms": 63073
+        }
+      },
+      {
+        "goal": "Show 'Approve' button only when the order status is 'pending' and the user has approver permission.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 6,
+        "total": 6,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1608,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 11
+        },
+        "com_quality": {
+          "len": 2249,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 13
+        },
+        "sem_usage": {
+          "prompt_tokens": 42,
+          "completion_tokens": 362,
+          "total_tokens": 404,
+          "elapsed_ms": 43926
+        },
+        "com_usage": {
+          "prompt_tokens": 230,
+          "completion_tokens": 512,
+          "total_tokens": 742,
+          "elapsed_ms": 63550
+        }
+      },
+      {
+        "goal": "Render the export menu item only for users in the 'analytics' group.",
+        "stack": "react",
+        "sem_hits": 1,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1271,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 10
+        },
+        "com_quality": {
+          "len": 1605,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 10
+        },
+        "sem_usage": {
+          "prompt_tokens": 34,
+          "completion_tokens": 292,
+          "total_tokens": 326,
+          "elapsed_ms": 35375
+        },
+        "com_usage": {
+          "prompt_tokens": 212,
+          "completion_tokens": 431,
+          "total_tokens": 643,
+          "elapsed_ms": 54684
+        }
+      },
+      {
+        "goal": "Disable the 'Save Draft' button while the form is invalid OR a save request is in-flight.",
+        "stack": "react",
+        "sem_hits": 3,
+        "com_hits": 6,
+        "total": 6,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 2370,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 13
+        },
+        "com_quality": {
+          "len": 2002,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 10
+        },
+        "sem_usage": {
+          "prompt_tokens": 39,
+          "completion_tokens": 512,
+          "total_tokens": 551,
+          "elapsed_ms": 62872
+        },
+        "com_usage": {
+          "prompt_tokens": 222,
+          "completion_tokens": 512,
+          "total_tokens": 734,
+          "elapsed_ms": 63732
+        }
+      },
+      {
+        "goal": "Show a 'No results' empty state when the search returns zero items AND the query is not empty.",
+        "stack": "react",
+        "sem_hits": 1,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1794,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 14
+        },
+        "com_quality": {
+          "len": 1938,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 16
+        },
+        "sem_usage": {
+          "prompt_tokens": 40,
+          "completion_tokens": 512,
+          "total_tokens": 552,
+          "elapsed_ms": 61412
+        },
+        "com_usage": {
+          "prompt_tokens": 229,
+          "completion_tokens": 512,
+          "total_tokens": 741,
+          "elapsed_ms": 65692
+        }
+      },
+      {
+        "goal": "Require the 'CanApprove' policy on the Approve endpoint of the OrdersController.",
+        "stack": "dotnet",
+        "sem_hits": 2,
+        "com_hits": 4,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1517,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 5
+        },
+        "com_quality": {
+          "len": 2552,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 7
+        },
+        "sem_usage": {
+          "prompt_tokens": 37,
+          "completion_tokens": 342,
+          "total_tokens": 379,
+          "elapsed_ms": 42021
+        },
+        "com_usage": {
+          "prompt_tokens": 226,
+          "completion_tokens": 512,
+          "total_tokens": 738,
+          "elapsed_ms": 67152
+        }
+      },
+      {
+        "goal": "Restrict the GET /reports endpoint so only users in the Manager role can list reports.",
+        "stack": "dotnet",
+        "sem_hits": 1,
+        "com_hits": 5,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "com_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 1496,
+          "has_diff_block": false,
+          "has_test_block": true,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 3
+        },
+        "com_quality": {
+          "len": 2262,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 6
+        },
+        "sem_usage": {
+          "prompt_tokens": 37,
+          "completion_tokens": 348,
+          "total_tokens": 385,
+          "elapsed_ms": 42545
+        },
+        "com_usage": {
+          "prompt_tokens": 230,
+          "completion_tokens": 512,
+          "total_tokens": 742,
+          "elapsed_ms": 66385
+        }
+      },
+      {
+        "goal": "Show a warning banner if the user has unsaved changes and tries to navigate away.",
+        "stack": "angular",
+        "sem_hits": 2,
+        "com_hits": 4,
+        "total": 5,
+        "sem_flags": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "com_flags": [
+          true,
+          true,
+          false,
+          true,
+          true
+        ],
+        "sem_quality": {
+          "len": 2295,
+          "has_diff_block": false,
+          "has_test_block": false,
+          "target_mentioned": false,
+          "criteria_keywords_hit": 9
+        },
+        "com_quality": {
+          "len": 2194,
+          "has_diff_block": true,
+          "has_test_block": true,
+          "target_mentioned": true,
+          "criteria_keywords_hit": 11
+        },
+        "sem_usage": {
+          "prompt_tokens": 36,
+          "completion_tokens": 512,
+          "total_tokens": 548,
+          "elapsed_ms": 63973
+        },
+        "com_usage": {
+          "prompt_tokens": 228,
+          "completion_tokens": 512,
+          "total_tokens": 740,
+          "elapsed_ms": 65924
+        }
+      }
+    ],
+    "sem_hits": 17,
+    "com_hits": 48,
+    "total": 52,
+    "sem_pct": 32,
+    "com_pct": 92,
+    "quality_sem": {
+      "len": 15198,
+      "has_diff_block": 0,
+      "has_test_block": 3,
+      "target_mentioned": 0,
+      "criteria_keywords_hit": 87
+    },
+    "quality_com": {
+      "len": 20584,
+      "has_diff_block": 10,
+      "has_test_block": 10,
+      "target_mentioned": 10,
+      "criteria_keywords_hit": 93
+    },
+    "usage_sem": {
+      "prompt_tokens": 360,
+      "completion_tokens": 3536,
+      "total_tokens": 3896,
+      "elapsed_ms": 435262
+    },
+    "usage_com": {
+      "prompt_tokens": 2203,
+      "completion_tokens": 4826,
+      "total_tokens": 7029,
+      "elapsed_ms": 619831
+    }
+  }
+}
