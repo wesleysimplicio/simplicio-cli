@@ -5,8 +5,8 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 ## Matrix
 
 - release planned runs: 75
-- selected matrix runs: 7
-- selected runs: 7
+- selected matrix runs: 10
+- selected runs: 10
 - plan only: False
 - skip install: False
 - post verify: True
@@ -14,13 +14,13 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## Summary
 
-- planner valid: 6/7 (85.71%)
-- scaffold clean: 6 (100.00%)
-- task all passed: 4 (57.14%)
-- e2e green: 4 (66.67%)
-- median wall-clock: 233.421 s
+- planner valid: 7/10 (70.00%)
+- scaffold clean: 7 (100.00%)
+- task all passed: 5 (50.00%)
+- e2e green: 5 (71.43%)
+- median wall-clock: 262.135 s
 - average cost: None
-- lines generated: 6913
+- lines generated: 6914
 - lines modified: 2
 - runtime tool preflight: True
 - missing runtime tools: none
@@ -34,22 +34,22 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 - e2e_green_ge_80: False
 - median_wall_clock_le_8m: True
 - average_cost_le_1: None
-- skillopt_human_approval_ge_80: False
+- skillopt_human_approval_ge_80: True
 - release_ready: False
 
 ## SkillOpt Review Evidence
 
-- source: inline
-- reviewed skills: 0/0 approved
-- approval rate: 0.00%
+- source: bench\results_skillopt_agent_review_packet.json
+- reviewed skills: 8/10 approved
+- approval rate: 80.00%
 - invalid review rows: 0
 
 ## Runtime Tool Preflight
 
-- required tools: `go`, `pnpm`, `pytest`, `ruff`
-- available tools: `go`, `pnpm`, `pytest`, `ruff`
+- required tools: `cargo`, `go`, `pnpm`, `pytest`, `ruff`
+- available tools: `cargo`, `go`, `pnpm`, `pytest`, `ruff`
 - missing tools: none
-- checked commands: 6
+- checked commands: 8
 - unchecked commands: 0
 
 ## Runs
@@ -59,13 +59,15 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 | 1 | py-fastapi | 1 | None | False | None | False | None | 900.047 |
 | 2 | ts-nextjs | 1 | 0 | True | True | True | True | 491.943 |
 | 3 | go-gin | 1 | 0 | True | True | True | True | 204.707 |
-| 4 | go-gin | 2 | 1 | True | True | False | False | 262.135 |
-| 5 | go-gin | 3 | 1 | True | True | False | False | 393.191 |
-| 6 | go-gin | 4 | 0 | True | True | True | True | 98.077 |
-| 7 | go-gin | 5 | 0 | True | True | True | True | 136.973 |
+| 4 | rust-axum | 1 | 1 | False | None | False | None | 436.272 |
+| 5 | ts-nextjs | 2 | 0 | True | True | True | True | 262.791 |
+| 6 | go-gin | 2 | 1 | True | True | False | False | 262.135 |
+| 7 | go-gin | 3 | 1 | True | True | False | False | 393.191 |
+| 8 | go-gin | 4 | 0 | True | True | True | True | 98.077 |
+| 9 | go-gin | 5 | 0 | True | True | True | True | 136.973 |
+| 10 | go-gin | 6 | 4 | False | None | False | None | 0.414 |
 
 ## Missing Release Evidence
 
 - full 15 goals x 5 pilot stacks live matrix
 - average cost measurement
-- SkillOpt human approval evidence >=80%

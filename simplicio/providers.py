@@ -249,6 +249,7 @@ def _shell_out_claude(prompt, model):
 
 def _shell_out_codex(prompt, model):
     cmd = [_cli_command("codex"), "exec"]
+    cmd.append("--skip-git-repo-check")
     if model and model not in ("default", "auto"):
         cmd += ["--model", model]
     cmd.append("-")

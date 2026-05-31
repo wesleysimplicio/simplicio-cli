@@ -124,14 +124,14 @@ Repo-local evidence:
   actual post-verify result.
 - `bench/results_scratch_live_gate_codegen_disabled_baseline.{json,md}` now
   preserves the codegen-disabled baseline on the default path. It currently has
-  7 rows: one `py-fastapi` run that timed out after 900 seconds with codegen
-  disabled, one green `ts-nextjs` row with two LLM tasks, four green `go-gin`
-  rows, and two earlier `go-gin` rows that failed before the portable Go path
-  was restored. The latest aggregate has no missing post-verify runtime tools,
-  4/7 e2e green, pass-rate `0.6667`, and average LLM task latency
-  `178250ms`. It remains partial evidence only: 7 rows are not the release
-  corpus and do not prove B/codegen pass-rate or latency against the full
-  baseline.
+  10 rows: one `py-fastapi` timeout, two green `ts-nextjs` rows, three green
+  `go-gin` rows, two earlier `go-gin` rows that failed before the portable Go
+  path was restored, one `go-gin` row blocked by a leftover temp project, and
+  one `rust-axum` row where the codegen-disabled LLM task path failed. The
+  latest aggregate has no missing post-verify runtime tools, 5/10 e2e green,
+  baseline pass-rate `0.7143`, and average LLM task latency `154888ms`. It
+  remains partial evidence only: 10 rows are not the 50-row release corpus and
+  do not prove B/codegen pass-rate or latency against the full baseline.
 - `bench/run_issue_closure_audit.py` and
   `bench/results_issue_closure_audit.{json,md}` now provide a machine-readable
   close-readiness audit for #32/#33/#41/#46. The current audit reports `3/4`

@@ -66,6 +66,7 @@ def test_codex_cli_builds_argv_with_model_then_prompt(monkeypatch):
     kwargs = run.call_args[1]
     assert cmd[0] in {"codex", "codex.cmd", "codex.exe"}
     assert cmd[1] == "exec"
+    assert "--skip-git-repo-check" in cmd
     assert "--model" in cmd
     assert cmd.index("gpt-5") == cmd.index("--model") + 1
     assert cmd[-1] == "-"
