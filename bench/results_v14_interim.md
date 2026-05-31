@@ -1,6 +1,6 @@
 # v14 INTERIM — bench funcional (PHPUnit) 3 models × 12 cases × 5 sides
 
-Snapshot: **2026-05-31 00:38:41**
+Snapshot: **2026-05-31 01:56:07**
 
 Bench rodando em background, dados parciais dos logs. Modelos com `-> baseline...` fecharam; os outros ainda rodam.
 
@@ -18,9 +18,15 @@ Bench rodando em background, dados parciais dos logs. Modelos com `-> baseline..
 
 ### `deepseek-v4-flash`
 
-**STATUS: EM ANDAMENTO** (6/12 cases)
+**STATUS: FECHADO** (12/12 cases)
 
-Parcial: base **2**/6 · cli **6**/6 · cli+sp **6**/6 · cli+ag **6**/6 · cli+sp+ag **6**/6
+| Side | Passed | Rate | Δ vs baseline |
+|---|---|---|---|
+| baseline | 6/12 | 50% | — |
+| cli | 11/12 | 91% | **+41** |
+| cli+sp | 9/12 | 75% | **+25** |
+| cli+ag | 12/12 | 100% | **+50** |
+| cli+sp+ag | 12/12 | 100% | **+50** |
 
 | Case | base | cli | cli+sp (parse) | cli+ag | cli+sp+ag |
 |---|---|---|---|---|---|
@@ -30,10 +36,20 @@ Parcial: base **2**/6 · cli **6**/6 · cli+sp **6**/6 · cli+ag **6**/6 · cli+
 | env_get_bool | . | P |  PASS [N=64 u=55 modal=4 parse=55/64] | P(1/3) | P(1/3) |
 | admin_only_allowed_roles | P | P |  PASS [N=64 u=39 modal=8 parse=61/64] | P(1/3) | P(1/3) |
 | rate_limit_bucket_key | . | P |  PASS [N=64 u=30 modal=18 parse=58/64] | P(1/3) | P(1/3) |
+| base_repository_build_where_sql | P | P |  PASS [N=100 u=73 modal=9 parse=82/100] | P(1/3) | P(1/3) |
+| router_has | P | P |  fail | P(1/3) | P(1/3) |
+| bugfix_password_policy_lowercase | . | P |  fail | P(1/3) | P(1/3) |
+| password_assess | P | P |  PASS [N=64 u=62 modal=3 parse=56/64] | P(1/3) | P(1/3) |
+| base_repository_build_update_sql | . | . |  PASS [N=64 u=59 modal=4 parse=52/64] | P(1/3) | P(1/3) |
+| router_extract_params | P | P |  fail | P(1/3) | P(1/3) |
+
+### `local:Qwen/Qwen2.5-Coder-3B-Instruct`
+
+**STATUS: EM ANDAMENTO** (0/12 cases)
 
 ## Achados notáveis
 
 _Quando o batch terminar, completo o relatório com PDF final + grand totals_
 
-- **DeepSeek V4 Flash** honra schema v1 em média **91%** dos N=64 subagents (349 parse_ok de 384 totais)
-- DeepSeek + cli+sp: **6/6 cases passam** (parou cycle 1 em todos, sem precisar escalar pra N=100)
+- **DeepSeek V4 Flash** honra schema v1 em média **81%** dos N=64 subagents (552 parse_ok de 712 totais)
+- DeepSeek + cli+sp: **9/12 cases passam** (parou cycle 1 em todos, sem precisar escalar pra N=100)
