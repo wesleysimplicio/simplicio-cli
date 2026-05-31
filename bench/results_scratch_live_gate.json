@@ -1,11 +1,12 @@
 {
   "benchmark": "scratch-live-gate",
-  "date": "2026-05-30",
+  "date": "2026-05-31",
   "environment": {
     "platform": "Windows-11-10.0.22631-SP0",
     "python": "3.14.3"
   },
   "matrix": {
+    "disable_codegen": false,
     "goals": 15,
     "plan_only": false,
     "planned_runs": 75,
@@ -5630,9 +5631,13 @@
   "scope": "live scratch v0.5 gate execution slice; partial runs are evidence only for the executed slice and do not replace the full 75-run gate",
   "summary": {
     "average_cost_usd": 0.0,
+    "avg_lines_generated_per_run": 0.0,
+    "avg_lines_modified_per_run": 0.0,
     "e2e_green": 75,
     "e2e_green_rate": 1.0,
     "elapsed_s": 1352.023,
+    "lines_generated_total": 0,
+    "lines_modified_total": 0,
     "median_wall_clock_s": 6.262,
     "missing_release_evidence": [
       "SkillOpt human approval evidence >=80%"
@@ -5654,10 +5659,12 @@
     "skillopt_review": {
       "approval_rate": 0.0,
       "approved": 0,
+      "artifact_verified": 0,
+      "duplicate_reviews": 0,
       "gate_passed": false,
-      "invalid_reviews": 0,
+      "invalid_reviews": 10,
       "reviews": [],
-      "source": "inline",
+      "source": "bench\\results_skillopt_review_packet.json",
       "total_reviews": 0
     },
     "task_all_passed": 75,

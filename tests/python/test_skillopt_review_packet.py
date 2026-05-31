@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 
 from bench.run_scratch_live_gate import load_skillopt_review_evidence
 from bench.run_skillopt_review_packet import (
@@ -243,3 +245,45 @@ def test_skillopt_review_packet_main_records_candidate_generation_failures(
     assert payload["summary"]["candidate_generation_failures"] == 1
     assert payload["generation_failures"][0]["description"] == "bad candidate"
     assert "planner unavailable" in payload["generation_failures"][0]["error"]
+
+
+def test_skillopt_review_packet_script_can_import_repo_package(tmp_path):
+    json_path = tmp_path / "out.json"
+    md_path = tmp_path / "out.md"
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "bench/run_skillopt_review_packet.py",
+            "--skills-root",
+            str(tmp_path / ".skills"),
+            "--json-output",
+            str(json_path),
+            "--md-output",
+            str(md_path),
+            "--quiet",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0
+    assert json.loads(json_path.read_text(encoding="utf-8"))["benchmark"] == (
+        "skillopt-review-packet"
+    )
+
+
+def test_versioned_skillopt_review_packet_has_pending_candidates() -> None:
+    packet = json.loads(
+        open("bench/results_skillopt_review_packet.json", encoding="utf-8").read()
+    )
+
+    assert packet["summary"]["pending_reviews"] >= 10
+    assert packet["summary"]["human_review_complete"] is False
+    assert packet["summary"]["release_ready"] is False
+    for row in packet["reviews"]:
+        assert row["reviewer"] == ""
+        assert row["approved"] is None
+        assert row["reviewed_at"] == ""
+        assert row["path"].startswith("bench/skillopt_pending_skills/")

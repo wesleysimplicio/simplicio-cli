@@ -140,6 +140,114 @@ def test_unified_run_bench_marks_complete_live_matrix_release_ready() -> None:
     assert result["summary"]["release_blockers"] == []
 
 
+def test_unified_run_bench_requires_valid_codex_transcript_hash() -> None:
+    live_results = []
+    for case in run_benchmark()["cases"]:
+        for mode in ("cli_ag", "unified_feature", "unified_sprint", "codex_goal"):
+            live_results.append(
+                {
+                    "case_id": case["case_id"],
+                    "mode_id": mode,
+                    "command": f"run {case['case_id']} {mode}",
+                    "exit_code": 0,
+                    "success": True,
+                    "duration_s": 1.0,
+                    "llm_invoked": mode != "cli_ag",
+                    "external_agent_invoked": mode == "codex_goal",
+                    "transcript_sha256": "not-a-sha" if mode == "codex_goal" else "",
+                    "artifacts": ["dod.json"] if case["scope"] == "sprint" else [],
+                }
+            )
+
+    result = run_benchmark(live_results=live_results)
+
+    assert result["summary"]["evidence_level"] == "partial-live"
+    assert result["summary"]["external_codex_goal_run_present"] is False
+    assert result["summary"]["release_ready"] is False
+    assert "Codex /goal live row needs transcript hash" in result["summary"][
+        "release_blockers"
+    ]
+
+
+def test_unified_run_bench_rejects_duplicate_live_rows() -> None:
+    result = run_benchmark(
+        live_results=[
+            {
+                "case_id": "single-file-task",
+                "mode_id": "cli_ag",
+                "command": "simplicio task fix src/app.py",
+                "exit_code": 0,
+                "success": True,
+                "duration_s": 1.2,
+            },
+            {
+                "case_id": "single-file-task",
+                "mode_id": "cli_ag",
+                "command": "simplicio task fix src/app.py",
+                "exit_code": 0,
+                "success": True,
+                "duration_s": 1.3,
+            },
+        ]
+    )
+
+    assert result["summary"]["live_row_count"] == 1
+    assert result["summary"]["release_ready"] is False
+    assert result["summary"]["live_result_errors"] == [
+        "live row 2 duplicates case/mode: single-file-task/cli_ag"
+    ]
+
+
+def test_unified_run_bench_rejects_inconsistent_live_success() -> None:
+    result = run_benchmark(
+        live_results=[
+            {
+                "case_id": "single-file-task",
+                "mode_id": "cli_ag",
+                "command": "simplicio task fix src/app.py",
+                "exit_code": 1,
+                "success": True,
+                "duration_s": 1.2,
+            }
+        ]
+    )
+
+    assert result["summary"]["live_row_count"] == 0
+    assert result["summary"]["live_result_errors"] == [
+        "live row 1 success must match exit_code==0"
+    ]
+
+
+def test_unified_run_bench_rejects_invalid_live_timing_and_cost() -> None:
+    result = run_benchmark(
+        live_results=[
+            {
+                "case_id": "single-file-task",
+                "mode_id": "cli_ag",
+                "command": "simplicio task fix src/app.py",
+                "exit_code": 0,
+                "success": True,
+                "duration_s": -1,
+            },
+            {
+                "case_id": "feature-auth-flow",
+                "mode_id": "unified_feature",
+                "command": "simplicio run --scope feature",
+                "exit_code": 0,
+                "success": True,
+                "duration_s": 1.0,
+                "cost_usd": -0.01,
+            },
+        ]
+    )
+
+    assert result["summary"]["live_row_count"] == 0
+    assert result["summary"]["live_result_errors"] == [
+        "live row 1 duration_s must be finite and >= 0",
+        "live row 2 cost_usd must be finite and >= 0",
+    ]
+
+
 def test_unified_run_bench_main_accepts_custom_fixture(tmp_path) -> None:
     fixture = tmp_path / "cases.json"
     fixture.write_text(

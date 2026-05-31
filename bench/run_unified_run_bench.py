@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import platform
+import re
 import sys
 import time
 from pathlib import Path
@@ -22,6 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 RESULTS_JSON = ROOT / "bench" / "results_unified_run_bench.json"
 RESULTS_MD = ROOT / "bench" / "results_unified_run_bench.md"
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$", re.IGNORECASE)
 
 DEFAULT_CASES: list[dict[str, Any]] = [
     {
@@ -239,10 +242,15 @@ def _merge_live_results(
         for row in fixture_rows
     }
     errors = []
+    seen_live_keys: set[tuple[str, str]] = set()
     for index, live in enumerate(live_results, start=1):
         case_id = str(live.get("case_id") or "").strip()
         mode_id = str(live.get("mode_id") or "").strip()
         key = (case_id, mode_id)
+        if key in seen_live_keys:
+            errors.append(f"live row {index} duplicates case/mode: {case_id}/{mode_id}")
+            continue
+        seen_live_keys.add(key)
         if key not in rows_by_key:
             errors.append(f"live row {index} has unknown case/mode: {case_id}/{mode_id}")
             continue
@@ -250,14 +258,23 @@ def _merge_live_results(
         command = str(live.get("command") or "").strip()
         exit_code = live.get("exit_code")
         success = live.get("success")
-        duration_s = live.get("duration_s")
+        duration_s = _nonnegative_number(live.get("duration_s"))
+        cost_usd = _optional_nonnegative_number(live.get("cost_usd"))
         if not command or not isinstance(exit_code, int) or not isinstance(success, bool):
             errors.append(
                 f"live row {index} missing required command, exit_code, or success"
             )
             continue
+        if success != (exit_code == 0):
+            errors.append(
+                f"live row {index} success must match exit_code==0"
+            )
+            continue
         if duration_s is None:
-            errors.append(f"live row {index} missing duration_s")
+            errors.append(f"live row {index} duration_s must be finite and >= 0")
+            continue
+        if cost_usd is None and live.get("cost_usd") is not None:
+            errors.append(f"live row {index} cost_usd must be finite and >= 0")
             continue
         row.update(
             {
@@ -269,9 +286,9 @@ def _merge_live_results(
                 "outcome": "live_success" if success else "live_failure",
                 "command": command,
                 "exit_code": exit_code,
-                "duration_s": float(duration_s),
+                "duration_s": duration_s,
                 "success": success,
-                "cost_usd": live.get("cost_usd"),
+                "cost_usd": cost_usd,
                 "artifacts": _string_list(live.get("artifacts")),
                 "transcript_sha256": str(live.get("transcript_sha256") or ""),
                 "notes": _string_list(live.get("notes")),
@@ -279,6 +296,21 @@ def _merge_live_results(
         )
         rows_by_key[key] = row
     return list(rows_by_key.values()), errors
+
+
+def _nonnegative_number(value: Any) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    number = float(value)
+    if not math.isfinite(number) or number < 0:
+        return None
+    return number
+
+
+def _optional_nonnegative_number(value: Any) -> float | None:
+    if value is None:
+        return None
+    return _nonnegative_number(value)
 
 
 def _string_list(value: Any) -> list[str]:
@@ -328,7 +360,7 @@ def _summarize(
         row["mode_id"] == "codex_goal"
         and row["fixture"] is False
         and row["external_agent_invoked"] is True
-        and bool(row["transcript_sha256"])
+        and _is_sha256(row["transcript_sha256"])
         for row in rows
     )
     release_blockers = [
@@ -365,6 +397,10 @@ def _summarize(
         "by_mode": by_mode,
         "missing_live_evidence": release_blockers,
     }
+
+
+def _is_sha256(value: Any) -> bool:
+    return isinstance(value, str) and bool(_SHA256_RE.fullmatch(value.strip()))
 
 
 def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> None:

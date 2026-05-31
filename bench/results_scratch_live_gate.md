@@ -10,6 +10,7 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 - plan only: False
 - skip install: False
 - post verify: True
+- codegen disabled: False
 
 ## Summary
 
@@ -19,6 +20,8 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 - e2e green: 75 (100.00%)
 - median wall-clock: 6.262 s
 - average cost: 0.0
+- lines generated: 0
+- lines modified: 0
 - release ready: False
 
 ## Release Gate Status
@@ -34,10 +37,10 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## SkillOpt Review Evidence
 
-- source: inline
+- source: bench\results_skillopt_review_packet.json
 - reviewed skills: 0/0 approved
 - approval rate: 0.00%
-- invalid review rows: 0
+- invalid review rows: 10
 
 ## Runs
 

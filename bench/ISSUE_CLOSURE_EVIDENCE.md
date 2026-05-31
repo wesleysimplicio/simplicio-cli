@@ -48,11 +48,16 @@ Repo-local evidence:
   `SkillOpt human approval evidence >=80%`.
 - `bench/run_skillopt_review_packet.py` and
   `bench/results_skillopt_review_packet.{json,md}` now provide the pending
-  review packet shape accepted by the live gate. It currently records zero
-  review-gated generated skills, so it is not approval evidence.
+  review packet shape accepted by the live gate. It currently records 10
+  review-gated generated skills with empty reviewer/approval fields, so it is
+  ready for human review but is not approval evidence.
 - The same packet runner can now generate review-gated candidate skills from
   `--description` / `--descriptions-file`, then keep them pending with empty
   reviewer/approval fields.
+- `bench/skillopt_pending_skills/` contains the 10 SkillOpt-generated pending
+  `SKILL.md` artifacts referenced by the review packet. They live under
+  `bench/` rather than active `.skills/` so unreviewed skills are not loaded as
+  trusted local defaults.
 - `bench/run_skillopt_review_packet.py` now collects only SkillOpt-generated
   review-gated skills with `auto_generated.by: skill-opt`, `source_goal`, and
   `planner_model`; manually flagged `review_required` files are excluded.
@@ -100,6 +105,10 @@ Repo-local evidence:
   duplicate merge rows are rejected by default, existing outputs are not
   overwritten without an explicit mode, and `--disable-codegen` defaults to
   separate `results_scratch_live_gate_codegen_disabled_baseline.*` outputs.
+- `bench/results_scratch_live_gate_codegen_disabled_baseline.{json,md}` now
+  preserves the older 1-run codegen-disabled live slice on that default path.
+  It remains partial evidence only: 1 run is not the release corpus and does
+  not prove B/codegen pass-rate or latency against the full baseline.
 - `bench/run_issue_closure_audit.py` and
   `bench/results_issue_closure_audit.{json,md}` now provide a machine-readable
   close-readiness audit for #32/#33/#41/#46. The current audit reports `0/4`
@@ -201,9 +210,13 @@ Repo-local evidence:
   becomes `evidence_level=live` / `release_ready=true` when the full matrix has
   successful live rows plus a Codex `/goal` transcript hash and sprint artifact
   evidence.
+- The same live-results ingestion now rejects duplicate `(case_id, mode_id)`
+  rows, non-finite or negative duration/cost values, and `success` values that
+  disagree with `exit_code == 0`; Codex `/goal` release evidence also requires
+  a valid 64-hex SHA-256 transcript hash.
 - `simplicio run --scope feature --json` and nested sprint feature execution
   now suppress pipeline progress logs so stdout remains parseable JSON.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `467
+- Validation in this worktree: `python -m pytest tests/python -q` -> `477
   passed, 3 skipped`.
 
 Suggested comment:
@@ -241,6 +254,11 @@ Repo-local evidence:
 - `bench/qwen15b_quant_curve_manifest.json` records the required Q8_0, Q6_K,
   and Q4_K_M GGUF filenames, smoke output paths, and final quant-curve artifact
   names. It is an execution manifest, not evidence.
+- `bench/run_qwen15b_quant_curve_report.py` now provides the final-report
+  scaffold for that manifest. `--check` fails while required smokes are missing,
+  and the default command refuses to write
+  `results_v14_qwen15b_quant_curve.{json,md,pdf}` until all required smoke JSONs
+  are present and passing.
 - `bench/RESULTS_LOCAL_GGUF.md` contains older local Q5_K_M vs Q8_0 evidence
   from `bench/run_exec.py`, but it is not the requested v14 schema-v1 quant
   curve.
