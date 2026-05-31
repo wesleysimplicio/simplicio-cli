@@ -110,6 +110,12 @@ def main(argv=None):
         default=[],
         help="glob limiting which paths the task may change; repeatable",
     )
+    pt.add_argument(
+        "--local",
+        action="store_true",
+        help="force the in-process local model (Qwen2.5-Coder-1.5B GGUF, "
+        "no API key); overrides SIMPLICIO_MODEL/SIMPLICIO_BASE_URL",
+    )
 
     pb = sub.add_parser("bench", help="compare with vs without (real numbers)")
     pb.add_argument("--root", default=".")
@@ -197,6 +203,12 @@ def main(argv=None):
         return detect_main(detect_argv)
     else:
         from .pipeline import run, run_task
+
+        if getattr(a, "local", False):
+            # Force Path 4: pin the local model and drop any HTTP endpoint so the
+            # in-process llama backend wins regardless of the ambient config.
+            os.environ["SIMPLICIO_MODEL"] = "local-llama/default"
+            os.environ.pop("SIMPLICIO_BASE_URL", None)
 
         if a.json or a.dry_run_task:
             result = run_task(

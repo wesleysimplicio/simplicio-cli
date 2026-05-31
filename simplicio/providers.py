@@ -1,7 +1,7 @@
 """
 providers.py — provider-agnostic. Does NOT list specific models.
 
-Three modes, picked by SIMPLICIO_MODEL prefix:
+Four modes, picked by SIMPLICIO_MODEL prefix (or by absence of config):
 
 1. Native Anthropic SDK
      SIMPLICIO_MODEL=claude-opus-4-7
@@ -20,6 +20,16 @@ Three modes, picked by SIMPLICIO_MODEL prefix:
      to be logged in (Claude Code session or `codex login`). Subprocess is
      given SIMPLICIO_HOOK_GUARD=1 so the inner CLI does not re-trigger the
      simplicio UserPromptSubmit hook (recursion guard).
+
+4. In-process local inference via llama-cpp-python (offline-first, zero key)
+     SIMPLICIO_MODEL=local-llama/<repo>::<file.gguf>   -> explicit HF GGUF
+     SIMPLICIO_MODEL=local-llama/default               -> bundled default
+     SIMPLICIO_MODEL=local-llama//abs/path/model.gguf  -> direct local path
+     This is also the DEFAULT when neither SIMPLICIO_MODEL nor
+     SIMPLICIO_BASE_URL is set: simplicio runs Qwen2.5-Coder-1.5B-Instruct
+     (Q5_K_M GGUF) on CPU with no HTTP overhead. The GGUF is fetched once from
+     the Hugging Face Hub and the model is loaded once, then reused. Requires
+     the `local` extra: pip install 'simplicio-cli[local]'.
 """
 
 import os
@@ -56,7 +66,125 @@ def _inline_feedback(prompt, feedback):
     return f"{prompt}\n\nThe test FAILED:\n{feedback}\nFix it. Same output format."
 
 
+# --------------------------------------------------------------------------- #
+# Path 4: in-process local inference (llama-cpp-python). Offline-first default.
+# --------------------------------------------------------------------------- #
+
+# bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF is a small, code-specialized model
+# that runs fast on CPU. Q5_K_M is the speed/quality sweet spot for the 1.5B.
+LOCAL_DEFAULT_REPO = "bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF"
+LOCAL_DEFAULT_FILE = "Qwen2.5-Coder-1.5B-Instruct-Q5_K_M.gguf"
+LOCAL_MODEL_PREFIX = "local-llama/"
+
+# Loaded Llama instances, keyed by (gguf_path, n_ctx, n_threads, n_gpu_layers).
+# A model load is expensive (weights -> RAM), so we keep it for the process.
+_LOCAL_LLAMA_CACHE = {}
+
+
+def _is_local(model, base):
+    """True when generate() should route to the in-process llama backend.
+
+    Either an explicit `local-llama/` model, or the offline-first default:
+    nothing configured at all (no model, no OpenAI-compatible base_url).
+    """
+    if model and model.startswith(LOCAL_MODEL_PREFIX):
+        return True
+    return not model and not base
+
+
+def _local_spec(model):
+    """Resolve (repo, file, path) for a local-llama model id.
+
+    Forms after the `local-llama/` prefix:
+      "" / "default" / "auto"   -> bundled Qwen2.5-Coder-1.5B Q5_K_M default
+      "<repo>::<file.gguf>"     -> explicit HF repo + filename
+      "/abs/path/model.gguf"    -> direct local path (no download)
+      "<repo>"                  -> HF repo + default/SIMPLICIO_LOCAL_MODEL_FILE
+    SIMPLICIO_LOCAL_MODEL_PATH always wins when set.
+    """
+    path = os.environ.get("SIMPLICIO_LOCAL_MODEL_PATH")
+    if path:
+        return None, None, path
+    file_env = os.environ.get("SIMPLICIO_LOCAL_MODEL_FILE", LOCAL_DEFAULT_FILE)
+    spec = ""
+    if model and model.startswith(LOCAL_MODEL_PREFIX):
+        spec = model[len(LOCAL_MODEL_PREFIX) :].strip()
+    if spec and spec not in ("default", "auto"):
+        if "::" in spec:
+            repo, fname = spec.split("::", 1)
+            return repo.strip(), fname.strip(), None
+        if spec.endswith(".gguf") and (os.sep in spec or spec.startswith((".", "/"))):
+            return None, None, spec
+        return spec, file_env, None
+    repo = os.environ.get("SIMPLICIO_LOCAL_MODEL_REPO", LOCAL_DEFAULT_REPO)
+    return repo, file_env, None
+
+
+def _resolve_local_path(repo, fname, path):
+    """Return a filesystem path to the GGUF, downloading from HF if needed."""
+    if path:
+        if not os.path.exists(path):
+            raise SystemExit(
+                f"simplicio: local model not found at {path}. Point "
+                "SIMPLICIO_LOCAL_MODEL_PATH at an existing .gguf file."
+            )
+        return path
+    try:
+        from huggingface_hub import hf_hub_download
+    except ImportError:
+        raise SystemExit(
+            "simplicio: local backend needs huggingface-hub. "
+            "Install extras: pip install 'simplicio-cli[local]'"
+        )
+    return hf_hub_download(repo_id=repo, filename=fname)
+
+
+def _local_llama(model):
+    """Load (or reuse) the Llama instance for the given local model id."""
+    try:
+        from llama_cpp import Llama
+    except ImportError:
+        raise SystemExit(
+            "simplicio: local backend needs llama-cpp-python. "
+            "Install extras: pip install 'simplicio-cli[local]'"
+        )
+    repo, fname, path = _local_spec(model)
+    gguf = _resolve_local_path(repo, fname, path)
+    n_ctx = int(os.environ.get("SIMPLICIO_LOCAL_CTX", "8192"))
+    threads = os.environ.get("SIMPLICIO_LOCAL_THREADS")
+    n_threads = int(threads) if threads else None
+    n_gpu_layers = int(os.environ.get("SIMPLICIO_LOCAL_GPU_LAYERS", "0"))
+    cache_key = (gguf, n_ctx, n_threads, n_gpu_layers)
+    llm = _LOCAL_LLAMA_CACHE.get(cache_key)
+    if llm is None:
+        llm = Llama(
+            model_path=gguf,
+            n_ctx=n_ctx,
+            n_threads=n_threads,
+            n_gpu_layers=n_gpu_layers,
+            verbose=False,
+        )
+        _LOCAL_LLAMA_CACHE[cache_key] = llm
+    return llm
+
+
+def _local_generate(prompt, feedback, model, max_tokens):
+    """Generate a completion in-process via llama-cpp-python."""
+    llm = _local_llama(model)
+    cap = os.environ.get("SIMPLICIO_LOCAL_MAX_TOKENS")
+    out_tokens = int(cap) if cap else max_tokens
+    temperature = float(os.environ.get("SIMPLICIO_LOCAL_TEMP", "0.1"))
+    r = llm.create_chat_completion(
+        messages=_msgs(prompt, feedback),
+        max_tokens=out_tokens,
+        temperature=temperature,
+    )
+    return r["choices"][0]["message"]["content"] or ""
+
+
 def _provider_id(model, base):
+    if model and model.startswith(LOCAL_MODEL_PREFIX):
+        return "local-llama"
     if model.startswith("claude-cli/"):
         return "claude-cli"
     if model.startswith("codex-cli/"):
@@ -145,10 +273,35 @@ def generate(prompt, feedback=None, max_tokens=4000, template_version=None):
 
     c = _cfg()
     model = c["model"]
+
+    # Path 4: in-process local inference. Explicit `local-llama/` model, or the
+    # offline-first default when nothing is configured. No API key, no HTTP.
+    if _is_local(model, c["base"]):
+        eff_model = model or (LOCAL_MODEL_PREFIX + "default")
+        # Fold the resolved weights into the cache key: two different GGUFs can
+        # both route as `local-llama/default` (via SIMPLICIO_LOCAL_MODEL_PATH /
+        # _REPO / _FILE), and must NOT share cached completions.
+        repo, fname, path = _local_spec(eff_model)
+        weights = path or f"{repo}/{fname}"
+        key = make_key(
+            "local-llama",
+            eff_model,
+            prompt,
+            feedback=feedback,
+            max_tokens=max_tokens,
+            weights=weights,
+        )
+        cached = cache().get(key)
+        if cached is not None:
+            return cached.completion
+        out = _local_generate(prompt, feedback, eff_model, max_tokens)
+        cache().put(key, CacheEntry(out, provider_id="local-llama", model=eff_model))
+        return out
+
     if not model:
         raise SystemExit(
             "set SIMPLICIO_MODEL (e.g. anthropic/claude-opus-4, claude-cli/sonnet, "
-            "codex-cli/gpt-5, glm-4.6, llama3, claude-opus-4-7)"
+            "codex-cli/gpt-5, local-llama/default, glm-4.6, llama3, claude-opus-4-7)"
         )
     provider_id = _provider_id(model, c["base"])
     key = make_key(
@@ -209,6 +362,14 @@ def generate(prompt, feedback=None, max_tokens=4000, template_version=None):
 
 def info():
     c = _cfg()
+    if _is_local(c["model"], c["base"]):
+        eff_model = c["model"] or (LOCAL_MODEL_PREFIX + "default (auto)")
+        repo, fname, path = _local_spec(c["model"] or "")
+        target = path or f"{repo}/{fname}"
+        return (
+            f"model={eff_model} provider=local-llama "
+            f"(in-process, llama-cpp-python) target={target} key=not-needed"
+        )
     model = c["model"] or "(unset)"
     if model.startswith("claude-cli/"):
         return f"model={model} provider=claude-cli (shell-out, uses Claude Code OAuth) key=not-needed"
