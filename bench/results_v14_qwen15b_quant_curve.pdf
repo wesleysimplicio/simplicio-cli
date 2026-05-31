@@ -12,7 +12,7 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
 endobj
 5 0 obj
-<< /Length 419 >>
+<< /Length 685 >>
 stream
 BT
 /F1 12 Tf
@@ -25,13 +25,23 @@ BT
 0 -18 Td
 (missing: none) Tj
 0 -18 Td
-(failed: Q8_0, Q6_K, Q4_K_M) Tj
+(failed: Q8_0, Q6_K_L, Q6_K, Q5_K_L, Q5_K_M, Q4_K_M, Q4_K_S, Q4_0) Tj
 0 -18 Td
 (Q8_0: pass=False parse_ok=0/4) Tj
 0 -18 Td
+(Q6_K_L: pass=False parse_ok=0/4) Tj
+0 -18 Td
 (Q6_K: pass=False parse_ok=0/4) Tj
 0 -18 Td
+(Q5_K_L: pass=False parse_ok=0/4) Tj
+0 -18 Td
+(Q5_K_M: pass=False parse_ok=0/4) Tj
+0 -18 Td
 (Q4_K_M: pass=False parse_ok=0/4) Tj
+0 -18 Td
+(Q4_K_S: pass=False parse_ok=0/4) Tj
+0 -18 Td
+(Q4_0: pass=False parse_ok=0/4) Tj
 ET
 endstream
 endobj
@@ -46,5 +56,5 @@ xref
 trailer
 << /Size 6 /Root 1 0 R >>
 startxref
-781
+1047
 %%EOF
