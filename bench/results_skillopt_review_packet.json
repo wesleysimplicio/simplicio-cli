@@ -1,0 +1,27 @@
+{
+  "benchmark": "skillopt-review-packet",
+  "date": "2026-05-31",
+  "environment": {
+    "platform": "Windows-11-10.0.22631-SP0",
+    "python": "3.14.3"
+  },
+  "review_policy": {
+    "min_approval_rate": 0.8,
+    "min_reviews": 10,
+    "required_fields": [
+      "skill",
+      "reviewer",
+      "approved"
+    ]
+  },
+  "reviews": [],
+  "scope": "pending human-review packet for SkillOpt-generated skills; this artifact intentionally does not count as approval evidence until a human fills reviewer and approved fields",
+  "skills_root": "C:\\Users\\wesley.simplicio\\Pictures\\m\\tmp\\simplicio-dev-cli-issues\\.skills",
+  "summary": {
+    "gate_command": "python bench/run_scratch_live_gate.py --skillopt-review-json bench/results_skillopt_review_packet.json",
+    "human_review_complete": false,
+    "pending_reviews": 0,
+    "release_ready": false,
+    "review_gated_skills": 0
+  }
+}

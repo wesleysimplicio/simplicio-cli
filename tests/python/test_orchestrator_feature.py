@@ -86,6 +86,36 @@ def test_run_feature_replans_after_failed_task(tmp_path):
     assert result["replans"] == 1
 
 
+def test_run_feature_replan_skips_previously_passed_tasks(tmp_path):
+    plans = iter(
+        [
+            _plan(_task("T01-a", "src/a.py"), _task("T02-b", "src/b.py")),
+            _plan(_task("T01-a", "src/a.py"), _task("T02-b", "src/b.py")),
+        ]
+    )
+    calls = []
+
+    def fake_planner(stack, goal, project_name):
+        return next(plans)
+
+    def fake_runner(task, project_dir, stack):
+        calls.append(task.id)
+        return task.id == "T01-a" or calls.count("T02-b") == 2, "ok"
+
+    result = run_feature(
+        root=str(tmp_path),
+        stack_slug="py-fastapi",
+        goal="implement login flow",
+        max_iter=1,
+        planner=fake_planner,
+        task_runner=fake_runner,
+    )
+
+    assert result["applied"] is True
+    assert calls == ["T01-a", "T02-b", "T02-b"]
+    assert result["replans"] == 1
+
+
 def test_run_feature_returns_failure_after_replan_limit(tmp_path):
     def fake_planner(stack, goal, project_name):
         return _plan(_task("T01-a", "src/a.py"))

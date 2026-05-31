@@ -21,10 +21,12 @@ def test_unified_run_bench_fixture_covers_required_modes() -> None:
         "codex_goal",
     }
     assert result["summary"]["fixture_only"] is True
+    assert result["summary"]["evidence_level"] == "fixture"
     assert result["summary"]["schema_fixture_complete"] is True
     assert result["summary"]["real_llm_runs_present"] is False
     assert result["summary"]["external_codex_goal_run_present"] is False
     assert result["summary"]["release_ready"] is False
+    assert result["summary"]["release_blockers"]
 
 
 def test_unified_run_bench_records_expected_tradeoffs() -> None:

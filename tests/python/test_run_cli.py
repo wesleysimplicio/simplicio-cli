@@ -176,6 +176,34 @@ def test_run_scope_sprint_requires_max_cost(monkeypatch, capsys):
     assert "requires --max-cost" in capsys.readouterr().err
 
 
+def test_run_scope_sprint_rejects_negative_max_cost(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    sprint_dir = tmp_path / ".specs" / "sprints" / "sprint-01"
+    sprint_dir.mkdir(parents=True)
+    (sprint_dir / "01-login.task.md").write_text(
+        "# Login\n\n## Goal\nImplement login flow\n",
+        encoding="utf-8",
+    )
+
+    code = cli.main(
+        [
+            "run",
+            "finish sprint 1",
+            "--scope",
+            "sprint",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "py-fastapi",
+            "--max-cost",
+            "-1",
+        ]
+    )
+
+    assert code == 2
+    assert "max cost must be non-negative" in capsys.readouterr().err
+
+
 def test_run_scope_sprint_writes_status_state(tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
     sprint_dir = tmp_path / ".specs" / "sprints" / "sprint-01"
@@ -240,6 +268,43 @@ def test_status_reports_missing_state(tmp_path, monkeypatch, capsys):
 
     assert code == 0
     assert json.loads(capsys.readouterr().out)["state"] == "none"
+
+
+def test_status_text_reports_state_and_cost(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+
+    def write_state(root, **overrides):
+        payload = {
+            "scope": "sprint",
+            "state": "in-progress",
+            "sprint": "Sprint 01",
+            "total_features": 2,
+            "completed_features": 1,
+            "failed_features": [],
+            "failed_dod_gates": [],
+            "complete": False,
+            "cost": {"spent_usd": "0.25", "budget_usd": "1"},
+        }
+        payload.update(overrides)
+        _write(root / ".simplicio" / "sprint_state.json", json.dumps(payload))
+
+    complete_root = tmp_path / "complete"
+    write_state(complete_root, state="complete", completed_features=2, complete=True)
+    assert cli.main(["status", "--root", str(complete_root)]) == 0
+    assert capsys.readouterr().out == "complete: Sprint 01 2/2 features cost=0.25/1\n"
+
+    failed_root = tmp_path / "failed"
+    write_state(failed_root, state="complete", failed_features=["Login"])
+    assert cli.main(["status", "--root", str(failed_root)]) == 0
+    assert capsys.readouterr().out == "failed: Sprint 01 1/2 features cost=0.25/1\n"
+
+    active_root = tmp_path / "active"
+    write_state(active_root)
+    assert cli.main(["status", "--root", str(active_root)]) == 0
+    assert (
+        capsys.readouterr().out
+        == "in-progress: Sprint 01 1/2 features cost=0.25/1\n"
+    )
 
 
 def test_run_scope_sprint_rejects_empty_sprint(tmp_path, monkeypatch, capsys):

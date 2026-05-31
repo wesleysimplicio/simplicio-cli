@@ -241,8 +241,15 @@ def _summarize(
         }
 
     expected_rows = len(cases) * len(MODES)
+    release_blockers = [
+        "real cli+ag runs on the controlled task, feature, and sprint cases",
+        "real unified feature/sprint runs with cost governor telemetry",
+        "real Codex /goal baseline runs with comparable success and cost data",
+        "artifact collection for sprint DoD evidence",
+    ]
     return {
         "fixture_only": True,
+        "evidence_level": "fixture",
         "case_count": len(cases),
         "mode_count": len(MODES),
         "row_count": len(rows),
@@ -253,14 +260,10 @@ def _summarize(
             row["external_agent_invoked"] for row in rows
         ),
         "release_ready": False,
+        "release_blockers": release_blockers,
         "head_to_head_ready_for_live_run": len(rows) == expected_rows,
         "by_mode": by_mode,
-        "missing_live_evidence": [
-            "real cli+ag runs on the controlled task, feature, and sprint cases",
-            "real unified feature/sprint runs with cost governor telemetry",
-            "real Codex /goal baseline runs with comparable success and cost data",
-            "artifact collection for sprint DoD evidence",
-        ],
+        "missing_live_evidence": release_blockers,
     }
 
 
@@ -283,6 +286,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- issue: {result['issue']}",
         f"- phase: {result['phase']}",
         f"- fixture only: {summary['fixture_only']}",
+        f"- evidence level: {summary['evidence_level']}",
         f"- cases: {summary['case_count']}",
         f"- modes: {summary['mode_count']}",
         f"- rows: {summary['row_count']}/{summary['expected_row_count']}",

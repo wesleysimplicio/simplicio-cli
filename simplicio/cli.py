@@ -241,7 +241,7 @@ def _run_sprint_command(a: argparse.Namespace) -> int:
         return 2
     from .dod import load_dod, load_sprint_dod, run_dod_gates
     from .orchestrator import run_feature
-    from .orchestrator.cost_governor import provider_budget
+    from .orchestrator.cost_governor import CostGovernor, provider_budget
     from .sprint_loader import load_sprint
 
     sprint_name = a.sprint or _infer_sprint_name(a.goal)
@@ -252,6 +252,12 @@ def _run_sprint_command(a: argparse.Namespace) -> int:
     try:
         sprint = load_sprint(a.root, sprint_name)
     except FileNotFoundError as exc:
+        print(f"simplicio run: {exc}", file=sys.stderr)
+        return 2
+
+    try:
+        CostGovernor.from_value(a.max_cost)
+    except ValueError as exc:
         print(f"simplicio run: {exc}", file=sys.stderr)
         return 2
 
@@ -460,9 +466,17 @@ def _run_status_command(a: argparse.Namespace) -> int:
     state = payload.get("state") or ("complete" if payload.get("complete") else "in-progress")
     if payload.get("failed_features") or payload.get("failed_dod_gates"):
         state = "failed"
+    cost_suffix = ""
+    cost = payload.get("cost")
+    if isinstance(cost, dict):
+        spent = cost.get("spent_usd")
+        budget = cost.get("budget_usd")
+        if spent is not None and budget is not None:
+            cost_suffix = f" cost={spent}/{budget}"
     print(
         f"{state}: {payload.get('sprint', 'sprint')} "
         f"{completed}/{total} features"
+        f"{cost_suffix}"
     )
     for failed in payload.get("failed_features", []):
         print(f"failed: {failed}", file=sys.stderr)

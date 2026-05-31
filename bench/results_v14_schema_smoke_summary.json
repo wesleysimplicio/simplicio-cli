@@ -1,0 +1,46 @@
+{
+  "benchmark": "schema-smoke-summary",
+  "date": "2026-05-31",
+  "environment": {
+    "platform": "Windows-11-10.0.22631-SP0",
+    "python": "3.14.3"
+  },
+  "issue": 46,
+  "rows": [
+    {
+      "calls": 4,
+      "format": "legacy-escalation",
+      "go_no_go_pass": true,
+      "model": "deepseek/deepseek-v4-flash",
+      "parse_failed": 1,
+      "parse_ok": 3,
+      "parse_ok_rate": 0.75,
+      "quant": "unknown",
+      "source": "bench/results_sp_schema_smoke_deepseek.json"
+    },
+    {
+      "calls": 4,
+      "format": "legacy-flat",
+      "go_no_go_pass": true,
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "parse_failed": 0,
+      "parse_ok": 4,
+      "parse_ok_rate": 1.0,
+      "quant": "unknown",
+      "source": "bench/results_sp_schema_smoke_qwen3b.json"
+    }
+  ],
+  "scope": "incremental schema-smoke artifact summary; this does not replace the required Qwen2.5-Coder-1.5B GGUF quant curve",
+  "summary": {
+    "go_no_go_failures": 0,
+    "go_no_go_passes": 2,
+    "input_files": 2,
+    "missing_release_evidence": [
+      "Q8_0/Q6_K/Q4_K_M schema-v1 smoke JSONs for the named GGUF model",
+      "bench/results_v14_qwen15b_quant_curve.{md,json,pdf}"
+    ],
+    "qwen15b_quant_curve_complete": false,
+    "qwen15b_smokes": 0,
+    "release_ready": false
+  }
+}

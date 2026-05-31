@@ -355,6 +355,7 @@
       }
     },
     "case_count": 3,
+    "evidence_level": "fixture",
     "expected_row_count": 12,
     "external_codex_goal_run_present": false,
     "fixture_only": true,
@@ -367,6 +368,12 @@
     ],
     "mode_count": 4,
     "real_llm_runs_present": false,
+    "release_blockers": [
+      "real cli+ag runs on the controlled task, feature, and sprint cases",
+      "real unified feature/sprint runs with cost governor telemetry",
+      "real Codex /goal baseline runs with comparable success and cost data",
+      "artifact collection for sprint DoD evidence"
+    ],
     "release_ready": false,
     "row_count": 12,
     "schema_fixture_complete": true

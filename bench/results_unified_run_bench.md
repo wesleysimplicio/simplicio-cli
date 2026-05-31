@@ -7,6 +7,7 @@ planned fixture comparison for cli+ag, unified feature/sprint, and Codex /goal; 
 - issue: #41
 - phase: F5
 - fixture only: True
+- evidence level: fixture
 - cases: 3
 - modes: 4
 - rows: 12/12

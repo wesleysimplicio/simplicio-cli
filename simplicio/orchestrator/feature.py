@@ -65,6 +65,7 @@ def run_feature(
     feature_goal = goal
     replans = 0
     task_results: list[dict] = []
+    completed_task_ids: set[str] = set()
     last_plan = None
 
     with provider_budget(max_cost) as governor:
@@ -89,6 +90,8 @@ def run_feature(
                 failed = None
 
                 for task in planned_tasks:
+                    if task.id in completed_task_ids:
+                        continue
                     passed, log = task_runner(task, Path(root), stack)
                     governor.refresh_from_env()
                     row = {
@@ -103,6 +106,7 @@ def run_feature(
                     if not passed:
                         failed = row
                         break
+                    completed_task_ids.add(task.id)
 
                 if failed is None:
                     return {
