@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+from pathlib import Path
 
 from bench.run_unified_run_bench import (
     main,
@@ -10,6 +12,21 @@ from bench.run_unified_run_bench import (
     write_partial_results,
     write_reports,
 )
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def _artifact_sha256(path: str) -> str:
+    return hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+
+
+def _verified_artifact(path: str = "bench/run_unified_run_bench.py") -> dict[str, str]:
+    return {
+        "path": path,
+        "sha256": _artifact_sha256(path),
+        "kind": "dod-evidence",
+    }
 
 
 def test_unified_run_bench_fixture_covers_required_modes() -> None:
@@ -126,7 +143,9 @@ def test_unified_run_bench_marks_complete_live_matrix_release_ready() -> None:
                     "llm_invoked": mode != "cli_ag",
                     "external_agent_invoked": mode == "codex_goal",
                     "transcript_sha256": "a" * 64 if mode == "codex_goal" else "",
-                    "artifacts": ["dod.json"] if case["scope"] == "sprint" else [],
+                    "artifacts": (
+                        [_verified_artifact()] if case["scope"] == "sprint" else []
+                    ),
                 }
             )
 
@@ -138,6 +157,49 @@ def test_unified_run_bench_marks_complete_live_matrix_release_ready() -> None:
     assert result["summary"]["external_codex_goal_run_present"] is True
     assert result["summary"]["release_ready"] is True
     assert result["summary"]["release_blockers"] == []
+    assert any(
+        isinstance(artifact, dict)
+        and artifact["path"] == "bench/run_unified_run_bench.py"
+        and artifact["verified"] is True
+        for row in result["rows"]
+        if row["scope"] == "sprint"
+        for artifact in row["artifacts"]
+    )
+
+
+def test_unified_run_bench_keeps_string_artifacts_as_non_verified_labels() -> None:
+    live_results = []
+    for case in run_benchmark()["cases"]:
+        for mode in ("cli_ag", "unified_feature", "unified_sprint", "codex_goal"):
+            live_results.append(
+                {
+                    "case_id": case["case_id"],
+                    "mode_id": mode,
+                    "command": f"run {case['case_id']} {mode}",
+                    "exit_code": 0,
+                    "success": True,
+                    "duration_s": 1.0,
+                    "llm_invoked": mode != "cli_ag",
+                    "external_agent_invoked": mode == "codex_goal",
+                    "transcript_sha256": "a" * 64 if mode == "codex_goal" else "",
+                    "artifacts": ["dod.json"] if case["scope"] == "sprint" else [],
+                }
+            )
+
+    result = run_benchmark(live_results=live_results)
+    sprint_row = next(
+        row
+        for row in result["rows"]
+        if row["fixture"] is False and row["scope"] == "sprint" and row["artifacts"]
+    )
+
+    assert sprint_row["artifacts"] == ["dod.json"]
+    assert result["summary"]["live_row_count"] == result["summary"]["expected_row_count"]
+    assert result["summary"]["evidence_level"] == "partial-live"
+    assert result["summary"]["release_ready"] is False
+    assert "artifact collection for sprint DoD evidence" in result["summary"][
+        "release_blockers"
+    ]
 
 
 def test_unified_run_bench_requires_valid_codex_transcript_hash() -> None:
@@ -155,7 +217,9 @@ def test_unified_run_bench_requires_valid_codex_transcript_hash() -> None:
                     "llm_invoked": mode != "cli_ag",
                     "external_agent_invoked": mode == "codex_goal",
                     "transcript_sha256": "not-a-sha" if mode == "codex_goal" else "",
-                    "artifacts": ["dod.json"] if case["scope"] == "sprint" else [],
+                    "artifacts": (
+                        [_verified_artifact()] if case["scope"] == "sprint" else []
+                    ),
                 }
             )
 
@@ -245,6 +309,53 @@ def test_unified_run_bench_rejects_invalid_live_timing_and_cost() -> None:
     assert result["summary"]["live_result_errors"] == [
         "live row 1 duration_s must be finite and >= 0",
         "live row 2 cost_usd must be finite and >= 0",
+    ]
+
+
+def test_unified_run_bench_rejects_unverified_artifact_objects(tmp_path) -> None:
+    outside_artifact = tmp_path / "dod.json"
+    outside_artifact.write_text("{}", encoding="utf-8")
+    outside_sha = hashlib.sha256(outside_artifact.read_bytes()).hexdigest()
+
+    result = run_benchmark(
+        live_results=[
+            {
+                "case_id": "single-file-task",
+                "mode_id": "cli_ag",
+                "command": "simplicio task fix src/app.py",
+                "exit_code": 0,
+                "success": True,
+                "duration_s": 1.2,
+                "artifacts": [
+                    {
+                        "path": str(outside_artifact),
+                        "sha256": outside_sha,
+                        "kind": "dod-evidence",
+                    }
+                ],
+            },
+            {
+                "case_id": "feature-auth-flow",
+                "mode_id": "unified_feature",
+                "command": "simplicio run --scope feature",
+                "exit_code": 0,
+                "success": True,
+                "duration_s": 1.0,
+                "artifacts": [
+                    {
+                        "path": "bench/run_unified_run_bench.py",
+                        "sha256": "b" * 64,
+                        "kind": "dod-evidence",
+                    }
+                ],
+            },
+        ]
+    )
+
+    assert result["summary"]["live_row_count"] == 0
+    assert result["summary"]["live_result_errors"] == [
+        "live row 1 artifact 1 path must reference a file under repo root",
+        "live row 2 artifact 1 sha256 does not match file contents",
     ]
 
 

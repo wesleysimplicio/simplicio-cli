@@ -135,6 +135,7 @@ def _smoke_row(item: dict[str, Any]) -> dict[str, Any]:
         "parse_failed": parse_failed,
         "parse_ok_rate": _rate(parse_ok, calls),
         "go_no_go_pass": passed,
+        "error": "" if passed else "go/no-go failed",
     }
 
 
@@ -151,10 +152,18 @@ def _missing_release_evidence(missing: list[str], failed: list[str]) -> list[str
     return blockers
 
 
-def write_reports(report: dict[str, Any], json_path: Path, md_path: Path, pdf_path: Path) -> None:
+def write_diagnostics(report: dict[str, Any], json_path: Path) -> None:
     json_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def write_reports(
+    report: dict[str, Any], json_path: Path, md_path: Path, pdf_path: Path
+) -> None:
+    write_diagnostics(report, json_path)
+    md_path.parent.mkdir(parents=True, exist_ok=True)
     md_path.write_text(_to_markdown(report), encoding="utf-8")
+    pdf_path.parent.mkdir(parents=True, exist_ok=True)
     _write_minimal_pdf(pdf_path, _pdf_lines(report))
 
 
@@ -302,9 +311,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Check readiness without writing final quant-curve artifacts.",
     )
     parser.add_argument(
+        "--diagnostics-json",
+        type=Path,
+        help=(
+            "Write diagnostic report JSON to this path even when the required "
+            "smokes are incomplete. This does not write final markdown/PDF artifacts."
+        ),
+    )
+    parser.add_argument(
         "--write-incomplete",
         action="store_true",
-        help="Write diagnostic outputs even when required smokes are missing or failing.",
+        help=(
+            "Explicitly write final artifact outputs even when required smokes "
+            "are missing or failing. Prefer --diagnostics-json for incomplete diagnostics."
+        ),
     )
     parser.add_argument("--quiet", action="store_true")
     return parser.parse_args(argv)
@@ -316,6 +336,10 @@ def main(argv: list[str] | None = None) -> int:
     release_ready = report["summary"]["release_ready"] is True
     if not args.quiet:
         print(json.dumps(report["summary"], indent=2, sort_keys=True))
+    if args.diagnostics_json:
+        write_diagnostics(report, args.diagnostics_json)
+        if not args.quiet:
+            print(f"wrote diagnostics {args.diagnostics_json}")
     if args.check:
         return 0 if release_ready else 1
     if release_ready or args.write_incomplete:

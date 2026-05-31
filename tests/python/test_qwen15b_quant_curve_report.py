@@ -144,6 +144,44 @@ def test_quant_curve_report_does_not_write_incomplete_outputs_by_default(
     assert not pdf_path.exists()
 
 
+def test_quant_curve_report_writes_incomplete_diagnostics_without_final_artifacts(
+    tmp_path: Path,
+) -> None:
+    manifest = _write_manifest(tmp_path)
+    diagnostics_path = tmp_path / "curve-diagnostics.json"
+    json_path = tmp_path / "curve.json"
+    md_path = tmp_path / "curve.md"
+    pdf_path = tmp_path / "curve.pdf"
+
+    rc = main(
+        [
+            "--manifest",
+            str(manifest),
+            "--diagnostics-json",
+            str(diagnostics_path),
+            "--json-output",
+            str(json_path),
+            "--md-output",
+            str(md_path),
+            "--pdf-output",
+            str(pdf_path),
+            "--quiet",
+        ]
+    )
+
+    assert rc == 1
+    diagnostics = json.loads(diagnostics_path.read_text(encoding="utf-8"))
+    assert diagnostics["summary"]["release_ready"] is False
+    assert diagnostics["summary"]["missing_quant_smokes"] == [
+        "Q8_0",
+        "Q6_K",
+        "Q4_K_M",
+    ]
+    assert not json_path.exists()
+    assert not md_path.exists()
+    assert not pdf_path.exists()
+
+
 def test_quant_curve_report_check_does_not_write_outputs(tmp_path: Path) -> None:
     manifest = _write_manifest(tmp_path)
     for quant in ("Q8_0", "Q6_K", "Q4_K_M"):
@@ -166,3 +204,52 @@ def test_quant_curve_report_check_does_not_write_outputs(tmp_path: Path) -> None
 
     assert rc == 0
     assert not json_path.exists()
+
+
+def test_quant_curve_report_blocks_failed_smoke_json(tmp_path: Path) -> None:
+    manifest = _write_manifest(tmp_path)
+    for quant in ("Q8_0", "Q6_K", "Q4_K_M"):
+        _write_smoke(
+            tmp_path / f"results_v14_qwen15b_{quant.lower()}_smoke_schema_v1.json",
+            quant,
+            passed=quant != "Q6_K",
+        )
+
+    report = build_report(manifest)
+
+    assert report["summary"]["release_ready"] is False
+    assert report["summary"]["missing_quant_smokes"] == []
+    assert report["summary"]["failed_required_quant_smokes"] == ["Q6_K"]
+    failed_row = next(row for row in report["rows"] if row["quant"] == "Q6_K")
+    assert failed_row["present"] is True
+    assert failed_row["go_no_go_pass"] is False
+    assert failed_row["error"] == "go/no-go failed"
+
+
+def test_quant_curve_report_blocks_quant_mismatch(tmp_path: Path) -> None:
+    manifest = _write_manifest(tmp_path)
+    _write_smoke(
+        tmp_path / "results_v14_qwen15b_q8_0_smoke_schema_v1.json",
+        "Q8_0",
+    )
+    _write_smoke(
+        tmp_path / "results_v14_qwen15b_q6_k_smoke_schema_v1.json",
+        "Q4_K_M",
+    )
+    _write_smoke(
+        tmp_path / "results_v14_qwen15b_q4_k_m_smoke_schema_v1.json",
+        "Q4_K_M",
+    )
+
+    report = build_report(manifest)
+
+    assert report["summary"]["release_ready"] is False
+    assert report["summary"]["missing_quant_smokes"] == []
+    assert report["summary"]["failed_required_quant_smokes"] == ["Q6_K"]
+    mismatch_row = next(row for row in report["rows"] if row["quant"] == "Q6_K")
+    assert mismatch_row["present"] is True
+    assert mismatch_row["go_no_go_pass"] is False
+    assert (
+        mismatch_row["error"]
+        == "smoke quant 'Q4_K_M' does not match manifest quant 'Q6_K'"
+    )

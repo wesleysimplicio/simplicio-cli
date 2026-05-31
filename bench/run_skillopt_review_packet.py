@@ -155,7 +155,7 @@ def _review_row(path: Path, skills_root: Path) -> dict[str, Any] | None:
         "path": _relative_path(path, ROOT),
         "skill_md": _relative_path(path, ROOT),
         "skills_root_path": _relative_path(path, skills_root),
-        "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
         "review_required": True,
         "source_goal": frontmatter.get("source_goal", ""),
         "planner_model": frontmatter.get("planner_model", ""),

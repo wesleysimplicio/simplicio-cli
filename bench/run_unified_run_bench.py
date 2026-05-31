@@ -10,6 +10,7 @@ future live run can replace the rows without changing the report schema.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import platform
@@ -276,6 +277,10 @@ def _merge_live_results(
         if cost_usd is None and live.get("cost_usd") is not None:
             errors.append(f"live row {index} cost_usd must be finite and >= 0")
             continue
+        artifacts, artifact_errors = _artifact_list(live.get("artifacts"), index)
+        if artifact_errors:
+            errors.extend(artifact_errors)
+            continue
         row.update(
             {
                 "fixture": False,
@@ -289,7 +294,7 @@ def _merge_live_results(
                 "duration_s": duration_s,
                 "success": success,
                 "cost_usd": cost_usd,
-                "artifacts": _string_list(live.get("artifacts")),
+                "artifacts": artifacts,
                 "transcript_sha256": str(live.get("transcript_sha256") or ""),
                 "notes": _string_list(live.get("notes")),
             }
@@ -317,6 +322,83 @@ def _string_list(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
     return [str(item) for item in value if str(item).strip()]
+
+
+def _artifact_list(value: Any, row_index: int) -> tuple[list[Any], list[str]]:
+    if not isinstance(value, list):
+        return [], []
+    artifacts: list[Any] = []
+    errors: list[str] = []
+    for artifact_index, artifact in enumerate(value, start=1):
+        if isinstance(artifact, str):
+            label = artifact.strip()
+            if label:
+                artifacts.append(label)
+            continue
+        if not isinstance(artifact, dict):
+            errors.append(
+                _artifact_error(
+                    row_index,
+                    artifact_index,
+                    "must be a string label or object",
+                )
+            )
+            continue
+        normalized, error = _verified_artifact(artifact)
+        if error:
+            errors.append(_artifact_error(row_index, artifact_index, error))
+        else:
+            artifacts.append(normalized)
+    return artifacts, errors
+
+
+def _artifact_error(row_index: int, artifact_index: int, message: str) -> str:
+    return f"live row {row_index} artifact {artifact_index} {message}"
+
+
+def _verified_artifact(artifact: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
+    path_value = artifact.get("path")
+    sha_value = artifact.get("sha256")
+    kind_value = artifact.get("kind")
+    if (
+        not isinstance(path_value, str)
+        or not path_value.strip()
+        or not isinstance(sha_value, str)
+        or not sha_value.strip()
+        or not isinstance(kind_value, str)
+        or not kind_value.strip()
+    ):
+        return {}, "must include non-empty string path, sha256, and kind"
+    expected_sha = sha_value.strip().lower()
+    if not _is_sha256(expected_sha):
+        return {}, "sha256 must be 64 hex characters"
+    artifact_path = _resolve_artifact_path(path_value.strip())
+    if artifact_path is None:
+        return {}, "path must reference a file under repo root"
+    actual_sha = hashlib.sha256(artifact_path.read_bytes()).hexdigest()
+    if actual_sha != expected_sha:
+        return {}, "sha256 does not match file contents"
+    return {
+        "path": artifact_path.relative_to(ROOT.resolve()).as_posix(),
+        "sha256": expected_sha,
+        "kind": kind_value.strip(),
+        "verified": True,
+    }, None
+
+
+def _resolve_artifact_path(path_value: str) -> Path | None:
+    root = ROOT.resolve()
+    candidate = Path(path_value)
+    if not candidate.is_absolute():
+        candidate = root / candidate
+    try:
+        resolved = candidate.resolve(strict=True)
+        resolved.relative_to(root)
+    except (OSError, ValueError):
+        return None
+    if not resolved.is_file():
+        return None
+    return resolved
 
 
 def _summarize(
@@ -375,7 +457,11 @@ def _summarize(
             release_blockers.append("all live comparison rows must succeed")
         if not codex_live:
             release_blockers.append("Codex /goal live row needs transcript hash")
-        if not any(row.get("artifacts") for row in live_rows if row["scope"] == "sprint"):
+        if not any(
+            _has_verified_artifact(row)
+            for row in live_rows
+            if row["scope"] == "sprint"
+        ):
             release_blockers.append("artifact collection for sprint DoD evidence")
     evidence_level = "live" if complete_live_matrix and not release_blockers else (
         "partial-live" if live_rows else "fixture"
@@ -401,6 +487,16 @@ def _summarize(
 
 def _is_sha256(value: Any) -> bool:
     return isinstance(value, str) and bool(_SHA256_RE.fullmatch(value.strip()))
+
+
+def _has_verified_artifact(row: dict[str, Any]) -> bool:
+    artifacts = row.get("artifacts")
+    if not isinstance(artifacts, list):
+        return False
+    return any(
+        isinstance(artifact, dict) and artifact.get("verified") is True
+        for artifact in artifacts
+    )
 
 
 def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> None:

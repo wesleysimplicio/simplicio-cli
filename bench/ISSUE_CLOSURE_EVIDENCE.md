@@ -61,6 +61,9 @@ Repo-local evidence:
 - `bench/run_skillopt_review_packet.py` now collects only SkillOpt-generated
   review-gated skills with `auto_generated.by: skill-opt`, `source_goal`, and
   `planner_model`; manually flagged `review_required` files are excluded.
+- The review packet now hashes the raw `SKILL.md` file bytes, matching the live
+  gate's hash verification. The packet is mechanically usable once real review
+  metadata is supplied, but the current rows still remain pending.
 - `bench/run_scratch_live_gate.py` now requires `reviewed_at`, `path`, and
   `sha256` on every counted review row, verifies the artifact hash, and rejects
   duplicate SKILL.md artifacts so one file cannot count as multiple reviews.
@@ -107,10 +110,11 @@ Repo-local evidence:
   separate `results_scratch_live_gate_codegen_disabled_baseline.*` outputs.
 - `bench/results_scratch_live_gate_codegen_disabled_baseline.{json,md}` now
   preserves the codegen-disabled baseline on the default path. It currently has
-  2 rows: one green `go-gin` run and one `py-fastapi` run that timed out after
-  900 seconds with codegen disabled. It remains partial evidence only: 2 rows
-  are not the release corpus and do not prove B/codegen pass-rate or latency
-  against the full baseline.
+  4 rows: one green `go-gin` run, one `py-fastapi` run that timed out after
+  900 seconds with codegen disabled, and two later `go-gin` rows that failed
+  because `go` was not on `PATH` during post-verify. It remains partial
+  evidence only: 4 rows are not the release corpus and do not prove B/codegen
+  pass-rate or latency against the full baseline.
 - `bench/run_issue_closure_audit.py` and
   `bench/results_issue_closure_audit.{json,md}` now provide a machine-readable
   close-readiness audit for #32/#33/#41/#46. The current audit reports `0/4`
@@ -216,9 +220,13 @@ Repo-local evidence:
   rows, non-finite or negative duration/cost values, and `success` values that
   disagree with `exit_code == 0`; Codex `/goal` release evidence also requires
   a valid 64-hex SHA-256 transcript hash.
+- Sprint artifact evidence for the F5 live bench now requires at least one
+  verified artifact object with `path`, `sha256`, and `kind`; string-only
+  artifact labels remain accepted as diagnostic labels but cannot satisfy the
+  release-ready sprint evidence gate.
 - `simplicio run --scope feature --json` and nested sprint feature execution
   now suppress pipeline progress logs so stdout remains parseable JSON.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `477
+- Validation in this worktree: `python -m pytest tests/python -q` -> `482
   passed, 3 skipped`.
 
 Suggested comment:
@@ -261,6 +269,9 @@ Repo-local evidence:
   and the default command refuses to write
   `results_v14_qwen15b_quant_curve.{json,md,pdf}` until all required smoke JSONs
   are present and passing.
+- The quant-curve report runner also supports `--diagnostics-json` for
+  incomplete diagnostic JSON without writing final `.md` or `.pdf` artifacts,
+  and it reports failed smoke and quant-mismatch rows as blockers.
 - `bench/RESULTS_LOCAL_GGUF.md` contains older local Q5_K_M vs Q8_0 evidence
   from `bench/run_exec.py`, but it is not the requested v14 schema-v1 quant
   curve.

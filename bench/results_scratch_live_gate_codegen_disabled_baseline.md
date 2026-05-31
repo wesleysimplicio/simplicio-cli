@@ -5,8 +5,8 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 ## Matrix
 
 - release planned runs: 75
-- selected matrix runs: 2
-- selected runs: 2
+- selected matrix runs: 4
+- selected runs: 4
 - plan only: False
 - skip install: False
 - post verify: True
@@ -14,11 +14,11 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## Summary
 
-- planner valid: 1/2 (50.00%)
-- scaffold clean: 1 (100.00%)
-- task all passed: 1 (50.00%)
-- e2e green: 1 (100.00%)
-- median wall-clock: 204.707 s
+- planner valid: 3/4 (75.00%)
+- scaffold clean: 3 (100.00%)
+- task all passed: 1 (25.00%)
+- e2e green: 1 (33.33%)
+- median wall-clock: 262.135 s
 - average cost: None
 - lines generated: 0
 - lines modified: 0
@@ -29,7 +29,7 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 - full_75_run_matrix: False
 - planner_valid_ge_90: False
 - scaffold_clean_ge_95: True
-- e2e_green_ge_80: True
+- e2e_green_ge_80: False
 - median_wall_clock_le_8m: True
 - average_cost_le_1: None
 - skillopt_human_approval_ge_80: False
@@ -48,6 +48,8 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 | ---: | --- | ---: | ---: | --- | --- | --- | --- | ---: |
 | 1 | py-fastapi | 1 | None | False | None | False | None | 900.047 |
 | 2 | go-gin | 1 | 0 | True | True | True | True | 204.707 |
+| 3 | go-gin | 2 | 1 | True | True | False | False | 262.135 |
+| 4 | go-gin | 3 | 1 | True | True | False | False | 393.191 |
 
 ## Missing Release Evidence
 

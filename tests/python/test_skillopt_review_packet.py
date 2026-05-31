@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -74,6 +75,9 @@ def test_skillopt_review_packet_collects_only_review_gated_skills(tmp_path):
     assert packet["reviews"][0]["approved"] is None
     assert packet["reviews"][0]["reviewer"] == ""
     assert len(packet["reviews"][0]["sha256"]) == 64
+    assert packet["reviews"][0]["sha256"] == hashlib.sha256(
+        (skills_root / "generated-one" / "SKILL.md").read_bytes()
+    ).hexdigest()
 
 
 def test_skillopt_review_packet_pending_rows_do_not_pass_live_gate(tmp_path):
@@ -287,3 +291,5 @@ def test_versioned_skillopt_review_packet_has_pending_candidates() -> None:
         assert row["approved"] is None
         assert row["reviewed_at"] == ""
         assert row["path"].startswith("bench/skillopt_pending_skills/")
+        with open(row["path"], "rb") as artifact:
+            assert row["sha256"] == hashlib.sha256(artifact.read()).hexdigest()
