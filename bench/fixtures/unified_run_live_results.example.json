@@ -5,27 +5,27 @@
   "release_ready": false,
   "rows": [
     {
-      "case_id": "sprint-checkout-hardening",
-      "mode_id": "unified_sprint",
-      "command": "simplicio run --scope sprint --max-cost 5 bench/fixtures/unified-run-example",
-      "exit_code": 0,
-      "success": true,
-      "duration_s": 1.0,
-      "cost_usd": 0.0,
-      "llm_invoked": true,
-      "external_agent_invoked": false,
       "artifacts": [
         {
+          "kind": "dod-evidence",
           "path": "bench/run_unified_run_bench.py",
-          "sha256": "f865cb351a22b38b7a994bc43545984b1bc0446444548818a20434b8d53ee827",
-          "kind": "dod-evidence"
+          "sha256": "68c85d58620ea9b1652008abe7dddfbc54fd2527131274e67553422a04557e20"
         }
       ],
-      "transcript_sha256": "",
+      "case_id": "sprint-checkout-hardening",
+      "command": "simplicio run --scope sprint --max-cost 5 bench/fixtures/unified-run-example",
+      "cost_usd": 0.0,
+      "duration_s": 1.0,
+      "exit_code": 0,
+      "external_agent_invoked": false,
+      "llm_invoked": true,
+      "mode_id": "unified_sprint",
       "notes": [
         "Example live row only; the full 12-row live matrix is intentionally incomplete.",
         "Demonstrates the verified artifact object input shape without serving as release evidence."
-      ]
+      ],
+      "success": true,
+      "transcript_sha256": ""
     }
   ]
 }

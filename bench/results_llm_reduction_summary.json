@@ -56,7 +56,7 @@
       "total_cases": 50
     },
     "B_codegen": {
-      "avg_codegen_ms": 49,
+      "avg_codegen_ms": 51,
       "codegen_share": 1.0,
       "executor_pass_rate_ge_llm": true,
       "gate_passed": true,
