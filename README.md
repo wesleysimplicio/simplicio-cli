@@ -18,6 +18,23 @@ pip install simplicio-cli
 ```
 
 ---
+## Recommended Default Stack (Official)
+
+The recommended and supported way to use `simplicio-dev-cli` is as part of the full Simplicio execution stack:
+
+**simplicio-dev-cli + simplicio-prompt + agents/skills**
+
+- `simplicio-dev-cli`: 6-layer contract, verification loop, and core task execution.
+- `simplicio-prompt`: Subagent runtime, fan-out, behavior consensus aggregator, and advanced orchestration.
+- **Agents & Skills**: Reusable capabilities from `.skills/`, `.agents/`, and the Simplicio starter (AGENTS.md, specs-as-code, etc.).
+
+This combination is the **official default** across the Simplicio ecosystem. All benchmarks, examples, and documentation assume this full stack.
+
+See the canonical policy:
+- [docs/LLM_USAGE_POLICY.md](docs/LLM_USAGE_POLICY.md)
+
+When bootstrapping a new project with the Simplicio starter, this stack is configured by default.
+
 
 ## Why it works — the numbers
 
