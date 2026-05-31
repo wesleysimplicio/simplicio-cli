@@ -2,8 +2,8 @@
   "benchmark": "issue-closure-audit",
   "date": "2026-05-31",
   "environment": {
-    "platform": "Windows-11-10.0.22631-SP0",
-    "python": "3.14.3"
+    "platform": "macOS-26.3-arm64-arm-64bit-Mach-O",
+    "python": "3.14.5"
   },
   "inputs": {
     "llm_reduction": {
