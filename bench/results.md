@@ -1,9 +1,9 @@
 # Benchmark — simplicio-cli (offline harness)
 
-Date: **2026-05-29**  
-Models: `Qwen/Qwen3-Coder-30B-A3B-Instruct`, `Qwen/Qwen3-Coder-Next`  
+Date: **2026-05-30**  
+Models: `meta-llama/llama-3.2-3b-instruct`, `google/gemma-3-4b-it`, `qwen/qwen-2.5-coder-32b-instruct`  
 Cases: **10** across stacks: `angular`, `dotnet`, `react`  
-Base: `https://router.huggingface.co/v1`
+Base: `https://openrouter.ai/api/v1`
 
 Each check is a deterministic regex against the model output 
 (target-file mention, DIFF block, TEST block, contract-state words). 
@@ -13,9 +13,9 @@ same goal in simplicio's 6-layer contract.
 
 ## Headline
 
-- **Without simplicio:** 42/104 (40%)
-- **With simplicio:** 99/104 (95%)
-- **Delta:** **+55 points** (+136% relative)
+- **Without simplicio:** 57/156 (36%)
+- **With simplicio:** 107/156 (68%)
+- **Delta:** **+32 points** (+88% relative)
 
 ![pass rate by model](charts/overall.svg)
 
@@ -25,8 +25,9 @@ same goal in simplicio's 6-layer contract.
 
 | Model | Cases | Without | With | Delta (pts) | Relative gain |
 |---|---|---|---|---|---|
-| `Qwen/Qwen3-Coder-30B-A3B-Instruct` | 10 | 19/52 (36%) | 47/52 (90%) | **+54** | +147% |
-| `Qwen/Qwen3-Coder-Next` | 10 | 23/52 (44%) | 52/52 (100%) | **+56** | +126% |
+| `meta-llama/llama-3.2-3b-instruct` | 10 | 17/52 (32%) | 36/52 (69%) | **+37** | +112% |
+| `google/gemma-3-4b-it` | 10 | 22/52 (42%) | 48/52 (92%) | **+50** | +118% |
+| `qwen/qwen-2.5-coder-32b-instruct` | 10 | 18/52 (34%) | 23/52 (44%) | **+10** | +28% |
 
 ## Per-case (averaged across models)
 
@@ -34,16 +35,16 @@ same goal in simplicio's 6-layer contract.
 
 | # | Stack | Task | Without | With | Δ |
 |---|---|---|---|---|---|
-| 1 | `angular` | Hide the Delete button when the current user is not an admin | 40% | 100% | **+60** |
-| 2 | `angular` | Disable the email field unless the profile role is editor. | 40% | 90% | **+50** |
-| 3 | `angular` | Only show the audit log link for users with role 'auditor'. | 20% | 90% | **+70** |
-| 4 | `angular` | Show 'Approve' button only when the order status is 'pending | 42% | 92% | **+50** |
-| 5 | `react` | Render the export menu item only for users in the 'analytics | 40% | 100% | **+60** |
-| 6 | `react` | Disable the 'Save Draft' button while the form is invalid OR | 50% | 92% | **+42** |
-| 7 | `react` | Show a 'No results' empty state when the search returns zero | 50% | 90% | **+40** |
-| 8 | `dotnet` | Require the 'CanApprove' policy on the Approve endpoint of t | 50% | 100% | **+50** |
-| 9 | `dotnet` | Restrict the GET /reports endpoint so only users in the Mana | 30% | 100% | **+70** |
-| 10 | `angular` | Show a warning banner if the user has unsaved changes and tr | 40% | 100% | **+60** |
+| 1 | `angular` | Hide the Delete button when the current user is not an admin | 40% | 73% | **+33** |
+| 2 | `angular` | Disable the email field unless the profile role is editor. | 33% | 60% | **+27** |
+| 3 | `angular` | Only show the audit log link for users with role 'auditor'. | 20% | 80% | **+60** |
+| 4 | `angular` | Show 'Approve' button only when the order status is 'pending | 33% | 67% | **+33** |
+| 5 | `react` | Render the export menu item only for users in the 'analytics | 40% | 73% | **+33** |
+| 6 | `react` | Disable the 'Save Draft' button while the form is invalid OR | 56% | 72% | **+17** |
+| 7 | `react` | Show a 'No results' empty state when the search returns zero | 33% | 80% | **+47** |
+| 8 | `dotnet` | Require the 'CanApprove' policy on the Approve endpoint of t | 40% | 73% | **+33** |
+| 9 | `dotnet` | Restrict the GET /reports endpoint so only users in the Mana | 27% | 53% | **+27** |
+| 10 | `angular` | Show a warning banner if the user has unsaved changes and tr | 40% | 53% | **+13** |
 
 ## Per-stack
 
@@ -51,9 +52,9 @@ same goal in simplicio's 6-layer contract.
 
 | Stack | Without | With | Δ |
 |---|---|---|---|
-| `angular` | 37% | 94% | **+58** |
-| `dotnet` | 40% | 100% | **+60** |
-| `react` | 47% | 94% | **+47** |
+| `angular` | 33% | 67% | **+33** |
+| `dotnet` | 33% | 63% | **+30** |
+| `react` | 44% | 75% | **+31** |
 
 ## Output-quality signals (rate across all runs)
 
@@ -62,11 +63,11 @@ Each row = % of runs (cases × models) where the signal is present.
 
 | Signal | Without simplicio | With simplicio |
 |---|---|---|
-| DIFF block present | 25% (5/20) | 100% (20/20) |
-| TEST block present | 95% (19/20) | 100% (20/20) |
-| target file mentioned | 0% (0/20) | 75% (15/20) |
-| avg criteria-keywords hit / run | 8.9 | 10.3 |
-| avg output length (chars) | 3286 | 2562 |
+| DIFF block present | 0% (0/30) | 90% (27/30) |
+| TEST block present | 80% (24/30) | 53% (16/30) |
+| target file mentioned | 0% (0/30) | 100% (30/30) |
+| avg criteria-keywords hit / run | 9.1 | 5.7 |
+| avg output length (chars) | 3861 | 2782 |
 
 ## Cost — tokens & wall-clock (measured, per run)
 
@@ -76,24 +77,26 @@ tokens (the 6-layer wrap) and fewer output tokens (model stops guessing earlier)
 
 | Model | Side | Avg prompt tok | Avg completion tok | Avg total tok | Avg latency |
 |---|---|---|---|---|---|
-| `Qwen/Qwen3-Coder-30B-A3B-Instruct` | without | 25 | 613 | 638 | 4838 ms |
-| `Qwen/Qwen3-Coder-30B-A3B-Instruct` | with    | 209 | 565 | 774 | 4432 ms |
-| `Qwen/Qwen3-Coder-Next` | without | 25 | 947 | 972 | 6475 ms |
-| `Qwen/Qwen3-Coder-Next` | with    | 209 | 661 | 871 | 4043 ms |
+| `meta-llama/llama-3.2-3b-instruct` | without | 52 | 509 | 561 | 2005 ms |
+| `meta-llama/llama-3.2-3b-instruct` | with    | 247 | 1229 | 1477 | 4630 ms |
+| `google/gemma-3-4b-it` | without | 25 | 1716 | 1742 | 22980 ms |
+| `google/gemma-3-4b-it` | with    | 225 | 1206 | 1432 | 19669 ms |
+| `qwen/qwen-2.5-coder-32b-instruct` | without | 39 | 632 | 672 | 17483 ms |
+| `qwen/qwen-2.5-coder-32b-instruct` | with    | 245 | 68 | 314 | 2522 ms |
 
-**Aggregate over the full bench** (20 runs per side):
+**Aggregate over the full bench** (30 runs per side):
 
-- without simplicio: 16,111 tokens total · 113.1s wall-clock · 805 tok/run · 5656 ms/run
-- with simplicio:    16,457 tokens total · 84.8s wall-clock · 822 tok/run · 4237 ms/run
-- token delta:       +346 (+2%)
-- time delta:        -28.4s (-26%)
+- without simplicio: 29,758 tokens total · 424.7s wall-clock · 991 tok/run · 14156 ms/run
+- with simplicio:    32,239 tokens total · 268.2s wall-clock · 1074 tok/run · 8940 ms/run
+- token delta:       +2,481 (+8%)
+- time delta:        -156.5s (-37%)
 
 ## How to reproduce
 
 ```bash
-BENCH_BASE_URL="https://router.huggingface.co/v1" \
+BENCH_BASE_URL="https://openrouter.ai/api/v1" \
   BENCH_API_KEY=… \
-  BENCH_MODELS="Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next" \
+  BENCH_MODELS="meta-llama/llama-3.2-3b-instruct,google/gemma-3-4b-it,qwen/qwen-2.5-coder-32b-instruct" \
   python3 bench/run_offline.py
 ```
 

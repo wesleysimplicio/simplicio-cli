@@ -19,6 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 REGEX_JSON = ROOT / "bench" / "results.json"
 EXEC_JSON = ROOT / "bench" / "results_exec_sindico.json"
+FANOUT_JSON = ROOT / "bench" / "results_fanout.json"
 OUT_MD = ROOT / "bench" / "results_4side_qwen3.md"
 OUT_PDF = ROOT / "bench" / "results_4side_qwen3.pdf"
 
@@ -87,11 +88,40 @@ def fmt_delta(a: int, b: int) -> str:
     return f"**{d:+d}**"
 
 
+def _fanout_by_model(rows: list) -> dict:
+    """Aggregate fan-out rows by model: per-attempt fn/rx, modal counts."""
+    by_model: dict = {}
+    for r in rows:
+        b = by_model.setdefault(r["model"], {
+            "n_cases": 0, "fn_pass": 0, "fn_attempts": 0,
+            "rx_pass": 0, "rx_attempts": 0,
+            "fn_modal_pass": 0, "rx_modal_pass": 0,
+            "tokens": 0, "elapsed_s": 0.0, "uniq_total": 0,
+        })
+        b["n_cases"] += 1
+        b["fn_pass"] += r["fn_per_attempt_pass"]
+        b["fn_attempts"] += r["completed"]
+        b["rx_pass"] += r["rx_full_pass"]
+        b["rx_attempts"] += r["completed"]
+        if r["fn_majority_pass"]: b["fn_modal_pass"] += 1
+        if r["rx_majority_full_pass"]: b["rx_modal_pass"] += 1
+        b["tokens"] += r["tokens"]
+        b["elapsed_s"] += r["elapsed_s"]
+        b["uniq_total"] += r["unique_outputs"]
+    return by_model
+
+
 def main() -> int:
     if not EXEC_JSON.exists():
         raise SystemExit(f"missing {EXEC_JSON}")
     exec_data = json.loads(EXEC_JSON.read_text())
     regex_data = json.loads(REGEX_JSON.read_text()) if REGEX_JSON.exists() else {}
+    fanout_data: dict = {}
+    fanout_rows: list = []
+    if FANOUT_JSON.exists():
+        fanout_payload = json.loads(FANOUT_JSON.read_text())
+        fanout_rows = fanout_payload.get("rows", [])
+        fanout_data = _fanout_by_model(fanout_rows)
 
     # collect models present in either bench, in stable order
     exec_models = list(exec_data.keys())
@@ -206,14 +236,94 @@ def main() -> int:
                "still failed; this is a model-capability ceiling, not a "
                "feedback-loop problem."]
 
+    # ---- FAN-OUT SECTION (if data present) ---- #
+    if fanout_data:
+        md += ["", "## Fan-out N=200 (cli + sp subagent runtime)", "",
+               "Same `cli + sp` configuration as single-call, but the "
+               "simplicio-prompt SubagentRuntime fires **N=200 real parallel "
+               "LLM calls per (model, case)** at temperature=0.7 with "
+               "`use_cache=False`. Each generated PHP file is scored two "
+               "ways: real PHPUnit (functional) and structural regex. "
+               "Modal vote = pass on the most-common normalized output.",
+               "",
+               "| Model | Cases | fn per-attempt | rx per-attempt | "
+               "fn modal | rx modal | gap (rx − fn) | tokens | avg s/case |",
+               "|---|---|---|---|---|---|---|---|---|"]
+        for model, b in fanout_data.items():
+            fn_pct = 100 * b["fn_pass"] // max(b["fn_attempts"], 1)
+            rx_pct = 100 * b["rx_pass"] // max(b["rx_attempts"], 1)
+            gap = rx_pct - fn_pct
+            md.append(
+                f"| `{model}` | {b['n_cases']} | "
+                f"{b['fn_pass']}/{b['fn_attempts']} ({fn_pct}%) | "
+                f"{b['rx_pass']}/{b['rx_attempts']} ({rx_pct}%) | "
+                f"**{b['fn_modal_pass']}/{b['n_cases']}** | "
+                f"{b['rx_modal_pass']}/{b['n_cases']} | "
+                f"**{gap:+d}** | {b['tokens']:,} | "
+                f"{b['elapsed_s']/max(b['n_cases'],1):.1f}s |"
+            )
+
+        md += ["",
+               "### Per-task fan-out detail (fn% / rx% / modal fn / uniq)",
+               "",
+               "Format: `fn-per-attempt% / rx-per-attempt% / modal-fn / uniq-outputs`. "
+               "**Bold uniq counts** ≥10 show high diversity at temp=0.7.",
+               ""]
+        fanout_models = list(fanout_data.keys())
+        # collect task ids in order from first model
+        task_ids = []
+        for r in fanout_rows:
+            if r["model"] == fanout_models[0]:
+                task_ids.append(r["task"])
+        md += ["| Task | " + " | ".join(m.replace("Qwen/Qwen3-Coder-", "Qwen3-C-")
+                                         for m in fanout_models) + " |",
+               "|---|" + "|".join("---" for _ in fanout_models) + "|"]
+        # index by (model, task)
+        idx = {(r["model"], r["task"]): r for r in fanout_rows}
+        for tid in task_ids:
+            cells = []
+            for m in fanout_models:
+                r = idx.get((m, tid))
+                if r is None:
+                    cells.append("—")
+                    continue
+                u = r["unique_outputs"]
+                ub = f"**{u}**" if u >= 10 else str(u)
+                cells.append(f"{r['fn_per_attempt_rate']}% / "
+                             f"{r['rx_full_pass_rate']}% / "
+                             f"{'P' if r['fn_majority_pass'] else '.'} / {ub}")
+            md.append(f"| `{tid}` | " + " | ".join(cells) + " |")
+
+        md += ["",
+               "### Regex-vs-functional disagreement (the core finding)",
+               "",
+               "Cases where regex says PASS while PHPUnit says FAIL — the "
+               "'regex doesn't mean the code runs' criticism in numbers.",
+               "",
+               "| Task | Model | rx | fn | gap |",
+               "|---|---|---|---|---|"]
+        for tid in task_ids:
+            for m in fanout_models:
+                r = idx.get((m, tid))
+                if r is None: continue
+                rx = r["rx_full_pass_rate"]; fn = r["fn_per_attempt_rate"]
+                gap = rx - fn
+                if gap >= 30:
+                    flag = " ⚠️ inflates"
+                    md.append(f"| `{tid}` | `{m.replace('Qwen/', '')}` | "
+                              f"{rx}% | {fn}% | **{gap:+d}**{flag} |")
+
     OUT_MD.write_text("\n".join(md) + "\n")
     print(f"-> {OUT_MD}")
-    _write_pdf(exec_data, regex_data, exec_models, all_models)
+    _write_pdf(exec_data, regex_data, exec_models, all_models,
+               fanout_data=fanout_data, fanout_rows=fanout_rows)
     return 0
 
 
 def _write_pdf(exec_data: dict, regex_data: dict,
-               exec_models: list, all_models: list) -> None:
+               exec_models: list, all_models: list,
+               fanout_data: dict | None = None,
+               fanout_rows: list | None = None) -> None:
     """Use reportlab (pure Python, no native crypto deps) to render a PDF
     mirroring the markdown headline + tables. Falls back silently if
     reportlab is missing."""
@@ -390,6 +500,77 @@ def _write_pdf(exec_data: dict, regex_data: dict,
             ("ALIGN", (1, 1), (-1, -1), "CENTER"),
         ]))
         story.append(t)
+
+    # ---- Fan-out N=200 section ---- #
+    if fanout_data:
+        story.append(PageBreak())
+        story.append(Paragraph(
+            "Fan-out N=200 (cli + sp subagent runtime)", h2))
+        story.append(Paragraph(
+            "The simplicio-prompt SubagentRuntime fires <b>200 parallel LLM "
+            "calls per case</b> at temperature=0.7. Each output is scored by "
+            "real PHPUnit AND structural regex. Modal vote = pass on the "
+            "most-common output. The <b>regex - fn gap</b> column quantifies "
+            "where the cheap regex proxy lies.", body))
+        story.append(Spacer(1, 3*mm))
+        head = [["Model", "Cases", "fn per-att", "rx per-att",
+                 "fn modal", "rx modal", "gap", "avg s/case"]]
+        for model, b in fanout_data.items():
+            fn_pct = 100 * b["fn_pass"] // max(b["fn_attempts"], 1)
+            rx_pct = 100 * b["rx_pass"] // max(b["rx_attempts"], 1)
+            gap = rx_pct - fn_pct
+            head.append([
+                model.replace("Qwen/", ""), str(b["n_cases"]),
+                f"{fn_pct}%", f"{rx_pct}%",
+                f"{b['fn_modal_pass']}/{b['n_cases']}",
+                f"{b['rx_modal_pass']}/{b['n_cases']}",
+                f"{gap:+d}",
+                f"{b['elapsed_s']/max(b['n_cases'],1):.1f}s",
+            ])
+        t = Table(head, colWidths=[50*mm, 12*mm, 22*mm, 22*mm, 18*mm,
+                                   18*mm, 14*mm, 22*mm])
+        t.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e7eaf0")),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 8),
+            ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#888")),
+            ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+        ]))
+        story.append(t)
+        story.append(Spacer(1, 4*mm))
+
+        story.append(Paragraph(
+            "Regex-vs-functional disagreement (gap &gt;= 30 pts)", h2))
+        story.append(Paragraph(
+            "Each row below is a (task, model) where regex says PASS while "
+            "PHPUnit says FAIL. This is the case-by-case evidence that the "
+            "regex proxy is misleading for these particular failure modes.", body))
+        if fanout_rows:
+            idx = {(r["model"], r["task"]): r for r in fanout_rows}
+            rows = [["Task", "Model", "rx", "fn", "gap"]]
+            # task order from first row's model
+            first_model = next(iter(fanout_data.keys()))
+            task_ids = [r["task"] for r in fanout_rows if r["model"] == first_model]
+            for tid in task_ids:
+                for m in fanout_data.keys():
+                    r = idx.get((m, tid))
+                    if r is None: continue
+                    rx = r["rx_full_pass_rate"]; fn = r["fn_per_attempt_rate"]
+                    gap = rx - fn
+                    if gap >= 30:
+                        rows.append([tid, m.replace("Qwen/Qwen3-Coder-", ""),
+                                     f"{rx}%", f"{fn}%", f"{gap:+d}"])
+            if len(rows) > 1:
+                t = Table(rows, colWidths=[60*mm, 50*mm, 18*mm, 18*mm, 18*mm])
+                t.setStyle(TableStyle([
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e7eaf0")),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 8),
+                    ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#888")),
+                    ("ALIGN", (2, 1), (-1, -1), "RIGHT"),
+                    ("TEXTCOLOR", (4, 1), (4, -1), colors.HexColor("#c62828")),
+                ]))
+                story.append(t)
 
     doc.build(story)
     print(f"-> {OUT_PDF}")

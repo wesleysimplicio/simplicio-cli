@@ -255,7 +255,22 @@ def _shell_out_codex(prompt, model):
     return _shell_out(cmd, "Codex CLI (`codex exec`)", stdin_text=prompt)
 
 
-def generate(prompt, feedback=None, max_tokens=4000):
+def generate(prompt, feedback=None, max_tokens=4000, template_version=None):
+    # Cache lookup BEFORE provider config. Key uses just SIMPLICIO_MODEL
+    # (no credential check) so a hit returns without requiring an API key
+    # to be set in the environment.
+    from ._cache import cache, make_key, CacheEntry
+    model_name = os.environ.get("SIMPLICIO_MODEL", "").strip()
+    cache_full_prompt = _inline_feedback(prompt, feedback)
+    cache_key = make_key(
+        provider_id="doer", model=model_name, prompt=cache_full_prompt,
+        max_tokens=max_tokens,
+        template_version=template_version,
+    )
+    cached = cache().get(cache_key)
+    if cached is not None:
+        return cached.completion
+
     c = _cfg()
     model = c["model"]
 

@@ -40,6 +40,7 @@ API_KEY = (
 )
 INCLUDE_SP = os.environ.get("BENCH_INCLUDE_SP", "0").strip() not in ("0", "false", "False")
 INCLUDE_AGENTS = os.environ.get("BENCH_INCLUDE_AGENTS", "0").strip() not in ("0", "false", "False")
+INCLUDE_SP_AG = os.environ.get("BENCH_INCLUDE_SP_AG", "0").strip() not in ("0", "false", "False")
 AGENTS_MAX_ATTEMPTS = int(os.environ.get("BENCH_AGENTS_MAX_ATTEMPTS", "3"))
 
 # Per-model endpoint routing (mirrors bench/run_exec_sindico.py). Lets one
@@ -142,6 +143,7 @@ No prose, no preamble."""
 # that hosted providers do not serve (for example Qwen2.5-Coder-1.5B).
 
 _LOCAL_MODELS: dict = {}
+_GGUF_MODELS: dict = {}
 
 
 def _load_local(model_id: str):
@@ -157,7 +159,71 @@ def _load_local(model_id: str):
     return _LOCAL_MODELS[model_id]
 
 
+def _load_gguf(gguf_path: str):
+    """Load a GGUF model via llama-cpp-python. Path can be absolute or
+    relative to ~/models. CPU-only inference; supports Q4_K_M / Q5_K_M /
+    Q8_0 quants standardly published by bartowski."""
+    if gguf_path in _GGUF_MODELS:
+        return _GGUF_MODELS[gguf_path]
+    from llama_cpp import Llama
+    import os as _os
+    full = gguf_path if _os.path.isabs(gguf_path) else _os.path.expanduser(
+        f"~/models/{gguf_path}"
+    )
+    if not _os.path.isfile(full):
+        raise FileNotFoundError(f"GGUF model not found: {full}")
+    llm = Llama(
+        model_path=full,
+        n_ctx=int(_os.environ.get("BENCH_GGUF_CTX", "4096")),
+        n_threads=int(_os.environ.get("BENCH_GGUF_THREADS", "4")),
+        verbose=False,
+        seed=int(_os.environ.get("BENCH_GGUF_SEED", "-1")),
+    )
+    _GGUF_MODELS[gguf_path] = llm
+    return llm
+
+
+def gguf_call(gguf_path: str, prompt: str) -> dict:
+    """Run prompt through a llama.cpp GGUF model. Returns the same shape
+    as local_call/llm_call so the rest of the bench harness can call it
+    transparently when model_id starts with 'gguf:'."""
+    max_new = int(os.environ.get("BENCH_LOCAL_MAX_TOKENS", "1024"))
+    t0 = time.perf_counter()
+    try:
+        llm = _load_gguf(gguf_path)
+        msgs = [{"role": "user", "content": prompt}]
+        out = llm.create_chat_completion(
+            messages=msgs,
+            max_tokens=max_new,
+            temperature=float(os.environ.get("BENCH_LOCAL_TEMP", "0.7")),
+            top_p=0.9,
+        )
+        text = out["choices"][0]["message"]["content"]
+        usage = out.get("usage") or {}
+        return {
+            "text": text,
+            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+            "completion_tokens": int(usage.get("completion_tokens", 0)),
+            "total_tokens": int(usage.get("total_tokens", 0)),
+            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+            "error": None,
+        }
+    except Exception as e:
+        return {
+            "text": "", "prompt_tokens": 0, "completion_tokens": 0,
+            "total_tokens": 0,
+            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+            "error": str(e),
+        }
+
+
 def local_call(model_id: str, prompt: str) -> dict:
+    # Route to GGUF backend when the model_id contains a path to a .gguf file.
+    if model_id.startswith("gguf:") or model_id.endswith(".gguf"):
+        return gguf_call(
+            model_id[5:] if model_id.startswith("gguf:") else model_id,
+            prompt,
+        )
     import torch
     max_new = int(os.environ.get("BENCH_LOCAL_MAX_TOKENS", "1024"))
     t0 = time.perf_counter()
@@ -580,19 +646,21 @@ def run() -> int:
     print(f"cases:  {len(cases)}")
     print(f"sides:  baseline / cli"
           + (" / cli+sp" if INCLUDE_SP else "")
-          + (f" / cli+ag (max {AGENTS_MAX_ATTEMPTS} attempts)" if INCLUDE_AGENTS else ""))
+          + (f" / cli+ag (max {AGENTS_MAX_ATTEMPTS} attempts)" if INCLUDE_AGENTS else "")
+          + (f" / cli+sp+ag (max {AGENTS_MAX_ATTEMPTS} attempts)" if INCLUDE_SP_AG else ""))
     by_model = {}
     for model in MODELS:
         _route_for(model)
         print(f"\n=== model: {model} (base: {BASE_URL}) ===")
         rows = []
-        sem_hits = com_hits = sp_hits = ag_hits = total = 0
+        sem_hits = com_hits = sp_hits = ag_hits = spag_hits = total = 0
         qsum_sem = {"len": 0, "has_diff_block": 0, "has_test_block": 0, "target_mentioned": 0, "criteria_keywords_hit": 0}
         qsum_com = dict(qsum_sem)
         usage_sem = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "elapsed_ms": 0}
         usage_com = dict(usage_sem)
         usage_sp = dict(usage_sem)
         usage_ag = dict(usage_sem)
+        usage_spag = dict(usage_sem)
         for i, c in enumerate(cases, 1):
             sem_res = llm_call(model, c["goal"])
             com_prompt = SIX_LAYER_TEMPLATE.format(
@@ -630,16 +698,38 @@ def run() -> int:
             }
             sp_msg = ""
             if INCLUDE_SP:
+                # MANDATE 2026-05-30 (cycle 1+): gradual escalation
+                # 64 → 100 → 200 with regex-all-match as the oracle,
+                # structured output schema for better modal-vote on behavior.
+                from sp_fanout_helper import sp_fanout_escalating
                 sp_prompt = SP_PROMPT_REGEX.format(
                     sp_runtime=SP_RUNTIME, cli_contract=com_prompt)
-                sp_res = llm_call(model, sp_prompt)
-                sp_flags = score(sp_res["text"], c["checks"])
+                checks = c["checks"]
+                def regex_oracle(text: str) -> bool:
+                    flags = score(text, checks)
+                    return sum(flags) == len(checks)
+                sp_res_full = sp_fanout_escalating(model, sp_prompt, regex_oracle)
+                sp_text = sp_res_full.get("text", "")
+                sp_flags = score(sp_text, checks)
                 p_h = sum(sp_flags); sp_hits += p_h
                 row["sp_hits"] = p_h; row["sp_flags"] = sp_flags
-                row["sp_usage"] = {k: sp_res[k] for k in usage_sp}
-                for k in usage_sp:
-                    usage_sp[k] += sp_res[k]
-                sp_msg = f"  sp {p_h}/{t}"
+                row["sp_subagents"] = sp_res_full.get("subagents", 0)
+                row["sp_uniq"] = sp_res_full.get("uniq", 0)
+                row["sp_modal_count"] = sp_res_full.get("modal_count", 0)
+                row["sp_cycles_run"] = sp_res_full.get("cycles_run", 0)
+                row["sp_escalated"] = sp_res_full.get("escalated", False)
+                row["sp_tier_history"] = sp_res_full.get("tier_history", [])
+                row["sp_structured_parse_ok"] = sp_res_full.get("structured_parse_ok", 0)
+                row["sp_usage"] = {
+                    "prompt_tokens": 0, "completion_tokens": 0,
+                    "total_tokens": sp_res_full.get("tokens", 0),
+                    "elapsed_ms": sp_res_full.get("ms", 0),
+                }
+                usage_sp["total_tokens"] += sp_res_full.get("tokens", 0)
+                usage_sp["elapsed_ms"] += sp_res_full.get("ms", 0)
+                tiers = "→".join(str(h["n"]) for h in sp_res_full.get("tier_history", []))
+                sp_msg = (f"  sp {p_h}/{t}[tiers={tiers},"
+                          f"u={sp_res_full.get('uniq',0)}]")
             ag_msg = ""
             if INCLUDE_AGENTS:
                 ag_res = _agents_iterate_regex(model, c, com_prompt)
@@ -650,10 +740,41 @@ def run() -> int:
                 for k in usage_ag:
                     usage_ag[k] += ag_res[k]
                 ag_msg = f"  ag {a_h}/{t}({ag_res['attempts']})"
+            spag_msg = ""
+            if INCLUDE_SP_AG:
+                # 5th side: N=200 sp-fanout modal first. If modal misses any
+                # regex pattern, retry via verify-loop. Composition + retry on
+                # top of fan-out.
+                from sp_fanout_helper import sp_fanout_complete
+                sp_prompt = SP_PROMPT_REGEX.format(
+                    sp_runtime=SP_RUNTIME, cli_contract=com_prompt)
+                modal_full = sp_fanout_complete(model, sp_prompt)
+                modal_flags = score(modal_full.get("text", ""), c["checks"])
+                if sum(modal_flags) == len(c["checks"]):
+                    spag_res = {
+                        "text": modal_full["text"], "flags": modal_flags,
+                        "hits": sum(modal_flags), "attempts": 1,
+                        "total_tokens": modal_full.get("tokens", 0),
+                        "elapsed_ms": modal_full.get("ms", 0),
+                        "prompt_tokens": 0, "completion_tokens": 0,
+                    }
+                else:
+                    spag_res = _agents_iterate_regex(model, c, sp_prompt)
+                    spag_res["total_tokens"] = spag_res.get("total_tokens", 0) + modal_full.get("tokens", 0)
+                    spag_res["elapsed_ms"] = spag_res.get("elapsed_ms", 0) + modal_full.get("ms", 0)
+                sa_h = spag_res["hits"]; spag_hits += sa_h
+                row["spag_hits"] = sa_h
+                row["spag_flags"] = spag_res["flags"]
+                row["spag_attempts"] = spag_res["attempts"]
+                row["spag_modal_uniq"] = modal_full.get("uniq", 0)
+                row["spag_usage"] = {k: spag_res[k] for k in usage_spag}
+                for k in usage_spag:
+                    usage_spag[k] += spag_res[k]
+                spag_msg = f"  sp+ag {sa_h}/{t}({spag_res['attempts']})"
             rows.append(row)
             print(
                 f"  [{i:02d}/{len(cases)}] {c['stack']:7s} "
-                f"sem {s_h}/{t} com {c_h}/{t}{sp_msg}{ag_msg}  "
+                f"sem {s_h}/{t} com {c_h}/{t}{sp_msg}{ag_msg}{spag_msg}  "
                 f"Δcli{c_h-s_h:+d}"
             )
 
@@ -679,9 +800,14 @@ def run() -> int:
             entry["ag_hits"] = ag_hits
             entry["ag_pct"] = 100 * ag_hits // max(total, 1)
             entry["usage_ag"] = usage_ag
+        if INCLUDE_SP_AG:
+            entry["spag_hits"] = spag_hits
+            entry["spag_pct"] = 100 * spag_hits // max(total, 1)
+            entry["usage_spag"] = usage_spag
         by_model[model] = entry
         tail = f" | sp {sp_hits}/{total} ({100*sp_hits//max(total,1)}%)" if INCLUDE_SP else ""
         tail += f" | ag {ag_hits}/{total} ({100*ag_hits//max(total,1)}%)" if INCLUDE_AGENTS else ""
+        tail += f" | sp+ag {spag_hits}/{total} ({100*spag_hits//max(total,1)}%)" if INCLUDE_SP_AG else ""
         print(f"  -> baseline {sem_hits}/{total} ({entry['sem_pct']}%) "
               f"| cli {com_hits}/{total} ({entry['com_pct']}%){tail}\n")
 
