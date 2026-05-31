@@ -142,11 +142,17 @@ Repo-local evidence:
 - `simplicio/sprint_loader.py` and `simplicio/dod.py` provide the first sprint
   task loader and DoD command-gate primitives, while `simplicio status` reads
   the sprint state file written during sprint runs.
+- Sprint execution now rejects empty sprints and invalid stacks, resumes from
+  previously green feature rows, preserves full task specs when `## Goal` is
+  absent, reads sprint-local checklist gates, and blocks unchecked manual DoD
+  items.
+- Feature execution now orders planned tasks by `depends_on` and reports blocked
+  dependency cycles before running tasks.
 - `bench/run_unified_run_bench.py` plus
   `bench/results_unified_run_bench.{json,md}` provide a fixture-backed F5
   comparison schema for cli+ag, unified feature/sprint, and Codex `/goal`.
   This is explicitly marked fixture-only and not release-ready.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `413
+- Validation in this worktree: `python -m pytest tests/python -q` -> `422
   passed, 3 skipped`.
 
 Suggested comment:
@@ -155,10 +161,11 @@ Suggested comment:
 The first `simplicio run` slice is now implemented locally: argparse wire-up,
 regex-only intent classification, task/scratch dispatch, a feature-scope
 planner/runner with bounded replan, `--max-cost` propagation into provider
-calls, sprint loading/state, and DoD gate primitives. A fixture-backed F5 bench
-schema is also present, but it is intentionally not release evidence: live
-cli+ag, unified feature/sprint, and Codex `/goal` runs still need to be
-captured before #41 can close.
+calls, sprint loading/state/status, sprint resume for already-green features,
+stricter DoD gates, and dependency ordering. A fixture-backed F5 bench schema is
+also present, but it is intentionally not release evidence: live cli+ag,
+unified feature/sprint, and Codex `/goal` runs still need to be captured before
+#41 can close.
 ```
 
 ## Issue #46 Evidence
