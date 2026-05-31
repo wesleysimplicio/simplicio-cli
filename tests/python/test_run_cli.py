@@ -347,6 +347,18 @@ def test_status_reports_missing_state(tmp_path, monkeypatch, capsys):
     assert json.loads(capsys.readouterr().out)["state"] == "none"
 
 
+def test_status_json_reports_invalid_state_file(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    _write(tmp_path / ".simplicio" / "sprint_state.json", "{invalid json")
+
+    code = cli.main(["status", "--root", str(tmp_path), "--json"])
+
+    captured = capsys.readouterr()
+    assert code == 2
+    assert captured.out == ""
+    assert "simplicio status: invalid state file:" in captured.err
+
+
 def test_status_text_reports_state_and_cost(tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
 

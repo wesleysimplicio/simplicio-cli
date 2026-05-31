@@ -240,6 +240,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
     parser.add_argument("--quiet", action="store_true")
+    parser.add_argument(
+        "--fail-missing-required-quants",
+        action="store_true",
+        help="Return exit code 1 if Q8_0/Q6_K/Q4_K_M Qwen 1.5B smokes are missing.",
+    )
     return parser.parse_args(argv)
 
 
@@ -252,6 +257,11 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(summary["summary"], indent=2, sort_keys=True))
         print(f"wrote {args.json_output}")
         print(f"wrote {args.md_output}")
+    if (
+        args.fail_missing_required_quants
+        and summary["summary"]["missing_quant_smokes"]
+    ):
+        return 1
     return 0
 
 

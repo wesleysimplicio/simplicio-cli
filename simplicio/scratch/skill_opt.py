@@ -173,6 +173,21 @@ def install_skill(slug: str, markdown: str, skills_root: Optional[Path] = None) 
     return skill_md
 
 
+def install_skill_from_description(
+    description: str,
+    skills_root: Optional[Path] = None,
+    planner_model: Optional[str] = None,
+) -> Path:
+    """Generate and install one review-gated skill from a plain description."""
+
+    slug, markdown = generate_skill_doc(
+        description,
+        skills_root=skills_root,
+        planner_model=planner_model,
+    )
+    return install_skill(slug, markdown, skills_root=skills_root)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="simplicio skill new")
     parser.add_argument(

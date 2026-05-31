@@ -50,6 +50,9 @@ Repo-local evidence:
   `bench/results_skillopt_review_packet.{json,md}` now provide the pending
   review packet shape accepted by the live gate. It currently records zero
   review-gated generated skills, so it is not approval evidence.
+- The same packet runner can now generate review-gated candidate skills from
+  `--description` / `--descriptions-file`, then keep them pending with empty
+  reviewer/approval fields.
 - `bench/run_scratch_live_gate.py` now requires `reviewed_at` on review rows
   and verifies packet-style `path`/`sha256` artifacts before counting a
   SkillOpt approval row.
@@ -167,11 +170,13 @@ Repo-local evidence:
 - Non-decimal/non-finite `--max-cost` values are rejected as usage errors;
   feature plans with duplicate task IDs fail before executing; and sprint
   resume avoids ambiguous old state when task titles are duplicated.
+- `simplicio status --json` now has regression coverage for invalid state files
+  returning code `2` with a clear stderr diagnostic and no stdout.
 - `bench/run_unified_run_bench.py` plus
   `bench/results_unified_run_bench.{json,md}` provide a fixture-backed F5
   comparison schema for cli+ag, unified feature/sprint, and Codex `/goal`.
   This is explicitly marked fixture-only and not release-ready.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `441
+- Validation in this worktree: `python -m pytest tests/python -q` -> `447
   passed, 3 skipped`.
 
 Suggested comment:
@@ -203,6 +208,9 @@ Repo-local evidence:
   The current summary has two legacy smoke inputs and zero Qwen 1.5B GGUF
   schema-v1 smokes; it explicitly reports missing required quants
   `Q8_0`, `Q6_K`, and `Q4_K_M`.
+- `bench/run_schema_smoke_summary.py --fail-missing-required-quants` can now
+  turn those missing quant smokes into an explicit non-zero gate while keeping
+  the default summary command non-failing.
 - `bench/RESULTS_LOCAL_GGUF.md` contains older local Q5_K_M vs Q8_0 evidence
   from `bench/run_exec.py`, but it is not the requested v14 schema-v1 quant
   curve.

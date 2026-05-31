@@ -76,6 +76,43 @@ def build_review_packet(
     }
 
 
+def generate_review_candidates(
+    goals: list[str],
+    *,
+    skills_root: Path,
+    planner: str | None = None,
+) -> list[Path]:
+    from simplicio.scratch import skill_opt
+
+    generated = []
+    for goal in goals:
+        description = goal.strip()
+        if not description:
+            continue
+        generated.append(skill_opt.install_skill_from_description(
+            description,
+            skills_root=skills_root,
+            planner_model=planner,
+        ))
+    return generated
+
+
+def load_candidate_goals(path: Path) -> list[str]:
+    text = path.read_text(encoding="utf-8")
+    if path.suffix.lower() == ".json":
+        data = json.loads(text)
+        if isinstance(data, dict):
+            data = data.get("goals", [])
+        if not isinstance(data, list):
+            raise ValueError("candidate goals JSON must be a list or {'goals': [...]}")
+        return [str(item).strip() for item in data if str(item).strip()]
+    return [
+        line.strip()
+        for line in text.splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+
+
 def _review_gated_skills(skills_root: Path) -> list[Path]:
     if not skills_root.is_dir():
         return []
@@ -172,6 +209,22 @@ def _to_markdown(packet: dict[str, Any]) -> str:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--skills-root", type=Path, default=ROOT / ".skills")
+    parser.add_argument(
+        "--candidate-goal",
+        "--description",
+        dest="candidate_goal",
+        action="append",
+        default=[],
+        help="Generate one review-gated SkillOpt candidate before building the packet.",
+    )
+    parser.add_argument(
+        "--candidate-goals-file",
+        "--descriptions-file",
+        dest="candidate_goals_file",
+        type=Path,
+        help="Text or JSON file of candidate skill descriptions to generate.",
+    )
+    parser.add_argument("--planner", help="Planner model override for candidate generation.")
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
     parser.add_argument("--min-reviews", type=int, default=10)
@@ -182,6 +235,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    goals = list(args.candidate_goal)
+    if args.candidate_goals_file:
+        goals.extend(load_candidate_goals(args.candidate_goals_file))
+    if goals:
+        try:
+            generate_review_candidates(
+                goals,
+                skills_root=args.skills_root,
+                planner=args.planner,
+            )
+        except Exception as exc:
+            print(f"skillopt review packet: failed to generate candidate: {exc}", file=sys.stderr)
+            return 2
     packet = build_review_packet(
         skills_root=args.skills_root,
         min_reviews=args.min_reviews,

@@ -175,3 +175,99 @@ def test_schema_smoke_summary_main_accepts_inputs(tmp_path):
     assert json.loads(json_path.read_text(encoding="utf-8"))["summary"][
         "go_no_go_passes"
     ] == 1
+
+
+def test_schema_smoke_summary_main_defaults_to_success_with_missing_quants(tmp_path):
+    smoke = tmp_path / "smoke.json"
+    smoke.write_text(
+        json.dumps(
+            {
+                "model": "qwen",
+                "N": 4,
+                "parse_ok_count": 4,
+                "parse_failed_count": 0,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    rc = main(
+        [
+            "--inputs",
+            str(smoke),
+            "--json-output",
+            str(tmp_path / "out.json"),
+            "--md-output",
+            str(tmp_path / "out.md"),
+            "--quiet",
+        ]
+    )
+
+    assert rc == 0
+
+
+def test_schema_smoke_summary_main_can_fail_on_missing_required_quants(tmp_path):
+    smoke = tmp_path / "results_v14_qwen15b_q8_0_smoke_schema_v1.json"
+    smoke.write_text(
+        json.dumps(
+            {
+                "benchmark": "schema-v1-smoke",
+                "model": "Qwen2.5-Coder-1.5B-Instruct",
+                "quant": "Q8_0",
+                "calls": 4,
+                "go_no_go": {"pass": True},
+                "summary": {"parse_ok": 4, "parse_failed": 0},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    rc = main(
+        [
+            "--inputs",
+            str(smoke),
+            "--json-output",
+            str(tmp_path / "out.json"),
+            "--md-output",
+            str(tmp_path / "out.md"),
+            "--quiet",
+            "--fail-missing-required-quants",
+        ]
+    )
+
+    assert rc == 1
+
+
+def test_schema_smoke_summary_main_passes_when_required_quants_present(tmp_path):
+    inputs = []
+    for quant in ("Q8_0", "Q6_K", "Q4_K_M"):
+        smoke = tmp_path / f"results_v14_qwen15b_{quant.lower()}_smoke_schema_v1.json"
+        smoke.write_text(
+            json.dumps(
+                {
+                    "benchmark": "schema-v1-smoke",
+                    "model": "Qwen2.5-Coder-1.5B-Instruct",
+                    "quant": quant,
+                    "calls": 4,
+                    "go_no_go": {"pass": True},
+                    "summary": {"parse_ok": 4, "parse_failed": 0},
+                }
+            ),
+            encoding="utf-8",
+        )
+        inputs.append(smoke)
+
+    rc = main(
+        [
+            "--inputs",
+            *[str(path) for path in inputs],
+            "--json-output",
+            str(tmp_path / "out.json"),
+            "--md-output",
+            str(tmp_path / "out.md"),
+            "--quiet",
+            "--fail-missing-required-quants",
+        ]
+    )
+
+    assert rc == 0

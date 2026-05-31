@@ -3,7 +3,12 @@ from __future__ import annotations
 import json
 
 from bench.run_scratch_live_gate import load_skillopt_review_evidence
-from bench.run_skillopt_review_packet import build_review_packet, main, write_reports
+from bench.run_skillopt_review_packet import (
+    build_review_packet,
+    load_candidate_goals,
+    main,
+    write_reports,
+)
 
 
 def _write_skill(root, slug, *, review_required=True):
@@ -91,3 +96,81 @@ def test_skillopt_review_packet_main_writes_reports(tmp_path):
     assert rc == 0
     assert payload["summary"]["pending_reviews"] == 1
     assert "generated-one" in md_path.read_text(encoding="utf-8")
+
+
+def test_skillopt_review_packet_loads_candidate_goals_from_text_and_json(tmp_path):
+    text_path = tmp_path / "goals.txt"
+    text_path.write_text(
+        "# comments are ignored\nGenerate pytest fixtures\n\nGenerate SQL migrations\n",
+        encoding="utf-8",
+    )
+    json_path = tmp_path / "goals.json"
+    json_path.write_text(json.dumps({"goals": ["Generate Playwright flows"]}), encoding="utf-8")
+
+    assert load_candidate_goals(text_path) == [
+        "Generate pytest fixtures",
+        "Generate SQL migrations",
+    ]
+    assert load_candidate_goals(json_path) == ["Generate Playwright flows"]
+
+
+def test_skillopt_review_packet_main_can_generate_pending_candidate(
+    tmp_path,
+    monkeypatch,
+):
+    from simplicio.scratch import skill_opt
+
+    skills_root = tmp_path / ".skills"
+    json_path = tmp_path / "out.json"
+    md_path = tmp_path / "out.md"
+
+    def fake_generate_skill_doc(description, skills_root=None, planner_model=None):
+        assert description == "Generate pytest fixtures"
+        assert planner_model == "test-planner"
+        return (
+            "generated-pytest-fixtures",
+            "\n".join(
+                [
+                    "---",
+                    "name: generated-pytest-fixtures",
+                    "description: generated test skill",
+                    "auto_generated:",
+                    "  by: skill-opt",
+                    "  date: 2026-05-31",
+                    "  source_goal: Generate pytest fixtures",
+                    "  planner_model: test-planner",
+                    "  review_required: true",
+                    "---",
+                    "",
+                    "# generated-pytest-fixtures",
+                    "",
+                ]
+            ),
+        )
+
+    monkeypatch.setattr(skill_opt, "generate_skill_doc", fake_generate_skill_doc)
+
+    rc = main(
+        [
+            "--skills-root",
+            str(skills_root),
+            "--candidate-goal",
+            "Generate pytest fixtures",
+            "--description",
+            "",
+            "--planner",
+            "test-planner",
+            "--json-output",
+            str(json_path),
+            "--md-output",
+            str(md_path),
+            "--quiet",
+        ]
+    )
+
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    assert rc == 0
+    assert payload["summary"]["pending_reviews"] == 1
+    assert payload["reviews"][0]["skill"] == "generated-pytest-fixtures"
+    assert payload["reviews"][0]["approved"] is None
+    assert payload["reviews"][0]["reviewer"] == ""
