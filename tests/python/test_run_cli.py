@@ -240,3 +240,192 @@ def test_status_reports_missing_state(tmp_path, monkeypatch, capsys):
 
     assert code == 0
     assert json.loads(capsys.readouterr().out)["state"] == "none"
+
+
+def test_run_scope_sprint_rejects_empty_sprint(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    sprint_dir = tmp_path / ".specs" / "sprints" / "sprint-01"
+    sprint_dir.mkdir(parents=True)
+    (sprint_dir / "SPRINT.md").write_text("# Sprint 01\n", encoding="utf-8")
+
+    code = cli.main(
+        [
+            "run",
+            "finish sprint 1",
+            "--scope",
+            "sprint",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "py-fastapi",
+            "--max-cost",
+            "1",
+            "--json",
+        ]
+    )
+
+    assert code == 2
+    assert "sprint has no task specs" in capsys.readouterr().err
+    state = json.loads(
+        (tmp_path / ".simplicio" / "sprint_state.json").read_text(encoding="utf-8")
+    )
+    assert state["state"] == "failed"
+    assert state["complete"] is False
+    assert state["total_features"] == 0
+
+
+def test_run_scope_sprint_reports_invalid_stack(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    sprint_dir = tmp_path / ".specs" / "sprints" / "sprint-01"
+    sprint_dir.mkdir(parents=True)
+    (sprint_dir / "01-login.task.md").write_text(
+        "# Login\n\n## Goal\nImplement login flow\n",
+        encoding="utf-8",
+    )
+
+    code = cli.main(
+        [
+            "run",
+            "finish sprint 1",
+            "--scope",
+            "sprint",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "missing",
+            "--max-cost",
+            "1",
+            "--json",
+        ]
+    )
+
+    assert code == 2
+    assert "unknown stack" in capsys.readouterr().err
+
+
+def test_run_scope_sprint_resumes_completed_features(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    sprint_dir = tmp_path / ".specs" / "sprints" / "sprint-01"
+    sprint_dir.mkdir(parents=True)
+    (sprint_dir / "01-login.task.md").write_text(
+        "# Login\n\n## Goal\nImplement login flow\n",
+        encoding="utf-8",
+    )
+    (sprint_dir / "02-reports.task.md").write_text(
+        "# Reports\n\n## Goal\nImplement reports\n",
+        encoding="utf-8",
+    )
+    state_dir = tmp_path / ".simplicio"
+    state_dir.mkdir()
+    (state_dir / "sprint_state.json").write_text(
+        json.dumps(
+            {
+                "scope": "sprint",
+                "sprint_name": "sprint-01",
+                "stack": "py-fastapi",
+                "results": [
+                    {
+                        "task": "Login",
+                        "result": {
+                            "scope": "feature",
+                            "goal": "Implement login flow",
+                            "stack": "py-fastapi",
+                            "applied": True,
+                            "tasks": [],
+                            "replans": 0,
+                            "warnings": [],
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    calls = []
+
+    def fake_run_feature(**kwargs):
+        calls.append(kwargs["goal"])
+        return {
+            "scope": "feature",
+            "goal": kwargs["goal"],
+            "stack": kwargs["stack_slug"],
+            "applied": True,
+            "tasks": [],
+            "replans": 0,
+            "warnings": [],
+        }
+
+    monkeypatch.setattr("simplicio.orchestrator.run_feature", fake_run_feature)
+
+    code = cli.main(
+        [
+            "run",
+            "finish sprint 1",
+            "--scope",
+            "sprint",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "py-fastapi",
+            "--max-cost",
+            "1",
+            "--json",
+        ]
+    )
+
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert calls == ["Implement reports"]
+    assert payload["resumed"] is True
+    assert len(payload["features"]) == 2
+
+
+def test_run_scope_sprint_manual_dod_blocks_completion(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    sprint_dir = tmp_path / ".specs" / "sprints" / "sprint-01"
+    sprint_dir.mkdir(parents=True)
+    (sprint_dir / "SPRINT.md").write_text("- [ ] Manual QA approved\n", encoding="utf-8")
+    (sprint_dir / "01-login.task.md").write_text(
+        "# Login\n\n## Goal\nImplement login flow\n",
+        encoding="utf-8",
+    )
+
+    def fake_run_feature(**kwargs):
+        return {
+            "scope": "feature",
+            "goal": kwargs["goal"],
+            "stack": kwargs["stack_slug"],
+            "applied": True,
+            "tasks": [],
+            "replans": 0,
+            "warnings": [],
+        }
+
+    monkeypatch.setattr("simplicio.orchestrator.run_feature", fake_run_feature)
+
+    code = cli.main(
+        [
+            "run",
+            "finish sprint 1",
+            "--scope",
+            "sprint",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "py-fastapi",
+            "--max-cost",
+            "1",
+            "--json",
+        ]
+    )
+
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 1
+    assert payload["applied"] is False
+    assert payload["dod"][0]["passed"] is False
+
+    status_code = cli.main(["status", "--root", str(tmp_path), "--json"])
+    status = json.loads(capsys.readouterr().out)
+    assert status_code == 0
+    assert status["state"] == "failed"
+    assert status["failed_dod_gates"] == ["Manual QA approved"]

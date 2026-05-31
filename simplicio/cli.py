@@ -416,7 +416,7 @@ def _write_sprint_state(
     failed = [row for row in results if not row["result"]["applied"]]
     failed_gates = [row["label"] for row in dod_results if not row["passed"]]
     state = "complete" if complete else "in-progress"
-    if failed or failed_gates:
+    if failed or failed_gates or (total == 0 and not complete):
         state = "failed"
     payload = {
         "scope": "sprint",
