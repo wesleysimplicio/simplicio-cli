@@ -30,6 +30,12 @@ def test_cost_governor_rejects_negative_budget():
         CostGovernor.from_value("-1")
 
 
+def test_cost_governor_rejects_non_finite_budget():
+    for value in ("abc", "NaN", "Infinity"):
+        with pytest.raises(ValueError):
+            CostGovernor.from_value(value)
+
+
 def test_provider_charge_updates_spent_env(monkeypatch):
     monkeypatch.setenv("SIMPLICIO_MAX_COST", "1")
     monkeypatch.setenv("SIMPLICIO_PRICE_PER_MTOK", "100")

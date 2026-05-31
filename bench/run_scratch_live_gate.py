@@ -8,6 +8,7 @@ collected incrementally without redefining partial evidence as release-ready.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import platform
@@ -216,6 +217,7 @@ def _run_one(
         verify=verify,
     )
     scratch_metrics = _scratch_metrics(payload)
+    line_stats = _payload_line_stats(payload)
     cost_usd = _payload_cost_usd(payload)
     return {
         "run_number": run_number,
@@ -229,6 +231,7 @@ def _run_one(
         "duration_s": duration_s,
         **metrics,
         "scratch_metrics": scratch_metrics,
+        "line_stats": line_stats,
         "cost_usd": cost_usd,
         "codegen_disabled": disable_codegen,
         "post_verify": verify,
@@ -503,6 +506,23 @@ def _scratch_metrics(payload: dict[str, Any] | None) -> dict[str, Any]:
     return metrics if isinstance(metrics, dict) else {}
 
 
+def _payload_line_stats(payload: dict[str, Any] | None) -> dict[str, int]:
+    metrics = _scratch_metrics(payload)
+    mapping = {
+        "files_created": "files_created_total",
+        "files_changed": "files_changed_total",
+        "lines_generated": "lines_generated_total",
+        "lines_modified": "lines_modified_total",
+        "lines_added": "lines_added_total",
+        "lines_removed": "lines_removed_total",
+    }
+    out = {}
+    for key, metric_key in mapping.items():
+        value, _error = _coerce_int(metrics.get(metric_key), metric_key)
+        out[key] = value
+    return out
+
+
 def _payload_cost_usd(payload: dict[str, Any] | None) -> float | None:
     metrics = _scratch_metrics(payload)
     explicit = metrics.get("cost_usd")
@@ -560,6 +580,14 @@ def _summarize(
         if len(cost_values) == total and total
         else None
     )
+    lines_generated_total = sum(
+        int((row.get("line_stats") or {}).get("lines_generated") or 0)
+        for row in rows
+    )
+    lines_modified_total = sum(
+        int((row.get("line_stats") or {}).get("lines_modified") or 0)
+        for row in rows
+    )
     skillopt = _normalize_skillopt_review(skillopt_review)
     release_gates = {
         "full_75_run_matrix": _has_full_release_matrix(rows),
@@ -592,6 +620,10 @@ def _summarize(
         "timed_out": sum(1 for row in rows if row.get("timed_out")),
         "median_wall_clock_s": median_wall_clock_s,
         "average_cost_usd": average_cost_usd,
+        "lines_generated_total": lines_generated_total,
+        "lines_modified_total": lines_modified_total,
+        "avg_lines_generated_per_run": _ratio(lines_generated_total, total),
+        "avg_lines_modified_per_run": _ratio(lines_modified_total, total),
         "skillopt_review": skillopt,
         "elapsed_s": elapsed_s,
         "release_gates": release_gates,
@@ -651,8 +683,21 @@ def _normalize_skillopt_review(
             continue
         skill = str(row.get("skill") or row.get("slug") or "").strip()
         reviewer = str(row.get("reviewer") or "").strip()
+        reviewed_at = str(row.get("reviewed_at") or "").strip()
         approved = row.get("approved")
-        if not skill or not reviewer or not isinstance(approved, bool):
+        artifact_path = str(row.get("skill_md") or row.get("path") or "").strip()
+        sha256 = str(row.get("sha256") or "").strip()
+        packet_style = bool(artifact_path or sha256)
+        artifact_verified = None
+        if packet_style:
+            artifact_verified = _skillopt_artifact_hash_matches(artifact_path, sha256)
+        if (
+            not skill
+            or not reviewer
+            or not reviewed_at
+            or not isinstance(approved, bool)
+            or (packet_style and artifact_verified is not True)
+        ):
             invalid += 1
             continue
         normalized.append(
@@ -660,8 +705,11 @@ def _normalize_skillopt_review(
                 "skill": skill,
                 "reviewer": reviewer,
                 "approved": approved,
-                "reviewed_at": str(row.get("reviewed_at") or "").strip(),
+                "reviewed_at": reviewed_at,
                 "notes": str(row.get("notes") or "").strip(),
+                "path": artifact_path,
+                "sha256": sha256,
+                "artifact_verified": artifact_verified,
             }
         )
     total = len(normalized)
@@ -675,7 +723,22 @@ def _normalize_skillopt_review(
         "gate_passed": total >= 10 and approval_rate >= 0.80,
         "reviews": normalized,
         "invalid_reviews": invalid,
+        "artifact_verified": sum(
+            1 for row in normalized if row.get("artifact_verified") is True
+        ),
     }
+
+
+def _skillopt_artifact_hash_matches(path: str, expected_sha256: str) -> bool:
+    if not path or not expected_sha256:
+        return False
+    artifact = Path(path)
+    if not artifact.is_absolute():
+        artifact = ROOT / artifact
+    if not artifact.is_file():
+        return False
+    actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    return actual == expected_sha256
 
 
 def _has_full_release_matrix(rows: list[dict[str, Any]]) -> bool:
@@ -808,6 +871,8 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- e2e green: {summary['e2e_green']} ({summary['e2e_green_rate']:.2%})",
         f"- median wall-clock: {summary['median_wall_clock_s']} s",
         f"- average cost: {summary['average_cost_usd']}",
+        f"- lines generated: {summary['lines_generated_total']}",
+        f"- lines modified: {summary['lines_modified_total']}",
         f"- release ready: {summary['release_gates']['release_ready']}",
         "",
         "## Release Gate Status",

@@ -50,6 +50,9 @@ Repo-local evidence:
   `bench/results_skillopt_review_packet.{json,md}` now provide the pending
   review packet shape accepted by the live gate. It currently records zero
   review-gated generated skills, so it is not approval evidence.
+- `bench/run_scratch_live_gate.py` now requires `reviewed_at` on review rows
+  and verifies packet-style `path`/`sha256` artifacts before counting a
+  SkillOpt approval row.
 
 Suggested comment:
 
@@ -79,6 +82,9 @@ Repo-local evidence:
 - The SkillOpt review packet runner gives the human-review evidence a stable
   JSON shape, but the aggregate remains incomplete until a real filled packet is
   supplied and the codegen-disabled live baseline reaches the release corpus.
+- `simplicio/scratch/executor.py` now records per-task line stats and aggregate
+  generated/modified line metrics so future codegen-disabled live baseline
+  slices can carry line-count evidence.
 
 Suggested comment:
 
@@ -158,11 +164,14 @@ Repo-local evidence:
 - Sprint `--max-cost` now rejects negative budgets as usage errors instead of a
   traceback, and feature replan skips previously green task IDs when a revised
   plan repeats them.
+- Non-decimal/non-finite `--max-cost` values are rejected as usage errors;
+  feature plans with duplicate task IDs fail before executing; and sprint
+  resume avoids ambiguous old state when task titles are duplicated.
 - `bench/run_unified_run_bench.py` plus
   `bench/results_unified_run_bench.{json,md}` provide a fixture-backed F5
   comparison schema for cli+ag, unified feature/sprint, and Codex `/goal`.
   This is explicitly marked fixture-only and not release-ready.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `422
+- Validation in this worktree: `python -m pytest tests/python -q` -> `441
   passed, 3 skipped`.
 
 Suggested comment:
@@ -192,7 +201,8 @@ Repo-local evidence:
   `bench/results_v14_schema_smoke_summary.{json,md}` now summarize existing and
   future smoke JSON artifacts without claiming the GGUF quant curve is complete.
   The current summary has two legacy smoke inputs and zero Qwen 1.5B GGUF
-  schema-v1 smokes.
+  schema-v1 smokes; it explicitly reports missing required quants
+  `Q8_0`, `Q6_K`, and `Q4_K_M`.
 - `bench/RESULTS_LOCAL_GGUF.md` contains older local Q5_K_M vs Q8_0 evidence
   from `bench/run_exec.py`, but it is not the requested v14 schema-v1 quant
   curve.

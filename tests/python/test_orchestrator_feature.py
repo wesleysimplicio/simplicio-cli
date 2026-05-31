@@ -183,6 +183,28 @@ def test_run_feature_reports_dependency_cycle(tmp_path):
     assert "dependency" in result["warnings"][0]
 
 
+def test_run_feature_reports_duplicate_task_ids(tmp_path):
+    def fake_planner(stack, goal, project_name):
+        return _plan(
+            _task("T01-a", "src/a.py"),
+            _task("T01-a", "src/b.py"),
+        )
+
+    def fake_runner(task, project_dir, stack):
+        raise AssertionError("runner should not execute duplicate task ids")
+
+    result = run_feature(
+        root=str(tmp_path),
+        stack_slug="py-fastapi",
+        goal="implement login flow",
+        planner=fake_planner,
+        task_runner=fake_runner,
+    )
+
+    assert result["applied"] is False
+    assert "duplicate task id" in result["warnings"][0]
+
+
 def test_run_feature_rejects_unknown_stack(tmp_path):
     try:
         run_feature(root=str(tmp_path), stack_slug="missing", goal="x")

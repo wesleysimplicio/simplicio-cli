@@ -10,8 +10,11 @@
     "min_reviews": 10,
     "required_fields": [
       "skill",
+      "path",
+      "sha256",
       "reviewer",
-      "approved"
+      "approved",
+      "reviewed_at"
     ]
   },
   "reviews": [],

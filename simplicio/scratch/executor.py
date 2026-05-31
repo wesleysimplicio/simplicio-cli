@@ -20,6 +20,7 @@ import os
 import subprocess
 import time
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Optional
 
@@ -40,6 +41,8 @@ class TaskResult:
     duration_ms: int = 0
     log_tail: str = ""
     generated_skill: Optional[str] = None
+    line_stats: dict[str, int] = field(default_factory=dict)
+    file_line_stats: list[dict[str, int | str | bool]] = field(default_factory=list)
 
 
 @dataclass
@@ -68,6 +71,7 @@ class ExecutorReport:
         }
         total = self.tasks_total
         codegen = len(by_mode["codegen"])
+        line_totals = _aggregate_line_stats(self.task_results)
         return {
             "tasks_total": total,
             "tasks_codegen": codegen,
@@ -78,6 +82,7 @@ class ExecutorReport:
             "avg_codegen_ms": _avg_ms(by_mode["codegen"]),
             "avg_llm_ms": _avg_ms(by_mode["llm"]),
             "avg_task_ms": _avg_ms(self.task_results),
+            **line_totals,
         }
 
     def to_dict(self) -> dict:
@@ -99,6 +104,8 @@ class ExecutorReport:
                     "duration_ms": t.duration_ms,
                     "log_tail": t.log_tail[-400:],
                     "generated_skill": t.generated_skill,
+                    "line_stats": t.line_stats,
+                    "file_line_stats": t.file_line_stats,
                 }
                 for t in self.task_results
             ],
@@ -302,6 +309,123 @@ def _avg_ms(tasks: list[TaskResult]) -> int:
     return round(sum(task.duration_ms for task in tasks) / len(tasks))
 
 
+def _aggregate_line_stats(tasks: list[TaskResult]) -> dict[str, int]:
+    keys = (
+        "files_created",
+        "files_changed",
+        "lines_generated",
+        "lines_modified",
+        "lines_added",
+        "lines_removed",
+    )
+    return {f"{key}_total": sum(task.line_stats.get(key, 0) for task in tasks) for key in keys}
+
+
+_LINE_STAT_EXCLUDED_DIRS = {
+    ".git",
+    ".simplicio",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+    "node_modules",
+    "vendor",
+    "target",
+    "dist",
+    "build",
+}
+
+
+def _line_snapshot(project_dir: Path) -> dict[str, list[str]]:
+    snapshot = {}
+    for path in project_dir.rglob("*"):
+        if not path.is_file() or _is_excluded_line_stat_path(path, project_dir):
+            continue
+        lines = _read_text_lines(path)
+        if lines is None:
+            continue
+        snapshot[path.relative_to(project_dir).as_posix()] = lines
+    return snapshot
+
+
+def _is_excluded_line_stat_path(path: Path, project_dir: Path) -> bool:
+    rel = path.relative_to(project_dir)
+    return any(part in _LINE_STAT_EXCLUDED_DIRS for part in rel.parts)
+
+
+def _read_text_lines(path: Path) -> list[str] | None:
+    try:
+        raw = path.read_bytes()
+    except OSError:
+        return None
+    if b"\0" in raw:
+        return None
+    try:
+        return raw.decode("utf-8").splitlines()
+    except UnicodeDecodeError:
+        return None
+
+
+def _line_diff(
+    before: dict[str, list[str]],
+    after: dict[str, list[str]],
+) -> tuple[dict[str, int], list[dict[str, int | str | bool]]]:
+    file_rows = []
+    totals = {
+        "files_created": 0,
+        "files_changed": 0,
+        "lines_generated": 0,
+        "lines_modified": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+    }
+    for rel_path, after_lines in sorted(after.items()):
+        before_lines = before.get(rel_path)
+        if before_lines is None:
+            row = {
+                "path": rel_path,
+                "before_lines": 0,
+                "after_lines": len(after_lines),
+                "lines_added": len(after_lines),
+                "lines_removed": 0,
+                "created": True,
+            }
+            totals["files_created"] += 1
+            totals["lines_generated"] += len(after_lines)
+            totals["lines_added"] += len(after_lines)
+            file_rows.append(row)
+            continue
+        if before_lines == after_lines:
+            continue
+        added, removed = _line_churn(before_lines, after_lines)
+        row = {
+            "path": rel_path,
+            "before_lines": len(before_lines),
+            "after_lines": len(after_lines),
+            "lines_added": added,
+            "lines_removed": removed,
+            "created": False,
+        }
+        totals["files_changed"] += 1
+        totals["lines_modified"] += added + removed
+        totals["lines_added"] += added
+        totals["lines_removed"] += removed
+        file_rows.append(row)
+    return totals, file_rows
+
+
+def _line_churn(before_lines: list[str], after_lines: list[str]) -> tuple[int, int]:
+    added = 0
+    removed = 0
+    matcher = SequenceMatcher(a=before_lines, b=after_lines, autojunk=False)
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag in {"replace", "delete"}:
+            removed += i2 - i1
+        if tag in {"replace", "insert"}:
+            added += j2 - j1
+    return added, removed
+
+
 def execute_plan(
     plan: Plan, stack: Stack, parent_dir: Path, skip_install: bool = False
 ) -> ExecutorReport:
@@ -376,7 +500,11 @@ def execute_plan(
 
     # 4. Execute tasks in dependency order
     for task in _topo_sort(plan.tasks):
-        report.task_results.append(_execute_one_task(task, project_dir, stack))
+        before = _line_snapshot(project_dir)
+        task_result = _execute_one_task(task, project_dir, stack)
+        after = _line_snapshot(project_dir)
+        task_result.line_stats, task_result.file_line_stats = _line_diff(before, after)
+        report.task_results.append(task_result)
 
     report.elapsed_s = time.perf_counter() - t_start
 

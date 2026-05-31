@@ -20,6 +20,12 @@ TaskRunner = Callable[[object, Path, object], tuple[bool, str]]
 
 
 def _ordered_tasks(tasks: list[object]) -> list[object]:
+    seen_ids: set[str] = set()
+    for task in tasks:
+        task_id = getattr(task, "id", "")
+        if task_id in seen_ids:
+            raise ValueError(f"duplicate task id in feature plan: {task_id}")
+        seen_ids.add(task_id)
     pending = list(tasks)
     ordered = []
     completed: set[str] = set()

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 
@@ -73,7 +74,16 @@ def test_live_gate_runs_execution_slice(tmp_path) -> None:
                     "files_written": ["src/main.py"],
                     "tasks_passed": 2,
                     "tasks_total": 2,
-                    "metrics": {"tasks_llm": 0, "tasks_codegen": 2},
+                    "metrics": {
+                        "tasks_llm": 0,
+                        "tasks_codegen": 2,
+                        "lines_generated_total": 12,
+                        "lines_modified_total": 3,
+                        "lines_added_total": 14,
+                        "lines_removed_total": 2,
+                        "files_created_total": 2,
+                        "files_changed_total": 1,
+                    },
                 }
             ),
         )
@@ -94,11 +104,16 @@ def test_live_gate_runs_execution_slice(tmp_path) -> None:
     assert row["task_all_passed"] is True
     assert row["e2e_green"] is True
     assert row["scratch_metrics"]["tasks_llm"] == 0
+    assert row["line_stats"]["lines_generated"] == 12
+    assert row["line_stats"]["lines_modified"] == 3
     assert row["cost_usd"] == 0.0
     assert row["post_verify"]["passed"] is True
     assert summary["scaffold_clean_rate"] == 1.0
     assert summary["e2e_green_rate"] == 1.0
     assert summary["average_cost_usd"] == 0.0
+    assert summary["lines_generated_total"] == 12
+    assert summary["lines_modified_total"] == 3
+    assert summary["avg_lines_generated_per_run"] == 12.0
     assert summary["release_gates"]["average_cost_le_1"] is True
     assert summary["release_gates"]["full_75_run_matrix"] is False
 
@@ -355,13 +370,71 @@ def test_live_gate_rejects_invalid_skillopt_review_rows() -> None:
             "reviews": [
                 {"skill": "missing-reviewer", "approved": True},
                 {"skill": "string-approved", "reviewer": "wesley", "approved": "yes"},
+                {"skill": "missing-date", "reviewer": "wesley", "approved": True},
             ]
         },
     )
 
     assert summary["skillopt_review"]["total_reviews"] == 0
-    assert summary["skillopt_review"]["invalid_reviews"] == 2
+    assert summary["skillopt_review"]["invalid_reviews"] == 3
     assert summary["release_gates"]["skillopt_human_approval_ge_80"] is False
+
+
+def test_live_gate_verifies_skillopt_review_packet_artifacts(tmp_path) -> None:
+    skill_path = tmp_path / "generated-skill" / "SKILL.md"
+    skill_path.parent.mkdir()
+    skill_path.write_text("---\nname: generated-skill\n---\n", encoding="utf-8")
+
+    digest = hashlib.sha256(skill_path.read_bytes()).hexdigest()
+    reviews = [
+        {
+            "skill": f"generated-skill-{index:02d}",
+            "path": str(skill_path),
+            "sha256": digest,
+            "reviewer": "wesley",
+            "approved": index <= 8,
+            "reviewed_at": "2026-05-31",
+        }
+        for index in range(1, 11)
+    ]
+    review_path = tmp_path / "skillopt-review.json"
+    review_path.write_text(json.dumps({"reviews": reviews}), encoding="utf-8")
+
+    evidence = load_skillopt_review_evidence(review_path)
+
+    assert evidence["total_reviews"] == 10
+    assert evidence["artifact_verified"] == 10
+    assert evidence["gate_passed"] is True
+
+
+def test_live_gate_rejects_skillopt_review_packet_hash_mismatch(tmp_path) -> None:
+    skill_path = tmp_path / "generated-skill" / "SKILL.md"
+    skill_path.parent.mkdir()
+    skill_path.write_text("---\nname: generated-skill\n---\n", encoding="utf-8")
+    review_path = tmp_path / "skillopt-review.json"
+    review_path.write_text(
+        json.dumps(
+            {
+                "reviews": [
+                    {
+                        "skill": "generated-skill",
+                        "path": str(skill_path),
+                        "sha256": "0" * 64,
+                        "reviewer": "wesley",
+                        "approved": True,
+                        "reviewed_at": "2026-05-31",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    evidence = load_skillopt_review_evidence(review_path)
+
+    assert evidence["total_reviews"] == 0
+    assert evidence["invalid_reviews"] == 1
+    assert evidence["gate_passed"] is False
 
 
 def test_live_gate_merges_distinct_slices(tmp_path) -> None:

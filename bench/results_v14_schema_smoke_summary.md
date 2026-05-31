@@ -8,6 +8,8 @@ incremental schema-smoke artifact summary; this does not replace the required Qw
 - go/no-go passes: 2
 - go/no-go failures: 0
 - Qwen 1.5B smokes: 0
+- required quant smokes present: Q8_0=False, Q6_K=False, Q4_K_M=False
+- missing quant smokes: Q8_0, Q6_K, Q4_K_M
 - Qwen 1.5B quant curve complete: False
 - release ready: False
 

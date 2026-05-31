@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from contextlib import contextmanager
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Iterator
 
 
@@ -23,14 +23,24 @@ class CostGovernor:
         raw = value if value is not None else os.environ.get("SIMPLICIO_MAX_COST")
         if raw in (None, ""):
             return cls(None)
-        budget = Decimal(str(raw))
+        try:
+            budget = Decimal(str(raw))
+            spent = Decimal(os.environ.get("SIMPLICIO_COST_SPENT_USD", "0"))
+        except InvalidOperation as exc:
+            raise ValueError("max cost must be a finite decimal") from exc
+        if not budget.is_finite() or not spent.is_finite():
+            raise ValueError("max cost must be a finite decimal")
         if budget < 0:
             raise ValueError("max cost must be non-negative")
-        spent = Decimal(os.environ.get("SIMPLICIO_COST_SPENT_USD", "0"))
         return cls(budget, spent)
 
     def charge_usd(self, amount: str | float | int | Decimal) -> None:
-        cost = Decimal(str(amount))
+        try:
+            cost = Decimal(str(amount))
+        except InvalidOperation as exc:
+            raise ValueError("cost charge must be a finite decimal") from exc
+        if not cost.is_finite():
+            raise ValueError("cost charge must be a finite decimal")
         if cost < 0:
             raise ValueError("cost charge must be non-negative")
         self.spent_usd += cost

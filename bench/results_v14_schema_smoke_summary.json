@@ -35,12 +35,22 @@
     "go_no_go_failures": 0,
     "go_no_go_passes": 2,
     "input_files": 2,
+    "missing_quant_smokes": [
+      "Q8_0",
+      "Q6_K",
+      "Q4_K_M"
+    ],
     "missing_release_evidence": [
       "Q8_0/Q6_K/Q4_K_M schema-v1 smoke JSONs for the named GGUF model",
       "bench/results_v14_qwen15b_quant_curve.{md,json,pdf}"
     ],
     "qwen15b_quant_curve_complete": false,
     "qwen15b_smokes": 0,
-    "release_ready": false
+    "release_ready": false,
+    "required_quant_smokes_present": {
+      "Q4_K_M": false,
+      "Q6_K": false,
+      "Q8_0": false
+    }
   }
 }

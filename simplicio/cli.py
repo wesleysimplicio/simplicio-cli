@@ -281,6 +281,18 @@ def _run_sprint_command(a: argparse.Namespace) -> int:
 
     results = _load_resumable_sprint_results(state_path, sprint_name, a.stack)
     resumed = bool(results)
+    duplicate_titles = {
+        task.title
+        for task in sprint.tasks
+        if sum(1 for other in sprint.tasks if other.title == task.title) > 1
+    }
+    if duplicate_titles:
+        results = [row for row in results if row.get("task_id")]
+    completed_task_ids = {
+        row.get("task_id")
+        for row in results
+        if isinstance(row.get("result"), dict) and row["result"].get("applied")
+    }
     completed_tasks = {
         row["task"]
         for row in results
@@ -288,7 +300,10 @@ def _run_sprint_command(a: argparse.Namespace) -> int:
     }
     with provider_budget(a.max_cost) as governor:
         for task in sprint.tasks:
-            if task.title in completed_tasks:
+            task_id = _sprint_task_id(task)
+            if task_id in completed_task_ids or (
+                task.title not in duplicate_titles and task.title in completed_tasks
+            ):
                 continue
             try:
                 result = run_feature(
@@ -308,7 +323,7 @@ def _run_sprint_command(a: argparse.Namespace) -> int:
                     "replans": 0,
                     "warnings": [str(exc)],
                 }
-                results.append({"task": task.title, "result": result})
+                results.append({"task": task.title, "task_id": task_id, "result": result})
                 governor.refresh_from_env()
                 cost = governor.report()
                 _write_sprint_state(
@@ -325,7 +340,7 @@ def _run_sprint_command(a: argparse.Namespace) -> int:
                 print(f"simplicio run: {exc}", file=sys.stderr)
                 return 2
             governor.refresh_from_env()
-            results.append({"task": task.title, "result": result})
+            results.append({"task": task.title, "task_id": task_id, "result": result})
             _write_sprint_state(
                 state_path,
                 sprint=sprint,
@@ -403,6 +418,13 @@ def _load_resumable_sprint_results(
         and row["result"].get("applied") is True
         and row.get("task")
     ]
+
+
+def _sprint_task_id(task) -> str:
+    try:
+        return task.path.name
+    except AttributeError:
+        return str(getattr(task, "title", ""))
 
 
 def _write_sprint_state(

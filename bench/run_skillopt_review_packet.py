@@ -53,7 +53,14 @@ def build_review_packet(
         "review_policy": {
             "min_reviews": min_reviews,
             "min_approval_rate": min_approval_rate,
-            "required_fields": ["skill", "reviewer", "approved"],
+            "required_fields": [
+                "skill",
+                "path",
+                "sha256",
+                "reviewer",
+                "approved",
+                "reviewed_at",
+            ],
         },
         "summary": {
             "review_gated_skills": len(rows),
@@ -89,6 +96,7 @@ def _review_row(path: Path, skills_root: Path) -> dict[str, Any] | None:
     return {
         "skill": skill,
         "path": _relative_path(path, ROOT),
+        "skill_md": _relative_path(path, ROOT),
         "skills_root_path": _relative_path(path, skills_root),
         "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
         "review_required": True,

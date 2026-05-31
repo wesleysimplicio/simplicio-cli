@@ -158,6 +158,52 @@ def test_run_scope_feature_outputs_orchestrator_result(monkeypatch, capsys):
     assert payload["applied"] is True
 
 
+def test_run_scope_feature_rejects_negative_max_cost(monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+
+    code = cli.main(
+        [
+            "run",
+            "implement JWT login flow",
+            "--scope",
+            "feature",
+            "--stack",
+            "py-fastapi",
+            "--max-cost",
+            "-1",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert code == 2
+    assert "max cost must be non-negative" in captured.err
+    assert "Traceback" not in captured.err
+    assert captured.out == ""
+
+
+def test_run_scope_feature_rejects_non_decimal_max_cost(monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+
+    code = cli.main(
+        [
+            "run",
+            "implement JWT login flow",
+            "--scope",
+            "feature",
+            "--stack",
+            "py-fastapi",
+            "--max-cost",
+            "abc",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert code == 2
+    assert "max cost must be a finite decimal" in captured.err
+    assert "Traceback" not in captured.err
+    assert captured.out == ""
+
+
 def test_run_scope_sprint_requires_max_cost(monkeypatch, capsys):
     monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
 
@@ -202,6 +248,37 @@ def test_run_scope_sprint_rejects_negative_max_cost(tmp_path, monkeypatch, capsy
 
     assert code == 2
     assert "max cost must be non-negative" in capsys.readouterr().err
+
+
+def test_run_scope_sprint_rejects_non_decimal_max_cost(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    sprint_dir = tmp_path / ".specs" / "sprints" / "sprint-01"
+    sprint_dir.mkdir(parents=True)
+    (sprint_dir / "01-login.task.md").write_text(
+        "# Login\n\n## Goal\nImplement login flow\n",
+        encoding="utf-8",
+    )
+
+    code = cli.main(
+        [
+            "run",
+            "finish sprint 1",
+            "--scope",
+            "sprint",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "py-fastapi",
+            "--max-cost",
+            "abc",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert code == 2
+    assert "max cost must be a finite decimal" in captured.err
+    assert "Traceback" not in captured.err
+    assert captured.out == ""
 
 
 def test_run_scope_sprint_writes_status_state(tmp_path, monkeypatch, capsys):
@@ -443,6 +520,90 @@ def test_run_scope_sprint_resumes_completed_features(tmp_path, monkeypatch, caps
     assert calls == ["Implement reports"]
     assert payload["resumed"] is True
     assert len(payload["features"]) == 2
+
+
+def test_run_scope_sprint_does_not_resume_ambiguous_duplicate_titles(
+    tmp_path,
+    monkeypatch,
+    capsys,
+):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    sprint_dir = tmp_path / ".specs" / "sprints" / "sprint-01"
+    sprint_dir.mkdir(parents=True)
+    (sprint_dir / "01-login.task.md").write_text(
+        "# Same\n\n## Goal\nImplement login flow\n",
+        encoding="utf-8",
+    )
+    (sprint_dir / "02-reports.task.md").write_text(
+        "# Same\n\n## Goal\nImplement reports\n",
+        encoding="utf-8",
+    )
+    state_dir = tmp_path / ".simplicio"
+    state_dir.mkdir()
+    (state_dir / "sprint_state.json").write_text(
+        json.dumps(
+            {
+                "scope": "sprint",
+                "sprint_name": "sprint-01",
+                "stack": "py-fastapi",
+                "results": [
+                    {
+                        "task": "Same",
+                        "result": {
+                            "scope": "feature",
+                            "goal": "Implement login flow",
+                            "stack": "py-fastapi",
+                            "applied": True,
+                            "tasks": [],
+                            "replans": 0,
+                            "warnings": [],
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    calls = []
+
+    def fake_run_feature(**kwargs):
+        calls.append(kwargs["goal"])
+        return {
+            "scope": "feature",
+            "goal": kwargs["goal"],
+            "stack": kwargs["stack_slug"],
+            "applied": True,
+            "tasks": [],
+            "replans": 0,
+            "warnings": [],
+        }
+
+    monkeypatch.setattr("simplicio.orchestrator.run_feature", fake_run_feature)
+
+    code = cli.main(
+        [
+            "run",
+            "finish sprint 1",
+            "--scope",
+            "sprint",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "py-fastapi",
+            "--max-cost",
+            "1",
+            "--json",
+        ]
+    )
+
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert calls == ["Implement login flow", "Implement reports"]
+    assert len(payload["features"]) == 2
+    assert {row["task_id"] for row in payload["features"]} == {
+        "01-login.task.md",
+        "02-reports.task.md",
+    }
 
 
 def test_run_scope_sprint_manual_dod_blocks_completion(tmp_path, monkeypatch, capsys):

@@ -501,9 +501,33 @@ def test_executor_report_records_codegen_metrics() -> None:
 
         assert report.metrics["tasks_codegen"] == 1
         assert report.metrics["codegen_share"] == 1.0
+        assert report.metrics["lines_generated_total"] > 0
+        assert report.metrics["files_created_total"] >= 1
         assert data["tasks"][0]["execution_mode"] == "codegen"
         assert data["tasks"][0]["codegen_executor"] == "typescript-add-next-route"
+        assert data["tasks"][0]["line_stats"]["lines_generated"] > 0
+        assert data["tasks"][0]["file_line_stats"]
         assert (report.project_dir / "src/app/api/units/route.ts").is_file()
+
+
+def test_executor_line_diff_counts_created_and_changed_files() -> None:
+    from simplicio.scratch.executor import _line_diff
+
+    before = {"existing.py": ["old", "same"]}
+    after = {
+        "existing.py": ["new", "same", "extra"],
+        "created.py": ["one", "two"],
+    }
+
+    totals, rows = _line_diff(before, after)
+
+    assert totals["files_created"] == 1
+    assert totals["files_changed"] == 1
+    assert totals["lines_generated"] == 2
+    assert totals["lines_modified"] == 3
+    assert totals["lines_added"] == 4
+    assert totals["lines_removed"] == 1
+    assert {row["path"] for row in rows} == {"existing.py", "created.py"}
 
 
 def test_executor_runs_ts_nextjs_crud_recipe_without_llm(monkeypatch) -> None:

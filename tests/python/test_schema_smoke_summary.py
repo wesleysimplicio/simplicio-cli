@@ -48,6 +48,12 @@ def test_schema_smoke_summary_normalizes_supported_formats(tmp_path):
     assert summary["summary"]["input_files"] == 3
     assert summary["summary"]["go_no_go_passes"] == 3
     assert summary["summary"]["qwen15b_smokes"] == 1
+    assert summary["summary"]["required_quant_smokes_present"] == {
+        "Q8_0": True,
+        "Q6_K": False,
+        "Q4_K_M": False,
+    }
+    assert summary["summary"]["missing_quant_smokes"] == ["Q6_K", "Q4_K_M"]
     assert summary["summary"]["release_ready"] is False
     assert {row["format"] for row in summary["rows"]} == {
         "schema-v1-smoke",
@@ -81,6 +87,60 @@ def test_schema_smoke_summary_writes_reports(tmp_path):
     md = md_path.read_text(encoding="utf-8")
     assert "# Schema Smoke Summary" in md
     assert "release ready: False" in md
+
+
+def test_schema_smoke_summary_detects_required_qwen15b_quants(tmp_path):
+    q8 = tmp_path / "results_v14_qwen15b_q8_0_smoke_schema_v1.json"
+    q8.write_text(
+        json.dumps(
+            {
+                "benchmark": "schema-v1-smoke",
+                "model": "Qwen2.5-Coder-1.5B-Instruct",
+                "quant": "Q8_0",
+                "calls": 4,
+                "go_no_go": {"pass": True},
+                "summary": {"parse_ok": 4, "parse_failed": 0},
+            }
+        ),
+        encoding="utf-8",
+    )
+    q6 = tmp_path / "results_v14_qwen15b_q6_k_smoke_schema_v1.json"
+    q6.write_text(
+        json.dumps(
+            {
+                "benchmark": "schema-v1-smoke",
+                "model": "Qwen2.5-Coder-1.5B-Instruct",
+                "calls": 4,
+                "go_no_go": {"pass": True},
+                "summary": {"parse_ok": 4, "parse_failed": 0},
+            }
+        ),
+        encoding="utf-8",
+    )
+    q4 = tmp_path / "results_v14_qwen15b_smoke_schema_v1.json"
+    q4.write_text(
+        json.dumps(
+            {
+                "benchmark": "schema-v1-smoke",
+                "model": "Qwen2.5-Coder-1.5B-Instruct",
+                "model_spec": "Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf",
+                "calls": 4,
+                "go_no_go": {"pass": True},
+                "summary": {"parse_ok": 4, "parse_failed": 0},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    summary = summarize_smokes([q4, q6, q8])
+
+    assert summary["summary"]["required_quant_smokes_present"] == {
+        "Q8_0": True,
+        "Q6_K": True,
+        "Q4_K_M": True,
+    }
+    assert summary["summary"]["missing_quant_smokes"] == []
+    assert [row["quant"] for row in summary["rows"]] == ["Q6_K", "Q8_0", "Q4_K_M"]
 
 
 def test_schema_smoke_summary_main_accepts_inputs(tmp_path):

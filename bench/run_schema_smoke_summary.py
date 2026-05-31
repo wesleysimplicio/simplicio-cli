@@ -19,6 +19,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS_JSON = ROOT / "bench" / "results_v14_schema_smoke_summary.json"
 RESULTS_MD = ROOT / "bench" / "results_v14_schema_smoke_summary.md"
+REQUIRED_QUANT_SMOKES = ("Q8_0", "Q6_K", "Q4_K_M")
 
 
 def summarize_smokes(inputs: list[Path]) -> dict[str, Any]:
@@ -31,6 +32,13 @@ def summarize_smokes(inputs: list[Path]) -> dict[str, Any]:
         for row in rows
         if "qwen" in row["model"].lower()
         and ("1.5" in row["model"].lower() or "15b" in row["source"].lower())
+    ]
+    required_quant_smokes_present = {
+        quant: any(row["quant"] == quant for row in qwen15b_rows)
+        for quant in REQUIRED_QUANT_SMOKES
+    }
+    missing_quant_smokes = [
+        quant for quant, present in required_quant_smokes_present.items() if not present
     ]
     return {
         "benchmark": "schema-smoke-summary",
@@ -50,6 +58,8 @@ def summarize_smokes(inputs: list[Path]) -> dict[str, Any]:
             "go_no_go_passes": sum(1 for row in rows if row["go_no_go_pass"] is True),
             "go_no_go_failures": sum(1 for row in rows if row["go_no_go_pass"] is False),
             "qwen15b_smokes": len(qwen15b_rows),
+            "required_quant_smokes_present": required_quant_smokes_present,
+            "missing_quant_smokes": missing_quant_smokes,
             "qwen15b_quant_curve_complete": False,
             "release_ready": False,
             "missing_release_evidence": [
@@ -130,13 +140,28 @@ def _row(
         "source": _relative(path),
         "format": format,
         "model": str(payload.get("model") or payload.get("model_spec") or "unknown"),
-        "quant": str(payload.get("quant") or "unknown"),
+        "quant": _quant_from_payload_or_path(path, payload),
         "calls": calls,
         "parse_ok": parse_ok,
         "parse_failed": parse_failed,
         "parse_ok_rate": round(parse_ok / max(calls, 1), 4),
         "go_no_go_pass": go_no_go_pass,
     }
+
+
+def _quant_from_payload_or_path(path: Path, payload: dict[str, Any]) -> str:
+    candidates = [
+        payload.get("quant"),
+        payload.get("model"),
+        payload.get("model_spec"),
+        path.name,
+    ]
+    for candidate in candidates:
+        value = str(candidate or "").upper()
+        for quant in REQUIRED_QUANT_SMOKES:
+            if quant in value:
+                return quant
+    return "unknown"
 
 
 def _passes_smoke(parse_ok: int, calls: int) -> bool:
@@ -159,7 +184,8 @@ def default_inputs() -> list[Path]:
     paths: list[Path] = []
     for pattern in patterns:
         paths.extend(Path(item) for item in glob.glob(str(pattern)))
-    return paths
+    output_paths = {RESULTS_JSON.resolve(), RESULTS_MD.resolve()}
+    return [path for path in paths if path.resolve() not in output_paths]
 
 
 def write_reports(summary: dict[str, Any], json_path: Path, md_path: Path) -> None:
@@ -182,6 +208,12 @@ def _to_markdown(summary: dict[str, Any]) -> str:
         f"- go/no-go passes: {meta['go_no_go_passes']}",
         f"- go/no-go failures: {meta['go_no_go_failures']}",
         f"- Qwen 1.5B smokes: {meta['qwen15b_smokes']}",
+        "- required quant smokes present: "
+        + ", ".join(
+            f"{quant}={present}"
+            for quant, present in meta["required_quant_smokes_present"].items()
+        ),
+        f"- missing quant smokes: {', '.join(meta['missing_quant_smokes']) or 'none'}",
         f"- Qwen 1.5B quant curve complete: {meta['qwen15b_quant_curve_complete']}",
         f"- release ready: {meta['release_ready']}",
         "",
