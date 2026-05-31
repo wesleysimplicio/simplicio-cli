@@ -40,6 +40,21 @@ def test_provider_charge_updates_spent_env(monkeypatch):
     assert Decimal(os.environ["SIMPLICIO_COST_SPENT_USD"]) > 0
 
 
+def test_provider_charge_updates_spent_env_before_budget_exception(monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_MAX_COST", "0.0001")
+    monkeypatch.setenv("SIMPLICIO_COST_SPENT_USD", "0")
+    monkeypatch.setenv("SIMPLICIO_PRICE_PER_MTOK", "100")
+
+    try:
+        charge_provider_call("model", "x" * 4000, "y" * 4000)
+    except BudgetExceeded:
+        pass
+    else:
+        raise AssertionError("expected BudgetExceeded")
+
+    assert Decimal(os.environ["SIMPLICIO_COST_SPENT_USD"]) > Decimal("0.0001")
+
+
 def test_provider_budget_exposes_and_restores_explicit_budget(monkeypatch):
     monkeypatch.delenv("SIMPLICIO_MAX_COST", raising=False)
     monkeypatch.delenv("SIMPLICIO_COST_SPENT_USD", raising=False)

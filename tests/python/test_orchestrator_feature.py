@@ -21,7 +21,7 @@ def _plan(*tasks):
     )
 
 
-def _task(tid, target):
+def _task(tid, target, depends_on=None):
     return Task(
         id=tid,
         goal=f"update {target}",
@@ -29,6 +29,7 @@ def _task(tid, target):
         criteria="- passes",
         constraints="- minimal",
         verify="python -c \"raise SystemExit(0)\"",
+        depends_on=depends_on or [],
     )
 
 
@@ -103,6 +104,53 @@ def test_run_feature_returns_failure_after_replan_limit(tmp_path):
 
     assert result["applied"] is False
     assert result["warnings"]
+
+
+def test_run_feature_orders_tasks_by_dependencies(tmp_path):
+    calls = []
+
+    def fake_planner(stack, goal, project_name):
+        return _plan(
+            _task("T02-b", "src/b.py", depends_on=["T01-a"]),
+            _task("T01-a", "src/a.py"),
+        )
+
+    def fake_runner(task, project_dir, stack):
+        calls.append(task.id)
+        return True, "ok"
+
+    result = run_feature(
+        root=str(tmp_path),
+        stack_slug="py-fastapi",
+        goal="implement login flow",
+        planner=fake_planner,
+        task_runner=fake_runner,
+    )
+
+    assert result["applied"] is True
+    assert calls == ["T01-a", "T02-b"]
+
+
+def test_run_feature_reports_dependency_cycle(tmp_path):
+    def fake_planner(stack, goal, project_name):
+        return _plan(
+            _task("T01-a", "src/a.py", depends_on=["T02-b"]),
+            _task("T02-b", "src/b.py", depends_on=["T01-a"]),
+        )
+
+    def fake_runner(task, project_dir, stack):
+        raise AssertionError("runner should not execute blocked dependency cycle")
+
+    result = run_feature(
+        root=str(tmp_path),
+        stack_slug="py-fastapi",
+        goal="implement login flow",
+        planner=fake_planner,
+        task_runner=fake_runner,
+    )
+
+    assert result["applied"] is False
+    assert "dependency" in result["warnings"][0]
 
 
 def test_run_feature_rejects_unknown_stack(tmp_path):
