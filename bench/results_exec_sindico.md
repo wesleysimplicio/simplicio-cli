@@ -1,8 +1,8 @@
 # Execution benchmark — real project, real tasks, real test suite
 
-Date: **2026-05-30**  
+Date: **2026-05-31**  
 Target project: [`wesleysimplicio/sistema-sindico`](https://github.com/wesleysimplicio/sistema-sindico) — a real condominium-management system in pure PHP 8 (public on GitHub, PHPUnit 11)  
-Models: `meta-llama/llama-3.2-3b-instruct`, `google/gemma-3-4b-it`, `qwen/qwen-2.5-coder-32b-instruct`  
+Models: `deepseek/deepseek-v4-flash`  
 Tasks: **12** additive real-engineering changes across `src/Core/`, `src/Middleware/`, `src/Repositories/`, and routing.
 
 ## Methodology — what "pass" actually means
@@ -26,35 +26,33 @@ All sides emit the complete file (identical output shape); the only variable is 
 
 ## Headline
 
-- **Baseline:** 6/36 (16%)
-- **simplicio-cli (6-layer):** 11/36 (30%) — **+14 pts vs baseline**
-- **simplicio-cli + simplicio-prompt (composition):** 9/36 (25%) — **+9 pts vs baseline · -5 pts vs cli alone**
-- **simplicio-cli + agents (verify-loop):** 11/36 (30%) — **+14 pts vs baseline · +0 pts vs cli alone**
+- **Baseline:** 6/12 (50%)
+- **simplicio-cli (6-layer):** 11/12 (91%) — **+41 pts vs baseline**
+- **simplicio-cli + simplicio-prompt (composition):** 9/12 (75%) — **+25 pts vs baseline · -16 pts vs cli alone**
+- **simplicio-cli + agents (verify-loop):** 12/12 (100%) — **+50 pts vs baseline · +9 pts vs cli alone**
 
 ## Per-model (pass = full PHPUnit suite green)
 
 | Model | Baseline | cli alone | cli + sp | cli + ag | D cli | D (cli+sp) | D (cli+ag) |
 |---|---|---|---|---|---|---|---|
-| `meta-llama/llama-3.2-3b-instruct` | 1/12 (8%) | 1/12 (8%) | 1/12 (8%) | 1/12 (8%) | **+0** | **+0** | **+0** |
-| `google/gemma-3-4b-it` | 4/12 (33%) | 8/12 (66%) | 6/12 (50%) | 8/12 (66%) | **+33** | **+17** | **+33** |
-| `qwen/qwen-2.5-coder-32b-instruct` | 1/12 (8%) | 2/12 (16%) | 2/12 (16%) | 2/12 (16%) | **+8** | **+8** | **+8** |
+| `deepseek/deepseek-v4-flash` | 6/12 (50%) | 11/12 (91%) | 9/12 (75%) | 12/12 (100%) | **+41** | **+25** | **+50** |
 
 ## Per-task × model (baseline / cli / cli+sp / cli+ag)
 
-| Task | llama-3.2-3b-instruct | gemma-3-4b-it | qwen-2.5-coder-32b-instruct |
-|---|---|---|---|
-| password_strength | ./././.(3) | ./P/P/P(1) | ./././.(3) |
-| password_require_symbol | ./././.(3) | ./././.(3) | ./././.(3) |
-| env_get_int | ./././.(3) | ./P/P/P(1) | ./P/P/P(1) |
-| env_get_bool | ./././.(3) | ./P/./P(1) | P/P/P/P(1) |
-| admin_only_allowed_roles | P/P/P/P(1) | P/P/P/P(1) | ./././.(3) |
-| rate_limit_bucket_key | ./././.(3) | ./P/P/P(1) | ./././.(3) |
-| base_repository_build_where_sql | ./././.(3) | ./././.(3) | ./././.(3) |
-| router_has | ./././.(3) | P/P/P/P(1) | ./././.(3) |
-| bugfix_password_policy_lowercase | ./././.(3) | P/P/P/P(1) | ./././.(3) |
-| password_assess | ./././.(3) | P/P/./P(1) | ./././.(3) |
-| base_repository_build_update_sql | ./././.(3) | ./././.(3) | ./././.(3) |
-| router_extract_params | ./././.(3) | ./././.(3) | ./././.(3) |
+| Task | deepseek-v4-flash |
+|---|---|
+| password_strength | ./P/P/P(1) |
+| password_require_symbol | P/P/P/P(1) |
+| env_get_int | ./P/P/P(1) |
+| env_get_bool | ./P/P/P(1) |
+| admin_only_allowed_roles | P/P/P/P(1) |
+| rate_limit_bucket_key | ./P/P/P(1) |
+| base_repository_build_where_sql | P/P/P/P(1) |
+| router_has | P/P/./P(1) |
+| bugfix_password_policy_lowercase | ./P/./P(1) |
+| password_assess | P/P/P/P(1) |
+| base_repository_build_update_sql | ././P/P(1) |
+| router_extract_params | P/P/./P(1) |
 
 Format suffix `(N)` on cli+ag is the number of verify-loop attempts consumed (1–3). Lower is better; 1 means it passed on the first try, no feedback needed.
 
