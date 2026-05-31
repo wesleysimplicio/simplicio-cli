@@ -115,6 +115,50 @@ def _build_runtime(model_id: str):
     )
 
 
+# ---- local transformers backend (model_id prefixed with "local:") ---- #
+# For Qwen 2.5 Coder 1.5B / 3B running on CPU. SubagentRuntime can't reach
+# these (no HTTP endpoint), so we run N sequential generations via the same
+# `bench/run_offline.local_call()` machinery used by single-call benches.
+
+def _is_local(model_id: str) -> bool:
+    return model_id.startswith("local:")
+
+
+def _local_fanout(model_id: str, sp_wrapped_prompt: str, n: int,
+                  system: str) -> dict:
+    """Run N sequential generations via transformers (CPU). Returns the same
+    shape as a SubagentRuntime report (text per result + total token usage)."""
+    import sys
+    from pathlib import Path
+    bench_dir = Path(__file__).resolve().parent
+    sys.path.insert(0, str(bench_dir))
+    import run_offline as ro
+
+    local_model = model_id.split(":", 1)[1]
+    full_prompt = (system + "\n\n" if system else "") + sp_wrapped_prompt
+    t0 = time.perf_counter()
+    texts: list[str] = []
+    tokens_total = 0
+    completed = 0
+    failed = 0
+    for _ in range(n):
+        res = ro.local_call(local_model, full_prompt)
+        if res.get("error"):
+            failed += 1
+            texts.append("")
+        else:
+            completed += 1
+            texts.append(res.get("text", ""))
+            tokens_total += res.get("total_tokens", 0)
+    return {
+        "texts": texts,
+        "tokens_total": tokens_total,
+        "completed": completed,
+        "failed": failed,
+        "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+    }
+
+
 def sp_fanout_complete(model_id: str, sp_wrapped_prompt: str,
                         system: str = "You are a senior engineer.",
                         subagents: int = DEFAULT_SUBAGENTS) -> dict:
@@ -217,46 +261,63 @@ def sp_fanout_escalating(
     last_parse_fail = 0
     last_passed = False
 
-    try:
-        runtime = _build_runtime(model_id)
-    except SystemExit as e:
-        return {
-            "text": "", "tokens": 0,
-            "ms": int((time.perf_counter() - t0) * 1000),
-            "uniq": 0, "modal_count": 0, "subagents": 0,
-            "passed": False, "cycles_run": 0,
-            "tier_history": [], "escalated": False,
-            "error": str(e),
-        }
+    local_mode = _is_local(model_id)
+    runtime = None
+    if not local_mode:
+        try:
+            runtime = _build_runtime(model_id)
+        except SystemExit as e:
+            return {
+                "text": "", "tokens": 0,
+                "ms": int((time.perf_counter() - t0) * 1000),
+                "uniq": 0, "modal_count": 0, "subagents": 0,
+                "passed": False, "cycles_run": 0,
+                "tier_history": [], "escalated": False,
+                "error": str(e),
+            }
 
     for cycle, n in enumerate(tier_list, start=1):
         cycle_start = time.perf_counter()
-        prompts = [{"system": system, "prompt": final_prompt}] * n
-        try:
-            try:
-                report = runtime.run(
-                    task=f"sp-escalate-cycle{cycle}",
-                    subagents=n, prompts=prompts,
-                    use_cache=False, diversify=True,
-                )
-            except TypeError:
-                report = runtime.run(
-                    task=f"sp-escalate-cycle{cycle}",
-                    subagents=n, prompts=prompts, use_cache=False,
-                )
-        except Exception as e:
-            history.append({
-                "cycle": cycle, "n": n, "error": str(e),
-                "elapsed_ms": int((time.perf_counter() - cycle_start) * 1000),
-            })
-            break
 
-        texts = [r.text for r in report.results if getattr(r, "ok", False)]
-        cycle_tokens = (
-            getattr(report.usage, "total_tokens", 0)
-            if hasattr(report, "usage") else 0
-        )
-        total_tokens += cycle_tokens
+        if local_mode:
+            try:
+                local_res = _local_fanout(model_id, final_prompt, n, system)
+            except Exception as e:
+                history.append({
+                    "cycle": cycle, "n": n, "error": str(e),
+                    "elapsed_ms": int((time.perf_counter() - cycle_start) * 1000),
+                })
+                break
+            texts = local_res["texts"]
+            cycle_tokens = local_res["tokens_total"]
+            total_tokens += cycle_tokens
+        else:
+            prompts = [{"system": system, "prompt": final_prompt}] * n
+            try:
+                try:
+                    report = runtime.run(
+                        task=f"sp-escalate-cycle{cycle}",
+                        subagents=n, prompts=prompts,
+                        use_cache=False, diversify=True,
+                    )
+                except TypeError:
+                    report = runtime.run(
+                        task=f"sp-escalate-cycle{cycle}",
+                        subagents=n, prompts=prompts, use_cache=False,
+                    )
+            except Exception as e:
+                history.append({
+                    "cycle": cycle, "n": n, "error": str(e),
+                    "elapsed_ms": int((time.perf_counter() - cycle_start) * 1000),
+                })
+                break
+
+            texts = [r.text for r in report.results if getattr(r, "ok", False)]
+            cycle_tokens = (
+                getattr(report.usage, "total_tokens", 0)
+                if hasattr(report, "usage") else 0
+            )
+            total_tokens += cycle_tokens
 
         if structured:
             parsed = [StructuredResponse.from_text(t) for t in texts]
