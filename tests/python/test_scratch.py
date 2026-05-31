@@ -510,10 +510,13 @@ def test_executor_report_records_codegen_metrics() -> None:
         assert (report.project_dir / "src/app/api/units/route.ts").is_file()
 
 
-def test_executor_line_diff_counts_created_and_changed_files() -> None:
+def test_executor_line_diff_counts_created_changed_and_deleted_files() -> None:
     from simplicio.scratch.executor import _line_diff
 
-    before = {"existing.py": ["old", "same"]}
+    before = {
+        "existing.py": ["old", "same"],
+        "deleted.py": ["gone", "gone too"],
+    }
     after = {
         "existing.py": ["new", "same", "extra"],
         "created.py": ["one", "two"],
@@ -522,12 +525,18 @@ def test_executor_line_diff_counts_created_and_changed_files() -> None:
     totals, rows = _line_diff(before, after)
 
     assert totals["files_created"] == 1
-    assert totals["files_changed"] == 1
+    assert totals["files_changed"] == 2
+    assert totals["files_deleted"] == 1
     assert totals["lines_generated"] == 2
-    assert totals["lines_modified"] == 3
+    assert totals["lines_modified"] == 5
     assert totals["lines_added"] == 4
-    assert totals["lines_removed"] == 1
-    assert {row["path"] for row in rows} == {"existing.py", "created.py"}
+    assert totals["lines_removed"] == 3
+    assert {row["path"] for row in rows} == {
+        "existing.py",
+        "created.py",
+        "deleted.py",
+    }
+    assert [row for row in rows if row["path"] == "deleted.py"][0]["deleted"] is True
 
 
 def test_executor_runs_ts_nextjs_crud_recipe_without_llm(monkeypatch) -> None:

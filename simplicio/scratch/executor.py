@@ -313,6 +313,7 @@ def _aggregate_line_stats(tasks: list[TaskResult]) -> dict[str, int]:
     keys = (
         "files_created",
         "files_changed",
+        "files_deleted",
         "lines_generated",
         "lines_modified",
         "lines_added",
@@ -374,6 +375,7 @@ def _line_diff(
     totals = {
         "files_created": 0,
         "files_changed": 0,
+        "files_deleted": 0,
         "lines_generated": 0,
         "lines_modified": 0,
         "lines_added": 0,
@@ -389,6 +391,7 @@ def _line_diff(
                 "lines_added": len(after_lines),
                 "lines_removed": 0,
                 "created": True,
+                "deleted": False,
             }
             totals["files_created"] += 1
             totals["lines_generated"] += len(after_lines)
@@ -405,11 +408,29 @@ def _line_diff(
             "lines_added": added,
             "lines_removed": removed,
             "created": False,
+            "deleted": False,
         }
         totals["files_changed"] += 1
         totals["lines_modified"] += added + removed
         totals["lines_added"] += added
         totals["lines_removed"] += removed
+        file_rows.append(row)
+    for rel_path, before_lines in sorted(before.items()):
+        if rel_path in after:
+            continue
+        row = {
+            "path": rel_path,
+            "before_lines": len(before_lines),
+            "after_lines": 0,
+            "lines_added": 0,
+            "lines_removed": len(before_lines),
+            "created": False,
+            "deleted": True,
+        }
+        totals["files_changed"] += 1
+        totals["files_deleted"] += 1
+        totals["lines_modified"] += len(before_lines)
+        totals["lines_removed"] += len(before_lines)
         file_rows.append(row)
     return totals, file_rows
 

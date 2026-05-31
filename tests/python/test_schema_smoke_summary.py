@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import json
 
-from bench.run_schema_smoke_summary import main, summarize_smokes, write_reports
+from bench.run_schema_smoke_summary import (
+    _passes_smoke,
+    main,
+    summarize_smokes,
+    write_reports,
+)
 
 
 def test_schema_smoke_summary_normalizes_supported_formats(tmp_path):
@@ -87,6 +92,11 @@ def test_schema_smoke_summary_writes_reports(tmp_path):
     md = md_path.read_text(encoding="utf-8")
     assert "# Schema Smoke Summary" in md
     assert "release ready: False" in md
+
+
+def test_schema_smoke_summary_go_no_go_rounds_odd_calls_up() -> None:
+    assert _passes_smoke(2, 5) is False
+    assert _passes_smoke(3, 5) is True
 
 
 def test_schema_smoke_summary_detects_required_qwen15b_quants(tmp_path):

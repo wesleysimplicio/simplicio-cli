@@ -176,7 +176,7 @@ Repo-local evidence:
   `bench/results_unified_run_bench.{json,md}` provide a fixture-backed F5
   comparison schema for cli+ag, unified feature/sprint, and Codex `/goal`.
   This is explicitly marked fixture-only and not release-ready.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `447
+- Validation in this worktree: `python -m pytest tests/python -q` -> `448
   passed, 3 skipped`.
 
 Suggested comment:

@@ -511,6 +511,7 @@ def _payload_line_stats(payload: dict[str, Any] | None) -> dict[str, int]:
     mapping = {
         "files_created": "files_created_total",
         "files_changed": "files_changed_total",
+        "files_deleted": "files_deleted_total",
         "lines_generated": "lines_generated_total",
         "lines_modified": "lines_modified_total",
         "lines_added": "lines_added_total",

@@ -165,7 +165,7 @@ def _quant_from_payload_or_path(path: Path, payload: dict[str, Any]) -> str:
 
 
 def _passes_smoke(parse_ok: int, calls: int) -> bool:
-    return parse_ok >= max(1, calls // 2)
+    return parse_ok >= max(1, (calls + 1) // 2)
 
 
 def _relative(path: Path) -> str:
