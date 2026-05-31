@@ -143,6 +143,7 @@ No prose, no preamble."""
 # that hosted providers do not serve (for example Qwen2.5-Coder-1.5B).
 
 _LOCAL_MODELS: dict = {}
+_GGUF_MODELS: dict = {}
 
 
 def _load_local(model_id: str):
@@ -158,7 +159,71 @@ def _load_local(model_id: str):
     return _LOCAL_MODELS[model_id]
 
 
+def _load_gguf(gguf_path: str):
+    """Load a GGUF model via llama-cpp-python. Path can be absolute or
+    relative to ~/models. CPU-only inference; supports Q4_K_M / Q5_K_M /
+    Q8_0 quants standardly published by bartowski."""
+    if gguf_path in _GGUF_MODELS:
+        return _GGUF_MODELS[gguf_path]
+    from llama_cpp import Llama
+    import os as _os
+    full = gguf_path if _os.path.isabs(gguf_path) else _os.path.expanduser(
+        f"~/models/{gguf_path}"
+    )
+    if not _os.path.isfile(full):
+        raise FileNotFoundError(f"GGUF model not found: {full}")
+    llm = Llama(
+        model_path=full,
+        n_ctx=int(_os.environ.get("BENCH_GGUF_CTX", "4096")),
+        n_threads=int(_os.environ.get("BENCH_GGUF_THREADS", "4")),
+        verbose=False,
+        seed=int(_os.environ.get("BENCH_GGUF_SEED", "-1")),
+    )
+    _GGUF_MODELS[gguf_path] = llm
+    return llm
+
+
+def gguf_call(gguf_path: str, prompt: str) -> dict:
+    """Run prompt through a llama.cpp GGUF model. Returns the same shape
+    as local_call/llm_call so the rest of the bench harness can call it
+    transparently when model_id starts with 'gguf:'."""
+    max_new = int(os.environ.get("BENCH_LOCAL_MAX_TOKENS", "1024"))
+    t0 = time.perf_counter()
+    try:
+        llm = _load_gguf(gguf_path)
+        msgs = [{"role": "user", "content": prompt}]
+        out = llm.create_chat_completion(
+            messages=msgs,
+            max_tokens=max_new,
+            temperature=float(os.environ.get("BENCH_LOCAL_TEMP", "0.7")),
+            top_p=0.9,
+        )
+        text = out["choices"][0]["message"]["content"]
+        usage = out.get("usage") or {}
+        return {
+            "text": text,
+            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+            "completion_tokens": int(usage.get("completion_tokens", 0)),
+            "total_tokens": int(usage.get("total_tokens", 0)),
+            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+            "error": None,
+        }
+    except Exception as e:
+        return {
+            "text": "", "prompt_tokens": 0, "completion_tokens": 0,
+            "total_tokens": 0,
+            "elapsed_ms": int((time.perf_counter() - t0) * 1000),
+            "error": str(e),
+        }
+
+
 def local_call(model_id: str, prompt: str) -> dict:
+    # Route to GGUF backend when the model_id contains a path to a .gguf file.
+    if model_id.startswith("gguf:") or model_id.endswith(".gguf"):
+        return gguf_call(
+            model_id[5:] if model_id.startswith("gguf:") else model_id,
+            prompt,
+        )
     import torch
     max_new = int(os.environ.get("BENCH_LOCAL_MAX_TOKENS", "1024"))
     t0 = time.perf_counter()
