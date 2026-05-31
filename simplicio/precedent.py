@@ -62,9 +62,41 @@ SKIP = (
 )
 
 
+def _resolve_stack_key(stack):
+    """Map rich project stack labels to the lightweight precedent scanners."""
+    key = (stack or "").strip().lower()
+    if key in PATTERNS:
+        return key
+    compact = re.sub(r"[^a-z0-9]+", "-", key).strip("-")
+    if "angular" in compact:
+        return "angular"
+    if "react" in compact or "next" in compact or "vite" in compact:
+        return "react"
+    if (
+        "dotnet" in compact
+        or "aspnet" in compact
+        or "csharp" in compact
+        or "blazor" in compact
+    ):
+        return "dotnet"
+    return None
+
+
+def _embedding_index_enabled():
+    return os.getenv("SIMPLICIO_ENABLE_EMBED_INDEX", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
 def grep_candidates(root, stack, window=1):
-    pats = [re.compile(p) for p in PATTERNS[stack]]
-    exts = EXT[stack]
+    stack_key = _resolve_stack_key(stack)
+    if stack_key is None:
+        return []
+    pats = [re.compile(p) for p in PATTERNS[stack_key]]
+    exts = EXT[stack_key]
     cands = []
     for fp in glob.glob(f"{root}/**/*", recursive=True):
         if not os.path.isfile(fp) or not fp.endswith(exts):
@@ -88,13 +120,15 @@ def index_repo(root, stack, verbose=True):
     cands = grep_candidates(root, stack)
     texts = list({c["code"] for c in cands})  # dedup
     missing = cache.get_missing(texts)
-    if missing:
+    embedded = 0
+    if missing and _embedding_index_enabled():
         vectors = _embedder().encode(missing, show_progress_bar=False)
         cache.add(missing, vectors)
         cache.save()
+        embedded = len(missing)
     if verbose:
         print(
-            f"[index] candidates={len(cands)} newly_embedded={len(missing)} "
+            f"[index] candidates={len(cands)} newly_embedded={embedded} "
             f"cache_total={cache.stats()['cached_blocks']}"
         )
     return cache, cands
@@ -123,13 +157,14 @@ def build_precedent_block(root, stack, task, k=2):
                 lines.append(str(c["snippet"])[:1200])
         return "\n".join(lines)
 
-    if stack not in PATTERNS:
+    stack_key = _resolve_stack_key(stack)
+    if stack_key is None:
         return (
             "[PRECEDENT]\n"
             f"(no stack-specific precedent scanner for {stack!r} — generate from scratch using stack convention)"
         )
 
-    cache, cands = index_repo(root, stack, verbose=False)
+    cache, cands = index_repo(root, stack_key, verbose=False)
     if not cands:
         return "[PRECEDENT]\n(no similar pattern in repo — generate from scratch using stack convention)"
     texts = [c["code"] for c in cands]

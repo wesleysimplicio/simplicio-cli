@@ -2,6 +2,7 @@ import json
 
 from simplicio import bench
 from simplicio import pipeline
+from simplicio import precedent as precedent_module
 from simplicio import prompt as prompt_module
 from simplicio.pipeline_fixers import FixerResult
 from simplicio.precedent import build_precedent_block
@@ -112,6 +113,34 @@ def test_precedent_unknown_stack_falls_back_without_keyerror(tmp_path):
 
     assert "[PRECEDENT]" in block
     assert "no stack-specific precedent scanner" in block
+
+
+def test_precedent_alias_stack_scanner_handles_project_stack_labels(tmp_path):
+    target = tmp_path / "src" / "app" / "app.routes.ts"
+    target.parent.mkdir(parents=True)
+    target.write_text("export const routes = [{ canActivate: [authGuard] }];\n", encoding="utf-8")
+
+    candidates = precedent_module.grep_candidates(str(tmp_path), "node-ts-angular")
+
+    assert len(candidates) == 1
+    assert candidates[0]["line"] == 1
+
+
+def test_index_repo_skips_heavy_embedding_by_default(tmp_path, monkeypatch):
+    target = tmp_path / "src" / "app" / "app.routes.ts"
+    target.parent.mkdir(parents=True)
+    target.write_text("export const routes = [{ canActivate: [authGuard] }];\n", encoding="utf-8")
+
+    monkeypatch.delenv("SIMPLICIO_ENABLE_EMBED_INDEX", raising=False)
+    monkeypatch.setattr(
+        precedent_module,
+        "_embedder",
+        lambda: (_ for _ in ()).throw(AssertionError("embedder should not load")),
+    )
+
+    _, candidates = precedent_module.index_repo(str(tmp_path), "node-ts-angular", verbose=False)
+
+    assert len(candidates) == 1
 
 
 def test_prompt_adds_model_adaptation_and_decomposition(tmp_path, monkeypatch):

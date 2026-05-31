@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.5] — 2026-05-31
+
+### Changed
+- Precedent indexing now maps rich stack labels such as `node-ts-angular`,
+  `react-vite`, `csharp-aspnet` and `dotnet-*` onto the existing lightweight
+  scanners instead of raising `KeyError`.
+- Unknown stack labels now return no grep candidates during `simplicio index`
+  and keep the existing safe fallback message in prompt precedent generation.
+- `simplicio index` no longer loads the legacy embedding model by default,
+  avoiding native OpenMP crashes during cheap repo scans; set
+  `SIMPLICIO_ENABLE_EMBED_INDEX=1` to opt into the old embedding cache path.
+- The `simplicio-mapper` dependency floor now points at `0.6.5`, which skips
+  generated Playwright output during project-map refreshes.
+
 ## [0.5.4] — 2026-05-31
 
 ### Changed
