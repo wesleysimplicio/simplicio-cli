@@ -263,8 +263,18 @@ def generate(prompt, feedback=None, max_tokens=4000):
     # offline-first default when nothing is configured. No API key, no HTTP.
     if _is_local(model, c["base"]):
         eff_model = model or (LOCAL_MODEL_PREFIX + "default")
+        # Fold the resolved weights into the cache key: two different GGUFs can
+        # both route as `local-llama/default` (via SIMPLICIO_LOCAL_MODEL_PATH /
+        # _REPO / _FILE), and must NOT share cached completions.
+        repo, fname, path = _local_spec(eff_model)
+        weights = path or f"{repo}/{fname}"
         key = make_key(
-            "local-llama", eff_model, prompt, feedback=feedback, max_tokens=max_tokens
+            "local-llama",
+            eff_model,
+            prompt,
+            feedback=feedback,
+            max_tokens=max_tokens,
+            weights=weights,
         )
         cached = cache().get(key)
         if cached is not None:

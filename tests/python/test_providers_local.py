@@ -5,6 +5,7 @@ installed in CI, so we test the routing/spec resolution directly and stub the
 heavy model load (`_local_llama`) when exercising generate().
 """
 
+import os
 import sys
 import types
 from unittest.mock import MagicMock
@@ -291,6 +292,27 @@ def test_local_generate_caps_tokens_and_temp(monkeypatch):
     kwargs = llm.create_chat_completion.call_args[1]
     assert kwargs["max_tokens"] == 256  # cap overrides the 4000 arg
     assert kwargs["temperature"] == 0.4
+
+
+def test_generate_cache_key_includes_weights(monkeypatch):
+    # Two different GGUFs both routed as the default must not collide in cache.
+    seen = []
+
+    def fake_local(prompt, feedback, model, max_tokens):
+        seen.append(os.environ.get("SIMPLICIO_LOCAL_MODEL_PATH"))
+        return f"out:{os.environ.get('SIMPLICIO_LOCAL_MODEL_PATH')}"
+
+    monkeypatch.setenv("SIMPLICIO_CACHE", "1")
+    monkeypatch.setattr(providers, "_local_generate", fake_local)
+
+    monkeypatch.setenv("SIMPLICIO_LOCAL_MODEL_PATH", "/models/a.gguf")
+    out_a = providers.generate("same prompt")
+    monkeypatch.setenv("SIMPLICIO_LOCAL_MODEL_PATH", "/models/b.gguf")
+    out_b = providers.generate("same prompt")
+
+    assert out_a == "out:/models/a.gguf"
+    assert out_b == "out:/models/b.gguf"  # not served stale from model A
+    assert seen == ["/models/a.gguf", "/models/b.gguf"]
 
 
 def _touch(monkeypatch):
