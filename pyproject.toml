@@ -1,6 +1,6 @@
 [project]
 name = "simplicio-cli"
-version = "0.4.4"
+version = "0.5.0"
 description = "Portable task-to-code pipeline that works with any LLM. Turn a one-line task into a verified code change — diff + test + verify loop. +55 pts on a 156-check benchmark, 21% faster, ~same tokens."
 readme = "README.md"
 license = { text = "MIT" }
@@ -55,6 +55,9 @@ dependencies = [
 
 [project.optional-dependencies]
 bench = ["fpdf2>=2.7"]
+# Offline-first in-process inference (Path 4). Pulls the llama.cpp Python
+# bindings plus huggingface-hub to fetch the default Qwen2.5-Coder-1.5B GGUF.
+local = ["llama-cpp-python>=0.3.2", "huggingface-hub>=0.23"]
 
 [project.urls]
 Homepage = "https://github.com/wesleysimplicio/simplicio-cli"

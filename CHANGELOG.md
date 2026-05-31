@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-05-31
+
+### Added
+- **Path 4: in-process local inference via `llama-cpp-python`** (issue #42).
+  A new offline-first provider runs a GGUF model directly in the Python
+  process — zero API key, zero HTTP overhead. The model is loaded once and
+  reused across calls.
+  - **Default local model:** `Qwen2.5-Coder-1.5B-Instruct-Q5_K_M` from
+    `bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF`, fetched once from the
+    Hugging Face Hub.
+  - **Auto-default:** when neither `SIMPLICIO_MODEL` nor `SIMPLICIO_BASE_URL`
+    is set, simplicio now routes to this local model instead of erroring.
+  - **Explicit route:** `SIMPLICIO_MODEL=local-llama/<repo>::<file.gguf>`,
+    `local-llama/default`, or `local-llama//abs/path/model.gguf`.
+  - **`simplicio task --local`** forces the local model regardless of ambient
+    config.
+  - **Tuning knobs:** `SIMPLICIO_LOCAL_MODEL_PATH`, `SIMPLICIO_LOCAL_MODEL_REPO`,
+    `SIMPLICIO_LOCAL_MODEL_FILE`, `SIMPLICIO_LOCAL_CTX`,
+    `SIMPLICIO_LOCAL_THREADS`, `SIMPLICIO_LOCAL_GPU_LAYERS`,
+    `SIMPLICIO_LOCAL_MAX_TOKENS`, `SIMPLICIO_LOCAL_TEMP`.
+  - New optional extra: `pip install 'simplicio-cli[local]'`
+    (`llama-cpp-python>=0.3.2`, `huggingface-hub>=0.23`).
+
+### Changed
+- `simplicio` with no provider configured no longer raises — it falls back to
+  the local Qwen model (offline-first). Set `SIMPLICIO_BASE_URL` or
+  `SIMPLICIO_MODEL` to opt back into a remote provider.
+
 ## [0.4.4] — 2026-05-30
 
 ### Added
