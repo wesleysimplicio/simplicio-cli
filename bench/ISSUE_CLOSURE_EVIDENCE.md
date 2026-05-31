@@ -4,10 +4,11 @@ Date: 2026-05-31
 Repo: `wesleysimplicio/simplicio-dev-cli`
 Branch inspected: `codex/finish-github-issues`
 
-This file is a local evidence index for the tracked GitHub issues:
-`#32`, `#33`, `#41`, and `#46`.
+This file is a local evidence index for the tracked open GitHub issues:
+`#32`, `#33`, and `#41`.
 
-Recently closed issue tracked here for historical closure evidence: `#37`.
+Recently closed issues tracked here for historical closure evidence: `#37` and
+`#46`.
 Related implementation PR: `#47`
 (`https://github.com/wesleysimplicio/simplicio-dev-cli/pull/47`), currently
 open as a draft.
@@ -26,13 +27,13 @@ Scope of this artifact:
 | `#32` | from-scratch mode + planner + SkillOpt | keep open until SkillOpt human approval evidence is supplied |
 | `#33` | reduce LLM dependency across simplicio flow | keep open until remaining release evidence is complete |
 | `#41` | unified `simplicio run` orchestrator | keep open; F0/F1/F2/F3/F4 foundation plus F5 fixture schema are present, live bench still incomplete |
-| `#46` | Qwen2.5-Coder-1.5B GGUF quant curve | close-ready locally; required smokes and final negative decision artifacts are present |
 
 ## Recently Closed Issues
 
 | issue | title | closure posture |
 | --- | --- | --- |
 | `#37` | mechanical task executors via libcst/ts-morph | closed on 2026-05-31 as implementation-complete; remaining full-corpus release baseline stays tracked by `#33` |
+| `#46` | Qwen2.5-Coder-1.5B GGUF quant curve | closed on 2026-05-31 with completed negative schema-v1 viability decision artifacts |
 
 ## Issue #32 Evidence
 
@@ -124,7 +125,7 @@ Repo-local evidence:
 - `bench/run_issue_closure_audit.py` and
   `bench/results_issue_closure_audit.{json,md}` now provide a machine-readable
   close-readiness audit for #32/#33/#41/#46. The current audit reports `1/4`
-  issues close-ready: #46 is ready to close, while #32/#33/#41 still show
+  issues close-ready: #46 is closed, while #32/#33/#41 still show
   blockers.
 
 Suggested comment:
@@ -253,7 +254,7 @@ unified feature/sprint, and Codex `/goal` runs still need to be captured before
 
 ## Issue #46 Evidence
 
-Status: close-ready locally with a negative viability decision.
+Status: closed on GitHub with a negative viability decision.
 
 Repo-local evidence:
 
@@ -318,4 +319,3 @@ protocol.
    attached to the release reports.
 2. Continue `#41` by capturing and ingesting real F5 live rows for cli+ag,
    unified feature/sprint, and Codex `/goal`.
-3. Close `#46` with the completed negative quant-curve decision artifacts.
