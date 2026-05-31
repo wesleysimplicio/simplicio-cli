@@ -8,9 +8,13 @@ collected incrementally without redefining partial evidence as release-ready.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import importlib.util
 import json
 import os
 import platform
+import re
+import shutil
 import shlex
 import statistics
 import subprocess
@@ -28,8 +32,18 @@ from bench.run_scratch_release_gate import PILOT_STACKS, RELEASE_GOALS  # noqa: 
 from simplicio.scratch.stack_registry import StackRegistry  # noqa: E402
 
 
+_FRONTMATTER_RE = re.compile(r"\A---\s*\n(?P<body>.*?)\n---", re.DOTALL)
+_FIELD_RE = re.compile(r"^(?P<key>[A-Za-z0-9_-]+):\s*(?P<value>.*?)\s*$")
+_ENV_ASSIGNMENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=.*$")
+
 RESULTS_JSON = ROOT / "bench" / "results_scratch_live_gate.json"
 RESULTS_MD = ROOT / "bench" / "results_scratch_live_gate.md"
+CODEGEN_DISABLED_RESULTS_JSON = (
+    ROOT / "bench" / "results_scratch_live_gate_codegen_disabled_baseline.json"
+)
+CODEGEN_DISABLED_RESULTS_MD = (
+    ROOT / "bench" / "results_scratch_live_gate_codegen_disabled_baseline.md"
+)
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
 
@@ -46,6 +60,7 @@ def run_live_gate(
     disable_codegen: bool = False,
     timeout_seconds: int = 900,
     skillopt_review: dict[str, Any] | None = None,
+    skip_existing_keys: set[tuple[str, str]] | None = None,
     runner: Runner = subprocess.run,
 ) -> dict[str, Any]:
     if max_runs is not None and max_runs < 1:
@@ -60,9 +75,21 @@ def run_live_gate(
         for goal_index, _goal in enumerate(goals, start=1)
         for stack in stacks
     ]
+    if skip_existing_keys:
+        matrix = [
+            (goal_index, stack)
+            for goal_index, stack in matrix
+            if (goals[goal_index - 1], stack) not in skip_existing_keys
+        ]
     if max_runs is not None:
         matrix = matrix[:max_runs]
 
+    selected_stacks = tuple(dict.fromkeys(stack for _goal_index, stack in matrix))
+    runtime_tool_preflight = _post_verify_tool_preflight(
+        selected_stacks,
+        enabled=post_verify and not plan_only,
+        registry=registry,
+    )
     rows = []
     t0 = time.perf_counter()
     for run_number, (goal_index, stack) in enumerate(matrix, start=1):
@@ -91,6 +118,7 @@ def run_live_gate(
         plan_only=plan_only,
         post_verify=post_verify,
         skillopt_review=skillopt_review,
+        runtime_tool_preflight=runtime_tool_preflight,
     )
     return {
         "benchmark": "scratch-live-gate",
@@ -216,6 +244,7 @@ def _run_one(
         verify=verify,
     )
     scratch_metrics = _scratch_metrics(payload)
+    line_stats = _payload_line_stats(payload)
     cost_usd = _payload_cost_usd(payload)
     return {
         "run_number": run_number,
@@ -229,6 +258,7 @@ def _run_one(
         "duration_s": duration_s,
         **metrics,
         "scratch_metrics": scratch_metrics,
+        "line_stats": line_stats,
         "cost_usd": cost_usd,
         "codegen_disabled": disable_codegen,
         "post_verify": verify,
@@ -341,6 +371,9 @@ def _post_verify(
         ("test", stack.test_command),
         ("lint", stack.lint_command),
     ]
+    runtime_tool_preflight = _command_tool_preflight(
+        [(stack_slug, name, command) for name, command in commands]
+    )
     rows = []
     started = time.perf_counter()
     for name, command in commands:
@@ -365,8 +398,162 @@ def _post_verify(
         "enabled": True,
         "passed": bool(ran) and all(row.get("passed") for row in ran),
         "duration_s": round(time.perf_counter() - started, 3),
+        "runtime_tool_preflight": runtime_tool_preflight,
         "commands": rows,
     }
+
+
+def _post_verify_tool_preflight(
+    stack_slugs: tuple[str, ...],
+    *,
+    enabled: bool,
+    registry: StackRegistry,
+) -> dict[str, Any]:
+    if not enabled:
+        return _empty_runtime_tool_preflight(enabled=False)
+
+    command_specs = []
+    unknown_stacks = []
+    for stack_slug in stack_slugs:
+        stack = registry.get(stack_slug)
+        if stack is None:
+            unknown_stacks.append(stack_slug)
+            continue
+        command_specs.extend(
+            [
+                (stack_slug, "test", stack.test_command),
+                (stack_slug, "lint", stack.lint_command),
+            ]
+        )
+    preflight = _command_tool_preflight(command_specs)
+    if unknown_stacks:
+        preflight["unknown_stacks"] = unknown_stacks
+    return preflight
+
+
+def _command_tool_preflight(
+    command_specs: list[tuple[str, str, str]],
+) -> dict[str, Any]:
+    rows = []
+    for stack_slug, name, command in command_specs:
+        row: dict[str, Any] = {
+            "stack": stack_slug,
+            "name": name,
+            "command": command or "",
+        }
+        if command:
+            row.update(_runtime_tool_check(command))
+        else:
+            row.update(
+                {
+                    "tool": None,
+                    "available": None,
+                    "path": None,
+                    "skipped": True,
+                    "diagnostic": "empty post-verify command",
+                }
+            )
+        rows.append(row)
+
+    checked = [row for row in rows if row.get("available") is not None]
+    available_tools = sorted(
+        {str(row["tool"]) for row in checked if row.get("available")}
+    )
+    missing_tools = sorted(
+        {str(row["tool"]) for row in checked if row.get("available") is False}
+    )
+    return {
+        "enabled": True,
+        "scope": "post_verify",
+        "commands": rows,
+        "required_tools": sorted({str(row["tool"]) for row in checked}),
+        "available_tools": available_tools,
+        "missing_tools": missing_tools,
+        "checked_commands": len(checked),
+        "unchecked_commands": sum(1 for row in rows if row.get("available") is None),
+    }
+
+
+def _empty_runtime_tool_preflight(*, enabled: bool) -> dict[str, Any]:
+    return {
+        "enabled": enabled,
+        "scope": "post_verify",
+        "commands": [],
+        "required_tools": [],
+        "available_tools": [],
+        "missing_tools": [],
+        "checked_commands": 0,
+        "unchecked_commands": 0,
+    }
+
+
+def _runtime_tool_check(command: str) -> dict[str, Any]:
+    try:
+        parts = shlex.split(command)
+    except ValueError as exc:
+        return {
+            "tool": None,
+            "available": None,
+            "path": None,
+            "diagnostic": f"could not parse command: {exc}",
+        }
+    tool = _runtime_tool_name(parts)
+    if not tool:
+        return {
+            "tool": None,
+            "available": None,
+            "path": None,
+            "diagnostic": "no runtime tool found in command",
+        }
+    if _is_project_local_tool(tool):
+        return {
+            "tool": tool,
+            "available": None,
+            "path": None,
+            "diagnostic": "project-local command; availability checked by post-verify",
+        }
+
+    path = shutil.which(tool)
+    if path:
+        return {
+            "tool": tool,
+            "available": True,
+            "path": path,
+            "diagnostic": "found on PATH",
+        }
+    fallback = _python_module_fallback(command)
+    if fallback and importlib.util.find_spec(str(fallback[2])) is not None:
+        return {
+            "tool": tool,
+            "available": True,
+            "path": None,
+            "fallback_available": True,
+            "diagnostic": "missing from PATH; Python module fallback available",
+        }
+    return {
+        "tool": tool,
+        "available": False,
+        "path": None,
+        "diagnostic": "missing from PATH",
+    }
+
+
+def _runtime_tool_name(parts: list[str]) -> str | None:
+    for part in parts:
+        if part == "env" or _ENV_ASSIGNMENT_RE.match(part):
+            continue
+        return part
+    return None
+
+
+def _is_project_local_tool(tool: str) -> bool:
+    return (
+        tool.startswith(".")
+        or tool.startswith("/")
+        or tool.startswith("\\")
+        or "/" in tool
+        or "\\" in tool
+    )
 
 
 def _run_verify_command(
@@ -503,6 +690,24 @@ def _scratch_metrics(payload: dict[str, Any] | None) -> dict[str, Any]:
     return metrics if isinstance(metrics, dict) else {}
 
 
+def _payload_line_stats(payload: dict[str, Any] | None) -> dict[str, int]:
+    metrics = _scratch_metrics(payload)
+    mapping = {
+        "files_created": "files_created_total",
+        "files_changed": "files_changed_total",
+        "files_deleted": "files_deleted_total",
+        "lines_generated": "lines_generated_total",
+        "lines_modified": "lines_modified_total",
+        "lines_added": "lines_added_total",
+        "lines_removed": "lines_removed_total",
+    }
+    out = {}
+    for key, metric_key in mapping.items():
+        value, _error = _coerce_int(metrics.get(metric_key), metric_key)
+        out[key] = value
+    return out
+
+
 def _payload_cost_usd(payload: dict[str, Any] | None) -> float | None:
     metrics = _scratch_metrics(payload)
     explicit = metrics.get("cost_usd")
@@ -539,6 +744,7 @@ def _summarize(
     plan_only: bool,
     post_verify: bool,
     skillopt_review: dict[str, Any] | None = None,
+    runtime_tool_preflight: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     total = len(rows)
     planner_valid = sum(1 for row in rows if row.get("planner_valid"))
@@ -560,7 +766,18 @@ def _summarize(
         if len(cost_values) == total and total
         else None
     )
+    lines_generated_total = sum(
+        int((row.get("line_stats") or {}).get("lines_generated") or 0)
+        for row in rows
+    )
+    lines_modified_total = sum(
+        int((row.get("line_stats") or {}).get("lines_modified") or 0)
+        for row in rows
+    )
     skillopt = _normalize_skillopt_review(skillopt_review)
+    runtime_tools = runtime_tool_preflight or _empty_runtime_tool_preflight(
+        enabled=post_verify and not plan_only
+    )
     release_gates = {
         "full_75_run_matrix": _has_full_release_matrix(rows),
         "planner_valid_ge_90": planner_valid_rate >= 0.90 if total else False,
@@ -592,7 +809,12 @@ def _summarize(
         "timed_out": sum(1 for row in rows if row.get("timed_out")),
         "median_wall_clock_s": median_wall_clock_s,
         "average_cost_usd": average_cost_usd,
+        "lines_generated_total": lines_generated_total,
+        "lines_modified_total": lines_modified_total,
+        "avg_lines_generated_per_run": _ratio(lines_generated_total, total),
+        "avg_lines_modified_per_run": _ratio(lines_modified_total, total),
         "skillopt_review": skillopt,
+        "runtime_tool_preflight": runtime_tools,
         "elapsed_s": elapsed_s,
         "release_gates": release_gates,
         "missing_release_evidence": _missing_release_evidence(
@@ -641,27 +863,55 @@ def _normalize_skillopt_review(
             "gate_passed": False,
             "reviews": [],
             "invalid_reviews": 0,
+            "duplicate_reviews": 0,
+            "artifact_verified": 0,
         }
     rows = evidence.get("reviews") or evidence.get("skill_reviews") or []
     normalized = []
-    invalid = 0
+    invalid = int(evidence.get("invalid_reviews") or 0)
+    duplicate = int(evidence.get("duplicate_reviews") or 0)
+    seen_artifacts: set[tuple[str, str]] = set()
     for row in rows if isinstance(rows, list) else []:
         if not isinstance(row, dict):
             invalid += 1
             continue
         skill = str(row.get("skill") or row.get("slug") or "").strip()
         reviewer = str(row.get("reviewer") or "").strip()
+        reviewed_at = str(row.get("reviewed_at") or "").strip()
         approved = row.get("approved")
-        if not skill or not reviewer or not isinstance(approved, bool):
+        artifact_path = str(row.get("skill_md") or row.get("path") or "").strip()
+        sha256 = str(row.get("sha256") or "").strip()
+        artifact_key = _skillopt_artifact_key(artifact_path, sha256)
+        artifact_verified = _skillopt_artifact_hash_matches(artifact_path, sha256)
+        artifact_frontmatter_valid = _skillopt_artifact_frontmatter_valid(artifact_path)
+        if (
+            not skill
+            or not reviewer
+            or not reviewed_at
+            or not isinstance(approved, bool)
+            or not artifact_path
+            or not sha256
+            or artifact_verified is not True
+            or artifact_frontmatter_valid is not True
+        ):
             invalid += 1
             continue
+        if artifact_key in seen_artifacts:
+            duplicate += 1
+            invalid += 1
+            continue
+        seen_artifacts.add(artifact_key)
         normalized.append(
             {
                 "skill": skill,
                 "reviewer": reviewer,
                 "approved": approved,
-                "reviewed_at": str(row.get("reviewed_at") or "").strip(),
+                "reviewed_at": reviewed_at,
                 "notes": str(row.get("notes") or "").strip(),
+                "path": artifact_path,
+                "sha256": sha256,
+                "artifact_verified": artifact_verified,
+                "artifact_frontmatter_valid": artifact_frontmatter_valid,
             }
         )
     total = len(normalized)
@@ -675,7 +925,67 @@ def _normalize_skillopt_review(
         "gate_passed": total >= 10 and approval_rate >= 0.80,
         "reviews": normalized,
         "invalid_reviews": invalid,
+        "duplicate_reviews": duplicate,
+        "artifact_verified": sum(
+            1 for row in normalized if row.get("artifact_verified") is True
+        ),
     }
+
+
+def _skillopt_artifact_key(path: str, expected_sha256: str) -> tuple[str, str]:
+    artifact = Path(path)
+    if not artifact.is_absolute():
+        artifact = ROOT / artifact
+    try:
+        artifact_id = str(artifact.resolve())
+    except OSError:
+        artifact_id = str(artifact)
+    return artifact_id, expected_sha256
+
+
+def _skillopt_artifact_hash_matches(path: str, expected_sha256: str) -> bool:
+    if not path or not expected_sha256:
+        return False
+    artifact = _skillopt_artifact_path(path)
+    if not artifact.is_file():
+        return False
+    actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    return actual == expected_sha256
+
+
+def _skillopt_artifact_frontmatter_valid(path: str) -> bool:
+    artifact = _skillopt_artifact_path(path)
+    if not artifact.is_file():
+        return False
+    try:
+        fields = _skillopt_frontmatter(artifact.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError):
+        return False
+    return (
+        fields.get("review_required", "").lower() == "true"
+        and fields.get("by") == "skill-opt"
+        and bool(fields.get("source_goal"))
+        and bool(fields.get("planner_model"))
+    )
+
+
+def _skillopt_frontmatter(text: str) -> dict[str, str]:
+    match = _FRONTMATTER_RE.match(text)
+    if not match:
+        return {}
+    fields: dict[str, str] = {}
+    for line in match.group("body").splitlines():
+        parsed = _FIELD_RE.match(line.strip())
+        if parsed:
+            fields[parsed.group("key")] = parsed.group("value").strip('"')
+    return fields
+
+
+def _skillopt_artifact_path(path: str) -> Path:
+    artifact = Path(path)
+    if not artifact.is_absolute():
+        artifact = ROOT / artifact
+    return artifact
 
 
 def _has_full_release_matrix(rows: list[dict[str, Any]]) -> bool:
@@ -709,14 +1019,22 @@ def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> Non
     md_path.write_text(_to_markdown(result), encoding="utf-8")
 
 
-def merge_results(existing: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+def merge_results(
+    existing: dict[str, Any],
+    current: dict[str, Any],
+    *,
+    allow_overwrite: bool = False,
+) -> dict[str, Any]:
     if existing.get("benchmark") != current.get("benchmark"):
         raise ValueError("cannot merge different benchmark result types")
-    existing_matrix = existing.get("matrix", {})
     current_matrix = current.get("matrix", {})
-    for field in ("plan_only", "skip_install", "post_verify", "disable_codegen"):
-        if existing_matrix.get(field) != current_matrix.get(field):
-            raise ValueError(f"cannot merge live gate results with different {field}")
+    _validate_merge_compatible(
+        existing,
+        plan_only=bool(current_matrix.get("plan_only")),
+        skip_install=bool(current_matrix.get("skip_install")),
+        post_verify=bool(current_matrix.get("post_verify")),
+        disable_codegen=bool(current_matrix.get("disable_codegen")),
+    )
 
     rows_by_key = {
         _row_key(row): row
@@ -726,6 +1044,11 @@ def merge_results(existing: dict[str, Any], current: dict[str, Any]) -> dict[str
     for row in current.get("runs", []):
         key = _row_key(row)
         if key is not None:
+            if key in rows_by_key and not allow_overwrite:
+                raise ValueError(
+                    "refusing to overwrite existing live gate row: "
+                    f"goal={key[0]!r} stack={key[1]!r}"
+                )
             rows_by_key[key] = row
     rows = sorted(
         rows_by_key.values(),
@@ -762,8 +1085,44 @@ def merge_results(existing: dict[str, Any], current: dict[str, Any]) -> dict[str
                 current.get("summary", {}).get("skillopt_review")
                 or existing.get("summary", {}).get("skillopt_review")
             ),
+            runtime_tool_preflight=_post_verify_tool_preflight(
+                tuple(
+                    dict.fromkeys(
+                        str(row.get("stack"))
+                        for row in rows
+                        if row.get("stack")
+                    )
+                ),
+                enabled=bool(current_matrix.get("post_verify"))
+                and not bool(current_matrix.get("plan_only")),
+                registry=StackRegistry(),
+            ),
         ),
     }
+
+
+def _validate_merge_compatible(
+    result: dict[str, Any],
+    *,
+    plan_only: bool,
+    skip_install: bool,
+    post_verify: bool,
+    disable_codegen: bool,
+) -> None:
+    if result.get("benchmark") != "scratch-live-gate":
+        raise ValueError("cannot merge different benchmark result types")
+    matrix = result.get("matrix")
+    if not isinstance(matrix, dict):
+        raise ValueError("existing live gate report has no matrix")
+    expected = {
+        "plan_only": plan_only,
+        "skip_install": skip_install,
+        "post_verify": post_verify,
+        "disable_codegen": disable_codegen,
+    }
+    for field, expected_value in expected.items():
+        if bool(matrix.get(field)) != bool(expected_value):
+            raise ValueError(f"cannot merge live gate results with different {field}")
 
 
 def _row_key(row: dict[str, Any]) -> tuple[str, str] | None:
@@ -772,6 +1131,14 @@ def _row_key(row: dict[str, Any]) -> tuple[str, str] | None:
     if not goal or not stack:
         return None
     return str(goal), str(stack)
+
+
+def existing_row_keys(result: dict[str, Any]) -> set[tuple[str, str]]:
+    return {
+        key
+        for row in result.get("runs", [])
+        if (key := _row_key(row)) is not None
+    }
 
 
 def _pilot_stack_index(stack: str) -> int:
@@ -785,6 +1152,7 @@ def _to_markdown(result: dict[str, Any]) -> str:
     summary = result["summary"]
     matrix = result["matrix"]
     skillopt = summary.get("skillopt_review") or {}
+    runtime_tools = summary.get("runtime_tool_preflight") or {}
     lines = [
         "# Scratch Live Gate",
         "",
@@ -808,6 +1176,13 @@ def _to_markdown(result: dict[str, Any]) -> str:
         f"- e2e green: {summary['e2e_green']} ({summary['e2e_green_rate']:.2%})",
         f"- median wall-clock: {summary['median_wall_clock_s']} s",
         f"- average cost: {summary['average_cost_usd']}",
+        f"- lines generated: {summary['lines_generated_total']}",
+        f"- lines modified: {summary['lines_modified_total']}",
+        f"- runtime tool preflight: {runtime_tools.get('enabled', False)}",
+        (
+            "- missing runtime tools: "
+            f"{_format_markdown_list(runtime_tools.get('missing_tools') or [])}"
+        ),
         f"- release ready: {summary['release_gates']['release_ready']}",
         "",
         "## Release Gate Status",
@@ -827,6 +1202,27 @@ def _to_markdown(result: dict[str, Any]) -> str:
             ),
             f"- approval rate: {float(skillopt.get('approval_rate', 0.0)):.2%}",
             f"- invalid review rows: {skillopt.get('invalid_reviews', 0)}",
+        ]
+    )
+    lines.extend(
+        [
+            "",
+            "## Runtime Tool Preflight",
+            "",
+            (
+                "- required tools: "
+                f"{_format_markdown_list(runtime_tools.get('required_tools') or [])}"
+            ),
+            (
+                "- available tools: "
+                f"{_format_markdown_list(runtime_tools.get('available_tools') or [])}"
+            ),
+            (
+                "- missing tools: "
+                f"{_format_markdown_list(runtime_tools.get('missing_tools') or [])}"
+            ),
+            f"- checked commands: {runtime_tools.get('checked_commands', 0)}",
+            f"- unchecked commands: {runtime_tools.get('unchecked_commands', 0)}",
         ]
     )
     lines.extend(
@@ -853,10 +1249,16 @@ def _to_markdown(result: dict[str, Any]) -> str:
             )
         )
     lines.extend(["", "## Missing Release Evidence", ""])
-    for item in summary["missing_release_evidence"]:
-        lines.append(f"- {item}")
-    lines.append("")
-    return "\n".join(lines)
+    if summary["missing_release_evidence"]:
+        for item in summary["missing_release_evidence"]:
+            lines.append(f"- {item}")
+    else:
+        lines.append("- none")
+    return "\n".join(lines) + "\n"
+
+
+def _format_markdown_list(values: list[Any]) -> str:
+    return ", ".join(f"`{value}`" for value in values) if values else "none"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -888,7 +1290,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         help=(
             "human review evidence JSON for generated SkillOpt skills; requires "
-            ">=10 reviewed skills and >=80% approved"
+            ">=10 reviewed skills and >=80%% approved"
         ),
     )
     parser.add_argument(
@@ -896,14 +1298,74 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="merge this slice into an existing JSON report instead of replacing it",
     )
+    parser.add_argument(
+        "--resume-existing",
+        action="store_true",
+        help="skip rows already present in --json-output before applying --max-runs",
+    )
+    parser.add_argument(
+        "--overwrite-existing",
+        action="store_true",
+        help="replace existing output files instead of preserving or merging them",
+    )
     parser.add_argument("--quiet", action="store_true")
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.resume_existing and args.overwrite_existing:
+        parser.error("--resume-existing cannot be combined with --overwrite-existing")
+    if args.merge_existing and (args.resume_existing or args.overwrite_existing):
+        parser.error(
+            "--merge-existing cannot be combined with "
+            "--resume-existing or --overwrite-existing"
+        )
+    return args
+
+
+def _resolve_output_paths(args: argparse.Namespace) -> tuple[Path, Path]:
+    json_output = args.json_output
+    md_output = args.md_output
+    if args.disable_codegen:
+        if json_output == RESULTS_JSON:
+            json_output = CODEGEN_DISABLED_RESULTS_JSON
+        if md_output == RESULTS_MD:
+            md_output = CODEGEN_DISABLED_RESULTS_MD
+    return json_output, md_output
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    json_output, md_output = _resolve_output_paths(args)
     goals = RELEASE_GOALS[: args.goal_limit]
     stacks = tuple(args.stacks) if args.stacks else PILOT_STACKS
+    existing = None
+    preserving_existing = args.resume_existing or args.merge_existing
+    if (
+        not preserving_existing
+        and not args.overwrite_existing
+        and (json_output.exists() or md_output.exists())
+    ):
+        print(
+            "refusing to overwrite existing live gate output; use "
+            "--resume-existing, --merge-existing, or --overwrite-existing",
+            file=sys.stderr,
+        )
+        return 2
+    if (args.resume_existing or args.merge_existing) and json_output.is_file():
+        try:
+            existing = json.loads(json_output.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"failed to read existing live gate report: {exc}", file=sys.stderr)
+            return 2
+        try:
+            _validate_merge_compatible(
+                existing,
+                plan_only=args.plan_only,
+                skip_install=args.skip_install,
+                post_verify=args.post_verify,
+                disable_codegen=args.disable_codegen,
+            )
+        except ValueError as exc:
+            print(f"existing live gate report is incompatible: {exc}", file=sys.stderr)
+            return 2
     result = run_live_gate(
         work_dir=args.work_dir,
         stacks=stacks,
@@ -919,19 +1381,24 @@ def main(argv: list[str] | None = None) -> int:
             if args.skillopt_review_json
             else None
         ),
+        skip_existing_keys=(
+            existing_row_keys(existing) if args.resume_existing and existing else None
+        ),
     )
-    if args.merge_existing and args.json_output.is_file():
+    if preserving_existing and existing:
         try:
-            existing = json.loads(args.json_output.read_text(encoding="utf-8"))
-            result = merge_results(existing, result)
-        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            result = merge_results(
+                existing,
+                result,
+            )
+        except ValueError as exc:
             print(f"failed to merge existing live gate report: {exc}", file=sys.stderr)
             return 2
-    write_reports(result, args.json_output, args.md_output)
+    write_reports(result, json_output, md_output)
     if not args.quiet:
         print(json.dumps(result["summary"], indent=2, sort_keys=True))
-        print(f"wrote {args.json_output}")
-        print(f"wrote {args.md_output}")
+        print(f"wrote {json_output}")
+        print(f"wrote {md_output}")
     summary = result["summary"]
     return (
         0

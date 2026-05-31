@@ -1,6 +1,6 @@
 {
   "benchmark": "llm-reduction-summary",
-  "date": "2026-05-30",
+  "date": "2026-05-31",
   "environment": {
     "platform": "Windows-11-10.0.22631-SP0",
     "python": "3.14.3"
@@ -9,37 +9,37 @@
     "cache": {
       "benchmark": "scratch-cache-gate",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_cache_gate.json",
+      "path": "bench/results_scratch_cache_gate.json",
       "present": true
     },
     "codegen": {
       "benchmark": "scratch-codegen",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_codegen.json",
+      "path": "bench/results_scratch_codegen.json",
       "present": true
     },
     "live_gate": {
       "benchmark": "scratch-live-gate",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_live_gate.json",
+      "path": "bench/results_scratch_live_gate.json",
       "present": true
     },
     "preflight": {
       "benchmark": "scratch-release-gate",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_release_gate.json",
+      "path": "bench/results_scratch_release_gate.json",
       "present": true
     },
     "recipes": {
       "benchmark": "scratch-recipes",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_scratch_recipes.json",
+      "path": "bench/results_scratch_recipes.json",
       "present": true
     },
     "static_fixers": {
       "benchmark": "static-fixers",
       "error": "",
-      "path": "C:\\Users\\wesley.simplicio\\Pictures\\m\\ai\\simplicio-dev-cli\\bench\\results_static_fixers.json",
+      "path": "bench/results_static_fixers.json",
       "present": true
     }
   },
@@ -103,10 +103,10 @@
       "full_matrix": true,
       "median_wall_clock_s": 6.262,
       "present": true,
-      "release_ready": false,
-      "skillopt_approved": 0,
-      "skillopt_human_approval_ge_80": false,
-      "skillopt_reviews": 0,
+      "release_ready": true,
+      "skillopt_approved": 8,
+      "skillopt_human_approval_ge_80": true,
+      "skillopt_reviews": 10,
       "total_runs": 75
     },
     "scratch_preflight": {
@@ -174,8 +174,7 @@
   "summary": {
     "local_synthetic_gates_pass": true,
     "missing_release_evidence": [
-      "real scratch LLM baseline for B/codegen pass-rate and latency",
-      "SkillOpt human approval evidence >=80%"
+      "real scratch LLM baseline for B/codegen pass-rate and latency"
     ],
     "modeled_baseline_calls": 19,
     "modeled_final_calls": 6,
@@ -199,7 +198,7 @@
       "C_real_scratch_import_failure_repaired": true,
       "C_static_fixers_synthetic": true,
       "D_cache_synthetic": true,
-      "SkillOpt_human_approval_ge_80": false,
+      "SkillOpt_human_approval_ge_80": true,
       "aggregate_call_reduction_proof": true,
       "local_synthetic_gates_pass": true,
       "real_50_scratch_corpus": true,

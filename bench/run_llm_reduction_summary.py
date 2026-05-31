@@ -55,7 +55,7 @@ def run_summary(input_paths: dict[str, Path] | None = None) -> dict[str, Any]:
         },
         "inputs": {
             name: {
-                "path": str(item["path"]),
+                "path": _relative_path(item["path"]),
                 "present": item["present"],
                 "benchmark": item.get("benchmark"),
                 "error": item.get("error", ""),
@@ -75,7 +75,14 @@ def run_summary(input_paths: dict[str, Path] | None = None) -> dict[str, Any]:
             "release_gates": gates,
         },
         "modeled_call_path": modeled_path,
-    }
+}
+
+
+def _relative_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def _load_input(path: Path) -> dict[str, Any]:

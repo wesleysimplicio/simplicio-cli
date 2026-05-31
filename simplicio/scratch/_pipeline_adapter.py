@@ -2,11 +2,9 @@
 plan tasks) and simplicio.pipeline (which runs the cli verify-loop on one
 task at a time).
 
-The existing simplicio.pipeline.run() signature is
-  run(root, stack, goal, target, criteria, constraints)
-plus it reads SIMPLICIO_TEST_CMD from the environment. We adapt one Task
-from the plan into one pipeline.run invocation, with SIMPLICIO_TEST_CMD
-temporarily set to the per-task verify command.
+The existing simplicio.pipeline helpers read SIMPLICIO_TEST_CMD from the
+environment. We adapt one Task from the plan into one pipeline invocation,
+with SIMPLICIO_TEST_CMD temporarily set to the per-task verify command.
 """
 
 from __future__ import annotations
@@ -20,10 +18,16 @@ from .plan_schema import Task
 from .stack_registry import Stack
 
 
-def run_task(task: Task, project_dir: Path, stack: Stack) -> tuple[bool, str]:
-    """Run one plan task through simplicio.pipeline.run.
+def run_task(
+    task: Task,
+    project_dir: Path,
+    stack: Stack,
+    *,
+    quiet: bool = False,
+) -> tuple[bool, str]:
+    """Run one plan task through simplicio.pipeline.
     Returns (passed, log_tail)."""
-    from ..pipeline import run as pipeline_run
+    from .. import pipeline
 
     # Per-task verify command supersedes any global SIMPLICIO_TEST_CMD
     prev_test_cmd = os.environ.get("SIMPLICIO_TEST_CMD")
@@ -36,14 +40,18 @@ def run_task(task: Task, project_dir: Path, stack: Stack) -> tuple[bool, str]:
 
         _ensure_git_repo(project_dir)
         os.chdir(project_dir)
-        output = pipeline_run(
-            root=str(project_dir),
-            stack=stack_label,
-            goal=task.goal,
-            target=task.target,
-            criteria=task.criteria,
-            constraints=task.constraints,
-        )
+        pipeline_kwargs = {
+            "root": str(project_dir),
+            "stack": stack_label,
+            "goal": task.goal,
+            "target": task.target,
+            "criteria": task.criteria,
+            "constraints": task.constraints,
+        }
+        if quiet:
+            output = pipeline.run_task(**pipeline_kwargs, quiet=True)
+        else:
+            output = pipeline.run(**pipeline_kwargs)
     finally:
         os.chdir(previous_cwd)
         if prev_test_cmd is None:
@@ -57,7 +65,7 @@ def run_task(task: Task, project_dir: Path, stack: Stack) -> tuple[bool, str]:
         log = output
     else:
         log = json.dumps(output, indent=2, sort_keys=True)
-    return True, log[:1500]
+    return bool(not isinstance(output, dict) or output.get("applied")), log[:1500]
 
 
 def _ensure_git_repo(project_dir: Path) -> None:
