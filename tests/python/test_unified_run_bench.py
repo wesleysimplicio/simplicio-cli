@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import json
 
-from bench.run_unified_run_bench import main, run_benchmark, write_reports
+from bench.run_unified_run_bench import (
+    main,
+    run_benchmark,
+    write_partial_results,
+    write_reports,
+)
 
 
 def test_unified_run_bench_fixture_covers_required_modes() -> None:
@@ -60,6 +65,27 @@ def test_unified_run_bench_writes_reports(tmp_path) -> None:
     assert "Codex /goal" in md
 
 
+def test_unified_run_bench_writes_partial_only_results(tmp_path) -> None:
+    result = run_benchmark()
+    partial_path = tmp_path / "partial.json"
+
+    write_partial_results(result, partial_path)
+
+    payload = json.loads(partial_path.read_text(encoding="utf-8"))
+    assert payload["artifact"] == "partial-live-observations"
+    assert payload["partial_only"] is True
+    assert payload["release_evidence"] is False
+    assert payload["release_ready"] is False
+    assert payload["evidence_level"] == "partial-only"
+    assert payload["source_evidence_level"] == "fixture"
+    assert payload["observation_count"] == 9
+    assert payload["observations"]
+    assert all(
+        observation["mode_id"] != "codex_goal"
+        for observation in payload["observations"]
+    )
+
+
 def test_unified_run_bench_main_accepts_custom_fixture(tmp_path) -> None:
     fixture = tmp_path / "cases.json"
     fixture.write_text(
@@ -97,3 +123,29 @@ def test_unified_run_bench_main_accepts_custom_fixture(tmp_path) -> None:
     assert payload["summary"]["case_count"] == 1
     assert payload["summary"]["row_count"] == 4
     assert "custom-feature" in md_path.read_text(encoding="utf-8")
+
+
+def test_unified_run_bench_main_writes_partial_results_json(tmp_path) -> None:
+    json_path = tmp_path / "out.json"
+    md_path = tmp_path / "out.md"
+    partial_path = tmp_path / "partial.json"
+
+    rc = main(
+        [
+            "--json-output",
+            str(json_path),
+            "--md-output",
+            str(md_path),
+            "--partial-results-json",
+            str(partial_path),
+            "--quiet",
+        ]
+    )
+
+    main_payload = json.loads(json_path.read_text(encoding="utf-8"))
+    partial_payload = json.loads(partial_path.read_text(encoding="utf-8"))
+    assert rc == 0
+    assert main_payload["summary"]["evidence_level"] == "fixture"
+    assert main_payload["summary"]["release_ready"] is False
+    assert partial_payload["partial_only"] is True
+    assert partial_payload["release_evidence"] is False

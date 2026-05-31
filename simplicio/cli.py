@@ -208,6 +208,7 @@ def _run_feature_command(a: argparse.Namespace) -> int:
             goal=a.goal,
             max_iter=a.max_iter,
             max_cost=a.max_cost,
+            quiet=a.json,
         )
     except ValueError as exc:
         print(f"simplicio run: {exc}", file=sys.stderr)
@@ -312,6 +313,7 @@ def _run_sprint_command(a: argparse.Namespace) -> int:
                     goal=task.goal,
                     max_iter=a.max_iter,
                     max_cost=None,
+                    quiet=a.json,
                 )
             except ValueError as exc:
                 result = {

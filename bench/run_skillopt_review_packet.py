@@ -34,9 +34,13 @@ def build_review_packet(
     skills_root: Path,
     min_reviews: int = 10,
     min_approval_rate: float = 0.80,
+    generated_candidates: list[Path] | None = None,
+    generation_failures: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     rows = [_review_row(path, skills_root) for path in _review_gated_skills(skills_root)]
     rows = [row for row in rows if row is not None]
+    generated_candidates = generated_candidates or []
+    generation_failures = generation_failures or []
     return {
         "benchmark": "skillopt-review-packet",
         "scope": (
@@ -65,6 +69,8 @@ def build_review_packet(
         "summary": {
             "review_gated_skills": len(rows),
             "pending_reviews": len(rows),
+            "generated_candidates": len(generated_candidates),
+            "candidate_generation_failures": len(generation_failures),
             "human_review_complete": False,
             "release_ready": False,
             "gate_command": (
@@ -72,6 +78,10 @@ def build_review_packet(
                 "--skillopt-review-json bench/results_skillopt_review_packet.json"
             ),
         },
+        "generated_candidates": [
+            _relative_path(path, ROOT) for path in generated_candidates
+        ],
+        "generation_failures": generation_failures,
         "reviews": rows,
     }
 
@@ -81,20 +91,26 @@ def generate_review_candidates(
     *,
     skills_root: Path,
     planner: str | None = None,
-) -> list[Path]:
+) -> tuple[list[Path], list[dict[str, str]]]:
     from simplicio.scratch import skill_opt
 
     generated = []
+    failures = []
     for goal in goals:
         description = goal.strip()
         if not description:
             continue
-        generated.append(skill_opt.install_skill_from_description(
-            description,
-            skills_root=skills_root,
-            planner_model=planner,
-        ))
-    return generated
+        try:
+            generated.append(
+                skill_opt.install_skill_from_description(
+                    description,
+                    skills_root=skills_root,
+                    planner_model=planner,
+                )
+            )
+        except Exception as exc:
+            failures.append({"description": description, "error": str(exc)})
+    return generated, failures
 
 
 def load_candidate_goals(path: Path) -> list[str]:
@@ -119,7 +135,7 @@ def _review_gated_skills(skills_root: Path) -> list[Path]:
     paths = []
     for path in sorted(skills_root.glob("*/SKILL.md")):
         text = path.read_text(encoding="utf-8")
-        if _frontmatter(text).get("review_required") == "true":
+        if _is_skillopt_review_candidate(_frontmatter(text)):
             paths.append(path)
     return paths
 
@@ -127,6 +143,8 @@ def _review_gated_skills(skills_root: Path) -> list[Path]:
 def _review_row(path: Path, skills_root: Path) -> dict[str, Any] | None:
     text = path.read_text(encoding="utf-8")
     frontmatter = _frontmatter(text)
+    if not _is_skillopt_review_candidate(frontmatter):
+        return None
     skill = frontmatter.get("name") or path.parent.name
     if not skill:
         return None
@@ -144,6 +162,15 @@ def _review_row(path: Path, skills_root: Path) -> dict[str, Any] | None:
         "reviewed_at": "",
         "notes": "",
     }
+
+
+def _is_skillopt_review_candidate(frontmatter: dict[str, str]) -> bool:
+    return (
+        frontmatter.get("review_required", "").lower() == "true"
+        and frontmatter.get("by") == "skill-opt"
+        and bool(frontmatter.get("source_goal"))
+        and bool(frontmatter.get("planner_model"))
+    )
 
 
 def _frontmatter(text: str) -> dict[str, str]:
@@ -184,6 +211,8 @@ def _to_markdown(packet: dict[str, Any]) -> str:
         "",
         f"- review gated skills: {summary['review_gated_skills']}",
         f"- pending reviews: {summary['pending_reviews']}",
+        f"- generated candidates: {summary['generated_candidates']}",
+        f"- candidate generation failures: {summary['candidate_generation_failures']}",
         f"- human review complete: {summary['human_review_complete']}",
         f"- release ready: {summary['release_ready']}",
         f"- minimum reviews: {policy['min_reviews']}",
@@ -202,6 +231,12 @@ def _to_markdown(packet: dict[str, Any]) -> str:
     ]
     for row in packet["reviews"]:
         lines.append(f"| {row['skill']} | `{row['path']}` | `{row['sha256'][:12]}` |")
+    if packet.get("generation_failures"):
+        lines.extend(["", "## Generation Failures", ""])
+        for failure in packet["generation_failures"]:
+            lines.append(
+                f"- {failure.get('description', '')}: {failure.get('error', '')}"
+            )
     lines.append("")
     return "\n".join(lines)
 
@@ -238,20 +273,26 @@ def main(argv: list[str] | None = None) -> int:
     goals = list(args.candidate_goal)
     if args.candidate_goals_file:
         goals.extend(load_candidate_goals(args.candidate_goals_file))
+    generated_candidates: list[Path] = []
+    generation_failures: list[dict[str, str]] = []
     if goals:
-        try:
-            generate_review_candidates(
-                goals,
-                skills_root=args.skills_root,
-                planner=args.planner,
+        generated_candidates, generation_failures = generate_review_candidates(
+            goals,
+            skills_root=args.skills_root,
+            planner=args.planner,
+        )
+        for failure in generation_failures:
+            print(
+                "skillopt review packet: failed to generate candidate "
+                f"{failure['description']!r}: {failure['error']}",
+                file=sys.stderr,
             )
-        except Exception as exc:
-            print(f"skillopt review packet: failed to generate candidate: {exc}", file=sys.stderr)
-            return 2
     packet = build_review_packet(
         skills_root=args.skills_root,
         min_reviews=args.min_reviews,
         min_approval_rate=args.min_approval_rate,
+        generated_candidates=generated_candidates,
+        generation_failures=generation_failures,
     )
     write_reports(packet, args.json_output, args.md_output)
     if not args.quiet:

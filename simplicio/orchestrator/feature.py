@@ -16,7 +16,7 @@ from ..scratch.stack_registry import StackRegistry, slugify_project
 from .cost_governor import BudgetExceeded, provider_budget
 
 
-TaskRunner = Callable[[object, Path, object], tuple[bool, str]]
+TaskRunner = Callable[..., tuple[bool, str]]
 
 
 def _ordered_tasks(tasks: list[object]) -> list[object]:
@@ -52,13 +52,16 @@ def run_feature(
     goal: str,
     max_iter: int = 3,
     max_cost: str | float | int | None = None,
-    planner: Callable[..., object] = generate_plan,
-    task_runner: TaskRunner = run_plan_task,
+    planner: Callable[..., object] | None = None,
+    task_runner: TaskRunner | None = None,
+    quiet: bool = False,
 ) -> dict:
     """Run a multi-task feature plan against an existing repository."""
 
     if max_iter < 0:
         raise ValueError("max_iter must be >= 0")
+    planner_fn = planner or generate_plan
+    task_runner_fn = task_runner or run_plan_task
 
     reg = StackRegistry()
     stack = reg.get(stack_slug)
@@ -77,7 +80,7 @@ def run_feature(
     with provider_budget(max_cost) as governor:
         try:
             while True:
-                last_plan = planner(stack, feature_goal, project_name)
+                last_plan = planner_fn(stack, feature_goal, project_name)
                 governor.refresh_from_env()
                 try:
                     planned_tasks = _ordered_tasks(last_plan.tasks)
@@ -98,7 +101,15 @@ def run_feature(
                 for task in planned_tasks:
                     if task.id in completed_task_ids:
                         continue
-                    passed, log = task_runner(task, Path(root), stack)
+                    if task_runner_fn is run_plan_task:
+                        passed, log = task_runner_fn(
+                            task,
+                            Path(root),
+                            stack,
+                            quiet=quiet,
+                        )
+                    else:
+                        passed, log = task_runner_fn(task, Path(root), stack)
                     governor.refresh_from_env()
                     row = {
                         "id": task.id,

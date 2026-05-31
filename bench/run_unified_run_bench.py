@@ -274,6 +274,49 @@ def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> Non
     md_path.write_text(_to_markdown(result), encoding="utf-8")
 
 
+def write_partial_results(result: dict[str, Any], json_path: Path) -> None:
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.write_text(
+        json.dumps(_partial_results(result), indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
+
+def _partial_results(result: dict[str, Any]) -> dict[str, Any]:
+    """Build a non-release artifact for partial live observations."""
+    observations = [
+        {
+            "case_id": row["case_id"],
+            "scope": row["scope"],
+            "mode_id": row["mode_id"],
+            "outcome": row["outcome"],
+            "observable": row["cost_observable"],
+            "llm_invoked": row["llm_invoked"],
+            "external_agent_invoked": row["external_agent_invoked"],
+            "notes": row["notes"],
+        }
+        for row in result["rows"]
+        if row["cost_observable"] is True
+    ]
+    return {
+        "benchmark": result["benchmark"],
+        "issue": result["issue"],
+        "phase": result["phase"],
+        "artifact": "partial-live-observations",
+        "partial_only": True,
+        "release_evidence": False,
+        "release_ready": False,
+        "evidence_level": "partial-only",
+        "source_evidence_level": result["summary"]["evidence_level"],
+        "observation_count": len(observations),
+        "observations": observations,
+        "notes": [
+            "Partial live observations are diagnostic-only.",
+            "This artifact must not be used as release evidence.",
+        ],
+    }
+
+
 def _to_markdown(result: dict[str, Any]) -> str:
     summary = result["summary"]
     lines = [
@@ -346,6 +389,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--json-output", type=Path, default=RESULTS_JSON)
     parser.add_argument("--md-output", type=Path, default=RESULTS_MD)
+    parser.add_argument(
+        "--partial-results-json",
+        type=Path,
+        help=(
+            "Optional JSON path for partial live observations. The generated "
+            "artifact is partial-only and never release evidence."
+        ),
+    )
     parser.add_argument("--quiet", action="store_true")
     return parser.parse_args(argv)
 
@@ -365,10 +416,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     result = run_benchmark(_load_cases(args.fixture_json))
     write_reports(result, args.json_output, args.md_output)
+    if args.partial_results_json is not None:
+        write_partial_results(result, args.partial_results_json)
     if not args.quiet:
         print(json.dumps(result["summary"], indent=2, sort_keys=True))
         print(f"wrote {args.json_output}")
         print(f"wrote {args.md_output}")
+        if args.partial_results_json is not None:
+            print(f"wrote {args.partial_results_json}")
     return 0
 
 

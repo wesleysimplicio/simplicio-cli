@@ -53,9 +53,12 @@ Repo-local evidence:
 - The same packet runner can now generate review-gated candidate skills from
   `--description` / `--descriptions-file`, then keep them pending with empty
   reviewer/approval fields.
-- `bench/run_scratch_live_gate.py` now requires `reviewed_at` on review rows
-  and verifies packet-style `path`/`sha256` artifacts before counting a
-  SkillOpt approval row.
+- `bench/run_skillopt_review_packet.py` now collects only SkillOpt-generated
+  review-gated skills with `auto_generated.by: skill-opt`, `source_goal`, and
+  `planner_model`; manually flagged `review_required` files are excluded.
+- `bench/run_scratch_live_gate.py` now requires `reviewed_at`, `path`, and
+  `sha256` on every counted review row, verifies the artifact hash, and rejects
+  duplicate SKILL.md artifacts so one file cannot count as multiple reviews.
 
 Suggested comment:
 
@@ -88,6 +91,11 @@ Repo-local evidence:
 - `simplicio/scratch/executor.py` now records per-task line stats and aggregate
   generated/modified line metrics so future codegen-disabled live baseline
   slices can carry line-count evidence.
+- `bench/run_scratch_live_gate.py` now has a safer baseline accumulation path:
+  `--resume-existing` skips rows already present before applying `--max-runs`,
+  duplicate merge rows are rejected by default, existing outputs are not
+  overwritten without an explicit mode, and `--disable-codegen` defaults to
+  separate `results_scratch_live_gate_codegen_disabled_baseline.*` outputs.
 
 Suggested comment:
 
@@ -176,7 +184,12 @@ Repo-local evidence:
   `bench/results_unified_run_bench.{json,md}` provide a fixture-backed F5
   comparison schema for cli+ag, unified feature/sprint, and Codex `/goal`.
   This is explicitly marked fixture-only and not release-ready.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `448
+- The F5 bench runner can now write a partial-live-observations JSON artifact
+  for diagnostic-only live notes; it is explicitly marked `partial_only` and
+  `release_evidence=false`.
+- `simplicio run --scope feature --json` and nested sprint feature execution
+  now suppress pipeline progress logs so stdout remains parseable JSON.
+- Validation in this worktree: `python -m pytest tests/python -q` -> `458
   passed, 3 skipped`.
 
 Suggested comment:

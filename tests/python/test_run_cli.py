@@ -2,6 +2,7 @@ import json
 import sys
 
 from simplicio import cli
+from simplicio.scratch.plan_schema import Plan, Task
 
 
 def _write(path, text):
@@ -154,6 +155,65 @@ def test_run_scope_feature_outputs_orchestrator_result(monkeypatch, capsys):
 
     assert code == 0
     payload = json.loads(capsys.readouterr().out)
+    assert payload["scope"] == "feature"
+    assert payload["applied"] is True
+
+
+def test_run_scope_feature_json_suppresses_pipeline_logs(
+    tmp_path,
+    monkeypatch,
+    capsys,
+):
+    _write(tmp_path / "src" / "app.py", "old\n")
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    monkeypatch.setenv("SIMPLICIO_TEST_CMD", _true_cmd())
+
+    from simplicio.orchestrator import feature as feature_module
+
+    def fake_planner(stack, goal, project_name):
+        return Plan(
+            version="1.0",
+            stack=stack.slug,
+            project_name=project_name,
+            rationale="test",
+            files_to_create=[],
+            tasks=[
+                Task(
+                    id="T01-app",
+                    goal="update app",
+                    target="src/app.py",
+                    criteria="- passes",
+                    constraints="- minimal",
+                    verify=_true_cmd(),
+                    depends_on=[],
+                )
+            ],
+            deps_to_install=[],
+            deps_dev=[],
+            test_command=_true_cmd(),
+            lint_command=_true_cmd(),
+            estimated_total_tasks=1,
+        )
+
+    monkeypatch.setattr(feature_module, "generate_plan", fake_planner)
+    monkeypatch.setattr("simplicio.pipeline.generate", lambda *a, **k: _diff("src/app.py"))
+
+    code = cli.main(
+        [
+            "run",
+            "implement app update",
+            "--scope",
+            "feature",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "py-fastapi",
+            "--json",
+        ]
+    )
+
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 0
     assert payload["scope"] == "feature"
     assert payload["applied"] is True
 

@@ -46,6 +46,22 @@ def test_skillopt_review_packet_collects_only_review_gated_skills(tmp_path):
     skills_root = tmp_path / ".skills"
     _write_skill(skills_root, "generated-one")
     _write_skill(skills_root, "already-reviewed", review_required=False)
+    manual_path = skills_root / "manual-review" / "SKILL.md"
+    manual_path.parent.mkdir()
+    manual_path.write_text(
+        "\n".join(
+            [
+                "---",
+                "name: manual-review",
+                "review_required: true",
+                "---",
+                "",
+                "# manual-review",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
     packet = build_review_packet(skills_root=skills_root)
 
@@ -174,3 +190,56 @@ def test_skillopt_review_packet_main_can_generate_pending_candidate(
     assert payload["reviews"][0]["skill"] == "generated-pytest-fixtures"
     assert payload["reviews"][0]["approved"] is None
     assert payload["reviews"][0]["reviewer"] == ""
+
+
+def test_skillopt_review_packet_main_records_candidate_generation_failures(
+    tmp_path,
+    monkeypatch,
+):
+    from simplicio.scratch import skill_opt
+
+    skills_root = tmp_path / ".skills"
+    json_path = tmp_path / "out.json"
+    md_path = tmp_path / "out.md"
+
+    def fake_install_skill_from_description(
+        description,
+        *,
+        skills_root=None,
+        planner_model=None,
+    ):
+        if description == "bad candidate":
+            raise RuntimeError("planner unavailable")
+        assert planner_model == "test-planner"
+        return _write_skill(skills_root, "generated-good")
+
+    monkeypatch.setattr(
+        skill_opt,
+        "install_skill_from_description",
+        fake_install_skill_from_description,
+    )
+
+    rc = main(
+        [
+            "--skills-root",
+            str(skills_root),
+            "--candidate-goal",
+            "good candidate",
+            "--candidate-goal",
+            "bad candidate",
+            "--planner",
+            "test-planner",
+            "--json-output",
+            str(json_path),
+            "--md-output",
+            str(md_path),
+            "--quiet",
+        ]
+    )
+
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    assert rc == 0
+    assert payload["summary"]["pending_reviews"] == 1
+    assert payload["summary"]["candidate_generation_failures"] == 1
+    assert payload["generation_failures"][0]["description"] == "bad candidate"
+    assert "planner unavailable" in payload["generation_failures"][0]["error"]

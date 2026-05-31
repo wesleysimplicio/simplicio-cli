@@ -31,6 +31,12 @@ from simplicio.scratch.stack_registry import StackRegistry  # noqa: E402
 
 RESULTS_JSON = ROOT / "bench" / "results_scratch_live_gate.json"
 RESULTS_MD = ROOT / "bench" / "results_scratch_live_gate.md"
+CODEGEN_DISABLED_RESULTS_JSON = (
+    ROOT / "bench" / "results_scratch_live_gate_codegen_disabled_baseline.json"
+)
+CODEGEN_DISABLED_RESULTS_MD = (
+    ROOT / "bench" / "results_scratch_live_gate_codegen_disabled_baseline.md"
+)
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
 
@@ -47,6 +53,7 @@ def run_live_gate(
     disable_codegen: bool = False,
     timeout_seconds: int = 900,
     skillopt_review: dict[str, Any] | None = None,
+    skip_existing_keys: set[tuple[str, str]] | None = None,
     runner: Runner = subprocess.run,
 ) -> dict[str, Any]:
     if max_runs is not None and max_runs < 1:
@@ -61,6 +68,12 @@ def run_live_gate(
         for goal_index, _goal in enumerate(goals, start=1)
         for stack in stacks
     ]
+    if skip_existing_keys:
+        matrix = [
+            (goal_index, stack)
+            for goal_index, stack in matrix
+            if (goals[goal_index - 1], stack) not in skip_existing_keys
+        ]
     if max_runs is not None:
         matrix = matrix[:max_runs]
 
@@ -674,10 +687,14 @@ def _normalize_skillopt_review(
             "gate_passed": False,
             "reviews": [],
             "invalid_reviews": 0,
+            "duplicate_reviews": 0,
+            "artifact_verified": 0,
         }
     rows = evidence.get("reviews") or evidence.get("skill_reviews") or []
     normalized = []
-    invalid = 0
+    invalid = int(evidence.get("invalid_reviews") or 0)
+    duplicate = int(evidence.get("duplicate_reviews") or 0)
+    seen_artifacts: set[tuple[str, str]] = set()
     for row in rows if isinstance(rows, list) else []:
         if not isinstance(row, dict):
             invalid += 1
@@ -688,19 +705,24 @@ def _normalize_skillopt_review(
         approved = row.get("approved")
         artifact_path = str(row.get("skill_md") or row.get("path") or "").strip()
         sha256 = str(row.get("sha256") or "").strip()
-        packet_style = bool(artifact_path or sha256)
-        artifact_verified = None
-        if packet_style:
-            artifact_verified = _skillopt_artifact_hash_matches(artifact_path, sha256)
+        artifact_key = _skillopt_artifact_key(artifact_path, sha256)
+        artifact_verified = _skillopt_artifact_hash_matches(artifact_path, sha256)
         if (
             not skill
             or not reviewer
             or not reviewed_at
             or not isinstance(approved, bool)
-            or (packet_style and artifact_verified is not True)
+            or not artifact_path
+            or not sha256
+            or artifact_verified is not True
         ):
             invalid += 1
             continue
+        if artifact_key in seen_artifacts:
+            duplicate += 1
+            invalid += 1
+            continue
+        seen_artifacts.add(artifact_key)
         normalized.append(
             {
                 "skill": skill,
@@ -724,10 +746,22 @@ def _normalize_skillopt_review(
         "gate_passed": total >= 10 and approval_rate >= 0.80,
         "reviews": normalized,
         "invalid_reviews": invalid,
+        "duplicate_reviews": duplicate,
         "artifact_verified": sum(
             1 for row in normalized if row.get("artifact_verified") is True
         ),
     }
+
+
+def _skillopt_artifact_key(path: str, expected_sha256: str) -> tuple[str, str]:
+    artifact = Path(path)
+    if not artifact.is_absolute():
+        artifact = ROOT / artifact
+    try:
+        artifact_id = str(artifact.resolve())
+    except OSError:
+        artifact_id = str(artifact)
+    return artifact_id, expected_sha256
 
 
 def _skillopt_artifact_hash_matches(path: str, expected_sha256: str) -> bool:
@@ -773,14 +807,22 @@ def write_reports(result: dict[str, Any], json_path: Path, md_path: Path) -> Non
     md_path.write_text(_to_markdown(result), encoding="utf-8")
 
 
-def merge_results(existing: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+def merge_results(
+    existing: dict[str, Any],
+    current: dict[str, Any],
+    *,
+    allow_overwrite: bool = False,
+) -> dict[str, Any]:
     if existing.get("benchmark") != current.get("benchmark"):
         raise ValueError("cannot merge different benchmark result types")
-    existing_matrix = existing.get("matrix", {})
     current_matrix = current.get("matrix", {})
-    for field in ("plan_only", "skip_install", "post_verify", "disable_codegen"):
-        if existing_matrix.get(field) != current_matrix.get(field):
-            raise ValueError(f"cannot merge live gate results with different {field}")
+    _validate_merge_compatible(
+        existing,
+        plan_only=bool(current_matrix.get("plan_only")),
+        skip_install=bool(current_matrix.get("skip_install")),
+        post_verify=bool(current_matrix.get("post_verify")),
+        disable_codegen=bool(current_matrix.get("disable_codegen")),
+    )
 
     rows_by_key = {
         _row_key(row): row
@@ -790,6 +832,11 @@ def merge_results(existing: dict[str, Any], current: dict[str, Any]) -> dict[str
     for row in current.get("runs", []):
         key = _row_key(row)
         if key is not None:
+            if key in rows_by_key and not allow_overwrite:
+                raise ValueError(
+                    "refusing to overwrite existing live gate row: "
+                    f"goal={key[0]!r} stack={key[1]!r}"
+                )
             rows_by_key[key] = row
     rows = sorted(
         rows_by_key.values(),
@@ -830,12 +877,44 @@ def merge_results(existing: dict[str, Any], current: dict[str, Any]) -> dict[str
     }
 
 
+def _validate_merge_compatible(
+    result: dict[str, Any],
+    *,
+    plan_only: bool,
+    skip_install: bool,
+    post_verify: bool,
+    disable_codegen: bool,
+) -> None:
+    if result.get("benchmark") != "scratch-live-gate":
+        raise ValueError("cannot merge different benchmark result types")
+    matrix = result.get("matrix")
+    if not isinstance(matrix, dict):
+        raise ValueError("existing live gate report has no matrix")
+    expected = {
+        "plan_only": plan_only,
+        "skip_install": skip_install,
+        "post_verify": post_verify,
+        "disable_codegen": disable_codegen,
+    }
+    for field, expected_value in expected.items():
+        if bool(matrix.get(field)) != bool(expected_value):
+            raise ValueError(f"cannot merge live gate results with different {field}")
+
+
 def _row_key(row: dict[str, Any]) -> tuple[str, str] | None:
     goal = row.get("goal")
     stack = row.get("stack")
     if not goal or not stack:
         return None
     return str(goal), str(stack)
+
+
+def existing_row_keys(result: dict[str, Any]) -> set[tuple[str, str]]:
+    return {
+        key
+        for row in result.get("runs", [])
+        if (key := _row_key(row)) is not None
+    }
 
 
 def _pilot_stack_index(stack: str) -> int:
@@ -954,7 +1033,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         help=(
             "human review evidence JSON for generated SkillOpt skills; requires "
-            ">=10 reviewed skills and >=80% approved"
+            ">=10 reviewed skills and >=80%% approved"
         ),
     )
     parser.add_argument(
@@ -962,14 +1041,74 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="merge this slice into an existing JSON report instead of replacing it",
     )
+    parser.add_argument(
+        "--resume-existing",
+        action="store_true",
+        help="skip rows already present in --json-output before applying --max-runs",
+    )
+    parser.add_argument(
+        "--overwrite-existing",
+        action="store_true",
+        help="replace existing output files instead of preserving or merging them",
+    )
     parser.add_argument("--quiet", action="store_true")
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.resume_existing and args.overwrite_existing:
+        parser.error("--resume-existing cannot be combined with --overwrite-existing")
+    if args.merge_existing and (args.resume_existing or args.overwrite_existing):
+        parser.error(
+            "--merge-existing cannot be combined with "
+            "--resume-existing or --overwrite-existing"
+        )
+    return args
+
+
+def _resolve_output_paths(args: argparse.Namespace) -> tuple[Path, Path]:
+    json_output = args.json_output
+    md_output = args.md_output
+    if args.disable_codegen:
+        if json_output == RESULTS_JSON:
+            json_output = CODEGEN_DISABLED_RESULTS_JSON
+        if md_output == RESULTS_MD:
+            md_output = CODEGEN_DISABLED_RESULTS_MD
+    return json_output, md_output
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    json_output, md_output = _resolve_output_paths(args)
     goals = RELEASE_GOALS[: args.goal_limit]
     stacks = tuple(args.stacks) if args.stacks else PILOT_STACKS
+    existing = None
+    preserving_existing = args.resume_existing or args.merge_existing
+    if (
+        not preserving_existing
+        and not args.overwrite_existing
+        and (json_output.exists() or md_output.exists())
+    ):
+        print(
+            "refusing to overwrite existing live gate output; use "
+            "--resume-existing, --merge-existing, or --overwrite-existing",
+            file=sys.stderr,
+        )
+        return 2
+    if (args.resume_existing or args.merge_existing) and json_output.is_file():
+        try:
+            existing = json.loads(json_output.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"failed to read existing live gate report: {exc}", file=sys.stderr)
+            return 2
+        try:
+            _validate_merge_compatible(
+                existing,
+                plan_only=args.plan_only,
+                skip_install=args.skip_install,
+                post_verify=args.post_verify,
+                disable_codegen=args.disable_codegen,
+            )
+        except ValueError as exc:
+            print(f"existing live gate report is incompatible: {exc}", file=sys.stderr)
+            return 2
     result = run_live_gate(
         work_dir=args.work_dir,
         stacks=stacks,
@@ -985,19 +1124,24 @@ def main(argv: list[str] | None = None) -> int:
             if args.skillopt_review_json
             else None
         ),
+        skip_existing_keys=(
+            existing_row_keys(existing) if args.resume_existing and existing else None
+        ),
     )
-    if args.merge_existing and args.json_output.is_file():
+    if preserving_existing and existing:
         try:
-            existing = json.loads(args.json_output.read_text(encoding="utf-8"))
-            result = merge_results(existing, result)
-        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            result = merge_results(
+                existing,
+                result,
+            )
+        except ValueError as exc:
             print(f"failed to merge existing live gate report: {exc}", file=sys.stderr)
             return 2
-    write_reports(result, args.json_output, args.md_output)
+    write_reports(result, json_output, md_output)
     if not args.quiet:
         print(json.dumps(result["summary"], indent=2, sort_keys=True))
-        print(f"wrote {args.json_output}")
-        print(f"wrote {args.md_output}")
+        print(f"wrote {json_output}")
+        print(f"wrote {md_output}")
     summary = result["summary"]
     return (
         0

@@ -6,11 +6,18 @@ import hashlib
 import json
 import subprocess
 
+import pytest
+
 from bench.run_scratch_live_gate import (
+    CODEGEN_DISABLED_RESULTS_JSON,
+    CODEGEN_DISABLED_RESULTS_MD,
     merge_results,
+    _normalize_skillopt_review,
     _parse_json_stdout,
+    _resolve_output_paths,
     _summarize,
     load_skillopt_review_evidence,
+    parse_args,
     run_live_gate,
     write_reports,
 )
@@ -19,6 +26,21 @@ from bench.run_scratch_release_gate import PILOT_STACKS, RELEASE_GOALS
 
 def _completed(cmd, stdout, returncode=0, stderr=""):
     return subprocess.CompletedProcess(cmd, returncode, stdout, stderr)
+
+
+def _skillopt_review_row(tmp_path, index: int, *, approved: bool = True) -> dict:
+    skill = f"generated-skill-{index:02d}"
+    skill_path = tmp_path / skill / "SKILL.md"
+    skill_path.parent.mkdir()
+    skill_path.write_text(f"---\nname: {skill}\n---\n", encoding="utf-8")
+    return {
+        "skill": skill,
+        "path": str(skill_path),
+        "sha256": hashlib.sha256(skill_path.read_bytes()).hexdigest(),
+        "reviewer": "wesley",
+        "approved": approved,
+        "reviewed_at": "2026-05-31",
+    }
 
 
 def test_live_gate_runs_plan_only_slice(tmp_path) -> None:
@@ -304,12 +326,7 @@ def test_live_gate_keeps_cost_unknown_when_llm_cost_is_missing() -> None:
 
 def test_live_gate_accepts_skillopt_human_review_evidence(tmp_path) -> None:
     reviews = [
-        {
-            "skill": f"generated-skill-{index:02d}",
-            "reviewer": "wesley",
-            "approved": index <= 8,
-            "reviewed_at": "2026-05-30",
-        }
+        _skillopt_review_row(tmp_path, index, approved=index <= 8)
         for index in range(1, 11)
     ]
     review_path = tmp_path / "skillopt-review.json"
@@ -381,20 +398,8 @@ def test_live_gate_rejects_invalid_skillopt_review_rows() -> None:
 
 
 def test_live_gate_verifies_skillopt_review_packet_artifacts(tmp_path) -> None:
-    skill_path = tmp_path / "generated-skill" / "SKILL.md"
-    skill_path.parent.mkdir()
-    skill_path.write_text("---\nname: generated-skill\n---\n", encoding="utf-8")
-
-    digest = hashlib.sha256(skill_path.read_bytes()).hexdigest()
     reviews = [
-        {
-            "skill": f"generated-skill-{index:02d}",
-            "path": str(skill_path),
-            "sha256": digest,
-            "reviewer": "wesley",
-            "approved": index <= 8,
-            "reviewed_at": "2026-05-31",
-        }
+        _skillopt_review_row(tmp_path, index, approved=index <= 8)
         for index in range(1, 11)
     ]
     review_path = tmp_path / "skillopt-review.json"
@@ -405,6 +410,37 @@ def test_live_gate_verifies_skillopt_review_packet_artifacts(tmp_path) -> None:
     assert evidence["total_reviews"] == 10
     assert evidence["artifact_verified"] == 10
     assert evidence["gate_passed"] is True
+
+
+def test_live_gate_rejects_skillopt_review_without_artifact() -> None:
+    evidence = _normalize_skillopt_review(
+        {
+            "reviews": [
+                {
+                    "skill": "generated-skill",
+                    "reviewer": "wesley",
+                    "approved": True,
+                    "reviewed_at": "2026-05-31",
+                }
+            ]
+        }
+    )
+
+    assert evidence["total_reviews"] == 0
+    assert evidence["invalid_reviews"] == 1
+    assert evidence["gate_passed"] is False
+
+
+def test_live_gate_rejects_duplicate_skillopt_review_artifacts(tmp_path) -> None:
+    row = _skillopt_review_row(tmp_path, 1)
+    reviews = [{**row, "skill": f"generated-skill-{index:02d}"} for index in range(10)]
+
+    evidence = _normalize_skillopt_review({"reviews": reviews})
+
+    assert evidence["total_reviews"] == 1
+    assert evidence["invalid_reviews"] == 9
+    assert evidence["duplicate_reviews"] == 9
+    assert evidence["gate_passed"] is False
 
 
 def test_live_gate_rejects_skillopt_review_packet_hash_mismatch(tmp_path) -> None:
@@ -479,6 +515,83 @@ def test_live_gate_merges_distinct_slices(tmp_path) -> None:
     assert [row["stack"] for row in merged["runs"]] == ["py-fastapi", "ts-nextjs"]
     assert merged["summary"]["total_runs"] == 2
     assert merged["summary"]["task_all_passed"] == 2
+
+
+def test_live_gate_rejects_duplicate_merge_rows(tmp_path) -> None:
+    def fake_runner(cmd, **_kwargs):
+        return _completed(
+            cmd,
+            json.dumps(
+                {
+                    "project_dir": str(tmp_path),
+                    "files_written": ["src/main.py"],
+                    "tasks_passed": 1,
+                    "tasks_total": 1,
+                }
+            ),
+        )
+
+    existing = run_live_gate(
+        work_dir=tmp_path / "live-a",
+        stacks=("py-fastapi",),
+        goals=("CRUD app for condo units",),
+        runner=fake_runner,
+    )
+    current = run_live_gate(
+        work_dir=tmp_path / "live-b",
+        stacks=("py-fastapi",),
+        goals=("CRUD app for condo units",),
+        runner=fake_runner,
+    )
+
+    with pytest.raises(ValueError, match="refusing to overwrite"):
+        merge_results(existing, current)
+
+    merged = merge_results(existing, current, allow_overwrite=True)
+    assert merged["matrix"]["selected_runs"] == 1
+
+
+def test_live_gate_resume_skips_existing_rows_before_max_runs(tmp_path) -> None:
+    calls = []
+
+    def fake_runner(cmd, **_kwargs):
+        calls.append(cmd)
+        return _completed(cmd, '{"tasks": [{"id": "T01"}]}')
+
+    result = run_live_gate(
+        work_dir=tmp_path / "live",
+        stacks=("py-fastapi", "ts-nextjs"),
+        goals=("goal one", "goal two"),
+        max_runs=1,
+        plan_only=True,
+        skip_existing_keys={("goal one", "py-fastapi")},
+        runner=fake_runner,
+    )
+
+    assert len(calls) == 1
+    assert result["runs"][0]["goal"] == "goal one"
+    assert result["runs"][0]["stack"] == "ts-nextjs"
+
+
+def test_live_gate_disable_codegen_uses_baseline_output_defaults(tmp_path) -> None:
+    args = parse_args(["--work-dir", str(tmp_path), "--disable-codegen"])
+
+    json_output, md_output = _resolve_output_paths(args)
+
+    assert json_output == CODEGEN_DISABLED_RESULTS_JSON
+    assert md_output == CODEGEN_DISABLED_RESULTS_MD
+
+
+def test_live_gate_rejects_resume_and_overwrite_together(tmp_path) -> None:
+    with pytest.raises(SystemExit):
+        parse_args(
+            [
+                "--work-dir",
+                str(tmp_path),
+                "--resume-existing",
+                "--overwrite-existing",
+            ]
+        )
 
 
 def test_live_gate_marks_bad_stdout_as_failed(tmp_path) -> None:
