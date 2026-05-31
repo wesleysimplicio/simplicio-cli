@@ -12,9 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   A new offline-first provider runs a GGUF model directly in the Python
   process — zero API key, zero HTTP overhead. The model is loaded once and
   reused across calls.
-  - **Default local model:** `Qwen2.5-Coder-1.5B-Instruct-Q5_K_M` from
+  - **Default local model:** `Qwen2.5-Coder-1.5B-Instruct-Q8_0` executor with
+    `Qwen2.5-Coder-1.5B-Instruct-Q6_K_L` fallback, both from
     `bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF`, fetched once from the
-    Hugging Face Hub.
+    Hugging Face Hub. The fallback is used automatically when the Q8_0 file
+    can't be fetched/loaded. Quant pair chosen from the issue #46 curve:
+    Q8_0 +56pt and Q6_K_L +60pt contract-adherence over baseline.
   - **Auto-default:** when neither `SIMPLICIO_MODEL` nor `SIMPLICIO_BASE_URL`
     is set, simplicio now routes to this local model instead of erroring.
   - **Explicit route:** `SIMPLICIO_MODEL=local-llama/<repo>::<file.gguf>`,

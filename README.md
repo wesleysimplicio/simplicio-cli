@@ -516,10 +516,11 @@ simplicio smoke      # prints provider config + one test call
 simplicio ships an **in-process** backend powered by
 [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python). When **no
 provider is configured** (`SIMPLICIO_MODEL` *and* `SIMPLICIO_BASE_URL` both
-unset), it runs **Qwen2.5-Coder-1.5B-Instruct (Q5_K_M GGUF)** directly — small,
-code-specialized, fast on CPU, no API key, no Ollama, no HTTP overhead. The
-6-layer contract is what makes a 1.5B usable: it lifts the same model from ~34%
-to ~88% pass-rate on the local benchmark.
+unset), it runs **Qwen2.5-Coder-1.5B-Instruct (Q8_0 GGUF executor, Q6_K_L
+fallback)** directly — small, code-specialized, fast on CPU, no API key, no
+Ollama, no HTTP overhead. The 6-layer contract is what makes a 1.5B usable: on
+the local quant curve (issue #46) it lifts the same model from ~32% to ~88%
+(Q8_0) / ~92% (Q6_K_L) contract-adherence on the local benchmark.
 
 ```bash
 pip install 'simplicio-cli[local]'          # pulls llama-cpp-python + huggingface-hub

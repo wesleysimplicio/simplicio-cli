@@ -177,6 +177,38 @@ def test_resolve_local_path_no_hf_lib_raises(monkeypatch):
     assert "simplicio-cli[local]" in str(exc.value)
 
 
+def test_resolve_local_path_falls_back_when_primary_fails(monkeypatch):
+    fake = types.ModuleType("huggingface_hub")
+
+    def dl(repo_id, filename):
+        if filename == "primary.gguf":
+            raise RuntimeError("primary unavailable")
+        return "/cache/" + filename
+
+    fake.hf_hub_download = dl
+    monkeypatch.setitem(sys.modules, "huggingface_hub", fake)
+    out = providers._resolve_local_path(
+        "owner/repo", "primary.gguf", None, "fallback.gguf"
+    )
+    assert out == "/cache/fallback.gguf"
+
+
+def test_resolve_local_path_no_fallback_reraises(monkeypatch):
+    fake = types.ModuleType("huggingface_hub")
+    fake.hf_hub_download = MagicMock(side_effect=RuntimeError("boom"))
+    monkeypatch.setitem(sys.modules, "huggingface_hub", fake)
+    with pytest.raises(RuntimeError, match="boom"):
+        providers._resolve_local_path("owner/repo", "primary.gguf", None)
+
+
+def test_default_executor_and_fallback_are_q8_q6kl():
+    assert providers.LOCAL_DEFAULT_FILE == "Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf"
+    assert (
+        providers.LOCAL_FALLBACK_FILE
+        == "Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf"
+    )
+
+
 # --------------------------------------------------------------------------- #
 # _local_llama missing backend
 # --------------------------------------------------------------------------- #
