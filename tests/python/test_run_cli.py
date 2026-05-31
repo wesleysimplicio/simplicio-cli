@@ -117,10 +117,45 @@ def test_run_scope_scratch_forwards_to_scratch_cli(monkeypatch):
         "scaffold a new FastAPI project from scratch",
         "--stack",
         "py-fastapi",
+        "--root",
+        ".",
         "--dest",
         ".",
         "--plan-only",
         "--json",
+    ]
+
+
+def test_run_scope_scratch_forwards_existing_project_root(monkeypatch, tmp_path):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    seen = {}
+
+    def fake_scratch_main(argv):
+        seen["argv"] = argv
+        return 0
+
+    monkeypatch.setattr("simplicio.scratch.cli.main", fake_scratch_main)
+
+    code = cli.main(
+        [
+            "run",
+            "analyze and align endpoints in this existing project",
+            "--scope",
+            "scratch",
+            "--root",
+            str(tmp_path),
+            "--plan-only",
+        ]
+    )
+
+    assert code == 0
+    assert seen["argv"] == [
+        "analyze and align endpoints in this existing project",
+        "--root",
+        str(tmp_path),
+        "--dest",
+        ".",
+        "--plan-only",
     ]
 
 

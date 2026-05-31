@@ -181,6 +181,8 @@ def _run_scratch_command(a: argparse.Namespace) -> int:
     scratch_argv = [a.goal]
     if a.stack:
         scratch_argv += ["--stack", a.stack]
+    if a.root:
+        scratch_argv += ["--root", a.root]
     if a.name:
         scratch_argv += ["--name", a.name]
     if a.dest:
@@ -596,6 +598,7 @@ def main(argv=None):
     p_init.add_argument("--dry-run", action="store_true")
 
     p_det = sub.add_parser("detect", help="heuristic: is a prompt a code-edit task")
+    p_det.add_argument("prompt_words", nargs="*", help=argparse.SUPPRESS)
     p_det.add_argument("--prompt", help="prompt text (default: read from stdin)")
     p_det.add_argument("--quiet", action="store_true")
     p_det.add_argument("--json", action="store_true")
@@ -654,8 +657,11 @@ def main(argv=None):
         from .detect import main as detect_main
 
         detect_argv = []
-        if a.prompt is not None:
-            detect_argv += ["--prompt", a.prompt]
+        prompt = a.prompt
+        if prompt is None and a.prompt_words:
+            prompt = " ".join(a.prompt_words)
+        if prompt is not None:
+            detect_argv += ["--prompt", prompt]
         if a.quiet:
             detect_argv += ["--quiet"]
         if a.json:

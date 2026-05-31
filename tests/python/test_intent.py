@@ -73,6 +73,16 @@ def test_new_endpoint_is_not_scratch():
     assert result.confidence >= AUTO_CONFIDENCE_THRESHOLD
 
 
+def test_cross_repo_endpoint_alignment_is_sprint():
+    result = classify_goal(
+        "veja todas as telas, alinhe todos os endpoints da web com api e ai-agents"
+    )
+
+    assert result.scope == "sprint"
+    assert result.confidence >= AUTO_CONFIDENCE_THRESHOLD
+    assert any(signal.startswith("sprint:") for signal in result.signals)
+
+
 def test_read_only_goal_has_low_confidence():
     result = classify_goal("explain how the verify loop works")
     assert result.scope == "task"

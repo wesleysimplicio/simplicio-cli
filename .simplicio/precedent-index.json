@@ -1,7 +1,7 @@
 {
   "schema": "simplicio.precedent-index/v1",
   "version": 1,
-  "generated_at": "2026-05-30T20:31:13.911Z",
+  "generated_at": "2026-05-31T18:47:22.362Z",
   "source_project_map": ".simplicio/project-map.json",
   "items": [
     {
@@ -218,6 +218,142 @@
       "snippet": "```typescript\n// tests/unit/calculate-invoice-total.test.ts\ntest('aplica desconto quando cliente e VIP', () => {\n  const invoice = makeInvoice({ items: [{ price: 100 }], customer: { tier: 'vip' } });\n  expect(calculateInvoiceTotal(invoice)).toBe(90);"
     },
     {
+      "id": "aed1aea2817174b5",
+      "path": "CHANGELOG.md",
+      "line": 135,
+      "language": "markdown",
+      "change_type": "error-handling",
+      "tags": [
+        "markdown",
+        "changelog"
+      ],
+      "summary": "error-handling precedent in CHANGELOG.md",
+      "snippet": "\n### Changed\n- `simplicio-mapper>=0.5.0` → `>=0.6.0` (catch up with upstream 0.6.0).\n- `simplicio-prompt>=1.7.0` → `>=1.9.0` (catch up with upstream 1.9.0).\n"
+    },
+    {
+      "id": "2b15bd2609a68e14",
+      "path": "README.backup-2026-05-27.md",
+      "line": 367,
+      "language": "markdown",
+      "change_type": "error-handling",
+      "tags": [
+        "markdown",
+        "readme",
+        "backup",
+        "2026"
+      ],
+      "summary": "error-handling precedent in README.backup-2026-05-27.md",
+      "snippet": "**\"I want to run it in CI / a script / outside Claude Code.\"** Path 2. Get an\nAPI key from any of the providers above (OpenRouter is the cheapest way to\ntry multiple models behind one key), set `SIMPLICIO_API_KEY` +\n`SIMPLICIO_MODEL` + optional `SIMPLICIO_BASE_URL`, run `simplicio task ...`.\n"
+    },
+    {
+      "id": "fc4dbdec0cc31702",
+      "path": "README.md",
+      "line": 125,
+      "language": "markdown",
+      "change_type": "route",
+      "tags": [
+        "markdown",
+        "readme"
+      ],
+      "summary": "route precedent in README.md",
+      "snippet": "\n> Reproduce the new default set:\n> `BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=<hf-token>\n> BENCH_MODELS=\"Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next\"\n> python3 bench/run_offline.py`."
+    },
+    {
+      "id": "98533d8a1a7fd947",
+      "path": "bench/CONSOLIDATED_REPORT.md",
+      "line": 225,
+      "language": "markdown",
+      "change_type": "route",
+      "tags": [
+        "markdown",
+        "bench",
+        "consolidated",
+        "report"
+      ],
+      "summary": "route precedent in bench/CONSOLIDATED_REPORT.md",
+      "snippet": "### `bench/results_full_qwen3.md` — família Qwen3-Coder MoE (exec + regex + fan-out)\n\n**Mede:** relatório \"single-source-of-truth\" do branch Qwen3. 2 modelos, exec (12) + regex (10) + fan-out (N=200). Data 2026-05-29. Modelos: `Qwen/Qwen3-Coder-30B-A3B-Instruct` (MoE 30B/3B ativo) e `Qwen/Qwen3-Coder-Next` (MoE 80B/3B ativo, 256K ctx), via HF router.\n\nHeadline single-call:"
+    },
+    {
+      "id": "c486dbdece1537d8",
+      "path": "bench/ISSUE_CLOSURE_EVIDENCE.md",
+      "line": 322,
+      "language": "markdown",
+      "change_type": "feature",
+      "tags": [
+        "markdown",
+        "bench",
+        "issue",
+        "closure",
+        "evidence"
+      ],
+      "summary": "feature precedent in bench/ISSUE_CLOSURE_EVIDENCE.md",
+      "snippet": "  run for these quants.\n- `docs/adr/0001-qwen15b-schema-v1-quant-decision.md` records the decision:\n  use 3B-class or larger local coder models as the practical lower bound for\n  schema-v1 until another 1.5B model or prompt protocol proves otherwise.\n- `bench/RESULTS_LOCAL_GGUF.md` contains older local Q5_K_M vs Q8_0 evidence"
+    },
+    {
+      "id": "df26668377b20e5b",
+      "path": "bench/LLM_REDUCTION_ROADMAP.md",
+      "line": 114,
+      "language": "markdown",
+      "change_type": "feature",
+      "tags": [
+        "markdown",
+        "bench",
+        "llm",
+        "reduction",
+        "roadmap"
+      ],
+      "summary": "feature precedent in bench/LLM_REDUCTION_ROADMAP.md",
+      "snippet": "```python\n# simplicio/scratch/codegen/__init__.py\nclass TaskExecutor(ABC):\n    def can_handle(self, task: Task, stack: Stack) -> bool: ...\n    def execute(self, task: Task, project_dir: Path) -> CodegenResult: ..."
+    },
+    {
+      "id": "ef3c732c786640dc",
+      "path": "bench/SCRATCH_MODE_RFC.md",
+      "line": 214,
+      "language": "markdown",
+      "change_type": "route",
+      "tags": [
+        "markdown",
+        "bench",
+        "scratch",
+        "mode",
+        "rfc"
+      ],
+      "summary": "route precedent in bench/SCRATCH_MODE_RFC.md",
+      "snippet": "> **Atualização (commit subsequente ao RFC inicial):** o planner default\n> mudou de DeepSeek API direto pra DeepSeek servido pelo HuggingFace\n> Inference Router. Razão: a maioria dos usuários já tem `HF_TOKEN`,\n> reduzindo o atrito de \"comprar mais um plano só pra planner\". Quem\n> prefere DeepSeek direto passa `SIMPLICIO_PLANNER=deepseek/<model>`."
+    },
+    {
+      "id": "dd5ca95c24fa2468",
+      "path": "bench/SIMPLICIO_FLOW_GUIDE.md",
+      "line": 82,
+      "language": "markdown",
+      "change_type": "route",
+      "tags": [
+        "markdown",
+        "bench",
+        "simplicio",
+        "flow",
+        "guide"
+      ],
+      "summary": "route precedent in bench/SIMPLICIO_FLOW_GUIDE.md",
+      "snippet": "prefix                  base URL                                env var      tipo\n─────────────────────────────────────────────────────────────────────────────────────\ndeepseek-hf/<model>     https://router.huggingface.co/v1        HF_TOKEN     OpenAI-compat\ndeepseek/<model>        https://api.deepseek.com/v1             DEEPSEEK_API_KEY  OpenAI-compat\nopenai/<model>          https://api.openai.com/v1               OPENAI_API_KEY    OpenAI-compat"
+    },
+    {
+      "id": "b03f1ebfab941cfa",
+      "path": "bench/UNIFIED_RUN_ARCHITECTURE.md",
+      "line": 187,
+      "language": "markdown",
+      "change_type": "feature",
+      "tags": [
+        "markdown",
+        "bench",
+        "unified",
+        "run",
+        "architecture"
+      ],
+      "summary": "feature precedent in bench/UNIFIED_RUN_ARCHITECTURE.md",
+      "snippet": "\n```python\nclass CostGovernor:\n    budget: Decimal  # USD\n    spent: Decimal"
+    },
+    {
       "id": "78ba08130d113d4e",
       "path": "bench/cases_offline.json",
       "line": 11,
@@ -262,9 +398,9 @@
       "snippet": "\n\ndef _load(path: str) -> dict:\n    p = Path(path)\n    return json.loads(p.read_text()) if p.exists() else {}"
     },
     {
-      "id": "be3ce4dcebe83ece",
+      "id": "2563f54b5127c4c7",
       "path": "bench/consolidate_4side_report.py",
-      "line": 26,
+      "line": 27,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -276,6 +412,38 @@
       ],
       "summary": "feature precedent in bench/consolidate_4side_report.py",
       "snippet": "\n\ndef _row_attempts(rows: list, key: str) -> float:\n    vals = [r[key].get(\"attempts\", 1) for r in rows if key in r]\n    return sum(vals) / max(len(vals), 1)"
+    },
+    {
+      "id": "588a46698b690edd",
+      "path": "bench/consolidate_full_report.py",
+      "line": 34,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "bench",
+        "consolidate",
+        "full",
+        "report"
+      ],
+      "summary": "feature precedent in bench/consolidate_full_report.py",
+      "snippet": "# ---- per-bench extractors ---- #\n\ndef exec_summary(by_model: dict) -> dict:\n    \"\"\"Per-model: pct for each of the 4 sides + avg agents attempts +\n    avg tokens/ms per side.\"\"\""
+    },
+    {
+      "id": "d2451577c249a32f",
+      "path": "bench/consolidate_v13_report.py",
+      "line": 13,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "python",
+        "bench",
+        "consolidate",
+        "v13",
+        "report"
+      ],
+      "summary": "test precedent in bench/consolidate_v13_report.py",
+      "snippet": "  bench/results_v13_5side.pdf\n\nSides under test (in the bench JSON keys):\n  sem   = baseline (raw goal, no simplicio)\n  com   = cli alone (6-layer contract)"
     },
     {
       "id": "35d14c791d4e52ef",
@@ -293,20 +461,51 @@
       "snippet": "        \"test\": (\n            \"from solution import can_delete\\n\"\n            \"def test_admin_true():\\n\"\n            \"    assert can_delete({'role': 'admin'}) is True\\n\"\n            \"def test_non_admin_false():\\n\""
     },
     {
-      "id": "df26668377b20e5b",
-      "path": "bench/LLM_REDUCTION_ROADMAP.md",
-      "line": 114,
-      "language": "markdown",
+      "id": "427c78793493ed01",
+      "path": "bench/interim_v13_report.py",
+      "line": 54,
+      "language": "python",
       "change_type": "feature",
       "tags": [
-        "markdown",
+        "python",
         "bench",
-        "llm",
-        "reduction",
-        "roadmap"
+        "interim",
+        "v13",
+        "report"
       ],
-      "summary": "feature precedent in bench/LLM_REDUCTION_ROADMAP.md",
-      "snippet": "```python\n# simplicio/scratch/codegen/__init__.py\nclass TaskExecutor(ABC):\n    def can_handle(self, task: Task, stack: Stack) -> bool: ...\n    def execute(self, task: Task, project_dir: Path) -> CodegenResult: ..."
+      "summary": "feature precedent in bench/interim_v13_report.py",
+      "snippet": "\n\ndef parse_exec(log: str) -> dict:\n    out = {}\n    current = None"
+    },
+    {
+      "id": "6bc2328646fc264d",
+      "path": "bench/interim_v14_report.py",
+      "line": 25,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "bench",
+        "interim",
+        "v14",
+        "report"
+      ],
+      "summary": "feature precedent in bench/interim_v14_report.py",
+      "snippet": "\n\ndef parse():\n    if not LOG.exists():\n        return []"
+    },
+    {
+      "id": "2823ee45ad3073db",
+      "path": "bench/results_4quadrant.json",
+      "line": 144,
+      "language": "json",
+      "change_type": "route",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "4quadrant"
+      ],
+      "summary": "route precedent in bench/results_4quadrant.json",
+      "snippet": "            false\n          ],\n          \"final_output\": \"Okay, here's how you can achieve this, broken down by common scenarios and technologies.  I'll provide examples for:\\n\\n*   **Database Queries (SQL)** - This is the most fundamental approach.\\n*   **Backend Code (Python - Flask/Django)** -  Illustrating how to apply the logic in a web application.\\n*   **Frontend (JavaScript)** -  How to conditionally render the link based on user data.\\n\\n**1. Database Queries (SQL)**\\n\\nThis is the core of the solution.  You'll need to modify your SQL query to only include the audit log link for users with the 'auditor' role.\\n\\n```sql\\nSELECT\\n    *,\\n    CASE\\n        WHEN role = 'auditor' THEN (SELECT '/audit-log' ) -- Or the actual URL\\n        ELSE NULL\\n    END AS audit_log_link\\nFROM\\n    users;\\n```\\n\\n**Explanation:**\\n\\n*   `SELECT *`:  Selects all columns from the `users` table.\\n*   `CASE WHEN role = 'auditor' THEN ... ELSE NULL END`: This is the conditional logic.\\n    *   If the `role` column is equal to 'auditor', it returns the audit log link (e.g., `/audit-log`).  **Replace `/audit-log` with the actual URL of the audit log page.**\\n    *   If the `role` is *not* 'auditor',"
     },
     {
       "id": "0557e210fa5f8225",
@@ -325,21 +524,6 @@
       "snippet": "        \"screen\\\\.component\\\\.html\",\n        \"(^|\\\\W)diff(\\\\W|:)\",\n        \"(^|\\\\W)test(\\\\W|:)\",\n        \"admin\",\n        \"(absent|hidden|removed|ngIf|not.*admin)\""
     },
     {
-      "id": "2823ee45ad3073db",
-      "path": "bench/results_4quadrant.json",
-      "line": 144,
-      "language": "json",
-      "change_type": "route",
-      "tags": [
-        "json",
-        "bench",
-        "results",
-        "4quadrant"
-      ],
-      "summary": "route precedent in bench/results_4quadrant.json",
-      "snippet": "            false\n          ],\n          \"final_output\": \"Okay, here's how you can achieve this, broken down by common scenarios and technologies.  I'll provide examples for:\\n\\n*   **Database Queries (SQL)** - This is the most fundamental approach.\\n*   **Backend Code (Python - Flask/Django)** -  Illustrating how to apply the logic in a web application.\\n*   **Frontend (JavaScript)** -  How to conditionally render the link based on user data.\\n\\n**1. Database Queries (SQL)**\\n\\nThis is the core of the solution.  You'll need to modify your SQL query to only include the audit log link for users with the 'auditor' role.\\n\\n```sql\\nSELECT\\n    *,\\n    CASE\\n        WHEN role = 'auditor' THEN (SELECT '/audit-log' ) -- Or the actual URL\\n        ELSE NULL\\n    END AS audit_log_link\\nFROM\\n    users;\\n```\\n\\n**Explanation:**\\n\\n*   `SELECT *`:  Selects all columns from the `users` table.\\n*   `CASE WHEN role = 'auditor' THEN ... ELSE NULL END`: This is the conditional logic.\\n    *   If the `role` column is equal to 'auditor', it returns the audit log link (e.g., `/audit-log`).  **Replace `/audit-log` with the actual URL of the audit log page.**\\n    *   If the `role` is *not* 'auditor',"
-    },
-    {
       "id": "ca882926771f2fb0",
       "path": "bench/results_4side_qwen3.md",
       "line": 28,
@@ -356,9 +540,9 @@
       "snippet": "## Agents verify-loop convergence\n\nLower attempts = the model resolved the case earlier; 1 means it passed on the first try with no feedback. Max attempts capped per harness.\n\n| Model | metric | avg attempts (cli+ag) |"
     },
     {
-      "id": "2de9be7f6a8e85a4",
+      "id": "b0c5388bdeeaecfb",
       "path": "bench/results_exec_sindico.md",
-      "line": 58,
+      "line": 57,
       "language": "markdown",
       "change_type": "error-handling",
       "tags": [
@@ -369,7 +553,23 @@
         "sindico"
       ],
       "summary": "error-handling precedent in bench/results_exec_sindico.md",
-      "snippet": "| router_extract_params | P/P/P/P(1) | P/P/P/P(1) |\n\nFormat suffix `(N)` on cli+ag is the number of verify-loop attempts consumed (1–3). Lower is better; 1 means it passed on the first try, no feedback needed.\n\nRaw counts above are real `vendor/bin/phpunit` exit codes against `sistema-sindico`. `results_exec_sindico.json` holds per-case pass/fail, tokens, latency and a phpunit tail for every side."
+      "snippet": "| router_extract_params | P/P/./P(1) |\n\nFormat suffix `(N)` on cli+ag is the number of verify-loop attempts consumed (1–3). Lower is better; 1 means it passed on the first try, no feedback needed.\n\nRaw counts above are real `vendor/bin/phpunit` exit codes against `sistema-sindico`. `results_exec_sindico.json` holds per-case pass/fail, tokens, latency and a phpunit tail for every side."
+    },
+    {
+      "id": "a4336f808ba515c3",
+      "path": "bench/results_full_qwen3.md",
+      "line": 9,
+      "language": "markdown",
+      "change_type": "route",
+      "tags": [
+        "markdown",
+        "bench",
+        "results",
+        "full",
+        "qwen3"
+      ],
+      "summary": "route precedent in bench/results_full_qwen3.md",
+      "snippet": "## Models\n\n- **`Qwen/Qwen3-Coder-30B-A3B-Instruct`** — MoE 30B total / 3B active per token, Apache 2.0, served via the HuggingFace Inference Router.\n- **`Qwen/Qwen3-Coder-Next`** — MoE 80B total / 3B active, 256K context, Apache 2.0, also via HF router.\n"
     },
     {
       "id": "cdbb6e3fe8242d41",
@@ -386,6 +586,22 @@
       ],
       "summary": "feature precedent in bench/results_rust_qwen.md",
       "snippet": "```\n>>> from simplicio.prompt import _rs_build\n_rs_build = <built-in function build_6layer_prompt>\n>>> simplicio_core.hello(\"rust\")\n'hello, rust!'"
+    },
+    {
+      "id": "075fad08a6d02623",
+      "path": "bench/results_scratch_codegen.json",
+      "line": 257,
+      "language": "json",
+      "change_type": "route",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "scratch",
+        "codegen"
+      ],
+      "summary": "route precedent in bench/results_scratch_codegen.json",
+      "snippet": "      \"expected_executor\": \"go-gin-crud\",\n      \"expected_executor_match\": true,\n      \"log_tail\": \"generated Gin CRUD routes for condo_units\\nfiles_modified=$WORK_DIR\\\\projects\\\\go-gin-crud-r01\\\\internal\\\\http\\\\router.go\",\n      \"metrics\": {\n        \"avg_codegen_ms\": 1,"
     },
     {
       "id": "237925710d125400",
@@ -406,9 +622,28 @@
       "snippet": "      \"duration_ms\": 1,\n      \"execution_mode\": \"llm\",\n      \"log_tail\": \" name: str\\\\n    email: str | None = None\\\\n\\\\n\\\\nclass UserUpdate(BaseModel):\\\\n    name: str | None = None\\\\n    email: str | None = None\\\\n\\\\n\\\\nclass UserRead(BaseModel):\\\\n    id: int\\\\n    name: str\\\\n    email: str | None = None\\\\n    created_at: datetime\\\\n\\\\n    class Config:\\\\n        orm_mode = True\\\\n\\\"}\\n\",\n      \"metrics\": {\n        \"tasks_codegen\": 0,"
     },
     {
-      "id": "5631d23fccb48f3a",
-      "path": "bench/results_scratch_codegen.json",
-      "line": 215,
+      "id": "c637e270bb41a834",
+      "path": "bench/results_scratch_codegen_real_baseline_partial.json",
+      "line": 126,
+      "language": "json",
+      "change_type": "feature",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "scratch",
+        "codegen",
+        "real",
+        "baseline",
+        "partial"
+      ],
+      "summary": "feature precedent in bench/results_scratch_codegen_real_baseline_partial.json",
+      "snippet": "      \"expected_executor\": \"python-add-pytest-test\",\n      \"expected_executor_match\": false,\n      \"log_tail\": \"codegen fallback: libcst is not installed\\ngoal=Generate a happy-path pytest for function double in src/utils/math_ops.py\",\n      \"metrics\": {\n        \"avg_codegen_ms\": 0,"
+    },
+    {
+      "id": "2fc079737306f2de",
+      "path": "bench/results_scratch_live_gate_codegen_disabled_baseline.json",
+      "line": 249,
       "language": "json",
       "change_type": "route",
       "tags": [
@@ -416,10 +651,14 @@
         "bench",
         "results",
         "scratch",
-        "codegen"
+        "live",
+        "gate",
+        "codegen",
+        "disabled",
+        "baseline"
       ],
-      "summary": "route precedent in bench/results_scratch_codegen.json",
-      "snippet": "      \"expected_executor\": \"go-gin-crud\",\n      \"expected_executor_match\": true,\n      \"log_tail\": \"generated Gin CRUD routes for condo_units\\nfiles_modified=$WORK_DIR\\\\projects\\\\go-gin-crud-r01\\\\internal\\\\http\\\\router.go\",\n      \"metrics\": {\n        \"avg_codegen_ms\": 1,"
+      "summary": "route precedent in bench/results_scratch_live_gate_codegen_disabled_baseline.json",
+      "snippet": "      \"stack\": \"go-gin\",\n      \"stderr_tail\": \"[scratch] stack:   go-gin (Go 1.22 / Gin)\\n[scratch] project: gate-g01-go-gin\\n[scratch] planner: planner=codex-cli/default (shell-out)\\n[scratch] generating plan...\\n[scratch] plan ok: 1 tasks\\n\",\n      \"stdout_tail\": \"golang.org/x/arch v0.8.0\\\\ngo: downloading github.com/klauspost/cpuid/v2 v2.2.7\\\\ngo: downloading github.com/bytedance/sonic/loader v0.1.1\\\\ngo: downloading github.com/twitchyliquid64/golang-asm v0.15.1\\\\ngo: downloading github.com/cloudwego/iasm v0.2.0\\\\ngo: downloading github.com/go-playground/assert/v2 v2.2.0\\\\ngo: downloading github.com/google/go-cmp v0.5.5\\\\ngo: downloading gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405\\\\ngo: downloading golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543\\\\n\\\",\\n  \\\"tasks\\\": [\\n    {\\n      \\\"id\\\": \\\"T01-gin-crud\\\",\\n      \\\"target\\\": \\\"internal/http/router.go\\\",\\n      \\\"passed\\\": true,\\n      \\\"execution_mode\\\": \\\"llm\\\",\\n      \\\"codegen_executor\\\": null,\\n      \\\"files_modified\\\": [],\\n      \\\"skipped\\\": null,\\n      \\\"duration_ms\\\": 197963,\\n      \\\"log_tail\\\": \\\"codegen fallback: codegen disabled by SIMPLICIO_DISABLE_CODEGEN\\\\n\\\\n{\\\\n  \\\\\\\"applied\\\\\\\": true,\\\\n  \\\\\\\""
     },
     {
       "id": "1d7944826aa3eaf6",
@@ -440,18 +679,144 @@
       "snippet": "      \"stack\": \"go-gin\",\n      \"stderr_tail\": \"[scratch] stack:   go-gin (Go 1.22 / Gin)\\n[scratch] project: gate-g01-go-gin\\n[scratch] planner: planner=codex-cli/default (shell-out)\\n[scratch] generating plan...\\n[scratch] plan ok: 1 tasks\\n\",\n      \"stdout_tail\": \"golang.org/x/arch v0.8.0\\\\ngo: downloading github.com/klauspost/cpuid/v2 v2.2.7\\\\ngo: downloading github.com/bytedance/sonic/loader v0.1.1\\\\ngo: downloading github.com/twitchyliquid64/golang-asm v0.15.1\\\\ngo: downloading github.com/cloudwego/iasm v0.2.0\\\\ngo: downloading github.com/go-playground/assert/v2 v2.2.0\\\\ngo: downloading github.com/google/go-cmp v0.5.5\\\\ngo: downloading gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405\\\\ngo: downloading golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543\\\\n\\\",\\n  \\\"tasks\\\": [\\n    {\\n      \\\"id\\\": \\\"T01-gin-crud\\\",\\n      \\\"target\\\": \\\"internal/http/router.go\\\",\\n      \\\"passed\\\": true,\\n      \\\"execution_mode\\\": \\\"llm\\\",\\n      \\\"codegen_executor\\\": null,\\n      \\\"files_modified\\\": [],\\n      \\\"skipped\\\": null,\\n      \\\"duration_ms\\\": 197963,\\n      \\\"log_tail\\\": \\\"codegen fallback: codegen disabled by SIMPLICIO_DISABLE_CODEGEN\\\\n\\\\n{\\\\n  \\\\\\\"applied\\\\\\\": true,\\\\n  \\\\\\\""
     },
     {
-      "id": "1244106a06eedfb1",
-      "path": "bench/results.md",
-      "line": 6,
+      "id": "fedeeae481156b0d",
+      "path": "bench/results_sp_schema_smoke_deepseek.json",
+      "line": 42,
+      "language": "json",
+      "change_type": "feature",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "schema",
+        "smoke",
+        "deepseek"
+      ],
+      "summary": "feature precedent in bench/results_sp_schema_smoke_deepseek.json",
+      "snippet": "      ]\n    },\n    \"winner_first_500\": \"<?php\\n\\ndeclare(strict_types=1);\\n\\nnamespace App\\\\Core;\\n\\nfinal class PasswordPolicy\\n{\\n    public static function isStrong(string $password): bool\\n    {\\n        return strlen($password) >= 12;\\n    }\\n}\\n\"\n  }\n}"
+    },
+    {
+      "id": "957074162a3d7140",
+      "path": "bench/results_sp_schema_smoke_qwen3b.json",
+      "line": 20,
+      "language": "json",
+      "change_type": "feature",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "schema",
+        "smoke",
+        "qwen3b"
+      ],
+      "summary": "feature precedent in bench/results_sp_schema_smoke_qwen3b.json",
+      "snippet": "    \"assert(PasswordPolicy::isStrong('12345678901234567890') === true);\"\n  ],\n  \"winner_artifact_first_500\": \"<?php\\n\\ndeclare(strict_types=1);\\n\\nnamespace App\\\\Core;\\n\\nfinal class PasswordPolicy\\n{\\n    public static function isStrong(string $password): bool\\n    {\\n        return strlen($password) >= 12;\\n    }\\n}\",\n  \"raw_files_saved\": [\n    \"/tmp/qwen3b_raw_1.txt\","
+    },
+    {
+      "id": "f9f9e65dd96646b7",
+      "path": "bench/results_v13_5side.md",
+      "line": 43,
       "language": "markdown",
-      "change_type": "route",
+      "change_type": "error-handling",
       "tags": [
         "markdown",
         "bench",
-        "results"
+        "results",
+        "v13",
+        "5side"
       ],
-      "summary": "route precedent in bench/results.md",
-      "snippet": "Models: `Qwen/Qwen3-Coder-30B-A3B-Instruct`, `Qwen/Qwen3-Coder-Next`  \nCases: **10** across stacks: `angular`, `dotnet`, `react`  \nBase: `https://router.huggingface.co/v1`\n\nEach check is a deterministic regex against the model output "
+      "summary": "error-handling precedent in bench/results_v13_5side.md",
+      "snippet": "## Verify-loop convergence (exec)\n\nAverage attempts consumed by the ag-based sides (1=passed first try; 3=ran loop to exhaustion).\n\n| Model | cli+ag avg | cli+sp+ag avg |"
+    },
+    {
+      "id": "c5af8f8a0273cd6d",
+      "path": "bench/results_v14_qwen15b_q4_0_smoke_schema_v1.json",
+      "line": 16,
+      "language": "json",
+      "change_type": "feature",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "v14",
+        "qwen15b",
+        "smoke",
+        "schema"
+      ],
+      "summary": "feature precedent in bench/results_v14_qwen15b_q4_0_smoke_schema_v1.json",
+      "snippet": "    {\n      \"artifact_matches_contract\": false,\n      \"artifact_preview\": \"```json\\n{\\n  \\\"artifact\\\": \\\"<?php declare(strict_types=1); namespace App\\\\Core; final class PasswordPolicy { public static function violations(string $password): array { $violations = []; if (strlen($password) < 8) { $violations[] = 'min_length'; } return $violations; } public static function isStrong(string $password): bool { $violations = self::violations($password); return empty($violations); } }\\\",\\n  \\\"files_changed\\\": [\\\"src/Core/PasswordPolicy.php\\\"],\\n  \\\"behaviors_added\\\": [\\\"App\\\\Core\\\\PasswordPolicy:\",\n      \"behaviors_added\": [],\n      \"call\": 1,"
+    },
+    {
+      "id": "441b144e8bcd6358",
+      "path": "bench/results_v14_qwen15b_q4_k_s_smoke_schema_v1.json",
+      "line": 16,
+      "language": "json",
+      "change_type": "feature",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "v14",
+        "qwen15b",
+        "smoke",
+        "schema"
+      ],
+      "summary": "feature precedent in bench/results_v14_qwen15b_q4_k_s_smoke_schema_v1.json",
+      "snippet": "    {\n      \"artifact_matches_contract\": true,\n      \"artifact_preview\": \"```json\\n{\\n  \\\"artifact\\\": \\\"<?php\\ndeclare(strict_types=1);\\n\\nnamespace App\\\\Core;\\n\\nfinal class PasswordPolicy\\n{\\n    public static function violations(string $password): array\\n    {\\n        $violations = [];\\n        if (strlen($password) < 8) {\\n            $violations[] = 'min_length';\\n        }\\n        if (preg_match('/[a-z]/', $password) === 0) {\\n            $violations[] = 'lowercase';\\n        }\\n        if (preg_match('/[A-Z]/', $password) === 0) {\\n            $violations[] = 'uppercase';\\n        }\",\n      \"behaviors_added\": [],\n      \"call\": 1,"
+    },
+    {
+      "id": "1c43938bda84f114",
+      "path": "bench/results_v14_qwen15b_q5_k_l_smoke_schema_v1.json",
+      "line": 30,
+      "language": "json",
+      "change_type": "feature",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "v14",
+        "qwen15b",
+        "smoke",
+        "schema"
+      ],
+      "summary": "feature precedent in bench/results_v14_qwen15b_q5_k_l_smoke_schema_v1.json",
+      "snippet": "    {\n      \"artifact_matches_contract\": true,\n      \"artifact_preview\": \"```json\\n{\\n  \\\"artifact\\\": \\\"```php\\n<?php\\ndeclare(strict_types=1);\\n\\nnamespace App\\\\Core;\\n\\nfinal class PasswordPolicy\\n{\\n    public static function violations(string $password): array\\n    {\\n        $violations = [];\\n        if (strlen($password) < 8) {\\n            $violations[] = 'min_length';\\n        }\\n        return $violations;\\n    }\\n\\n    public static function isStrong(string $password): bool\\n    {\\n        $violations = self::violations($password);\\n        return count($violations) === 0;\\n    }\\n}\\n`\",\n      \"behaviors_added\": [],\n      \"call\": 2,"
+    },
+    {
+      "id": "d421bcc16fac3ada",
+      "path": "bench/results_v14_qwen15b_q5_k_m_smoke_schema_v1.json",
+      "line": 30,
+      "language": "json",
+      "change_type": "feature",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "v14",
+        "qwen15b",
+        "smoke",
+        "schema"
+      ],
+      "summary": "feature precedent in bench/results_v14_qwen15b_q5_k_m_smoke_schema_v1.json",
+      "snippet": "    {\n      \"artifact_matches_contract\": true,\n      \"artifact_preview\": \"```json\\n{\\n  \\\"artifact\\\": \\\"```php\\n<?php\\ndeclare(strict_types=1);\\n\\nnamespace App\\\\Core;\\n\\nfinal class PasswordPolicy\\n{\\n    public static function violations(string $password): array\\n    {\\n        $violations = [];\\n        if (strlen($password) < 8) {\\n            $violations[] = 'min_length';\\n        }\\n        return $violations;\\n    }\\n\\n    public static function isStrong(string $password): bool\\n    {\\n        return $this->violations($password) === [];\\n    }\\n}\\n```php\\\",\\n  \\\"files_changed\\\": [\\n    \\\"src/Co\",\n      \"behaviors_added\": [],\n      \"call\": 2,"
+    },
+    {
+      "id": "366e5a3a1784d506",
+      "path": "bench/results_v14_qwen15b_q6_k_l_smoke_schema_v1.json",
+      "line": 30,
+      "language": "json",
+      "change_type": "feature",
+      "tags": [
+        "json",
+        "bench",
+        "results",
+        "v14",
+        "qwen15b",
+        "smoke",
+        "schema"
+      ],
+      "summary": "feature precedent in bench/results_v14_qwen15b_q6_k_l_smoke_schema_v1.json",
+      "snippet": "    {\n      \"artifact_matches_contract\": true,\n      \"artifact_preview\": \"```json\\n{\\n  \\\"artifact\\\": \\\"{\\n    \\\\\\\"class\\\\\\\": \\\\\\\"App\\\\\\\\Core\\\\\\\\PasswordPolicy\\\\\\\",\\n    \\\\\\\"method\\\\\\\": \\\\\\\"isStrong\\\\\\\",\\n    \\\\\\\"code\\\\\\\": \\\\\\\"public static function isStrong(string $password): bool {\\n        $violations = [];\\n        if (strlen($password) < 8) {\\n            $violations[] = 'min_length';\\n        }\\n        if (preg_match('/[0-9]/', $password) < 2) {\\n            $violations[] = 'contains_two_digits';\\n        }\\n        if (preg_match('/[a-z]/', $password) < 2) {\\n            $violations[] = 'contains_two_l\",\n      \"behaviors_added\": [],\n      \"call\": 2,"
     },
     {
       "id": "c96df183637be0a6",
@@ -467,6 +832,21 @@
       ],
       "summary": "test precedent in bench/run_4quadrant.py",
       "snippet": "    r\"\\.component\\.html\": \"name the exact target file (e.g. `*.component.html`) inside the DIFF header.\",\n    r\"\\\\W\\)diff\": \"include a DIFF block in unified diff format (e.g. ```diff or `--- a/...`).\",\n    r\"\\\\W\\)test\": \"include a TEST block (e.g. `describe(`, `it(`, `[Test]`, `[Fact]`, `pytest`).\",\n    r\"admin\": \"mention the admin role/permission check explicitly.\",\n    r\"editor\": \"reference the editor role explicitly.\","
+    },
+    {
+      "id": "96854ec480707ceb",
+      "path": "bench/run_exec.py",
+      "line": 16,
+      "language": "python",
+      "change_type": "route",
+      "tags": [
+        "python",
+        "bench",
+        "run",
+        "exec"
+      ],
+      "summary": "route precedent in bench/run_exec.py",
+      "snippet": "\nUsage:\n  BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=... \\\n    BENCH_MODELS=\"Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next\" python3 bench/run_exec.py\nModels prefixed `local:` run on CPU via transformers."
     },
     {
       "id": "38355a557c027035",
@@ -485,21 +865,6 @@
       "snippet": "           target, testable criteria, constraints, identical output shape)\nBoth sides emit the COMPLETE updated PHP file. The harness writes that file\ninto a working copy of sistema-sindico, drops a HIDDEN PHPUnit test (never\nshown to the model) into tests/unit/Core/Hidden/, and runs `vendor/bin/phpunit`\non the WHOLE suite. Pass = every existing test plus the hidden one go green —"
     },
     {
-      "id": "96854ec480707ceb",
-      "path": "bench/run_exec.py",
-      "line": 16,
-      "language": "python",
-      "change_type": "route",
-      "tags": [
-        "python",
-        "bench",
-        "run",
-        "exec"
-      ],
-      "summary": "route precedent in bench/run_exec.py",
-      "snippet": "\nUsage:\n  BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=... \\\n    BENCH_MODELS=\"Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next\" python3 bench/run_exec.py\nModels prefixed `local:` run on CPU via transformers."
-    },
-    {
       "id": "4419c7bb0ae8b906",
       "path": "bench/run_fanout.py",
       "line": 56,
@@ -513,6 +878,23 @@
       ],
       "summary": "route precedent in bench/run_fanout.py",
       "snippet": "# Each entry: provider preset, env var holding the API key, optional base_url\n# override (for the generic OpenAI-compatible HF route).\nHF_ROUTER_BASE_URL = \"https://router.huggingface.co/v1\"\nQWEN3_CODER_DEFAULTS = (\n    \"Qwen/Qwen3-Coder-30B-A3B-Instruct\","
+    },
+    {
+      "id": "8bc69c35cdfedc55",
+      "path": "bench/run_issue_closure_audit.py",
+      "line": 36,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "bench",
+        "run",
+        "issue",
+        "closure",
+        "audit"
+      ],
+      "summary": "feature precedent in bench/run_issue_closure_audit.py",
+      "snippet": "\n\ndef run_audit(input_paths: dict[str, Path] | None = None) -> dict[str, Any]:\n    paths = input_paths or DEFAULT_INPUTS\n    inputs = {name: _load(path) for name, path in paths.items()}"
     },
     {
       "id": "dd0ab0d787693c2d",
@@ -545,6 +927,41 @@
       ],
       "summary": "route precedent in bench/run_offline.py",
       "snippet": "Usage:\n  HF_TOKEN=... \\\\\n    BENCH_BASE_URL=https://router.huggingface.co/v1 \\\\\n    BENCH_MODELS=\"Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next\" \\\\\n    python3 bench/run_offline.py"
+    },
+    {
+      "id": "38d741f468071fa7",
+      "path": "bench/run_qwen15b_quant_curve_report.py",
+      "line": 28,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "bench",
+        "run",
+        "qwen15b",
+        "quant",
+        "curve",
+        "report"
+      ],
+      "summary": "feature precedent in bench/run_qwen15b_quant_curve_report.py",
+      "snippet": "\n\ndef build_report(manifest_path: Path = MANIFEST) -> dict[str, Any]:\n    manifest = json.loads(manifest_path.read_text(encoding=\"utf-8\"))\n    rows = [_smoke_row(item) for item in manifest[\"required_quants\"]]"
+    },
+    {
+      "id": "b11fb0cd6a261df2",
+      "path": "bench/run_schema_smoke_summary.py",
+      "line": 30,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "bench",
+        "run",
+        "schema",
+        "smoke",
+        "summary"
+      ],
+      "summary": "feature precedent in bench/run_schema_smoke_summary.py",
+      "snippet": "\n\ndef summarize_smokes(inputs: list[Path]) -> dict[str, Any]:\n    rows = []\n    for path in sorted({item.resolve() for item in inputs if item.is_file()}):"
     },
     {
       "id": "b0e19c44f3823eb9",
@@ -580,9 +997,9 @@
       "snippet": "\n@dataclass(frozen=True)\nclass BenchCase:\n    name: str\n    stack_slug: str"
     },
     {
-      "id": "9fdbd074901d8e77",
+      "id": "b2a24cd983745e67",
       "path": "bench/run_scratch_live_gate.py",
-      "line": 37,
+      "line": 51,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -630,6 +1047,24 @@
       "snippet": "\n\ndef run_preflight() -> dict[str, Any]:\n    registry = StackRegistry()\n    stacks = {stack.slug: stack for stack in registry.list()}"
     },
     {
+      "id": "391bda1782f800cb",
+      "path": "bench/run_skillopt_review_packet.py",
+      "line": 34,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "ui",
+        "python",
+        "bench",
+        "run",
+        "skillopt",
+        "review",
+        "packet"
+      ],
+      "summary": "feature precedent in bench/run_skillopt_review_packet.py",
+      "snippet": "\n\ndef build_review_packet(\n    *,\n    skills_root: Path,"
+    },
+    {
       "id": "fb04afbf14724ec5",
       "path": "bench/run_static_fixers.py",
       "line": 39,
@@ -646,36 +1081,19 @@
       "snippet": "\n@dataclass(frozen=True)\nclass FixerCase:\n    name: str\n    failure_log: str"
     },
     {
-      "id": "ef3c732c786640dc",
-      "path": "bench/SCRATCH_MODE_RFC.md",
-      "line": 214,
-      "language": "markdown",
-      "change_type": "route",
+      "id": "cb9c0f0098b12ad4",
+      "path": "bench/run_unified_run_bench.py",
+      "line": 97,
+      "language": "python",
+      "change_type": "feature",
       "tags": [
-        "markdown",
+        "python",
         "bench",
-        "scratch",
-        "mode",
-        "rfc"
+        "run",
+        "unified"
       ],
-      "summary": "route precedent in bench/SCRATCH_MODE_RFC.md",
-      "snippet": "> **Atualização (commit subsequente ao RFC inicial):** o planner default\n> mudou de DeepSeek API direto pra DeepSeek servido pelo HuggingFace\n> Inference Router. Razão: a maioria dos usuários já tem `HF_TOKEN`,\n> reduzindo o atrito de \"comprar mais um plano só pra planner\". Quem\n> prefere DeepSeek direto passa `SIMPLICIO_PLANNER=deepseek/<model>`."
-    },
-    {
-      "id": "dd5ca95c24fa2468",
-      "path": "bench/SIMPLICIO_FLOW_GUIDE.md",
-      "line": 82,
-      "language": "markdown",
-      "change_type": "route",
-      "tags": [
-        "markdown",
-        "bench",
-        "simplicio",
-        "flow",
-        "guide"
-      ],
-      "summary": "route precedent in bench/SIMPLICIO_FLOW_GUIDE.md",
-      "snippet": "prefix                  base URL                                env var      tipo\n─────────────────────────────────────────────────────────────────────────────────────\ndeepseek-hf/<model>     https://router.huggingface.co/v1        HF_TOKEN     OpenAI-compat\ndeepseek/<model>        https://api.deepseek.com/v1             DEEPSEEK_API_KEY  OpenAI-compat\nopenai/<model>          https://api.openai.com/v1               OPENAI_API_KEY    OpenAI-compat"
+      "summary": "feature precedent in bench/run_unified_run_bench.py",
+      "snippet": "\n\ndef run_benchmark(\n    cases: list[dict[str, Any]] | None = None,\n    *,"
     },
     {
       "id": "043b752ae8136d89",
@@ -691,25 +1109,6 @@
       ],
       "summary": "test precedent in bench/sindico_cases.py",
       "snippet": "Each case asks the model to ADD a new method to an existing src/Core class.\nExisting tests must keep passing (no breaking changes). Scoring is by REAL\nPHPUnit (vendor/bin/phpunit) on the full suite plus a HIDDEN test (never shown\nto the model) that asserts the new method's behaviour across true AND false\nstates. Pass == entire suite green."
-    },
-    {
-      "id": "d0b25a70fe0c1e4f",
-      "path": "bench/sindico_hidden/_seed_PasswordPolicy_bug.php",
-      "line": 11,
-      "language": "php",
-      "change_type": "feature",
-      "tags": [
-        "php",
-        "bench",
-        "sindico",
-        "hidden",
-        "seed",
-        "password",
-        "policy",
-        "bug"
-      ],
-      "summary": "feature precedent in bench/sindico_hidden/_seed_PasswordPolicy_bug.php",
-      "snippet": " * Min 8 chars, mixed case, at least one digit.\n */\nfinal class PasswordPolicy\n{\n    public const MIN_LENGTH = 8;"
     },
     {
       "id": "46ac5b9ab399deb5",
@@ -915,6 +1314,91 @@
       "snippet": "use PHPUnit\\Framework\\TestCase;\n\nfinal class RouterHasTest extends TestCase\n{\n    public function test_fresh_router_has_nothing(): void"
     },
     {
+      "id": "d0b25a70fe0c1e4f",
+      "path": "bench/sindico_hidden/_seed_PasswordPolicy_bug.php",
+      "line": 11,
+      "language": "php",
+      "change_type": "feature",
+      "tags": [
+        "php",
+        "bench",
+        "sindico",
+        "hidden",
+        "seed",
+        "password",
+        "policy",
+        "bug"
+      ],
+      "summary": "feature precedent in bench/sindico_hidden/_seed_PasswordPolicy_bug.php",
+      "snippet": " * Min 8 chars, mixed case, at least one digit.\n */\nfinal class PasswordPolicy\n{\n    public const MIN_LENGTH = 8;"
+    },
+    {
+      "id": "cd6c80989bc2f613",
+      "path": "bench/skillopt_pending_skills/nextjs-app-router-crud-scaffold-review/SKILL.md",
+      "line": 37,
+      "language": "markdown",
+      "change_type": "route",
+      "tags": [
+        "route",
+        "ui",
+        "markdown",
+        "bench",
+        "skillopt",
+        "pending",
+        "skills",
+        "nextjs",
+        "app",
+        "router"
+      ],
+      "summary": "route precedent in bench/skillopt_pending_skills/nextjs-app-router-crud-scaffold-review/SKILL.md",
+      "snippet": "7. Inspect security risks: injection, mass assignment, leaked internal fields, unsafe redirects, CSRF-sensitive mutations, over-broad error messages, and accidental secret exposure.\n8. Review UI behavior: empty states, loading states, error states, success feedback, destructive confirmation, disabled pending buttons, accessible labels, and keyboard flow.\n9. Confirm data freshness: appropriate `revalidatePath`, `revalidateTag`, `router.refresh`, cache options, optimistic updates, and redirect-after-mutation behavior.\n10. Check generated code quality: no duplicated boilerplate that should be factored locally, no placeholder names, no unused imports, no `console.log`, no TODOs without owner, and no broad refactors.\n11. Validate tests: unit/integration/E2E coverage for list, create, read, update, delete, validation failure, auth failure, not-found, and one edge case."
+    },
+    {
+      "id": "baa0d534585181f6",
+      "path": "bench/smoke_schema_v1.py",
+      "line": 69,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "bench",
+        "smoke",
+        "schema"
+      ],
+      "summary": "feature precedent in bench/smoke_schema_v1.py",
+      "snippet": "namespace App\\\\Core;\n\nfinal class PasswordPolicy\n{\n    public static function violations(string $password): array"
+    },
+    {
+      "id": "a5d165cb32eeab44",
+      "path": "bench/sp_fanout_helper.py",
+      "line": 42,
+      "language": "python",
+      "change_type": "route",
+      "tags": [
+        "python",
+        "bench",
+        "fanout",
+        "helper"
+      ],
+      "summary": "route precedent in bench/sp_fanout_helper.py",
+      "snippet": "_ROUTING: dict[str, dict] = {\n    # HuggingFace router models\n    \"Qwen/Qwen2.5-Coder-3B-Instruct\":   {\"preset\": None, \"base_url\": \"https://router.huggingface.co/v1\", \"env_key\": \"HF_TOKEN\"},\n    \"Qwen/Qwen2.5-Coder-7B-Instruct\":   {\"preset\": None, \"base_url\": \"https://router.huggingface.co/v1\", \"env_key\": \"HF_TOKEN\"},\n    \"Qwen/Qwen3-Coder-30B-A3B-Instruct\": {\"preset\": None, \"base_url\": \"https://router.huggingface.co/v1\", \"env_key\": \"HF_TOKEN\"},"
+    },
+    {
+      "id": "d176ccdc5937168a",
+      "path": "bench/sp_output_schema.py",
+      "line": 69,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "bench",
+        "output",
+        "schema"
+      ],
+      "summary": "feature precedent in bench/sp_output_schema.py",
+      "snippet": "\n@dataclass\nclass StructuredResponse:\n    \"\"\"Parsed view of a structured sp output.\"\"\"\n    artifact: str"
+    },
+    {
       "id": "6046e438fd67d560",
       "path": "bootstrap.ps1",
       "line": 47,
@@ -929,17 +1413,39 @@
       "snippet": "# auto-detect stack\n# ---------------------------------------------------------------------------\nfunction Detect-Stack {\n  if (Test-Path \"package.json\") {\n    $pkg = Get-Content \"package.json\" -Raw"
     },
     {
-      "id": "b4d2f4208396cd4d",
-      "path": "CHANGELOG.md",
-      "line": 63,
+      "id": "3084217738b3fa75",
+      "path": "docs/LLM_USAGE_POLICY.md",
+      "line": 20,
       "language": "markdown",
-      "change_type": "error-handling",
+      "change_type": "feature",
       "tags": [
         "markdown",
-        "changelog"
+        "docs",
+        "llm",
+        "usage",
+        "policy"
       ],
-      "summary": "error-handling precedent in CHANGELOG.md",
-      "snippet": "\n### Changed\n- `simplicio-mapper>=0.5.0` → `>=0.6.0` (catch up with upstream 0.6.0).\n- `simplicio-prompt>=1.7.0` → `>=1.9.0` (catch up with upstream 1.9.0).\n"
+      "summary": "feature precedent in docs/LLM_USAGE_POLICY.md",
+      "snippet": "- Fallback local executor: **Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf**\n\nThese GGUF files should be used via llama.cpp / llama-cpp-python (not the default Ollama tag) when maximum determinism and instruction following on the 1.5B class is required.\n\n## Project-Specific Rules"
+    },
+    {
+      "id": "820b7f17676fc202",
+      "path": "docs/adr/0001-qwen15b-schema-v1-quant-decision.md",
+      "line": 64,
+      "language": "markdown",
+      "change_type": "feature",
+      "tags": [
+        "markdown",
+        "docs",
+        "adr",
+        "0001",
+        "qwen15b",
+        "schema",
+        "quant",
+        "decision"
+      ],
+      "summary": "feature precedent in docs/adr/0001-qwen15b-schema-v1-quant-decision.md",
+      "snippet": "## Consequences\n\n- Use 3B-class or larger local coder models as the practical lower bound for\n  schema-v1 work until a different 1.5B model or prompt protocol proves\n  otherwise."
     },
     {
       "id": "f4cb395d5ce595dc",
@@ -989,32 +1495,21 @@
       "snippet": "```\n\nFluxo: `build → generate → apply → test (Playwright) → fix → repeat`. Se o spec\nquebra, a saída do Playwright vira o feedback que guia a próxima tentativa. A\nevidência fica em `playwright-report/` e nos prints que o spec captura (ver"
     },
     {
-      "id": "2b15bd2609a68e14",
-      "path": "README.backup-2026-05-27.md",
-      "line": 367,
+      "id": "17d78ecf2f169fc2",
+      "path": "docs/specs/STRUCTURED_OUTPUT_v1.md",
+      "line": 123,
       "language": "markdown",
-      "change_type": "error-handling",
+      "change_type": "test",
       "tags": [
+        "test",
         "markdown",
-        "readme",
-        "backup",
-        "2026"
+        "docs",
+        "specs",
+        "structured",
+        "output"
       ],
-      "summary": "error-handling precedent in README.backup-2026-05-27.md",
-      "snippet": "**\"I want to run it in CI / a script / outside Claude Code.\"** Path 2. Get an\nAPI key from any of the providers above (OpenRouter is the cheapest way to\ntry multiple models behind one key), set `SIMPLICIO_API_KEY` +\n`SIMPLICIO_MODEL` + optional `SIMPLICIO_BASE_URL`, run `simplicio task ...`.\n"
-    },
-    {
-      "id": "1c984f8a5573d4ec",
-      "path": "README.md",
-      "line": 108,
-      "language": "markdown",
-      "change_type": "route",
-      "tags": [
-        "markdown",
-        "readme"
-      ],
-      "summary": "route precedent in README.md",
-      "snippet": "\n> Reproduce the new default set:\n> `BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=<hf-token>\n> BENCH_MODELS=\"Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next\"\n> python3 bench/run_offline.py`."
+      "summary": "test precedent in docs/specs/STRUCTURED_OUTPUT_v1.md",
+      "snippet": "\n```json\n{\"artifact\":\"<?php\\n\\ndeclare(strict_types=1);\\n\\nnamespace App\\\\Core;\\n\\nfinal class PasswordPolicy\\n{\\n    public static function isStrong(string $p): bool\\n    {\\n        return strlen($p) >= 12;\\n    }\\n}\\n\",\"files_changed\":[\"src/Core/PasswordPolicy.php\"],\"behaviors_added\":[\"App\\\\Core\\\\PasswordPolicy::isStrong\"],\"expected_oracle_pass\":[\"test_isStrong_passes_on_12_chars\",\"test_isStrong_fails_on_short\"],\"confidence\":0.85,\"concerns\":[\"constant 12 not policy-configurable yet\"]}\n```\n"
     },
     {
       "id": "d78ded0b575cca80",
@@ -1134,9 +1629,24 @@
       "snippet": "import numpy as np\n\nclass EmbeddingCache:\n    def __init__(self, root):\n        self.dir = os.path.join(root, \".simplicio\")"
     },
     {
-      "id": "3de18e48fbb4398b",
+      "id": "46b7e37d0d7db06c",
+      "path": "simplicio/cache_cli.py",
+      "line": 19,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "cache",
+        "cli"
+      ],
+      "summary": "feature precedent in simplicio/cache_cli.py",
+      "snippet": "\n\ndef _cmd_stats(args: argparse.Namespace) -> int:\n    s = cache().stats()\n    if args.json:"
+    },
+    {
+      "id": "6e2af08fb25e200a",
       "path": "simplicio/cli.py",
-      "line": 12,
+      "line": 14,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -1163,6 +1673,62 @@
       "snippet": "\n@dataclass\nclass DetectResult:\n    is_code_task: bool\n    score: int"
     },
     {
+      "id": "7352f3281a9ad12f",
+      "path": "simplicio/doctor.py",
+      "line": 23,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "doctor"
+      ],
+      "summary": "feature precedent in simplicio/doctor.py",
+      "snippet": "\n\ndef _render_human(result, profile) -> None:\n    print(\"simplicio doctor\", file=sys.stderr)\n    print(f\"  os            {profile.os_name}\")"
+    },
+    {
+      "id": "a97530fdf4628ff8",
+      "path": "simplicio/dod.py",
+      "line": 16,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "dod"
+      ],
+      "summary": "feature precedent in simplicio/dod.py",
+      "snippet": "\n@dataclass\nclass DodGate:\n    label: str\n    command: str | None = None"
+    },
+    {
+      "id": "a30b74408df3cfb6",
+      "path": "simplicio/ecosystem.py",
+      "line": 43,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "ecosystem"
+      ],
+      "summary": "feature precedent in simplicio/ecosystem.py",
+      "snippet": "\n@dataclass\nclass DepStatus:\n    name: str\n    installed: Optional[str]"
+    },
+    {
+      "id": "a92091678b8fd1a9",
+      "path": "simplicio/hardware.py",
+      "line": 22,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "hardware"
+      ],
+      "summary": "feature precedent in simplicio/hardware.py",
+      "snippet": "\n@dataclass\nclass HardwareProfile:\n    os_name: str\n    ram_gb: float  # total system RAM"
+    },
+    {
       "id": "397cc7dd88fec746",
       "path": "simplicio/init.py",
       "line": 15,
@@ -1175,6 +1741,36 @@
       ],
       "summary": "error-handling precedent in simplicio/init.py",
       "snippet": "from .utils.serialization import dumps_str, loads\n\ntry:\n    from importlib.resources import files as _res_files\nexcept ImportError:  # pragma: no cover"
+    },
+    {
+      "id": "70dcc83fb6e714f5",
+      "path": "simplicio/intent.py",
+      "line": 229,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "intent"
+      ],
+      "summary": "feature precedent in simplicio/intent.py",
+      "snippet": "\n@dataclass\nclass IntentResult:\n    scope: str\n    confidence: float"
+    },
+    {
+      "id": "f66648426abb8e9b",
+      "path": "simplicio/local_models.py",
+      "line": 30,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "domain",
+        "python",
+        "simplicio",
+        "local",
+        "models"
+      ],
+      "summary": "feature precedent in simplicio/local_models.py",
+      "snippet": "\n@dataclass\nclass ModelSpec:\n    tier: str\n    ollama_id: str"
     },
     {
       "id": "a8b82053a7fe99ad",
@@ -1205,19 +1801,35 @@
       "snippet": "\n\ndef estimate_tokens(text: str | None) -> int:\n    if not text:\n        return 0"
     },
     {
-      "id": "fc46742ea6aeb624",
-      "path": "simplicio/pipeline_fixers.py",
-      "line": 17,
+      "id": "1944c31182e736e9",
+      "path": "simplicio/orchestrator/cost_governor.py",
+      "line": 12,
       "language": "python",
       "change_type": "feature",
       "tags": [
         "python",
         "simplicio",
-        "pipeline",
-        "fixers"
+        "orchestrator",
+        "cost",
+        "governor"
       ],
-      "summary": "feature precedent in simplicio/pipeline_fixers.py",
-      "snippet": "\n@dataclass\nclass FixerResult:\n    fixer: str\n    applied: bool"
+      "summary": "feature precedent in simplicio/orchestrator/cost_governor.py",
+      "snippet": "\n\nclass BudgetExceeded(RuntimeError):\n    \"\"\"Raised when an orchestration run exceeds its configured cost budget.\"\"\"\n"
+    },
+    {
+      "id": "700fb6e9aa1695b0",
+      "path": "simplicio/orchestrator/feature.py",
+      "line": 24,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "orchestrator",
+        "feature"
+      ],
+      "summary": "feature precedent in simplicio/orchestrator/feature.py",
+      "snippet": "\n\ndef _codegen_disabled() -> bool:\n    return os.environ.get(\"SIMPLICIO_DISABLE_CODEGEN\", \"\").lower() in {\n        \"1\","
     },
     {
       "id": "ed78ad13a1aa05ad",
@@ -1232,6 +1844,21 @@
       ],
       "summary": "feature precedent in simplicio/pipeline.py",
       "snippet": "\n@dataclass\nclass ValidationResult:\n    ok: bool\n    reason: str"
+    },
+    {
+      "id": "fc46742ea6aeb624",
+      "path": "simplicio/pipeline_fixers.py",
+      "line": 17,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "pipeline",
+        "fixers"
+      ],
+      "summary": "feature precedent in simplicio/pipeline_fixers.py",
+      "snippet": "\n@dataclass\nclass FixerResult:\n    fixer: str\n    applied: bool"
     },
     {
       "id": "037c2e82674668f8",
@@ -1262,9 +1889,9 @@
       "snippet": "# below stays the source of truth and is what pip-installed users get\n# until a wheel ships.\ntry:\n    from simplicio_core import build_6layer_prompt as _rs_build\nexcept ImportError:  # pragma: no cover - exercised at import time"
     },
     {
-      "id": "f05febb05336aad2",
+      "id": "7717114dd0af03e8",
       "path": "simplicio/providers.py",
-      "line": 31,
+      "line": 43,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -1276,9 +1903,9 @@
       "snippet": "\n\ndef _cfg():\n    return {\n        \"model\": os.environ.get(\"SIMPLICIO_MODEL\"),"
     },
     {
-      "id": "1c7e8059b52af5f8",
+      "id": "08c3edd7ccaa9b1d",
       "path": "simplicio/scratch/_pipeline_adapter.py",
-      "line": 23,
+      "line": 21,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -1289,7 +1916,7 @@
         "adapter"
       ],
       "summary": "feature precedent in simplicio/scratch/_pipeline_adapter.py",
-      "snippet": "\n\ndef run_task(task: Task, project_dir: Path, stack: Stack) -> tuple[bool, str]:\n    \"\"\"Run one plan task through simplicio.pipeline.run.\n    Returns (passed, log_tail).\"\"\""
+      "snippet": "\n\ndef run_task(\n    task: Task,\n    project_dir: Path,"
     },
     {
       "id": "259ea4f0d0e20cfe",
@@ -1322,6 +1949,23 @@
       ],
       "summary": "feature precedent in simplicio/scratch/codegen/go_gin.py",
       "snippet": "\n\nclass GoGinCrudExecutor(TaskExecutor):\n    \"\"\"Render a compact Gin CRUD router into internal/http/router.go.\"\"\"\n"
+    },
+    {
+      "id": "1d6833b6e5530192",
+      "path": "simplicio/scratch/codegen/markdown_document.py",
+      "line": 13,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "scratch",
+        "codegen",
+        "markdown",
+        "document"
+      ],
+      "summary": "feature precedent in simplicio/scratch/codegen/markdown_document.py",
+      "snippet": "\n\nclass MarkdownDocumentExecutor(TaskExecutor):\n    \"\"\"Create or update a docs/*.md file when the task names a marker.\"\"\"\n"
     },
     {
       "id": "72b997203198e7db",
@@ -1421,9 +2065,9 @@
       "snippet": "\n\nclass PythonAddPytestTestExecutor(TaskExecutor):\n    \"\"\"Generate one minimal pytest happy-path test for a Python function.\"\"\"\n"
     },
     {
-      "id": "78f4ecaa0d56cb28",
+      "id": "e6637aabf3f85ef0",
       "path": "simplicio/scratch/codegen/registry.py",
-      "line": 34,
+      "line": 36,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -1507,9 +2151,9 @@
       "snippet": "\n\nclass TypeScriptAddNextRouteExecutor(TaskExecutor):\n    \"\"\"Create small JSON route handlers for Next.js app-router API routes.\"\"\"\n"
     },
     {
-      "id": "e828d94a4fdd6e2c",
+      "id": "5ad359e28557a91f",
       "path": "simplicio/scratch/executor.py",
-      "line": 32,
+      "line": 33,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -1616,6 +2260,36 @@
       "snippet": "from .cache import EmbeddingCache\n\ndef _skills_dir(root):\n    return os.environ.get(\"SIMPLICIO_SKILLS_DIR\",\n                          os.path.join(root, \".mapper\", \"skills\"))"
     },
     {
+      "id": "fd22f6f171c0b960",
+      "path": "simplicio/sprint_loader.py",
+      "line": 10,
+      "language": "python",
+      "change_type": "feature",
+      "tags": [
+        "python",
+        "simplicio",
+        "sprint",
+        "loader"
+      ],
+      "summary": "feature precedent in simplicio/sprint_loader.py",
+      "snippet": "\n@dataclass\nclass SprintTask:\n    path: Path\n    title: str"
+    },
+    {
+      "id": "0f99b7d1972a23b7",
+      "path": "simplicio/templates/SKILL.md",
+      "line": 30,
+      "language": "markdown",
+      "change_type": "feature",
+      "tags": [
+        "markdown",
+        "simplicio",
+        "templates",
+        "skill"
+      ],
+      "summary": "feature precedent in simplicio/templates/SKILL.md",
+      "snippet": "**Do NOT trigger** on:\n\n- Pure read-only ask (\"what does this function do?\") — answer directly.\n- Architectural decision / refactor amplo cross-file — that goes to `architect` agent + ADR.\n- One-off shell command, lookup, install task."
+    },
+    {
       "id": "c4cff6584ab9afd6",
       "path": "simplicio/templates/recipes/go-gin/crud-resource.yaml",
       "line": 17,
@@ -1686,21 +2360,6 @@
       ],
       "summary": "route precedent in simplicio/templates/recipes/ts-nextjs/crud-resource.yaml",
       "snippet": "{\n  \"name\": \"crud-resource\",\n  \"description\": \"REST CRUD plan for {Entity} on Next.js app router.\",\n  \"applies_to\": [\"ts-nextjs\"],\n  \"matches\": ["
-    },
-    {
-      "id": "0f99b7d1972a23b7",
-      "path": "simplicio/templates/SKILL.md",
-      "line": 30,
-      "language": "markdown",
-      "change_type": "feature",
-      "tags": [
-        "markdown",
-        "simplicio",
-        "templates",
-        "skill"
-      ],
-      "summary": "feature precedent in simplicio/templates/SKILL.md",
-      "snippet": "**Do NOT trigger** on:\n\n- Pure read-only ask (\"what does this function do?\") — answer directly.\n- Architectural decision / refactor amplo cross-file — that goes to `architect` agent + ADR.\n- One-off shell command, lookup, install task."
     },
     {
       "id": "95ede40fcb34ef09",
@@ -1785,24 +2444,6 @@
       "snippet": "namespace App.Tests;\n\npublic sealed class HealthTests\n{\n    [Xunit.Fact]"
     },
     {
-      "id": "7f40580e59bd2c3b",
-      "path": "simplicio/templates/stacks/elixir-phoenix/practices.md",
-      "line": 5,
-      "language": "markdown",
-      "change_type": "route",
-      "tags": [
-        "markdown",
-        "simplicio",
-        "templates",
-        "stacks",
-        "elixir",
-        "phoenix",
-        "practices"
-      ],
-      "summary": "route precedent in simplicio/templates/stacks/elixir-phoenix/practices.md",
-      "snippet": "## Project structure\n- Keep supervision under the application module.\n- Keep web routing in `lib/app_web/router.ex`.\n- Put contexts in `lib/app/` once domain boundaries appear.\n"
-    },
-    {
       "id": "dd056831f8e212f9",
       "path": "simplicio/templates/stacks/elixir-phoenix/README.md",
       "line": 16,
@@ -1821,23 +2462,22 @@
       "snippet": "<project_name>/\n|-- mix.exs\n|-- lib/app_web/router.ex\n|-- lib/app_web/controllers/health_controller.ex\n`-- README.md"
     },
     {
-      "id": "2fdcac24123caa9a",
-      "path": "simplicio/templates/stacks/go-cli/tree/cmd/root_test.go",
-      "line": 8,
-      "language": "go",
-      "change_type": "feature",
+      "id": "7f40580e59bd2c3b",
+      "path": "simplicio/templates/stacks/elixir-phoenix/practices.md",
+      "line": 5,
+      "language": "markdown",
+      "change_type": "route",
       "tags": [
-        "go",
+        "markdown",
         "simplicio",
         "templates",
         "stacks",
-        "cli",
-        "tree",
-        "cmd",
-        "root"
+        "elixir",
+        "phoenix",
+        "practices"
       ],
-      "summary": "feature precedent in simplicio/templates/stacks/go-cli/tree/cmd/root_test.go",
-      "snippet": ")\n\nfunc TestRootCommand(t *testing.T) {\n\tvar out bytes.Buffer\n\trootCmd.SetOut(&out)"
+      "summary": "route precedent in simplicio/templates/stacks/elixir-phoenix/practices.md",
+      "snippet": "## Project structure\n- Keep supervision under the application module.\n- Keep web routing in `lib/app_web/router.ex`.\n- Put contexts in `lib/app/` once domain boundaries appear.\n"
     },
     {
       "id": "b79ce9733ff104f4",
@@ -1859,6 +2499,25 @@
       "snippet": "}\n\nfunc init() {\n\trootCmd.Flags().StringVar(&name, \"name\", \"world\", \"name to greet\")\n}"
     },
     {
+      "id": "2fdcac24123caa9a",
+      "path": "simplicio/templates/stacks/go-cli/tree/cmd/root_test.go",
+      "line": 8,
+      "language": "go",
+      "change_type": "feature",
+      "tags": [
+        "go",
+        "simplicio",
+        "templates",
+        "stacks",
+        "cli",
+        "tree",
+        "cmd",
+        "root"
+      ],
+      "summary": "feature precedent in simplicio/templates/stacks/go-cli/tree/cmd/root_test.go",
+      "snippet": ")\n\nfunc TestRootCommand(t *testing.T) {\n\tvar out bytes.Buffer\n\trootCmd.SetOut(&out)"
+    },
+    {
       "id": "46809520f85892bd",
       "path": "simplicio/templates/stacks/go-cli/tree/main.go",
       "line": 5,
@@ -1877,23 +2536,6 @@
       "snippet": "import \"{project_name}/cmd\"\n\nfunc main() {\n\tcmd.Execute()\n}"
     },
     {
-      "id": "06a37e154a92aacd",
-      "path": "simplicio/templates/stacks/go-echo/practices.md",
-      "line": 14,
-      "language": "markdown",
-      "change_type": "route",
-      "tags": [
-        "markdown",
-        "simplicio",
-        "templates",
-        "stacks",
-        "echo",
-        "practices"
-      ],
-      "summary": "route precedent in simplicio/templates/stacks/go-echo/practices.md",
-      "snippet": "\n## Testing\n- Use `httptest` against the Echo router.\n- Keep tests package-local to handlers while the API is small.\n- Run `go test ./...` and `go vet ./...`."
-    },
-    {
       "id": "1e95786941d91da2",
       "path": "simplicio/templates/stacks/go-echo/README.md",
       "line": 16,
@@ -1909,6 +2551,23 @@
       ],
       "summary": "route precedent in simplicio/templates/stacks/go-echo/README.md",
       "snippet": "<project_name>/\n|-- cmd/server/main.go\n|-- internal/http/router.go\n|-- internal/http/router_test.go\n|-- go.mod"
+    },
+    {
+      "id": "06a37e154a92aacd",
+      "path": "simplicio/templates/stacks/go-echo/practices.md",
+      "line": 14,
+      "language": "markdown",
+      "change_type": "route",
+      "tags": [
+        "markdown",
+        "simplicio",
+        "templates",
+        "stacks",
+        "echo",
+        "practices"
+      ],
+      "summary": "route precedent in simplicio/templates/stacks/go-echo/practices.md",
+      "snippet": "\n## Testing\n- Use `httptest` against the Echo router.\n- Keep tests package-local to handlers while the API is small.\n- Run `go test ./...` and `go vet ./...`."
     },
     {
       "id": "b17eeb485d3fa7fa",
@@ -1931,27 +2590,6 @@
       "snippet": ")\n\nfunc main() {\n\tif err := http.NewRouter().Start(\":8080\"); err != nil {\n\t\tlog.Fatal(err)"
     },
     {
-      "id": "0ffb695638a8a57a",
-      "path": "simplicio/templates/stacks/go-echo/tree/internal/http/router_test.go",
-      "line": 9,
-      "language": "go",
-      "change_type": "feature",
-      "tags": [
-        "route",
-        "go",
-        "simplicio",
-        "templates",
-        "stacks",
-        "echo",
-        "tree",
-        "internal",
-        "http",
-        "router"
-      ],
-      "summary": "feature precedent in simplicio/templates/stacks/go-echo/tree/internal/http/router_test.go",
-      "snippet": ")\n\nfunc TestHealth(t *testing.T) {\n\trouter := NewRouter()\n\treq := httptest.NewRequest(http.MethodGet, \"/health\", nil)"
-    },
-    {
       "id": "2b1e6e3aa0c6e451",
       "path": "simplicio/templates/stacks/go-echo/tree/internal/http/router.go",
       "line": 9,
@@ -1971,6 +2609,27 @@
       ],
       "summary": "feature precedent in simplicio/templates/stacks/go-echo/tree/internal/http/router.go",
       "snippet": ")\n\nfunc NewRouter() *echo.Echo {\n\te := echo.New()\n\te.GET(\"/health\", func(c echo.Context) error {"
+    },
+    {
+      "id": "0ffb695638a8a57a",
+      "path": "simplicio/templates/stacks/go-echo/tree/internal/http/router_test.go",
+      "line": 9,
+      "language": "go",
+      "change_type": "feature",
+      "tags": [
+        "route",
+        "go",
+        "simplicio",
+        "templates",
+        "stacks",
+        "echo",
+        "tree",
+        "internal",
+        "http",
+        "router"
+      ],
+      "summary": "feature precedent in simplicio/templates/stacks/go-echo/tree/internal/http/router_test.go",
+      "snippet": ")\n\nfunc TestHealth(t *testing.T) {\n\trouter := NewRouter()\n\treq := httptest.NewRequest(http.MethodGet, \"/health\", nil)"
     },
     {
       "id": "81cb82c468e5ce62",
@@ -2010,27 +2669,6 @@
       "snippet": ")\n\nfunc main() {\n\trouter := apphttp.NewRouter()\n\tif err := router.Run(\":8080\"); err != nil {"
     },
     {
-      "id": "625f027afd18d283",
-      "path": "simplicio/templates/stacks/go-gin/tree/internal/http/router_test.go",
-      "line": 9,
-      "language": "go",
-      "change_type": "feature",
-      "tags": [
-        "route",
-        "go",
-        "simplicio",
-        "templates",
-        "stacks",
-        "gin",
-        "tree",
-        "internal",
-        "http",
-        "router"
-      ],
-      "summary": "feature precedent in simplicio/templates/stacks/go-gin/tree/internal/http/router_test.go",
-      "snippet": ")\n\nfunc TestHealth(t *testing.T) {\n\trouter := NewRouter()\n\tresponse := httptest.NewRecorder()"
-    },
-    {
       "id": "c05f3862003174cf",
       "path": "simplicio/templates/stacks/go-gin/tree/internal/http/router.go",
       "line": 9,
@@ -2050,6 +2688,27 @@
       ],
       "summary": "feature precedent in simplicio/templates/stacks/go-gin/tree/internal/http/router.go",
       "snippet": ")\n\nfunc NewRouter() *gin.Engine {\n\trouter := gin.New()\n\trouter.Use(gin.Logger(), gin.Recovery())"
+    },
+    {
+      "id": "625f027afd18d283",
+      "path": "simplicio/templates/stacks/go-gin/tree/internal/http/router_test.go",
+      "line": 9,
+      "language": "go",
+      "change_type": "feature",
+      "tags": [
+        "route",
+        "go",
+        "simplicio",
+        "templates",
+        "stacks",
+        "gin",
+        "tree",
+        "internal",
+        "http",
+        "router"
+      ],
+      "summary": "feature precedent in simplicio/templates/stacks/go-gin/tree/internal/http/router_test.go",
+      "snippet": ")\n\nfunc TestHealth(t *testing.T) {\n\trouter := NewRouter()\n\tresponse := httptest.NewRecorder()"
     },
     {
       "id": "fddbe66e7c0a5caf",
@@ -3026,6 +3685,55 @@
       "snippet": "from typing import Any\n\ntry:  # optional fast path\n    import orjson as _oj\n    _HAS_ORJSON = True"
     },
     {
+      "id": "36d2ae1eaa416409",
+      "path": "simplicio_cli.egg-info/PKG-INFO",
+      "line": 171,
+      "language": "text",
+      "change_type": "route",
+      "tags": [
+        "text",
+        "simplicio",
+        "cli",
+        "egg",
+        "info",
+        "pkg"
+      ],
+      "summary": "route precedent in simplicio_cli.egg-info/PKG-INFO",
+      "snippet": "\n> Reproduce the new default set:\n> `BENCH_BASE_URL=https://router.huggingface.co/v1 BENCH_API_KEY=<hf-token>\n> BENCH_MODELS=\"Qwen/Qwen3-Coder-30B-A3B-Instruct,Qwen/Qwen3-Coder-Next\"\n> python3 bench/run_offline.py`."
+    },
+    {
+      "id": "ca7e9fb7114009d5",
+      "path": "simplicio_cli.egg-info/SOURCES.txt",
+      "line": 111,
+      "language": "txt",
+      "change_type": "route",
+      "tags": [
+        "txt",
+        "simplicio",
+        "cli",
+        "egg",
+        "info",
+        "sources"
+      ],
+      "summary": "route precedent in simplicio_cli.egg-info/SOURCES.txt",
+      "snippet": "simplicio/templates/stacks/elixir-phoenix/tree/lib/app/application.ex\nsimplicio/templates/stacks/elixir-phoenix/tree/lib/app_web/endpoint.ex\nsimplicio/templates/stacks/elixir-phoenix/tree/lib/app_web/router.ex\nsimplicio/templates/stacks/elixir-phoenix/tree/lib/app_web/controllers/health_controller.ex\nsimplicio/templates/stacks/elixir-phoenix/tree/test/health_controller_test.exs"
+    },
+    {
+      "id": "a4948087d07ffe52",
+      "path": "tests/e2e/README.md",
+      "line": 54,
+      "language": "markdown",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "markdown",
+        "e2e",
+        "readme"
+      ],
+      "summary": "test precedent in tests/e2e/README.md",
+      "snippet": "| Part | File |\n|---|---|\n| Demo app under test (offline SPA, `file://`) | `fixtures/demo-app/index.html` |\n| Page Object (selectors by role/label/testid) | `pages/DemoApp.ts` |\n| Spec (flow + asserts + evidence) | `frontend-flow.spec.ts` |"
+    },
+    {
       "id": "eabe1b35d0f791f3",
       "path": "tests/e2e/cli.spec.ts",
       "line": 20,
@@ -3077,21 +3785,6 @@
       "snippet": " * app's BASE_URL and keep the same role/label-based selectors.\n */\nexport class DemoApp {\n  readonly page: Page;\n  readonly emailInput: Locator;"
     },
     {
-      "id": "a4948087d07ffe52",
-      "path": "tests/e2e/README.md",
-      "line": 54,
-      "language": "markdown",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "markdown",
-        "e2e",
-        "readme"
-      ],
-      "summary": "test precedent in tests/e2e/README.md",
-      "snippet": "| Part | File |\n|---|---|\n| Demo app under test (offline SPA, `file://`) | `fixtures/demo-app/index.html` |\n| Page Object (selectors by role/label/testid) | `pages/DemoApp.ts` |\n| Spec (flow + asserts + evidence) | `frontend-flow.spec.ts` |"
-    },
-    {
       "id": "fcf8ff6a39e0558d",
       "path": "tests/e2e/smoke.spec.ts",
       "line": 13,
@@ -3137,6 +3830,21 @@
       "snippet": "\n\ndef test_autoinstall_runs_on_fresh_claude_home(tmp_path, monkeypatch):\n    monkeypatch.setenv(\"HOME\", str(tmp_path))\n    monkeypatch.delenv(\"SIMPLICIO_SKIP_AUTO_INIT\", raising=False)"
     },
     {
+      "id": "777636e0418b7a22",
+      "path": "tests/python/test_cost_governor.py",
+      "line": 14,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "cost",
+        "governor"
+      ],
+      "summary": "test precedent in tests/python/test_cost_governor.py",
+      "snippet": "\n\ndef test_cost_governor_allows_missing_budget():\n    gov = CostGovernor.from_value(None)\n    gov.charge_usd(\"999\")"
+    },
+    {
       "id": "225c385b0ff68513",
       "path": "tests/python/test_detect.py",
       "line": 5,
@@ -3165,6 +3873,36 @@
       "snippet": "\n\ndef test_install_fresh_claude_home(tmp_path):\n    report = install(claude_home=tmp_path, dry_run=False)\n"
     },
     {
+      "id": "8ca6736c36316fc8",
+      "path": "tests/python/test_intent.py",
+      "line": 8,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "intent"
+      ],
+      "summary": "test precedent in tests/python/test_intent.py",
+      "snippet": "\n\ndef test_explicit_scope_wins_over_text():\n    result = classify_goal(\"scaffold a new FastAPI app from scratch\", explicit_scope=\"task\")\n    assert result.scope == \"task\""
+    },
+    {
+      "id": "a73afe4676855e47",
+      "path": "tests/python/test_issue_closure_audit.py",
+      "line": 10,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "issue",
+        "closure",
+        "audit"
+      ],
+      "summary": "test precedent in tests/python/test_issue_closure_audit.py",
+      "snippet": "\n\ndef _write_json(path, payload) -> None:\n    path.write_text(json.dumps(payload), encoding=\"utf-8\")\n"
+    },
+    {
       "id": "b0391e4abb9f4741",
       "path": "tests/python/test_llm_reduction_summary.py",
       "line": 10,
@@ -3181,6 +3919,22 @@
       "snippet": "\n\ndef _write_json(path, payload) -> None:\n    path.write_text(json.dumps(payload), encoding=\"utf-8\")\n"
     },
     {
+      "id": "33a7c0cf2deb6913",
+      "path": "tests/python/test_local_models.py",
+      "line": 34,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "domain",
+        "test",
+        "python",
+        "local",
+        "models"
+      ],
+      "summary": "test precedent in tests/python/test_local_models.py",
+      "snippet": "    (4, 0, True, \"cpu-tiny\"),\n])\ndef test_pick_tier_threshold_table(ram, vram, apple, expected) -> None:\n    assert pick_tier(ram, vram, apple) == expected\n"
+    },
+    {
       "id": "f87e5ff1e010f6fd",
       "path": "tests/python/test_mapping_retry_flow.py",
       "line": 10,
@@ -3195,6 +3949,21 @@
       ],
       "summary": "test precedent in tests/python/test_mapping_retry_flow.py",
       "snippet": "\n\ndef write_json(path, payload):\n    path.parent.mkdir(parents=True, exist_ok=True)\n    path.write_text(json.dumps(payload), encoding=\"utf-8\")"
+    },
+    {
+      "id": "fd15fddd88f6eb15",
+      "path": "tests/python/test_orchestrator_feature.py",
+      "line": 8,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "orchestrator",
+        "feature"
+      ],
+      "summary": "test precedent in tests/python/test_orchestrator_feature.py",
+      "snippet": "\n\ndef _plan(*tasks):\n    return Plan(\n        version=\"1.0\","
     },
     {
       "id": "233694e39a8cc9cf",
@@ -3227,9 +3996,9 @@
       "snippet": "\n\ndef _ok(argv):\n    return subprocess.CompletedProcess(argv, 0, \"\", \"\")\n"
     },
     {
-      "id": "406cbe5165a65346",
+      "id": "07cff5eaeb0d3c81",
       "path": "tests/python/test_planner_provider.py",
-      "line": 13,
+      "line": 12,
       "language": "python",
       "change_type": "test",
       "tags": [
@@ -3240,6 +4009,21 @@
       ],
       "summary": "test precedent in tests/python/test_planner_provider.py",
       "snippet": "\n@pytest.fixture(autouse=True)\ndef _clean_env(monkeypatch: pytest.MonkeyPatch) -> None:\n    for v in (\n        \"SIMPLICIO_PLANNER\", \"HF_TOKEN\","
+    },
+    {
+      "id": "5f061cdb7977e293",
+      "path": "tests/python/test_providers_local.py",
+      "line": 20,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "providers",
+        "local"
+      ],
+      "summary": "test precedent in tests/python/test_providers_local.py",
+      "snippet": "\n@pytest.fixture(autouse=True)\ndef _clean(tmp_path, monkeypatch):\n    for v in (\n        \"SIMPLICIO_MODEL\","
     },
     {
       "id": "22fc630cd58800b3",
@@ -3257,9 +4041,26 @@
       "snippet": "\n@pytest.fixture(autouse=True)\ndef isolated_completion_cache(tmp_path, monkeypatch):\n    monkeypatch.setenv(\"SIMPLICIO_CACHE_DIR\", str(tmp_path / \"cache\"))\n    monkeypatch.delenv(\"SIMPLICIO_BUST_CACHE\", raising=False)"
     },
     {
-      "id": "fe13d9c8e6cee1a4",
+      "id": "cb3a2da02f43916f",
+      "path": "tests/python/test_qwen15b_quant_curve_report.py",
+      "line": 9,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "qwen15b",
+        "quant",
+        "curve",
+        "report"
+      ],
+      "summary": "test precedent in tests/python/test_qwen15b_quant_curve_report.py",
+      "snippet": "\n\ndef _write_manifest(tmp_path: Path) -> Path:\n    manifest = tmp_path / \"manifest.json\"\n    manifest.write_text("
+    },
+    {
+      "id": "11b406360726b2b2",
       "path": "tests/python/test_recipes.py",
-      "line": 74,
+      "line": 80,
       "language": "python",
       "change_type": "test",
       "tags": [
@@ -3269,6 +4070,21 @@
       ],
       "summary": "test precedent in tests/python/test_recipes.py",
       "snippet": "\n\ndef test_registry_loads_three_pilot_recipes_for_each_stack() -> None:\n    registry = RecipeRegistry()\n"
+    },
+    {
+      "id": "bf66c424f09a11b7",
+      "path": "tests/python/test_run_cli.py",
+      "line": 8,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "run",
+        "cli"
+      ],
+      "summary": "test precedent in tests/python/test_run_cli.py",
+      "snippet": "\n\ndef _write(path, text):\n    path.parent.mkdir(parents=True, exist_ok=True)\n    path.write_text(text, encoding=\"utf-8\")"
     },
     {
       "id": "9d75babd0c63cc36",
@@ -3284,6 +4100,36 @@
       ],
       "summary": "test precedent in tests/python/test_rust_prompt.py",
       "snippet": "\n\ndef _template_path() -> str:\n    import simplicio\n    return os.path.join(os.path.dirname(simplicio.__file__), \"templates\", \"simplicio_prompt.md\")"
+    },
+    {
+      "id": "8c272cf40a579752",
+      "path": "tests/python/test_schema_smoke_summary.py",
+      "line": 15,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "schema",
+        "smoke",
+        "summary"
+      ],
+      "summary": "test precedent in tests/python/test_schema_smoke_summary.py",
+      "snippet": "\n\ndef test_schema_smoke_summary_normalizes_supported_formats(tmp_path):\n    schema_v1 = tmp_path / \"results_v14_qwen15b_q8_0_smoke_schema_v1.json\"\n    schema_v1.write_text("
+    },
+    {
+      "id": "68d7824ac1449ba9",
+      "path": "tests/python/test_scratch.py",
+      "line": 24,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "scratch"
+      ],
+      "summary": "test precedent in tests/python/test_scratch.py",
+      "snippet": "\n\ndef test_example_plan_validates() -> None:\n    plan = validate_plan(\n        {"
     },
     {
       "id": "70ffaadedf3dbac3",
@@ -3316,6 +4162,21 @@
       ],
       "summary": "test precedent in tests/python/test_scratch_cli_recipes.py",
       "snippet": "\n\ndef _plan(stack_slug: str, project_name: str):\n    raw = {**EXAMPLE_PLAN, \"stack\": stack_slug, \"project_name\": project_name}\n    return validate_plan(raw)"
+    },
+    {
+      "id": "1ab31f03f5a85143",
+      "path": "tests/python/test_scratch_codegen.py",
+      "line": 14,
+      "language": "python",
+      "change_type": "test",
+      "tags": [
+        "test",
+        "python",
+        "scratch",
+        "codegen"
+      ],
+      "summary": "test precedent in tests/python/test_scratch_codegen.py",
+      "snippet": "\n\ndef _task() -> Task:\n    return Task(\n        id=\"T01-codegen\","
     },
     {
       "id": "2f8c91b5fee1229f",
@@ -3366,327 +4227,20 @@
       "snippet": "\n\ndef _go_binary() -> str | None:\n    return shutil.which(\"go\") or (str(_PORTABLE_GO) if _PORTABLE_GO.is_file() else None)\n"
     },
     {
-      "id": "e8dae371d897a1a8",
-      "path": "tests/python/test_scratch_codegen_next_page.py",
+      "id": "65779c7c369949cd",
+      "path": "tests/python/test_scratch_codegen_markdown.py",
       "line": 13,
       "language": "python",
       "change_type": "test",
       "tags": [
-        "route",
         "test",
         "python",
         "scratch",
         "codegen",
-        "next",
-        "page"
+        "markdown"
       ],
-      "summary": "test precedent in tests/python/test_scratch_codegen_next_page.py",
-      "snippet": "\n\ndef _stack(tmp_path: Path) -> Stack:\n    return Stack(\n        slug=\"ts-nextjs\","
-    },
-    {
-      "id": "3ca8b76385a47d6a",
-      "path": "tests/python/test_scratch_codegen_next_route.py",
-      "line": 17,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "route",
-        "test",
-        "python",
-        "scratch",
-        "codegen",
-        "next"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_codegen_next_route.py",
-      "snippet": "\n\ndef _stack(tmp_path: Path) -> Stack:\n    return Stack(\n        slug=\"ts-nextjs\","
-    },
-    {
-      "id": "a77b5f703008851a",
-      "path": "tests/python/test_scratch_codegen_orm.py",
-      "line": 14,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch",
-        "codegen",
-        "orm"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_codegen_orm.py",
-      "snippet": "\n\ndef _stack(tmp_path: Path) -> Stack:\n    return Stack(\n        slug=\"py-fastapi\","
-    },
-    {
-      "id": "b1a276979159e73d",
-      "path": "tests/python/test_scratch_codegen_php_laravel.py",
-      "line": 17,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch",
-        "codegen",
-        "php",
-        "laravel"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_codegen_php_laravel.py",
-      "snippet": "\n\ndef _stack(tmp_path: Path) -> Stack:\n    return Stack(\n        slug=\"php-laravel\","
-    },
-    {
-      "id": "f72c137d9c95c3ce",
-      "path": "tests/python/test_scratch_codegen_pydantic.py",
-      "line": 14,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch",
-        "codegen",
-        "pydantic"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_codegen_pydantic.py",
-      "snippet": "\n\ndef _stack(tmp_path: Path) -> Stack:\n    return Stack(\n        slug=\"py-fastapi\","
-    },
-    {
-      "id": "2992bbf15398cb7d",
-      "path": "tests/python/test_scratch_codegen_pytest.py",
-      "line": 16,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch",
-        "codegen",
-        "pytest"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_codegen_pytest.py",
-      "snippet": "\n\ndef _stack(tmp_path: Path) -> Stack:\n    return Stack(\n        slug=\"py-fastapi\","
-    },
-    {
-      "id": "e5e7d17792a8627f",
-      "path": "tests/python/test_scratch_codegen_rust_axum.py",
-      "line": 17,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch",
-        "codegen",
-        "rust",
-        "axum"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_codegen_rust_axum.py",
-      "snippet": "\n\ndef _stack(tmp_path: Path) -> Stack:\n    return Stack(\n        slug=\"rust-axum\","
-    },
-    {
-      "id": "1ab31f03f5a85143",
-      "path": "tests/python/test_scratch_codegen.py",
-      "line": 14,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch",
-        "codegen"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_codegen.py",
-      "snippet": "\n\ndef _task() -> Task:\n    return Task(\n        id=\"T01-codegen\","
-    },
-    {
-      "id": "2a386f3cd729b0fb",
-      "path": "tests/python/test_scratch_live_gate.py",
-      "line": 19,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch",
-        "live",
-        "gate"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_live_gate.py",
-      "snippet": "\n\ndef _completed(cmd, stdout, returncode=0, stderr=\"\"):\n    return subprocess.CompletedProcess(cmd, returncode, stdout, stderr)\n"
-    },
-    {
-      "id": "e3fbd86504d7dc35",
-      "path": "tests/python/test_scratch_recipes_bench.py",
-      "line": 19,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch",
-        "recipes",
-        "bench"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_recipes_bench.py",
-      "snippet": "\n\ndef test_scratch_recipe_bench_defines_fifty_goal_corpus() -> None:\n    cases = build_cases()\n"
-    },
-    {
-      "id": "5d8d4aea432b655c",
-      "path": "tests/python/test_scratch_release_gate.py",
-      "line": 16,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch",
-        "release",
-        "gate"
-      ],
-      "summary": "test precedent in tests/python/test_scratch_release_gate.py",
-      "snippet": "\n\ndef test_release_gate_preflight_defines_full_matrix(monkeypatch) -> None:\n    monkeypatch.delenv(\"SIMPLICIO_MODEL\", raising=False)\n    monkeypatch.delenv(\"SIMPLICIO_PLANNER\", raising=False)"
-    },
-    {
-      "id": "68d7824ac1449ba9",
-      "path": "tests/python/test_scratch.py",
-      "line": 24,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "scratch"
-      ],
-      "summary": "test precedent in tests/python/test_scratch.py",
-      "snippet": "\n\ndef test_example_plan_validates() -> None:\n    plan = validate_plan(\n        {"
-    },
-    {
-      "id": "9d9c1664cb41eeea",
-      "path": "tests/python/test_static_fixers_bench.py",
-      "line": 18,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "static",
-        "fixers",
-        "bench"
-      ],
-      "summary": "test precedent in tests/python/test_static_fixers_bench.py",
-      "snippet": "\n\ndef test_static_fixer_bench_cases_have_expected_mix() -> None:\n    cases = build_cases()\n"
-    },
-    {
-      "id": "59068c1b21bb66f2",
-      "path": "tests/python/test_task_json_contract.py",
-      "line": 9,
-      "language": "python",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "python",
-        "task",
-        "json",
-        "contract"
-      ],
-      "summary": "test precedent in tests/python/test_task_json_contract.py",
-      "snippet": "\n\ndef _write(path, text):\n    path.parent.mkdir(parents=True, exist_ok=True)\n    path.write_text(text, encoding=\"utf-8\")"
-    },
-    {
-      "id": "877dea2b80665f74",
-      "path": "tests/unit/cli-args.test.js",
-      "line": 5,
-      "language": "javascript",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "javascript",
-        "unit",
-        "cli",
-        "args"
-      ],
-      "summary": "test precedent in tests/unit/cli-args.test.js",
-      "snippet": "/*\n * Unit tests for bin/cli.js argument parsing.\n * Uses node:test (no extra dependency) and subprocess invocation so the tests\n * exercise the real binary end-to-end, including --help / --version short-circuit\n * and unknown-flag handling."
-    },
-    {
-      "id": "5c06c99e78ae3bc8",
-      "path": "tests/unit/cli-install.test.js",
-      "line": 18,
-      "language": "javascript",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "javascript",
-        "unit",
-        "cli",
-        "install"
-      ],
-      "summary": "test precedent in tests/unit/cli-install.test.js",
-      "snippet": "const NODE = process.execPath;\n\nfunction mkTmp() {\n  return fs.mkdtempSync(path.join(os.tmpdir(), 'lpm-test-'));\n}"
-    },
-    {
-      "id": "ed57177ee9df663c",
-      "path": "tests/unit/cli-telemetry.test.js",
-      "line": 21,
-      "language": "javascript",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "javascript",
-        "unit",
-        "cli",
-        "telemetry"
-      ],
-      "summary": "test precedent in tests/unit/cli-telemetry.test.js",
-      "snippet": "const NODE = process.execPath;\n\nfunction mkTmp() {\n  return fs.mkdtempSync(path.join(os.tmpdir(), 'lpm-tel-'));\n}"
-    },
-    {
-      "id": "4664eea0a2d4975c",
-      "path": "tests/unit/docs-site.test.js",
-      "line": 10,
-      "language": "javascript",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "javascript",
-        "unit",
-        "docs",
-        "site"
-      ],
-      "summary": "test precedent in tests/unit/docs-site.test.js",
-      "snippet": "const ROOT = path.resolve(__dirname, '..', '..');\n\nfunction read(rel) {\n  return fs.readFileSync(path.join(ROOT, rel), 'utf8');\n}"
-    },
-    {
-      "id": "b700c2e756d6bf7a",
-      "path": "tests/unit/overlay-docs.test.js",
-      "line": 17,
-      "language": "javascript",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "javascript",
-        "unit",
-        "overlay",
-        "docs"
-      ],
-      "summary": "test precedent in tests/unit/overlay-docs.test.js",
-      "snippet": "];\n\ntest('overlay screencast asset captures the required flow', () => {\n  const svg = fs.readFileSync(SVG_PATH, 'utf8');\n"
-    },
-    {
-      "id": "38f71380feda3f96",
-      "path": "tests/unit/why-video-narration.test.js",
-      "line": 11,
-      "language": "javascript",
-      "change_type": "test",
-      "tags": [
-        "test",
-        "javascript",
-        "unit",
-        "why",
-        "video",
-        "narration"
-      ],
-      "summary": "test precedent in tests/unit/why-video-narration.test.js",
-      "snippet": "const NARRATION_PATH = path.join(ROOT, 'video', 'src', 'why', 'narration.json');\n\ntest('why-video narration script defines a shared nine-scene timeline', () => {\n  const narration = JSON.parse(fs.readFileSync(NARRATION_PATH, 'utf8'));\n  assert.equal(narration.timeline.length, 9);"
+      "summary": "test precedent in tests/python/test_scratch_codegen_markdown.py",
+      "snippet": "\n\ndef _stack(tmp_path: Path) -> Stack:\n    return Stack(\n        slug=\"php-vanilla\","
     }
   ]
 }

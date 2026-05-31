@@ -18,12 +18,15 @@ _EDIT_VERBS = (
     "add", "remove", "delete", "rename", "refactor", "fix", "patch", "update",
     "change", "replace", "hide", "show", "validate", "implement", "wire", "inject",
     "extract", "split", "rewrite", "tweak", "adjust", "introduce", "expose",
+    "map", "inventory", "align", "document", "improve",
     # Portuguese
     "adicione", "adicionar", "remova", "remover", "renomeie", "renomear",
     "corrija", "corrigir", "atualize", "atualizar", "altere", "alterar",
     "esconda", "esconder", "mostre", "mostrar", "valide", "validar",
     "implemente", "implementar", "troque", "trocar", "ajuste", "ajustar",
-    "ocultar", "exiba", "exibir", "criar", "crie",
+    "ocultar", "exiba", "exibir", "criar", "crie", "veja", "ver",
+    "alinhe", "alinhar", "mapeie", "mapear", "documente", "documentar",
+    "melhore", "melhorar",
 )
 
 _FILE_EXT_RE = re.compile(

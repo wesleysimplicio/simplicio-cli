@@ -176,3 +176,32 @@ def test_empty_slot_value_fails_before_planner(monkeypatch, capsys) -> None:
     assert called is False
     assert "slot 'entity' requires a value" in err
     assert "--slot entity=X" in err
+
+
+def test_infer_stack_from_existing_dotnet_solution_root(tmp_path) -> None:
+    (tmp_path / "BeyondLabs.MaturityMatrix.slnx").write_text(
+        "<Solution></Solution>",
+        encoding="utf-8",
+    )
+
+    assert (
+        scratch_cli._infer_stack(
+            scratch_cli.StackRegistry(),
+            "align frontend endpoints with existing backend",
+            root=str(tmp_path),
+        )
+        == "csharp-aspnet"
+    )
+
+
+def test_infer_stack_from_existing_angular_root(tmp_path) -> None:
+    (tmp_path / "angular.json").write_text("{}", encoding="utf-8")
+
+    assert (
+        scratch_cli._infer_stack(
+            scratch_cli.StackRegistry(),
+            "align frontend endpoints with existing backend",
+            root=str(tmp_path),
+        )
+        == "react-vite"
+    )

@@ -59,6 +59,11 @@ _TASK_VERBS = (
     "tweak",
     "adjust",
     "introduce",
+    "map",
+    "inventory",
+    "align",
+    "document",
+    "improve",
     "corrija",
     "corrigir",
     "adicione",
@@ -75,6 +80,16 @@ _TASK_VERBS = (
     "ajustar",
     "crie",
     "criar",
+    "veja",
+    "ver",
+    "alinhe",
+    "alinhar",
+    "mapeie",
+    "mapear",
+    "documente",
+    "documentar",
+    "melhore",
+    "melhorar",
 )
 _TASK_NOUNS = (
     "component",
@@ -180,11 +195,17 @@ _SPRINT_CUES = (
     ".specs/sprints",
     "all issues",
     "all tasks",
+    "all endpoints",
+    "all screens",
     "every issue",
     "entire repo",
+    "cross-repo",
     "todas as issues",
     "todos os issues",
     "todas as tarefas",
+    "todos os endpoints",
+    "todas as telas",
+    "todos os projetos",
 )
 _FINISH_CUES = ("finish", "close", "complete", "ship", "terminar", "fechar", "concluir", "finalizar")
 
@@ -307,6 +328,21 @@ def classify_goal(text: str, explicit_scope: str | None = None) -> IntentResult:
     if sprint:
         scores["sprint"] += 4
         signals.append(f"sprint:{sprint}")
+
+    if any(
+        phrase in lower
+        for phrase in (
+            "todos os endpoints",
+            "todas as telas",
+            "todos os projetos",
+            "all endpoints",
+            "all screens",
+            "web com api",
+            "api e ai-agents",
+        )
+    ):
+        scores["sprint"] += 2
+        signals.append("sprint:full_inventory")
 
     issue_refs = _ISSUE_RE.findall(text)
     if len(issue_refs) >= 3:

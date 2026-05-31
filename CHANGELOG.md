@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.4] — 2026-05-31
+
+### Changed
+- `simplicio run --scope scratch` now forwards `--root` into the scratch
+  stack detector, allowing existing projects to be analyzed by filesystem
+  markers before a planner is called.
+- Scratch stack inference now detects existing `.slnx`/`.csproj`, Angular,
+  FastAPI, Streamlit and Typer projects from the target root.
+- `simplicio detect` accepts positional prompt text and recognizes
+  Portuguese endpoint/screen alignment requests as code work.
+- Auto-scope classification treats broad endpoint/screen inventories as
+  sprint-scale work so the planner can decompose them instead of forcing a
+  single-file task path.
+
 ## [0.5.3] — 2026-05-31
 
 ### Changed
@@ -603,3 +617,10 @@ with the new versions installed.
 [0.2.1]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.1
 [0.2.0]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.2.0
 [0.1.0]: https://github.com/wesleysimplicio/simplicio-cli/releases/tag/v0.1.0
+
+## Improvements during EVT real-stack validation (2026-05-31)
+
+- Enhanced support for analysis of existing projects with real backend + DB (used while validating Web + API + local Postgres connection via Playwright).
+- Better guidance and helpers for E2E contract validation tasks between frontend and backend.
+
+These changes were driven by the need to generate strong evidence that the Web is correctly wired to the real API + real PostgreSQL.

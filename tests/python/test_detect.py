@@ -1,4 +1,5 @@
 """Tests for simplicio.detect — heuristic classifier."""
+from simplicio import cli
 from simplicio.detect import detect
 
 
@@ -50,3 +51,28 @@ def test_hint_includes_target_file_when_present():
     r = detect("rename the prop in src/components/Modal.tsx")
     assert r.is_code_task is True
     assert "target = src/components/Modal.tsx" in r.hint
+
+
+def test_portuguese_endpoint_alignment_is_code_task():
+    r = detect("veja todas as telas e alinhe todos os endpoints com a API")
+    assert r.is_code_task is True
+    assert any(signal.startswith("verb:") for signal in r.signals)
+    assert any(signal.startswith("noun:") for signal in r.signals)
+
+
+def test_cli_detect_accepts_positional_prompt(monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+
+    code = cli.main([
+        "detect",
+        "ajuste",
+        "o",
+        "endpoint",
+        "em",
+        "Header.tsx",
+        "--json",
+        "--quiet",
+    ])
+
+    assert code == 0
+    assert '"is_code_task": true' in capsys.readouterr().out

@@ -47,6 +47,11 @@ def _add_scratch_args(p: argparse.ArgumentParser) -> None:
         help="parent directory where the project dir is created (default: cwd)",
     )
     p.add_argument(
+        "--root",
+        default=".",
+        help="existing project root used for stack detection (default: cwd)",
+    )
+    p.add_argument(
         "--planner", default=None, help="override SIMPLICIO_PLANNER for this run only"
     )
     p.add_argument(
@@ -268,11 +273,10 @@ def _generate_plan_with_slots(
             os.environ["SIMPLICIO_RECIPE_SLOTS"] = previous
 
 
-def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
-    """Very small rule-based heuristic. v1 leaves the heavy lift to the planner;
-    here we only catch the obvious cases so the user does not have to type
-    --stack for common requests."""
+def _infer_stack(reg: StackRegistry, goal: str, root: str = ".") -> str | None:
+    """Infer stack from goal keywords, then from existing project files."""
     g = goal.lower()
+
     if any(k in g for k in ("nextjs", "next.js", "next ", "vercel")):
         if reg.get("ts-nextjs"):
             return "ts-nextjs"
@@ -352,6 +356,71 @@ def _infer_stack(reg: StackRegistry, goal: str) -> str | None:
         return "go-cli"
     if any(k in g for k in (" go ", "golang", "gin ")) and reg.get("go-gin"):
         return "go-gin"
+
+    return _detect_stack_from_files(reg, root)
+
+
+def _detect_stack_from_files(reg: StackRegistry, root: str = ".") -> str | None:
+    """Inspect the target directory for common project markers."""
+    try:
+        root_path = Path(root).resolve()
+    except Exception:
+        return None
+
+    if (
+        list(root_path.glob("*.slnx"))
+        or list(root_path.glob("*.csproj"))
+        or list(root_path.rglob("*.csproj"))
+    ):
+        if reg.get("csharp-aspnet"):
+            return "csharp-aspnet"
+        if reg.get("csharp-blazor"):
+            return "csharp-blazor"
+
+    if (root_path / "angular.json").exists():
+        if reg.get("react-vite"):
+            return "react-vite"
+
+    pyproject = root_path / "pyproject.toml"
+    requirements = root_path / "requirements.txt"
+
+    has_fastapi = False
+    has_streamlit = False
+
+    if pyproject.exists():
+        try:
+            content = pyproject.read_text(encoding="utf-8", errors="ignore").lower()
+            if "fastapi" in content:
+                has_fastapi = True
+            if "streamlit" in content:
+                has_streamlit = True
+        except Exception:
+            pass
+
+    if requirements.exists():
+        try:
+            content = requirements.read_text(encoding="utf-8", errors="ignore").lower()
+            if "fastapi" in content:
+                has_fastapi = True
+            if "streamlit" in content:
+                has_streamlit = True
+        except Exception:
+            pass
+
+    if has_fastapi and reg.get("py-fastapi"):
+        return "py-fastapi"
+    if has_streamlit:
+        if reg.get("py-fastapi"):
+            return "py-fastapi"
+
+    if pyproject.exists():
+        try:
+            content = pyproject.read_text(encoding="utf-8", errors="ignore").lower()
+            if "typer" in content and reg.get("py-cli"):
+                return "py-cli"
+        except Exception:
+            pass
+
     return None
 
 
@@ -364,7 +433,7 @@ def _cmd_scratch(args: argparse.Namespace, reg: StackRegistry) -> int:
         )
         return 2
 
-    stack_slug = args.stack or _infer_stack(reg, goal)
+    stack_slug = args.stack or _infer_stack(reg, goal, getattr(args, "root", "."))
     if not stack_slug:
         print(
             "error: could not infer stack from goal; pass --stack <slug>. "
