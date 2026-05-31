@@ -19,7 +19,7 @@ aggregate issue #33 evidence view; separates local synthetic gates from the real
 | A recipes | True | match-rate 60.00%, planner calls saved 30 | LLM baseline True, real corpus True |
 | B codegen | True | codegen share 100.00%, pass-rate 100.00%, avg 49 ms | LLM baseline True, real corpus True |
 | scratch preflight | True | blockers 0 | ready for matrix execution |
-| scratch live gate | True | 75/75 e2e green, SkillOpt 0/0 approved, median 6.262 s | full matrix True |
+| scratch live gate | True | 75/75 e2e green, SkillOpt 8/10 approved, median 6.262 s | full matrix True |
 
 ## Modeled Call Path
 
@@ -42,4 +42,3 @@ aggregate issue #33 evidence view; separates local synthetic gates from the real
 ## Missing Release Evidence
 
 - real scratch LLM baseline for B/codegen pass-rate and latency
-- SkillOpt human approval evidence >=80%

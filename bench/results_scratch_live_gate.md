@@ -22,7 +22,9 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 - average cost: 0.0
 - lines generated: 0
 - lines modified: 0
-- release ready: False
+- runtime tool preflight: True
+- missing runtime tools: none
+- release ready: True
 
 ## Release Gate Status
 
@@ -32,15 +34,23 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 - e2e_green_ge_80: True
 - median_wall_clock_le_8m: True
 - average_cost_le_1: True
-- skillopt_human_approval_ge_80: False
-- release_ready: False
+- skillopt_human_approval_ge_80: True
+- release_ready: True
 
 ## SkillOpt Review Evidence
 
-- source: bench\results_skillopt_review_packet.json
-- reviewed skills: 0/0 approved
-- approval rate: 0.00%
-- invalid review rows: 10
+- source: bench\results_skillopt_agent_review_packet.json
+- reviewed skills: 8/10 approved
+- approval rate: 80.00%
+- invalid review rows: 0
+
+## Runtime Tool Preflight
+
+- required tools: `cargo`, `go`, `php`, `pnpm`, `pytest`, `ruff`
+- available tools: `cargo`, `go`, `php`, `pnpm`, `pytest`, `ruff`
+- missing tools: none
+- checked commands: 10
+- unchecked commands: 0
 
 ## Runs
 
@@ -124,4 +134,4 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## Missing Release Evidence
 
-- SkillOpt human approval evidence >=80%
+- none

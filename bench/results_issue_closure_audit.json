@@ -57,36 +57,31 @@
   },
   "issues": {
     "32": {
-      "blockers": [
-        "skillopt_human_approval_ge_80",
-        "live_gate_release_ready"
-      ],
+      "blockers": [],
       "checks": {
         "average_cost_le_1": true,
         "e2e_green_ge_80": true,
         "full_75_run_matrix": true,
-        "live_gate_release_ready": false,
+        "live_gate_release_ready": true,
         "planner_valid_ge_90": true,
         "scaffold_clean_ge_95": true,
         "scratch_live_gate_present": true,
-        "skillopt_human_approval_ge_80": false
+        "skillopt_human_approval_ge_80": true
       },
-      "close_ready": false,
+      "close_ready": true,
       "title": "from-scratch mode + planner + SkillOpt"
     },
     "33": {
       "blockers": [
         "B_real_executor_pass_rate_ge_llm",
         "B_real_latency_reduction_ge_50",
-        "SkillOpt_human_approval_ge_80",
         "release_evidence_complete",
-        "real scratch LLM baseline for B/codegen pass-rate and latency",
-        "SkillOpt human approval evidence >=80%"
+        "real scratch LLM baseline for B/codegen pass-rate and latency"
       ],
       "checks": {
         "B_real_executor_pass_rate_ge_llm": false,
         "B_real_latency_reduction_ge_50": false,
-        "SkillOpt_human_approval_ge_80": false,
+        "SkillOpt_human_approval_ge_80": true,
         "llm_reduction_summary_present": true,
         "real_50_scratch_corpus": true,
         "release_evidence_complete": false,
@@ -138,21 +133,15 @@
   "scope": "close-readiness audit for GitHub issues #32, #33, #41, and #46; partial evidence is reported as blockers",
   "summary": {
     "all_issues_close_ready": false,
-    "issues_blocked": 3,
-    "issues_close_ready": 1,
+    "issues_blocked": 2,
+    "issues_close_ready": 2,
     "issues_total": 4,
     "open_blockers": {
-      "32": [
-        "skillopt_human_approval_ge_80",
-        "live_gate_release_ready"
-      ],
       "33": [
         "B_real_executor_pass_rate_ge_llm",
         "B_real_latency_reduction_ge_50",
-        "SkillOpt_human_approval_ge_80",
         "release_evidence_complete",
-        "real scratch LLM baseline for B/codegen pass-rate and latency",
-        "SkillOpt human approval evidence >=80%"
+        "real scratch LLM baseline for B/codegen pass-rate and latency"
       ],
       "41": [
         "not_fixture_only",

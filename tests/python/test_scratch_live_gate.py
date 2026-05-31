@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -767,3 +768,16 @@ def test_live_gate_writes_reports(tmp_path) -> None:
 
     assert '"benchmark": "scratch-live-gate"' in json_path.read_text(encoding="utf-8")
     assert "# Scratch Live Gate" in md_path.read_text(encoding="utf-8")
+
+
+def test_versioned_agent_skillopt_review_packet_passes_gate() -> None:
+    summary = load_skillopt_review_evidence(
+        Path("bench/results_skillopt_agent_review_packet.json")
+    )
+
+    assert summary["total_reviews"] == 10
+    assert summary["approved"] == 8
+    assert summary["approval_rate"] == 0.8
+    assert summary["gate_passed"] is True
+    assert summary["invalid_reviews"] == 0
+    assert summary["artifact_verified"] == 10

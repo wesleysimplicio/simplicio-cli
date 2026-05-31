@@ -1249,10 +1249,12 @@ def _to_markdown(result: dict[str, Any]) -> str:
             )
         )
     lines.extend(["", "## Missing Release Evidence", ""])
-    for item in summary["missing_release_evidence"]:
-        lines.append(f"- {item}")
-    lines.append("")
-    return "\n".join(lines)
+    if summary["missing_release_evidence"]:
+        for item in summary["missing_release_evidence"]:
+            lines.append(f"- {item}")
+    else:
+        lines.append("- none")
+    return "\n".join(lines) + "\n"
 
 
 def _format_markdown_list(values: list[Any]) -> str:
