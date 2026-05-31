@@ -80,9 +80,25 @@ Ambiente do container sondado diretamente:
 Consequência: rodar a curva exige (a) `pip install` do extra `local`
 (`llama-cpp-python` compila C++), (b) baixar ~1.3 GB/quant, (c) ~11h CPU/quant
 no bench completo. **Os 4 vCPU tornam o bench completo inviável dentro da janela
-de uma sessão.** O smoke (4 calls) é o passo viável; foi disparada uma tentativa
-de instalar as deps em background pra medir se o ambiente ao menos compila o
-backend (resultado registrado no PR/relatório quando concluir).
+de uma sessão.**
+
+### Resultado da sondagem de instalação (real, 2026-05-31)
+
+Tentativa de preparar o backend neste container (`/tmp/venv46`):
+
+| item | resultado |
+|---|---|
+| build tools | **presentes** — `cmake`, `gcc`, `g++`, `make` em `/usr/bin` |
+| `numpy` | **instala** (2.4.6, wheel) |
+| `huggingface-hub` | **instala** (1.17.0, wheel) — `hf download` viável |
+| `llama-cpp-python` | **sem wheel prebuilt** p/ cp311/linux (`No matching distribution`) — precisa **compilar do source** (~10-20 min em 4 vCPU) |
+
+Ou seja: o ambiente *consegue* preparar o backend (compilando), e tem rede pra
+baixar os GGUF — mas o gargalo continua sendo o **tempo de CPU do bench completo**.
+O smoke (4 calls) é o único passo barato o suficiente; mesmo ele depende de
+compilar o `llama-cpp-python` primeiro.
+
+## 5. Runbook para fechar a curva (máquina capaz, CPU 8t+ ou GPU)
 
 ---
 
