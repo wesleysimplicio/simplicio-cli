@@ -1,3 +1,6 @@
+import os
+
+from simplicio.orchestrator.cost_governor import charge_provider_call
 from simplicio.orchestrator.feature import run_feature
 from simplicio.scratch.plan_schema import Plan, Task
 
@@ -109,3 +112,31 @@ def test_run_feature_rejects_unknown_stack(tmp_path):
         assert "unknown stack" in str(exc)
     else:
         raise AssertionError("expected ValueError")
+
+
+def test_run_feature_applies_max_cost_to_provider_calls(tmp_path, monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_PRICE_PER_MTOK", "100")
+    monkeypatch.delenv("SIMPLICIO_MAX_COST", raising=False)
+    monkeypatch.delenv("SIMPLICIO_COST_SPENT_USD", raising=False)
+
+    def fake_planner(stack, goal, project_name):
+        charge_provider_call("planner", "x" * 4000, "y" * 4000)
+        return _plan(_task("T01-a", "src/a.py"))
+
+    def fake_runner(task, project_dir, stack):
+        return True, "ok"
+
+    result = run_feature(
+        root=str(tmp_path),
+        stack_slug="py-fastapi",
+        goal="implement login flow",
+        max_cost="0.0001",
+        planner=fake_planner,
+        task_runner=fake_runner,
+    )
+
+    assert result["applied"] is False
+    assert "cost budget exceeded" in result["warnings"][0]
+    assert result["cost"]["budget_usd"] == "0.0001"
+    assert "SIMPLICIO_MAX_COST" not in os.environ
+    assert "SIMPLICIO_COST_SPENT_USD" not in os.environ

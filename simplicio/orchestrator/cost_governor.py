@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import os
+from contextlib import contextmanager
 from dataclasses import dataclass
 from decimal import Decimal
+from typing import Iterator
 
 
 class BudgetExceeded(RuntimeError):
@@ -38,6 +40,11 @@ class CostGovernor:
                 f"over budget ${self.budget_usd}"
             )
 
+    def refresh_from_env(self) -> None:
+        raw = os.environ.get("SIMPLICIO_COST_SPENT_USD")
+        if raw not in (None, ""):
+            self.spent_usd = Decimal(raw)
+
     def report(self) -> dict[str, str | None]:
         remaining = None
         if self.budget_usd is not None:
@@ -49,6 +56,34 @@ class CostGovernor:
         }
 
 
+@contextmanager
+def provider_budget(value: str | float | int | None) -> Iterator[CostGovernor]:
+    """Expose a max-cost value to nested provider calls for one run."""
+
+    explicit_budget = value not in (None, "")
+    old_budget = os.environ.get("SIMPLICIO_MAX_COST")
+    old_spent = os.environ.get("SIMPLICIO_COST_SPENT_USD")
+    governor = CostGovernor.from_value(value)
+
+    if governor.budget_usd is not None:
+        os.environ["SIMPLICIO_MAX_COST"] = str(governor.budget_usd)
+        os.environ["SIMPLICIO_COST_SPENT_USD"] = str(governor.spent_usd)
+
+    try:
+        yield governor
+    finally:
+        governor.refresh_from_env()
+        if explicit_budget:
+            if old_budget is None:
+                os.environ.pop("SIMPLICIO_MAX_COST", None)
+            else:
+                os.environ["SIMPLICIO_MAX_COST"] = old_budget
+            if old_spent is None:
+                os.environ.pop("SIMPLICIO_COST_SPENT_USD", None)
+            else:
+                os.environ["SIMPLICIO_COST_SPENT_USD"] = old_spent
+
+
 def charge_provider_call(model: str | None, prompt: str, completion: str) -> None:
     """Charge an estimated provider call when SIMPLICIO_MAX_COST is configured."""
 
@@ -58,8 +93,10 @@ def charge_provider_call(model: str | None, prompt: str, completion: str) -> Non
     prompt_tokens = _estimate_tokens(prompt)
     completion_tokens = _estimate_tokens(completion)
     cost = _price(model, prompt_tokens, completion_tokens)
-    governor.charge_usd(cost)
-    os.environ["SIMPLICIO_COST_SPENT_USD"] = str(governor.spent_usd)
+    try:
+        governor.charge_usd(cost)
+    finally:
+        os.environ["SIMPLICIO_COST_SPENT_USD"] = str(governor.spent_usd)
 
 
 def _estimate_tokens(text: str) -> int:

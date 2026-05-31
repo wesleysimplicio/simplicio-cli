@@ -27,4 +27,22 @@ def test_parse_and_run_dod_command_gate(tmp_path):
 
     assert [gate.command for gate in gates] == [command, None]
     results = run_dod_gates(tmp_path, gates)
-    assert [row["passed"] for row in results] == [True, True]
+    assert [row["passed"] for row in results] == [True, False]
+    assert results[1]["manual"] is True
+    assert "not checked" in results[1]["log"]
+
+
+def test_checked_manual_dod_item_passes(tmp_path):
+    gates = parse_dod("- [x] Evidence attached\n")
+
+    results = run_dod_gates(tmp_path, gates)
+
+    assert results == [
+        {
+            "label": "Evidence attached",
+            "passed": True,
+            "command": None,
+            "log": "",
+            "manual": True,
+        }
+    ]

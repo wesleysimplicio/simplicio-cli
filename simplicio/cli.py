@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 
@@ -238,8 +239,9 @@ def _run_sprint_command(a: argparse.Namespace) -> int:
     if not a.stack:
         print("simplicio run --scope sprint requires --stack <slug>", file=sys.stderr)
         return 2
-    from .dod import load_dod, run_dod_gates
+    from .dod import load_dod, load_sprint_dod, run_dod_gates
     from .orchestrator import run_feature
+    from .orchestrator.cost_governor import provider_budget
     from .sprint_loader import load_sprint
 
     sprint_name = a.sprint or _infer_sprint_name(a.goal)
@@ -255,40 +257,218 @@ def _run_sprint_command(a: argparse.Namespace) -> int:
 
     state_dir = Path(a.root) / ".simplicio"
     state_dir.mkdir(parents=True, exist_ok=True)
-    results = []
-    for task in sprint.tasks:
-        result = run_feature(
-            root=a.root,
-            stack_slug=a.stack,
-            goal=task.goal,
-            max_iter=a.max_iter,
+    state_path = state_dir / "sprint_state.json"
+    if not sprint.tasks:
+        _write_sprint_state(
+            state_path,
+            sprint=sprint,
+            sprint_name=sprint_name,
+            stack=a.stack,
             max_cost=a.max_cost,
+            results=[],
+            dod_results=[],
+            complete=False,
+            cost=None,
         )
-        results.append({"task": task.title, "result": result})
-        (state_dir / "sprint_state.json").write_text(
-            json.dumps({"sprint": sprint.title, "results": results}, indent=2),
-            encoding="utf-8",
-        )
-        if not result["applied"]:
-            break
+        print(f"simplicio run: sprint has no task specs: {sprint.root}", file=sys.stderr)
+        return 2
 
-    dod_results = run_dod_gates(a.root, load_dod(a.root))
-    applied = all(row["result"]["applied"] for row in results) and all(
-        row["passed"] for row in dod_results
-    )
-    payload = {
-        "scope": "sprint",
-        "sprint": sprint.title,
-        "applied": applied,
-        "features": results,
-        "dod": dod_results,
+    results = _load_resumable_sprint_results(state_path, sprint_name, a.stack)
+    resumed = bool(results)
+    completed_tasks = {
+        row["task"]
+        for row in results
+        if isinstance(row.get("result"), dict) and row["result"].get("applied")
     }
+    with provider_budget(a.max_cost) as governor:
+        for task in sprint.tasks:
+            if task.title in completed_tasks:
+                continue
+            try:
+                result = run_feature(
+                    root=a.root,
+                    stack_slug=a.stack,
+                    goal=task.goal,
+                    max_iter=a.max_iter,
+                    max_cost=None,
+                )
+            except ValueError as exc:
+                result = {
+                    "scope": "feature",
+                    "goal": task.goal,
+                    "stack": a.stack,
+                    "applied": False,
+                    "tasks": [],
+                    "replans": 0,
+                    "warnings": [str(exc)],
+                }
+                results.append({"task": task.title, "result": result})
+                governor.refresh_from_env()
+                cost = governor.report()
+                _write_sprint_state(
+                    state_path,
+                    sprint=sprint,
+                    sprint_name=sprint_name,
+                    stack=a.stack,
+                    max_cost=a.max_cost,
+                    results=results,
+                    dod_results=[],
+                    complete=False,
+                    cost=cost,
+                )
+                print(f"simplicio run: {exc}", file=sys.stderr)
+                return 2
+            governor.refresh_from_env()
+            results.append({"task": task.title, "result": result})
+            _write_sprint_state(
+                state_path,
+                sprint=sprint,
+                sprint_name=sprint_name,
+                stack=a.stack,
+                max_cost=a.max_cost,
+                results=results,
+                dod_results=[],
+                complete=False,
+                cost=governor.report(),
+            )
+            if not result["applied"]:
+                break
+
+        dod_gates = [*load_dod(a.root), *load_sprint_dod(sprint.root)]
+        dod_results = run_dod_gates(a.root, dod_gates)
+        applied = (
+            len(results) == len(sprint.tasks)
+            and all(row["result"]["applied"] for row in results)
+            and all(row["passed"] for row in dod_results)
+        )
+        governor.refresh_from_env()
+        cost = governor.report()
+        _write_sprint_state(
+            state_path,
+            sprint=sprint,
+            sprint_name=sprint_name,
+            stack=a.stack,
+            max_cost=a.max_cost,
+            results=results,
+            dod_results=dod_results,
+            complete=applied,
+            cost=cost,
+        )
+        payload = {
+            "scope": "sprint",
+            "sprint": sprint.title,
+            "applied": applied,
+            "features": results,
+            "dod": dod_results,
+            "cost": cost,
+            "resumed": resumed,
+        }
     if a.json:
         print(json.dumps(payload, sort_keys=True))
     else:
         status = "DONE" if applied else "FAILED"
         print(f"{status}: sprint features={len(results)} dod_gates={len(dod_results)}")
     return 0 if applied else 1
+
+
+def _load_resumable_sprint_results(
+    path: Path,
+    sprint_name: str,
+    stack: str,
+) -> list[dict]:
+    if not path.is_file():
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    if payload.get("scope") != "sprint":
+        return []
+    if payload.get("sprint_name") != sprint_name or payload.get("stack") != stack:
+        return []
+    results = payload.get("results")
+    if not isinstance(results, list):
+        return []
+    return [
+        row
+        for row in results
+        if isinstance(row, dict)
+        and isinstance(row.get("result"), dict)
+        and row["result"].get("applied") is True
+        and row.get("task")
+    ]
+
+
+def _write_sprint_state(
+    path: Path,
+    *,
+    sprint,
+    sprint_name: str,
+    stack: str,
+    max_cost: str,
+    results: list[dict],
+    dod_results: list[dict],
+    complete: bool,
+    cost: dict[str, str | None] | None = None,
+) -> None:
+    total = len(sprint.tasks)
+    completed = sum(1 for row in results if row["result"]["applied"])
+    failed = [row for row in results if not row["result"]["applied"]]
+    failed_gates = [row["label"] for row in dod_results if not row["passed"]]
+    state = "complete" if complete else "in-progress"
+    if failed or failed_gates:
+        state = "failed"
+    payload = {
+        "scope": "sprint",
+        "state": state,
+        "sprint": sprint.title,
+        "sprint_name": sprint_name,
+        "stack": stack,
+        "max_cost": max_cost,
+        "total_features": total,
+        "completed_features": completed,
+        "failed_features": [row["task"] for row in failed],
+        "failed_dod_gates": failed_gates,
+        "complete": complete,
+        "updated_at": int(time.time()),
+        "results": results,
+        "dod": dod_results,
+        "cost": cost,
+    }
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _run_status_command(a: argparse.Namespace) -> int:
+    state_path = Path(a.root) / ".simplicio" / "sprint_state.json"
+    if not state_path.is_file():
+        payload = {"state": "none", "path": str(state_path)}
+        if a.json:
+            print(json.dumps(payload, sort_keys=True))
+        else:
+            print(f"no simplicio sprint state at {state_path}")
+        return 0
+    try:
+        payload = json.loads(state_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        print(f"simplicio status: invalid state file: {exc}", file=sys.stderr)
+        return 2
+    if a.json:
+        print(json.dumps(payload, sort_keys=True))
+        return 0
+    completed = payload.get("completed_features", 0)
+    total = payload.get("total_features", 0)
+    state = payload.get("state") or ("complete" if payload.get("complete") else "in-progress")
+    if payload.get("failed_features") or payload.get("failed_dod_gates"):
+        state = "failed"
+    print(
+        f"{state}: {payload.get('sprint', 'sprint')} "
+        f"{completed}/{total} features"
+    )
+    for failed in payload.get("failed_features", []):
+        print(f"failed: {failed}", file=sys.stderr)
+    for failed in payload.get("failed_dod_gates", []):
+        print(f"failed DoD: {failed}", file=sys.stderr)
+    return 0
 
 
 def _run_run_command(a: argparse.Namespace) -> int:
@@ -378,6 +558,10 @@ def main(argv=None):
     p_det.add_argument("--quiet", action="store_true")
     p_det.add_argument("--json", action="store_true")
 
+    p_status = sub.add_parser("status", help="show current simplicio run state")
+    p_status.add_argument("--root", default=".")
+    p_status.add_argument("--json", action="store_true")
+
     a = ap.parse_args(argv)
     maybe_autoinstall(a.cmd)
     if a.cmd == "index":
@@ -435,6 +619,8 @@ def main(argv=None):
         if a.json:
             detect_argv += ["--json"]
         return detect_main(detect_argv)
+    elif a.cmd == "status":
+        return _run_status_command(a)
     elif a.cmd == "task":
         return _run_task_command(a)
     elif a.cmd == "run":

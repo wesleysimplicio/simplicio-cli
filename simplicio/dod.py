@@ -16,6 +16,7 @@ _COMMAND_RE = re.compile(r"`([^`]+)`")
 class DodGate:
     label: str
     command: str | None = None
+    checked: bool = False
 
 
 def parse_dod(text: str) -> list[DodGate]:
@@ -26,7 +27,13 @@ def parse_dod(text: str) -> list[DodGate]:
             continue
         label = match.group("label").strip()
         cmd_match = _COMMAND_RE.search(label)
-        gates.append(DodGate(label=label, command=cmd_match.group(1) if cmd_match else None))
+        gates.append(
+            DodGate(
+                label=label,
+                command=cmd_match.group(1) if cmd_match else None,
+                checked=match.group("mark").lower() == "x",
+            )
+        )
     return gates
 
 
@@ -37,11 +44,28 @@ def load_dod(root: str | Path, path: str = ".specs/workflow/DOD.md") -> list[Dod
     return parse_dod(dod_path.read_text(encoding="utf-8"))
 
 
+def load_sprint_dod(sprint_root: str | Path) -> list[DodGate]:
+    root = Path(sprint_root)
+    gates: list[DodGate] = []
+    for path in [root / "SPRINT.md", *sorted(root.glob("*.task.md"))]:
+        if path.is_file():
+            gates.extend(parse_dod(path.read_text(encoding="utf-8")))
+    return gates
+
+
 def run_dod_gates(root: str | Path, gates: list[DodGate]) -> list[dict]:
     results = []
     for gate in gates:
         if not gate.command:
-            results.append({"label": gate.label, "passed": True, "command": None, "log": ""})
+            results.append(
+                {
+                    "label": gate.label,
+                    "passed": gate.checked,
+                    "command": None,
+                    "log": "manual DoD item is not checked" if not gate.checked else "",
+                    "manual": True,
+                }
+            )
             continue
         proc = subprocess.run(
             gate.command,
@@ -58,6 +82,7 @@ def run_dod_gates(root: str | Path, gates: list[DodGate]) -> list[dict]:
                 "passed": proc.returncode == 0,
                 "command": gate.command,
                 "log": (proc.stdout + proc.stderr)[-1500:],
+                "manual": False,
             }
         )
     return results

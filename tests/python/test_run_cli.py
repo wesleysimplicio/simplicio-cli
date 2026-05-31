@@ -174,3 +174,69 @@ def test_run_scope_sprint_requires_max_cost(monkeypatch, capsys):
 
     assert code == 2
     assert "requires --max-cost" in capsys.readouterr().err
+
+
+def test_run_scope_sprint_writes_status_state(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    sprint_dir = tmp_path / ".specs" / "sprints" / "sprint-01"
+    sprint_dir.mkdir(parents=True)
+    (sprint_dir / "SPRINT.md").write_text("# Sprint 01\n", encoding="utf-8")
+    (sprint_dir / "01-login.task.md").write_text(
+        "# Login\n\n## Goal\nImplement login flow\n",
+        encoding="utf-8",
+    )
+
+    seen = {}
+
+    def fake_run_feature(**kwargs):
+        seen["max_cost"] = kwargs["max_cost"]
+        return {
+            "scope": "feature",
+            "goal": kwargs["goal"],
+            "stack": kwargs["stack_slug"],
+            "applied": True,
+            "tasks": [{"id": "T01-a", "passed": True}],
+            "replans": 0,
+            "warnings": [],
+        }
+
+    monkeypatch.setattr("simplicio.orchestrator.run_feature", fake_run_feature)
+
+    code = cli.main(
+        [
+            "run",
+            "finish sprint 1",
+            "--scope",
+            "sprint",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "py-fastapi",
+            "--max-cost",
+            "1",
+            "--json",
+        ]
+    )
+
+    assert code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["applied"] is True
+    assert payload["cost"]["budget_usd"] == "1"
+    assert seen["max_cost"] is None
+
+    status_code = cli.main(["status", "--root", str(tmp_path), "--json"])
+    status = json.loads(capsys.readouterr().out)
+    assert status_code == 0
+    assert status["sprint_name"] == "sprint-01"
+    assert status["completed_features"] == 1
+    assert status["complete"] is True
+    assert status["cost"]["budget_usd"] == "1"
+
+
+def test_status_reports_missing_state(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+
+    code = cli.main(["status", "--root", str(tmp_path), "--json"])
+
+    assert code == 0
+    assert json.loads(capsys.readouterr().out)["state"] == "none"

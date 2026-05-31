@@ -5,7 +5,12 @@ Repo: `wesleysimplicio/simplicio-dev-cli`
 Branch inspected: `codex/finish-github-issues`
 
 This file is a local evidence index for the currently open GitHub issues:
-`#32`, `#33`, `#37`, `#41`, and `#46`.
+`#32`, `#33`, `#41`, and `#46`.
+
+Recently closed issue tracked here for historical closure evidence: `#37`.
+Related implementation PR: `#47`
+(`https://github.com/wesleysimplicio/simplicio-dev-cli/pull/47`), currently
+open as a draft.
 
 Scope of this artifact:
 
@@ -20,9 +25,14 @@ Scope of this artifact:
 | --- | --- | --- |
 | `#32` | from-scratch mode + planner + SkillOpt | keep open until SkillOpt human approval evidence is supplied |
 | `#33` | reduce LLM dependency across simplicio flow | keep open until remaining release evidence is complete |
-| `#37` | mechanical task executors via libcst/ts-morph | implementation is complete; close only if empirical full-corpus baseline is split out |
-| `#41` | unified `simplicio run` orchestrator | keep open; F0/F1 foundation now present, sprint/bench still incomplete |
+| `#41` | unified `simplicio run` orchestrator | keep open; F0/F1/F2/F3/F4 foundation plus F5 fixture schema are present, live bench still incomplete |
 | `#46` | Qwen2.5-Coder-1.5B GGUF quant curve | keep open; required quant curve artifacts are not present |
+
+## Recently Closed Issues
+
+| issue | title | closure posture |
+| --- | --- | --- |
+| `#37` | mechanical task executors via libcst/ts-morph | closed on 2026-05-31 as implementation-complete; remaining full-corpus release baseline stays tracked by `#33` |
 
 ## Issue #32 Evidence
 
@@ -76,9 +86,9 @@ human approval evidence >=80%.
 
 ## Issue #37 Evidence
 
-Status: implementation-complete for mechanical executors; empirical closure
-depends on whether the release baseline remains in this issue or moves to a
-separate validation issue.
+Status: closed on GitHub as implementation-complete for mechanical executors.
+The remaining empirical full-corpus baseline is not lost; it remains part of
+the broader release-evidence tracking in `#33`.
 
 Repo-local evidence:
 
@@ -95,7 +105,7 @@ Repo-local evidence:
   `real_executor_pass_rate_ge_llm` and `real_latency_reduction_ge_50` are not
   proven by a real codegen-disabled live baseline.
 
-Suggested close-or-comment:
+Closure note:
 
 ```text
 Implementation evidence is complete for the mechanical executor slice:
@@ -103,10 +113,9 @@ LibCST/ts-morph-backed executor paths are present, the deterministic executor
 bench is 90/90 green, and the live scratch corpus shows 75/75 e2e green with
 135/135 task executions handled by codegen and 0 task-level LLM calls.
 
-If this issue is scoped to implementation, it can close with the full-corpus
-LLM baseline tracked separately. If the release baseline remains part of #37,
-keep it open until a codegen-disabled live baseline proves real executor
-pass-rate and latency against the same/equivalent corpus.
+Issue #37 is now closed as implementation-complete. The still-missing
+codegen-disabled live baseline for pass-rate and latency remains tracked under
+the aggregate release gate in #33.
 ```
 
 ## Issue #41 Evidence
@@ -125,12 +134,19 @@ Repo-local evidence:
   the stable JSON payload from `simplicio task`.
 - `simplicio/orchestrator/feature.py` now runs feature plans through existing
   task execution and performs bounded replan on failed tasks.
-- `simplicio/orchestrator/cost_governor.py` now provides a budget guard, and
+- `simplicio/orchestrator/cost_governor.py` now provides a budget guard;
   `simplicio/providers.py` charges estimated non-cached provider calls when
-  `SIMPLICIO_MAX_COST` is configured.
+  `SIMPLICIO_MAX_COST` is configured; and `simplicio run --max-cost` now
+  exposes that budget to nested provider calls instead of requiring a manually
+  pre-set environment variable.
 - `simplicio/sprint_loader.py` and `simplicio/dod.py` provide the first sprint
-  task loader and DoD command-gate primitives.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `404
+  task loader and DoD command-gate primitives, while `simplicio status` reads
+  the sprint state file written during sprint runs.
+- `bench/run_unified_run_bench.py` plus
+  `bench/results_unified_run_bench.{json,md}` provide a fixture-backed F5
+  comparison schema for cli+ag, unified feature/sprint, and Codex `/goal`.
+  This is explicitly marked fixture-only and not release-ready.
+- Validation in this worktree: `python -m pytest tests/python -q` -> `413
   passed, 3 skipped`.
 
 Suggested comment:
@@ -138,9 +154,11 @@ Suggested comment:
 ```text
 The first `simplicio run` slice is now implemented locally: argparse wire-up,
 regex-only intent classification, task/scratch dispatch, a feature-scope
-planner/runner with bounded replan, cost-governor hooks, sprint loading, and
-DoD gate primitives. This does not close #41 yet because the full sprint
-orchestration UX and the F5 head-to-head bench are still not complete.
+planner/runner with bounded replan, `--max-cost` propagation into provider
+calls, sprint loading/state, and DoD gate primitives. A fixture-backed F5 bench
+schema is also present, but it is intentionally not release evidence: live
+cli+ag, unified feature/sprint, and Codex `/goal` runs still need to be
+captured before #41 can close.
 ```
 
 ## Issue #46 Evidence
@@ -173,10 +191,8 @@ missing: `bench/results_v14_qwen15b_quant_curve.{md,json,pdf}` is not present.
 
 ## Recommended Next Actions
 
-1. Close `#37` only if the issue owner accepts splitting the remaining
-   full-corpus LLM baseline into a dedicated validation issue.
-2. Keep `#32` and `#33` open until SkillOpt human approval evidence is real and
+1. Keep `#32` and `#33` open until SkillOpt human approval evidence is real and
    attached to the release reports.
-3. Continue `#41` with sprint UX hardening and the F5 unified-run bench.
-4. For `#46`, create the smoke harness and quant-curve reports before running
+2. Continue `#41` with sprint UX hardening and the F5 unified-run bench.
+3. For `#46`, create the smoke harness and quant-curve reports before running
    the long GGUF matrix.

@@ -38,7 +38,7 @@ def load_sprint(root: str | Path, sprint: str) -> SprintPlan:
             SprintTask(
                 path=path,
                 title=_first_heading(text) or path.stem,
-                goal=_goal_from_task(text) or text.strip(),
+                goal=_goal_from_task(text) or _body_after_first_heading(text) or text.strip(),
             )
         )
     return SprintPlan(root=sprint_dir, title=sprint_title, tasks=tasks)
@@ -63,4 +63,13 @@ def _goal_from_task(text: str) -> str | None:
                 if next_line.strip():
                     body.append(next_line.strip())
             return "\n".join(body).strip() or None
-    return _first_heading(text)
+    return None
+
+
+def _body_after_first_heading(text: str) -> str | None:
+    lines = text.splitlines()
+    for idx, line in enumerate(lines):
+        if line.strip().startswith("#"):
+            body = "\n".join(lines[idx + 1 :]).strip()
+            return body or None
+    return None
