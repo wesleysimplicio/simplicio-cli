@@ -255,6 +255,12 @@ def _shell_out_codex(prompt, model):
     return _shell_out(cmd, "Codex CLI (`codex exec`)", stdin_text=prompt)
 
 
+def _charge_if_budgeted(model, prompt, out):
+    from .orchestrator.cost_governor import charge_provider_call
+
+    charge_provider_call(model, prompt, out or "")
+
+
 def generate(prompt, feedback=None, max_tokens=4000, template_version=None):
     # Cache lookup BEFORE provider config. Key uses just SIMPLICIO_MODEL
     # (no credential check) so a hit returns without requiring an API key
@@ -295,6 +301,7 @@ def generate(prompt, feedback=None, max_tokens=4000, template_version=None):
         if cached is not None:
             return cached.completion
         out = _local_generate(prompt, feedback, eff_model, max_tokens)
+        _charge_if_budgeted(eff_model, cache_full_prompt, out)
         cache().put(key, CacheEntry(out, provider_id="local-llama", model=eff_model))
         return out
 
@@ -320,12 +327,14 @@ def generate(prompt, feedback=None, max_tokens=4000, template_version=None):
         out = _shell_out_claude(
             _inline_feedback(prompt, feedback), model.split("/", 1)[1]
         )
+        _charge_if_budgeted(model, cache_full_prompt, out)
         cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
         return out
     if model.startswith("codex-cli/"):
         out = _shell_out_codex(
             _inline_feedback(prompt, feedback), model.split("/", 1)[1]
         )
+        _charge_if_budgeted(model, cache_full_prompt, out)
         cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
         return out
 
@@ -345,6 +354,7 @@ def generate(prompt, feedback=None, max_tokens=4000, template_version=None):
             model=model, max_tokens=max_tokens, messages=_msgs(prompt, feedback)
         )
         out = next((b.text for b in r.content if b.type == "text"), "")
+        _charge_if_budgeted(model, cache_full_prompt, out)
         cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
         return out
 
@@ -356,6 +366,7 @@ def generate(prompt, feedback=None, max_tokens=4000, template_version=None):
         model=model, max_tokens=max_tokens, messages=_msgs(prompt, feedback)
     )
     out = r.choices[0].message.content
+    _charge_if_budgeted(model, cache_full_prompt, out)
     cache().put(key, CacheEntry(out, provider_id=provider_id, model=model))
     return out
 
@@ -521,6 +532,7 @@ def planner_complete(prompt, max_tokens=8192, temperature=0.1, template_version=
         provider_id = _planner_provider_id(p)
         if p["model"].startswith("claude-cli/"):
             out = _shell_out_claude(prompt, p["model"].split("/", 1)[1])
+            _charge_if_budgeted(p["model"], prompt, out)
             cache().put(
                 key,
                 CacheEntry(out, provider_id=provider_id, model=p["model"]),
@@ -528,6 +540,7 @@ def planner_complete(prompt, max_tokens=8192, temperature=0.1, template_version=
             return out
         if p["model"].startswith("codex-cli/"):
             out = _shell_out_codex(prompt, p["model"].split("/", 1)[1])
+            _charge_if_budgeted(p["model"], prompt, out)
             cache().put(
                 key,
                 CacheEntry(out, provider_id=provider_id, model=p["model"]),
@@ -551,6 +564,7 @@ def planner_complete(prompt, max_tokens=8192, temperature=0.1, template_version=
             messages=[{"role": "user", "content": prompt}],
         )
         out = next((b.text for b in r.content if b.type == "text"), "")
+        _charge_if_budgeted(p["model"], prompt, out)
         cache().put(
             key,
             CacheEntry(out, provider_id=_planner_provider_id(p), model=p["model"]),
@@ -567,6 +581,7 @@ def planner_complete(prompt, max_tokens=8192, temperature=0.1, template_version=
         messages=[{"role": "user", "content": prompt}],
     )
     out = r.choices[0].message.content
+    _charge_if_budgeted(p["model"], prompt, out)
     cache().put(
         key,
         CacheEntry(out, provider_id=_planner_provider_id(p), model=p["model"]),

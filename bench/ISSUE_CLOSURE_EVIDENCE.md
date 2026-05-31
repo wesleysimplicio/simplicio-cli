@@ -1,0 +1,182 @@
+# GitHub Issue Closure Evidence
+
+Date: 2026-05-31
+Repo: `wesleysimplicio/simplicio-dev-cli`
+Branch inspected: `codex/finish-github-issues`
+
+This file is a local evidence index for the currently open GitHub issues:
+`#32`, `#33`, `#37`, `#41`, and `#46`.
+
+Scope of this artifact:
+
+- No product or core code changes.
+- No GitHub issues were closed by this file.
+- The goal is to make each issue comment/closure posture explicit from
+  repo-local evidence that already exists.
+
+## Current Open Issues
+
+| issue | title | local closure posture |
+| --- | --- | --- |
+| `#32` | from-scratch mode + planner + SkillOpt | keep open until SkillOpt human approval evidence is supplied |
+| `#33` | reduce LLM dependency across simplicio flow | keep open until remaining release evidence is complete |
+| `#37` | mechanical task executors via libcst/ts-morph | implementation is complete; close only if empirical full-corpus baseline is split out |
+| `#41` | unified `simplicio run` orchestrator | keep open; F0/F1 foundation now present, sprint/bench still incomplete |
+| `#46` | Qwen2.5-Coder-1.5B GGUF quant curve | keep open; required quant curve artifacts are not present |
+
+## Issue #32 Evidence
+
+Status: mostly implemented, but not close-ready under the current release gate.
+
+Repo-local evidence:
+
+- `simplicio/templates/stacks/` contains 30 stack template directories.
+- `bench/results_scratch_live_gate.md` records the full 75-run scratch matrix:
+  75/75 selected runs, 75/75 e2e green, average cost `0.0`.
+- The same live-gate report still records `release ready: False`.
+- `bench/results_scratch_live_gate.md` lists the missing release evidence as
+  `SkillOpt human approval evidence >=80%`.
+
+Suggested comment:
+
+```text
+Current local evidence shows the scratch v0.5 matrix is green: 75/75 selected
+runs, 75/75 e2e green, average cost 0.0, and 30 stack templates present.
+The issue should remain open until real SkillOpt human approval evidence is
+attached and the gate reports skillopt_human_approval_ge_80=true.
+```
+
+## Issue #33 Evidence
+
+Status: roadmap implementation is strong, but release evidence is still
+incomplete.
+
+Repo-local evidence:
+
+- `bench/results_llm_reduction_summary.md` reports local synthetic gates pass.
+- The same summary reports modeled local call reduction `19 -> 6`
+  and release call proof `210 -> 0`.
+- `bench/results_scratch_cache_gate.md` records the full 50-goal cold/warm
+  planner cache evidence: 50/50 cold valid, 50/50 warm valid, 100% warm
+  hit-rate.
+- `bench/results_llm_reduction_summary.md` still lists missing release evidence:
+  real scratch LLM baseline for B/codegen pass-rate and latency, plus SkillOpt
+  human approval evidence >=80%.
+
+Suggested comment:
+
+```text
+The repo now has strong release-supporting evidence for the LLM-reduction
+roadmap: cache gate 50/50 cold and warm valid with 100% warm hit-rate, scratch
+live matrix 75/75 e2e green, and aggregate release call proof 210 -> 0.
+I would keep this open until the remaining aggregate gaps are attached:
+real scratch LLM baseline for B/codegen pass-rate and latency, and SkillOpt
+human approval evidence >=80%.
+```
+
+## Issue #37 Evidence
+
+Status: implementation-complete for mechanical executors; empirical closure
+depends on whether the release baseline remains in this issue or moves to a
+separate validation issue.
+
+Repo-local evidence:
+
+- `simplicio/scratch/codegen/` contains executor modules for Python/LibCST,
+  TypeScript/ts-morph-backed Next.js generation, Go Gin, PHP Laravel, and
+  Rust Axum paths.
+- `bench/results_scratch_codegen.md` reports 90/90 deterministic executor
+  benchmark cases passed, 100% codegen share, 90 post-validated cases, and
+  zero post-validation failures.
+- The same report links live scratch-corpus evidence: 75/75 e2e green, 135/135
+  codegen tasks, task-level LLM calls 0, and stacks
+  `go-gin`, `php-laravel`, `py-fastapi`, `rust-axum`, `ts-nextjs`.
+- The same report keeps the full-corpus comparison honest:
+  `real_executor_pass_rate_ge_llm` and `real_latency_reduction_ge_50` are not
+  proven by a real codegen-disabled live baseline.
+
+Suggested close-or-comment:
+
+```text
+Implementation evidence is complete for the mechanical executor slice:
+LibCST/ts-morph-backed executor paths are present, the deterministic executor
+bench is 90/90 green, and the live scratch corpus shows 75/75 e2e green with
+135/135 task executions handled by codegen and 0 task-level LLM calls.
+
+If this issue is scoped to implementation, it can close with the full-corpus
+LLM baseline tracked separately. If the release baseline remains part of #37,
+keep it open until a codegen-disabled live baseline proves real executor
+pass-rate and latency against the same/equivalent corpus.
+```
+
+## Issue #41 Evidence
+
+Status: not close-ready, but the first executable slice is now present in this
+worktree.
+
+Repo-local evidence:
+
+- `python -m simplicio.cli run --help` now exposes
+  `--scope auto|task|feature|sprint|scratch`, `--max-cost`, `--max-iter`, and
+  scratch forwarding flags.
+- `simplicio/intent.py` now implements a regex-only classifier with explicit
+  scope override and confidence threshold.
+- `simplicio run --scope task` reuses the existing task primitive and preserves
+  the stable JSON payload from `simplicio task`.
+- `simplicio/orchestrator/feature.py` now runs feature plans through existing
+  task execution and performs bounded replan on failed tasks.
+- `simplicio/orchestrator/cost_governor.py` now provides a budget guard, and
+  `simplicio/providers.py` charges estimated non-cached provider calls when
+  `SIMPLICIO_MAX_COST` is configured.
+- `simplicio/sprint_loader.py` and `simplicio/dod.py` provide the first sprint
+  task loader and DoD command-gate primitives.
+- Validation in this worktree: `python -m pytest tests/python -q` -> `404
+  passed, 3 skipped`.
+
+Suggested comment:
+
+```text
+The first `simplicio run` slice is now implemented locally: argparse wire-up,
+regex-only intent classification, task/scratch dispatch, a feature-scope
+planner/runner with bounded replan, cost-governor hooks, sprint loading, and
+DoD gate primitives. This does not close #41 yet because the full sprint
+orchestration UX and the F5 head-to-head bench are still not complete.
+```
+
+## Issue #46 Evidence
+
+Status: not close-ready.
+
+Repo-local evidence:
+
+- `bench/results_v14_qwen15b_gguf_partial.md` records a partial Q5_K_M run:
+  2/12 cases, schema parse 0/8, and approximately 55 minutes per case.
+- `bench/smoke_schema_v1.py` is present and provides the cheap 4-call
+  schema-v1 go/no-go smoke required before the full expensive quant bench.
+- `bench/RESULTS_LOCAL_GGUF.md` contains older local Q5_K_M vs Q8_0 evidence
+  from `bench/run_exec.py`, but it is not the requested v14 schema-v1 quant
+  curve.
+- No matching required quant-curve result artifacts were found for:
+  `bench/results_v14_qwen15b_quant_curve.md`,
+  `bench/results_v14_qwen15b_quant_curve.json`,
+  or `bench/results_v14_qwen15b_quant_curve.pdf`.
+
+Suggested comment:
+
+```text
+Current repo-local evidence is still partial for #46. The Q5_K_M v14 partial
+run exists and reports 2/12 cases with schema parse 0/8, `bench/smoke_schema_v1.py`
+now exists for the cheap go/no-go smoke, and there is older Q5_K_M vs Q8_0
+evidence from `bench/run_exec.py`. The requested schema-v1 quant curve is still
+missing: `bench/results_v14_qwen15b_quant_curve.{md,json,pdf}` is not present.
+```
+
+## Recommended Next Actions
+
+1. Close `#37` only if the issue owner accepts splitting the remaining
+   full-corpus LLM baseline into a dedicated validation issue.
+2. Keep `#32` and `#33` open until SkillOpt human approval evidence is real and
+   attached to the release reports.
+3. Continue `#41` with sprint UX hardening and the F5 unified-run bench.
+4. For `#46`, create the smoke harness and quant-curve reports before running
+   the long GGUF matrix.

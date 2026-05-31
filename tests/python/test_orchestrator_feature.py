@@ -1,0 +1,111 @@
+from simplicio.orchestrator.feature import run_feature
+from simplicio.scratch.plan_schema import Plan, Task
+
+
+def _plan(*tasks):
+    return Plan(
+        version="1.0",
+        stack="py-fastapi",
+        project_name="demo",
+        rationale="test",
+        files_to_create=[],
+        tasks=list(tasks),
+        deps_to_install=[],
+        deps_dev=[],
+        test_command="pytest -q",
+        lint_command="ruff check .",
+        estimated_total_tasks=len(tasks),
+    )
+
+
+def _task(tid, target):
+    return Task(
+        id=tid,
+        goal=f"update {target}",
+        target=target,
+        criteria="- passes",
+        constraints="- minimal",
+        verify="python -c \"raise SystemExit(0)\"",
+    )
+
+
+def test_run_feature_executes_planned_tasks_in_order(tmp_path):
+    calls = []
+
+    def fake_planner(stack, goal, project_name):
+        return _plan(_task("T01-a", "src/a.py"), _task("T02-b", "src/b.py"))
+
+    def fake_runner(task, project_dir, stack):
+        calls.append(task.id)
+        return True, "ok"
+
+    result = run_feature(
+        root=str(tmp_path),
+        stack_slug="py-fastapi",
+        goal="implement login flow",
+        planner=fake_planner,
+        task_runner=fake_runner,
+    )
+
+    assert result["applied"] is True
+    assert calls == ["T01-a", "T02-b"]
+    assert result["replans"] == 0
+
+
+def test_run_feature_replans_after_failed_task(tmp_path):
+    plans = iter(
+        [
+            _plan(_task("T01-a", "src/a.py")),
+            _plan(_task("T01-b", "src/b.py")),
+        ]
+    )
+    calls = []
+
+    def fake_planner(stack, goal, project_name):
+        return next(plans)
+
+    def fake_runner(task, project_dir, stack):
+        calls.append(task.id)
+        return (task.id == "T01-b"), "failed" if task.id == "T01-a" else "ok"
+
+    result = run_feature(
+        root=str(tmp_path),
+        stack_slug="py-fastapi",
+        goal="implement login flow",
+        max_iter=1,
+        planner=fake_planner,
+        task_runner=fake_runner,
+    )
+
+    assert result["applied"] is True
+    assert calls == ["T01-a", "T01-b"]
+    assert result["replans"] == 1
+
+
+def test_run_feature_returns_failure_after_replan_limit(tmp_path):
+    def fake_planner(stack, goal, project_name):
+        return _plan(_task("T01-a", "src/a.py"))
+
+    def fake_runner(task, project_dir, stack):
+        return False, "still broken"
+
+    result = run_feature(
+        root=str(tmp_path),
+        stack_slug="py-fastapi",
+        goal="implement login flow",
+        max_iter=0,
+        planner=fake_planner,
+        task_runner=fake_runner,
+    )
+
+    assert result["applied"] is False
+    assert result["warnings"]
+
+
+def test_run_feature_rejects_unknown_stack(tmp_path):
+    try:
+        run_feature(root=str(tmp_path), stack_slug="missing", goal="x")
+    except ValueError as exc:
+        assert "unknown stack" in str(exc)
+    else:
+        raise AssertionError("expected ValueError")
