@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] — 2026-05-31
+
+### Changed
+- Default local execution now prefers `Qwen2.5-Coder-1.5B-Instruct-Q8_0`
+  with `Q6_K_L` fallback from `~/.simplicio/models/executor`.
+- `simplicio task` now applies generated diffs through `git apply` before
+  reporting success, propagates failed non-JSON runs with exit code `1`, and
+  records the extracted patch at `.simplicio/last_patch.diff`.
+- The patch gate accepts external `SIMPLICIO_TEST_CMD` evidence and retries
+  Git hunk count mismatches with `git apply --recount`, making small local
+  models usable in SendSprint/SimplicioCode flows without weakening Git's
+  apply check.
+
 ## [0.5.1] — 2026-05-31
 
 ### Changed

@@ -155,6 +155,102 @@ def test_retry_classification_and_pre_apply_validation():
     assert "attempt 2" in feedback
 
 
+def test_apply_and_test_applies_unified_diff_before_running_test(tmp_path, monkeypatch):
+    target = tmp_path / "GOAL_RESULT.md"
+    target.write_text("# Result\n", encoding="utf-8")
+    output = "\n".join(
+        [
+            "```diff",
+            "diff --git a/GOAL_RESULT.md b/GOAL_RESULT.md",
+            "--- a/GOAL_RESULT.md",
+            "+++ b/GOAL_RESULT.md",
+            "@@ -1 +1,3 @@",
+            " # Result",
+            "+",
+            "+Simplicio Sprint CLI E2E - terminal",
+            "```",
+            "",
+            "TEST: grep marker",
+        ]
+    )
+    monkeypatch.setenv(
+        "SIMPLICIO_TEST_CMD",
+        'grep -q "Simplicio Sprint CLI E2E - terminal" GOAL_RESULT.md',
+    )
+
+    ok, log = pipeline._apply_and_test(output, str(tmp_path))
+
+    assert ok, log
+    assert "Simplicio Sprint CLI E2E - terminal" in target.read_text(encoding="utf-8")
+    assert (tmp_path / ".simplicio" / "last_patch.diff").exists()
+
+
+def test_external_test_command_satisfies_generated_test_contract(monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_TEST_CMD", "pytest -q")
+
+    result = pipeline.validate_generated_output(
+        "\n".join(
+            [
+                "diff --git a/app.py b/app.py",
+                "--- a/app.py",
+                "+++ b/app.py",
+                "@@ -1 +1 @@",
+                "-old",
+                "+new",
+                "",
+            ]
+        )
+    )
+
+    assert result.ok is True
+
+
+def test_apply_and_test_recovers_bad_hunk_counts_with_recount(tmp_path, monkeypatch):
+    target = tmp_path / "docs" / "result.md"
+    target.parent.mkdir()
+    output = "\n".join(
+        [
+            "```diff",
+            "diff --git a/docs/result.md b/docs/result.md",
+            "new file mode 100644",
+            "--- /dev/null",
+            "+++ b/docs/result.md",
+            "@@ -0,0 +1,99 @@",
+            "+Simplicio Sprint CLI E2E - terminal",
+            "```",
+        ]
+    )
+    monkeypatch.setenv(
+        "SIMPLICIO_TEST_CMD",
+        'grep -q "Simplicio Sprint CLI E2E - terminal" docs/result.md',
+    )
+
+    ok, log = pipeline._apply_and_test(output, str(tmp_path))
+
+    assert ok, log
+    assert "Simplicio Sprint CLI E2E - terminal" in target.read_text(encoding="utf-8")
+
+
+def test_external_test_command_allows_textual_placeholder_mentions(monkeypatch):
+    monkeypatch.setenv("SIMPLICIO_TEST_CMD", "grep -q marker docs/result.md")
+
+    result = pipeline.validate_generated_output(
+        "\n".join(
+            [
+                "diff --git a/docs/result.md b/docs/result.md",
+                "--- /dev/null",
+                "+++ b/docs/result.md",
+                "@@ -0,0 +1,2 @@",
+                "+marker",
+                "+placeholder text mentioned in documentation",
+                "",
+            ]
+        )
+    )
+
+    assert result.ok is True
+
+
 def _valid_pipeline_diff():
     return "\n".join(
         [

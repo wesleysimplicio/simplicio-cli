@@ -53,16 +53,32 @@ def _bound_path_warnings(files, bound_paths):
         + f" (allowed: {', '.join(bound_paths)})"
     ]
 
+def extract_patch(output):
+    text = output or ""
+    fenced = re.search(r"```(?:diff|patch)?\s*\n(.*?)(?:\n```|$)", text, flags=re.S)
+    if fenced and ("diff --git " in fenced.group(1) or "--- " in fenced.group(1)):
+        return fenced.group(1).strip() + "\n"
+    match = re.search(r"(?m)^(diff --git .+|--- .+)$", text)
+    if not match:
+        return ""
+    patch = text[match.start():]
+    fence = patch.find("\n```")
+    if fence != -1:
+        patch = patch[:fence]
+    return patch.strip() + "\n"
+
 def validate_generated_output(output, bound_paths=None):
     text = output or ""
     hints = []
     has_diff = bool(re.search(r"^diff --git |^--- .+\n\+\+\+ ", text, flags=re.M))
     has_test = "TEST:" in text or re.search(r"(^|\n)(test|it|def test_|describe)\b", text)
+    external_test_cmd = os.environ.get("SIMPLICIO_TEST_CMD", "").strip()
+    has_external_test = bool(external_test_cmd and external_test_cmd != "echo 'configure SIMPLICIO_TEST_CMD'")
     if not has_diff:
         hints.append("include a unified diff with exact target files")
-    if not has_test:
+    if not has_test and not has_external_test:
         hints.append("include a TEST block or concrete test code")
-    if re.search(r"(?i)\b(pseudocode|placeholder|todo: implement)\b", text):
+    if not has_external_test and re.search(r"(?i)\b(pseudocode|placeholder|todo: implement)\b", text):
         hints.append("replace placeholders with executable code")
     hints.extend(_bound_path_warnings(extract_changed_files(output), bound_paths))
     return ValidationResult(
@@ -100,13 +116,48 @@ def build_retry_feedback(attempt, validation=None, test_log=""):
     lines.append("Return the full corrected DIFF + TEST block only.")
     return "\n".join(lines)
 
+def _git_apply_patch(root, patch):
+    attempts = [
+        ([], "git apply"),
+        (["--recount"], "git apply --recount"),
+    ]
+    errors = []
+    for extra_args, label in attempts:
+        check = subprocess.run(
+            ["git", "apply", "--check", *extra_args, "-"],
+            input=patch,
+            cwd=root,
+            capture_output=True,
+            text=True,
+        )
+        if check.returncode != 0:
+            errors.append(f"{label} --check failed:\n{(check.stderr or check.stdout)[-1600:]}")
+            continue
+        apply = subprocess.run(
+            ["git", "apply", *extra_args, "-"],
+            input=patch,
+            cwd=root,
+            capture_output=True,
+            text=True,
+        )
+        if apply.returncode == 0:
+            return True, ""
+        errors.append(f"{label} failed:\n{(apply.stderr or apply.stdout)[-1600:]}")
+    return False, "\n".join(errors)
+
 def _apply_and_test(output, root, bound_paths=None):
     os.makedirs(os.path.join(root, ".simplicio"), exist_ok=True)
     open(os.path.join(root, ".simplicio/last_output.txt"), "w").write(output or "")
     validation = validate_generated_output(output, bound_paths)
     if not validation.ok:
         return False, f"pre-apply validation failed: {validation.reason}"
-    # PLUG: extract diff -> git apply; extract test. Here we run the test command.
+    patch = extract_patch(output)
+    if not patch:
+        return False, "pre-apply validation failed: no unified diff found"
+    open(os.path.join(root, ".simplicio/last_patch.diff"), "w").write(patch)
+    applied, apply_log = _git_apply_patch(root, patch)
+    if not applied:
+        return False, apply_log
     cmd = os.environ.get("SIMPLICIO_TEST_CMD", "echo 'configure SIMPLICIO_TEST_CMD'")
     p = subprocess.run(cmd, shell=True, cwd=root, capture_output=True, text=True)
     return p.returncode == 0, (p.stdout + p.stderr)[-2000:]

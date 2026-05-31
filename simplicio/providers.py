@@ -27,13 +27,15 @@ Four modes, picked by SIMPLICIO_MODEL prefix (or by absence of config):
      SIMPLICIO_MODEL=local-llama//abs/path/model.gguf  -> direct local path
      This is also the DEFAULT when neither SIMPLICIO_MODEL nor
      SIMPLICIO_BASE_URL is set: simplicio runs Qwen2.5-Coder-1.5B-Instruct
-     (Q5_K_M GGUF) on CPU with no HTTP overhead. The GGUF is fetched once from
-     the Hugging Face Hub and the model is loaded once, then reused. Requires
-     the `local` extra: pip install 'simplicio-cli[local]'.
+     (Q8_0 GGUF, with Q6_K_L fallback) on CPU with no HTTP overhead. The GGUF is
+     reused from ~/.simplicio/models/executor when present, otherwise fetched
+     once from the Hugging Face Hub. Requires the `local` extra:
+     pip install 'simplicio-cli[local]'.
 """
 
 import os
 import shutil
+from pathlib import Path
 
 from ._cache import CacheEntry, cache, make_key
 
@@ -71,9 +73,12 @@ def _inline_feedback(prompt, feedback):
 # --------------------------------------------------------------------------- #
 
 # bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF is a small, code-specialized model
-# that runs fast on CPU. Q5_K_M is the speed/quality sweet spot for the 1.5B.
+# that runs fast on CPU. Q8_0 is the preferred local executor; Q6_K_L is the
+# lower-memory fallback.
 LOCAL_DEFAULT_REPO = "bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF"
-LOCAL_DEFAULT_FILE = "Qwen2.5-Coder-1.5B-Instruct-Q5_K_M.gguf"
+LOCAL_DEFAULT_FILE = "Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf"
+LOCAL_FALLBACK_FILE = "Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf"
+LOCAL_EXECUTOR_DIR = "~/.simplicio/models/executor"
 LOCAL_MODEL_PREFIX = "local-llama/"
 
 # Loaded Llama instances, keyed by (gguf_path, n_ctx, n_threads, n_gpu_layers).
@@ -96,7 +101,7 @@ def _local_spec(model):
     """Resolve (repo, file, path) for a local-llama model id.
 
     Forms after the `local-llama/` prefix:
-      "" / "default" / "auto"   -> bundled Qwen2.5-Coder-1.5B Q5_K_M default
+      "" / "default" / "auto"   -> bundled Qwen2.5-Coder-1.5B Q8_0 default
       "<repo>::<file.gguf>"     -> explicit HF repo + filename
       "/abs/path/model.gguf"    -> direct local path (no download)
       "<repo>"                  -> HF repo + default/SIMPLICIO_LOCAL_MODEL_FILE
@@ -120,6 +125,19 @@ def _local_spec(model):
     return repo, file_env, None
 
 
+def _local_executor_dir() -> Path:
+    return Path(os.environ.get("SIMPLICIO_LOCAL_MODEL_DIR", LOCAL_EXECUTOR_DIR)).expanduser()
+
+
+def _local_filenames(fname):
+    """Return candidate GGUF filenames in preference order."""
+    if os.environ.get("SIMPLICIO_LOCAL_MODEL_FILE"):
+        return [fname]
+    if fname == LOCAL_DEFAULT_FILE:
+        return [LOCAL_DEFAULT_FILE, LOCAL_FALLBACK_FILE]
+    return [fname]
+
+
 def _resolve_local_path(repo, fname, path):
     """Return a filesystem path to the GGUF, downloading from HF if needed."""
     if path:
@@ -136,7 +154,17 @@ def _resolve_local_path(repo, fname, path):
             "simplicio: local backend needs huggingface-hub. "
             "Install extras: pip install 'simplicio-cli[local]'"
         )
-    return hf_hub_download(repo_id=repo, filename=fname)
+    errors = []
+    for candidate in _local_filenames(fname):
+        local_file = _local_executor_dir() / candidate
+        if local_file.is_file():
+            return str(local_file)
+        try:
+            return hf_hub_download(repo_id=repo, filename=candidate)
+        except Exception as exc:  # noqa: BLE001 - fallback to the next local GGUF
+            errors.append(f"{candidate}: {exc}")
+    detail = "; ".join(errors) if errors else f"{fname}: unavailable"
+    raise SystemExit(f"simplicio: local model download failed ({detail})")
 
 
 def _local_llama(model):

@@ -129,6 +129,31 @@ def test_task_bound_paths_refuses_out_of_scope_diff(tmp_path, monkeypatch, capsy
     assert any("outside bound paths" in warning for warning in payload["warnings"])
 
 
+def test_task_non_json_propagates_failed_pipeline_exit_code(tmp_path, monkeypatch, capsys):
+    _write(tmp_path / "frontend" / "app.ts", "old\n")
+    monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
+    monkeypatch.setattr("simplicio.pipeline.MAX_ATTEMPTS", 1)
+    monkeypatch.setattr("simplicio.pipeline.generate", lambda *a, **k: "TEST:\nassert True\n")
+
+    code = cli.main(
+        [
+            "task",
+            "update app",
+            "--root",
+            str(tmp_path),
+            "--stack",
+            "angular",
+            "--target",
+            "frontend/app.ts",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert code == 1
+    assert "FAILED:" in captured.out
+    assert "include a unified diff" in captured.err
+
+
 def test_python_module_entrypoint_propagates_cli_exit_code():
     env = {**os.environ, "SIMPLICIO_SKIP_AUTO_INIT": "1"}
     proc = subprocess.run(

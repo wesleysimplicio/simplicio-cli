@@ -152,7 +152,7 @@ def _run_task_command(a: argparse.Namespace) -> int:
             for warning in result["warnings"]:
                 print(f"warning: {warning}", file=sys.stderr)
         return 0 if (a.dry_run_task or result["applied"]) else 1
-    run(
+    result = run_task(
         a.root,
         stack,
         a.goal,
@@ -161,7 +161,11 @@ def _run_task_command(a: argparse.Namespace) -> int:
         a.constraints,
         bound_paths=a.bound_paths,
     )
-    return 0
+    status = "DONE" if result["applied"] else "FAILED"
+    print(f"{status}: {result['diff_summary']}")
+    for warning in result["warnings"]:
+        print(f"warning: {warning}", file=sys.stderr)
+    return 0 if result["applied"] else 1
 
 
 def _first_file_signal(signals: list[str]) -> str | None:

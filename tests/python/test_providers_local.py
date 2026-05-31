@@ -27,6 +27,7 @@ def _clean(tmp_path, monkeypatch):
         "SIMPLICIO_LOCAL_MODEL_PATH",
         "SIMPLICIO_LOCAL_MODEL_REPO",
         "SIMPLICIO_LOCAL_MODEL_FILE",
+        "SIMPLICIO_LOCAL_MODEL_DIR",
         "SIMPLICIO_LOCAL_CTX",
         "SIMPLICIO_LOCAL_THREADS",
         "SIMPLICIO_LOCAL_GPU_LAYERS",
@@ -166,6 +167,46 @@ def test_resolve_local_path_downloads_from_hf(monkeypatch):
     assert out == "/cache/weights.gguf"
     fake.hf_hub_download.assert_called_once_with(
         repo_id="owner/repo", filename="weights.gguf"
+    )
+
+
+def test_resolve_local_path_prefers_executor_dir(monkeypatch, tmp_path):
+    model_dir = tmp_path / "models"
+    model_dir.mkdir()
+    primary = model_dir / providers.LOCAL_DEFAULT_FILE
+    primary.write_bytes(b"x")
+    fake = types.ModuleType("huggingface_hub")
+    fake.hf_hub_download = MagicMock()
+    monkeypatch.setitem(sys.modules, "huggingface_hub", fake)
+    monkeypatch.setenv("SIMPLICIO_LOCAL_MODEL_DIR", str(model_dir))
+
+    out = providers._resolve_local_path(
+        providers.LOCAL_DEFAULT_REPO, providers.LOCAL_DEFAULT_FILE, None
+    )
+
+    assert out == str(primary)
+    fake.hf_hub_download.assert_not_called()
+
+
+def test_resolve_local_path_falls_back_to_q6(monkeypatch):
+    fake = types.ModuleType("huggingface_hub")
+    fake.hf_hub_download = MagicMock(
+        side_effect=[RuntimeError("q8 missing"), "/cache/q6.gguf"]
+    )
+    monkeypatch.setitem(sys.modules, "huggingface_hub", fake)
+
+    out = providers._resolve_local_path(
+        providers.LOCAL_DEFAULT_REPO, providers.LOCAL_DEFAULT_FILE, None
+    )
+
+    assert out == "/cache/q6.gguf"
+    assert (
+        fake.hf_hub_download.call_args_list[0].kwargs["filename"]
+        == providers.LOCAL_DEFAULT_FILE
+    )
+    assert (
+        fake.hf_hub_download.call_args_list[1].kwargs["filename"]
+        == providers.LOCAL_FALLBACK_FILE
     )
 
 
