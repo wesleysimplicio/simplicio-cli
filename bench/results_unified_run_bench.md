@@ -6,14 +6,14 @@ planned fixture comparison for cli+ag, unified feature/sprint, and Codex /goal; 
 
 - issue: #41
 - phase: F5
-- fixture only: True
-- evidence level: fixture
+- fixture only: False
+- evidence level: partial-live
 - cases: 3
 - modes: 4
 - rows: 12/12
 - release ready: False
 - ready for live run: True
-- live rows: 0/12
+- live rows: 1/12
 
 ## Modes
 
@@ -31,7 +31,7 @@ planned fixture comparison for cli+ag, unified feature/sprint, and Codex /goal; 
 | single-file-task | task | cli+ag task loop | covered_by_existing_atomic_loop | 1 | 0 | False | False | True |
 | single-file-task | task | unified run feature | dispatches_to_task | 1 | 0 | False | False | True |
 | single-file-task | task | unified run sprint | not_the_primary_scope | 1 | 0 | False | False | True |
-| single-file-task | task | Codex /goal | external_baseline_placeholder | 1 | 0 | False | True | False |
+| single-file-task | task | Codex /goal | live_success | 1 | 0 | False | True | False |
 | feature-auth-flow | feature | cli+ag task loop | requires_human_decomposition | 4 | 0 | True | False | True |
 | feature-auth-flow | feature | unified run feature | covered_by_feature_orchestrator | 4 | 1 | False | True | True |
 | feature-auth-flow | feature | unified run sprint | not_the_primary_scope | 4 | 0 | False | False | True |

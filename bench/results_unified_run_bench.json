@@ -31,7 +31,7 @@
     "platform": "Windows-11-10.0.22631-SP0",
     "python": "3.14.3"
   },
-  "fixture_only": true,
+  "fixture_only": false,
   "issue": "#41",
   "modes": [
     {
@@ -151,31 +151,39 @@
       "transcript_sha256": ""
     },
     {
-      "artifacts": [],
+      "artifacts": [
+        {
+          "kind": "codex-transcript",
+          "path": "bench/artifacts/codex-goal-single-file-task.jsonl",
+          "sha256": "a277ece0678ac65ad56325a6c40f96a322b65ebca43691a0b23850bd6ea88dc8",
+          "verified": true
+        }
+      ],
       "case_id": "single-file-task",
-      "command": "",
+      "command": "codex exec --json -C . \"/goal Fix email validation in src/forms/UserForm.tsx. Do not make source edits; report the plan and validation you would run.\"",
       "cost_cap_required": false,
       "cost_observable": false,
       "cost_usd": null,
       "dod_gate_supported": null,
-      "duration_s": null,
-      "exit_code": null,
+      "duration_s": 46.9,
+      "exit_code": 0,
       "expected_task_runs": 1,
-      "external_agent_invoked": false,
-      "fixture": true,
-      "llm_invoked": false,
+      "external_agent_invoked": true,
+      "fixture": false,
+      "llm_invoked": true,
       "manual_decomposition_required": false,
       "mode_id": "codex_goal",
       "notes": [
-        "live Codex /goal run is required for real comparison"
+        "Transcript captured from real Codex CLI 0.135.0 run.",
+        "The transcript records Windows sandbox command-exec failures, so this is partial-live diagnostic evidence only."
       ],
-      "outcome": "external_baseline_placeholder",
+      "outcome": "live_success",
       "planner_calls": 0,
       "replan_supported": true,
       "resume_state_supported": null,
       "scope": "task",
-      "success": null,
-      "transcript_sha256": ""
+      "success": true,
+      "transcript_sha256": "a277ece0678ac65ad56325a6c40f96a322b65ebca43691a0b23850bd6ea88dc8"
     },
     {
       "artifacts": [],
@@ -407,9 +415,9 @@
       "codex_goal": {
         "cost_cap_required_cases": 0,
         "cost_observable_cases": 0,
-        "external_agent_invocations": 0,
+        "external_agent_invocations": 1,
         "label": "Codex /goal",
-        "llm_invocations": 0,
+        "llm_invocations": 1,
         "manual_decomposition_cases": 0,
         "replan_supported_cases": 3,
         "resume_state_supported_cases": 0,
@@ -439,12 +447,12 @@
       }
     },
     "case_count": 3,
-    "evidence_level": "fixture",
+    "evidence_level": "partial-live",
     "expected_row_count": 12,
-    "external_codex_goal_run_present": false,
-    "fixture_only": true,
+    "external_codex_goal_run_present": true,
+    "fixture_only": false,
     "head_to_head_ready_for_live_run": true,
-    "live_row_count": 0,
+    "live_row_count": 1,
     "missing_live_evidence": [
       "real cli+ag runs on the controlled task, feature, and sprint cases",
       "real unified feature/sprint runs with cost governor telemetry",
@@ -452,7 +460,7 @@
       "artifact collection for sprint DoD evidence"
     ],
     "mode_count": 4,
-    "real_llm_runs_present": false,
+    "real_llm_runs_present": true,
     "release_blockers": [
       "real cli+ag runs on the controlled task, feature, and sprint cases",
       "real unified feature/sprint runs with cost governor telemetry",

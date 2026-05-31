@@ -504,3 +504,40 @@ def test_unified_run_bench_example_live_results_fixture_stays_partial_live(
         < payload["summary"]["expected_row_count"]
     )
     assert artifact["verified"] is True
+
+
+def test_unified_run_bench_codex_partial_transcript_stays_partial_live(
+    tmp_path,
+) -> None:
+    live_path = ROOT / "bench/results_unified_run_live_codex_partial.json"
+    live_payload = json.loads(live_path.read_text(encoding="utf-8"))
+    transcript_artifact = live_payload["rows"][0]["artifacts"][0]
+    transcript_path = ROOT / transcript_artifact["path"]
+    json_path = tmp_path / "out.json"
+    md_path = tmp_path / "out.md"
+
+    rc = main(
+        [
+            "--live-results-json",
+            str(live_path),
+            "--json-output",
+            str(json_path),
+            "--md-output",
+            str(md_path),
+            "--quiet",
+        ]
+    )
+
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    live_row = next(row for row in payload["rows"] if row["fixture"] is False)
+
+    assert rc == 0
+    assert transcript_artifact["sha256"] == hashlib.sha256(
+        transcript_path.read_bytes()
+    ).hexdigest()
+    assert payload["summary"]["evidence_level"] == "partial-live"
+    assert payload["summary"]["release_ready"] is False
+    assert payload["summary"]["live_row_count"] == 1
+    assert payload["summary"]["external_codex_goal_run_present"] is True
+    assert payload["summary"]["real_llm_runs_present"] is True
+    assert live_row["artifacts"][0]["verified"] is True

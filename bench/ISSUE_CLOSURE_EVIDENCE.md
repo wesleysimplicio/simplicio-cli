@@ -124,13 +124,14 @@ Repo-local evidence:
   actual post-verify result.
 - `bench/results_scratch_live_gate_codegen_disabled_baseline.{json,md}` now
   preserves the codegen-disabled baseline on the default path. It currently has
-  5 rows: two green `go-gin` runs, one `py-fastapi` run that timed out after
-  900 seconds with codegen disabled, and two earlier `go-gin` rows that failed
-  because `go` was not on `PATH` during post-verify. The latest `go-gin` row
-  used a portable Go 1.22.12 runtime under `Pictures/m/tmp` and passed
-  `go test ./...` plus `go vet ./...`. It remains partial evidence only:
-  5 rows are not the release corpus and do not prove B/codegen pass-rate or
-  latency against the full baseline.
+  7 rows: one `py-fastapi` run that timed out after 900 seconds with codegen
+  disabled, one green `ts-nextjs` row with two LLM tasks, four green `go-gin`
+  rows, and two earlier `go-gin` rows that failed before the portable Go path
+  was restored. The latest aggregate has no missing post-verify runtime tools,
+  4/7 e2e green, pass-rate `0.6667`, and average LLM task latency
+  `178250ms`. It remains partial evidence only: 7 rows are not the release
+  corpus and do not prove B/codegen pass-rate or latency against the full
+  baseline.
 - `bench/run_issue_closure_audit.py` and
   `bench/results_issue_closure_audit.{json,md}` now provide a machine-readable
   close-readiness audit for #32/#33/#41/#46. The current audit reports `2/4`
@@ -243,9 +244,15 @@ Repo-local evidence:
 - `bench/fixtures/unified_run_live_results.example.json` documents the verified
   artifact object input shape while explicitly remaining partial-only and not
   release evidence.
+- `bench/results_unified_run_live_codex_partial.json` plus
+  `bench/artifacts/codex-goal-single-file-task.jsonl` now record a real Codex
+  CLI partial-live row for the single-file task case. The transcript hash is
+  verified by the F5 runner, and the audit now recognizes real LLM/Codex live
+  evidence, but the report remains `partial-live` because only 1/12 required
+  rows have been captured.
 - `simplicio run --scope feature --json` and nested sprint feature execution
   now suppress pipeline progress logs so stdout remains parseable JSON.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `487
+- Validation in this worktree: `python -m pytest tests/python -q` -> `488
   passed, 3 skipped`.
 
 Suggested comment:

@@ -1,0 +1,30 @@
+{
+  "evidence_level": "partial-live",
+  "issue": "#41",
+  "release_evidence": false,
+  "release_ready": false,
+  "rows": [
+    {
+      "artifacts": [
+        {
+          "kind": "codex-transcript",
+          "path": "bench/artifacts/codex-goal-single-file-task.jsonl",
+          "sha256": "a277ece0678ac65ad56325a6c40f96a322b65ebca43691a0b23850bd6ea88dc8"
+        }
+      ],
+      "case_id": "single-file-task",
+      "command": "codex exec --json -C . \"/goal Fix email validation in src/forms/UserForm.tsx. Do not make source edits; report the plan and validation you would run.\"",
+      "duration_s": 46.9,
+      "exit_code": 0,
+      "external_agent_invoked": true,
+      "llm_invoked": true,
+      "mode_id": "codex_goal",
+      "notes": [
+        "Transcript captured from real Codex CLI 0.135.0 run.",
+        "The transcript records Windows sandbox command-exec failures, so this is partial-live diagnostic evidence only."
+      ],
+      "success": true,
+      "transcript_sha256": "a277ece0678ac65ad56325a6c40f96a322b65ebca43691a0b23850bd6ea88dc8"
+    }
+  ]
+}

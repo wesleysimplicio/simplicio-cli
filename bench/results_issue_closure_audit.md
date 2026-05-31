@@ -13,7 +13,7 @@ close-readiness audit for GitHub issues #32, #33, #41, and #46; partial evidence
 | --- | --- | --- | ---: |
 | #32 | from-scratch mode + planner + SkillOpt | True | 0 |
 | #33 | reduce LLM dependency across simplicio flow | False | 4 |
-| #41 | unified simplicio run orchestrator | False | 9 |
+| #41 | unified simplicio run orchestrator | False | 6 |
 | #46 | Qwen2.5-Coder-1.5B GGUF quant curve | True | 0 |
 
 ## Open Blockers
@@ -25,10 +25,7 @@ close-readiness audit for GitHub issues #32, #33, #41, and #46; partial evidence
 - real scratch LLM baseline for B/codegen pass-rate and latency
 
 ### #41
-- not_fixture_only
 - live_evidence_level
-- real_llm_runs_present
-- external_codex_goal_run_present
 - release_ready
 - real cli+ag runs on the controlled task, feature, and sprint cases
 - real unified feature/sprint runs with cost governor telemetry

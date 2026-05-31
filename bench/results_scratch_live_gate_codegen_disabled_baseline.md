@@ -5,8 +5,8 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 ## Matrix
 
 - release planned runs: 75
-- selected matrix runs: 5
-- selected runs: 5
+- selected matrix runs: 7
+- selected runs: 7
 - plan only: False
 - skip install: False
 - post verify: True
@@ -14,14 +14,14 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## Summary
 
-- planner valid: 4/5 (80.00%)
-- scaffold clean: 4 (100.00%)
-- task all passed: 2 (40.00%)
-- e2e green: 2 (50.00%)
+- planner valid: 6/7 (85.71%)
+- scaffold clean: 6 (100.00%)
+- task all passed: 4 (57.14%)
+- e2e green: 4 (66.67%)
 - median wall-clock: 233.421 s
 - average cost: None
-- lines generated: 0
-- lines modified: 0
+- lines generated: 6913
+- lines modified: 2
 - runtime tool preflight: True
 - missing runtime tools: none
 - release ready: False
@@ -46,10 +46,10 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 
 ## Runtime Tool Preflight
 
-- required tools: `go`, `pytest`, `ruff`
-- available tools: `go`, `pytest`, `ruff`
+- required tools: `go`, `pnpm`, `pytest`, `ruff`
+- available tools: `go`, `pnpm`, `pytest`, `ruff`
 - missing tools: none
-- checked commands: 4
+- checked commands: 6
 - unchecked commands: 0
 
 ## Runs
@@ -57,10 +57,12 @@ live scratch v0.5 gate execution slice; partial runs are evidence only for the e
 | # | stack | goal_index | rc | planner | scaffold | tasks | e2e | duration_s |
 | ---: | --- | ---: | ---: | --- | --- | --- | --- | ---: |
 | 1 | py-fastapi | 1 | None | False | None | False | None | 900.047 |
-| 2 | go-gin | 1 | 0 | True | True | True | True | 204.707 |
-| 3 | go-gin | 2 | 1 | True | True | False | False | 262.135 |
-| 4 | go-gin | 3 | 1 | True | True | False | False | 393.191 |
-| 5 | go-gin | 4 | 0 | True | True | True | True | 98.077 |
+| 2 | ts-nextjs | 1 | 0 | True | True | True | True | 491.943 |
+| 3 | go-gin | 1 | 0 | True | True | True | True | 204.707 |
+| 4 | go-gin | 2 | 1 | True | True | False | False | 262.135 |
+| 5 | go-gin | 3 | 1 | True | True | False | False | 393.191 |
+| 6 | go-gin | 4 | 0 | True | True | True | True | 98.077 |
+| 7 | go-gin | 5 | 0 | True | True | True | True | 136.973 |
 
 ## Missing Release Evidence
 
