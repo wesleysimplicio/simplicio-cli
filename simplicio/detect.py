@@ -18,7 +18,8 @@ _EDIT_VERBS = (
     "add", "remove", "delete", "rename", "refactor", "fix", "patch", "update",
     "change", "replace", "hide", "show", "validate", "implement", "wire", "inject",
     "extract", "split", "rewrite", "tweak", "adjust", "introduce", "expose",
-    "map", "inventory", "align", "document", "improve",
+    "map", "inventory", "align", "document", "improve", "use", "run",
+    "execute", "connect", "test", "prove", "evidence",
     # Portuguese
     "adicione", "adicionar", "remova", "remover", "renomeie", "renomear",
     "corrija", "corrigir", "atualize", "atualizar", "altere", "alterar",
@@ -26,7 +27,9 @@ _EDIT_VERBS = (
     "implemente", "implementar", "troque", "trocar", "ajuste", "ajustar",
     "ocultar", "exiba", "exibir", "criar", "crie", "veja", "ver",
     "alinhe", "alinhar", "mapeie", "mapear", "documente", "documentar",
-    "melhore", "melhorar",
+    "melhore", "melhorar", "use", "usar", "rode", "rodar", "execute",
+    "executar", "teste", "testar", "conecte", "conectar", "prove", "provar",
+    "evidencie", "evidenciar",
 )
 
 _FILE_EXT_RE = re.compile(
@@ -41,8 +44,9 @@ _CODE_NOUNS = (
     "spec", "validator", "selector", "store", "reducer", "action", "hook",
     "directive", "pipe", "module", "function", "method", "class", "prop",
     "field", "column", "button", "form", "input", "dropdown", "modal", "page",
+    "api", "apis", "database", "postgres", "postgresql", "playwright", "e2e",
     "componente", "função", "funcao", "classe", "tela", "rota", "campo",
-    "botão", "botao", "formulário", "formulario",
+    "botão", "botao", "formulário", "formulario", "banco", "dados",
 )
 
 _NEGATIVE_CUES = (

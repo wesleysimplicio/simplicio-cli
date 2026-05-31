@@ -1,7 +1,7 @@
 {
   "schema": "simplicio.project-map/v1",
   "version": 1,
-  "generated_at": "2026-05-31T18:47:22.362Z",
+  "generated_at": "2026-05-31T19:43:40.244Z",
   "update_mode": "full",
   "product": {
     "name": "simplicio-cli-e2e",
@@ -534,90 +534,6 @@
       "importance": 0.12
     },
     {
-      "path": ".pytest_cache/.gitignore",
-      "language": "text",
-      "size_bytes": 37,
-      "last_modified": "2026-05-27T19:10:27.633Z",
-      "file_hash": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": ".pytest_cache/README.md",
-      "language": "markdown",
-      "size_bytes": 302,
-      "last_modified": "2026-05-27T19:10:27.633Z",
-      "file_hash": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": ".pytest_cache/v/cache/lastfailed",
-      "language": "text",
-      "size_bytes": 793,
-      "last_modified": "2026-05-31T15:45:27.266Z",
-      "file_hash": "f54f29936240cc6c4f3ff0b0c3099701d00a1b663cd6f6cd2432d77f03bcd734",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": ".pytest_cache/v/cache/nodeids",
-      "language": "text",
-      "size_bytes": 49273,
-      "last_modified": "2026-05-31T17:22:36.889Z",
-      "file_hash": "a98f93b2ee8a60cae9047ef903a9648ed2248cfbc20c26261f180a1922246ad8",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": ".ruff_cache/.gitignore",
-      "language": "text",
-      "size_bytes": 35,
-      "last_modified": "2026-05-30T20:34:59.751Z",
-      "file_hash": "9e3a60f1e6ec4ae60215c11d54b171392745ec25e9dded433d5bd921363af316",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": ".ruff_cache/0.15.12/15803349904002088029",
-      "language": "text",
-      "size_bytes": 294,
-      "last_modified": "2026-05-31T15:42:47.438Z",
-      "file_hash": "e10ddebfd1457078d83fe8b314f2d66e14c8a8c32a8f9422ce8b0236306a3fdc",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": ".ruff_cache/0.15.12/4859909486955991810",
-      "language": "text",
-      "size_bytes": 295,
-      "last_modified": "2026-05-31T15:45:26.437Z",
-      "file_hash": "92939183d2e17da0576c1fdba0c88bf2c940013ea14ed4dd2e710eff0a57f56f",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
       "path": ".skills/README.md",
       "language": "markdown",
       "size_bytes": 6017,
@@ -1008,9 +924,9 @@
     {
       "path": "CHANGELOG.md",
       "language": "markdown",
-      "size_bytes": 31034,
-      "last_modified": "2026-05-31T17:54:13.991Z",
-      "file_hash": "2a0d66326e78a9dfd1ee3b6e66afe19c756317ea13bc9388ba4dc08bb09a1891",
+      "size_bytes": 32689,
+      "last_modified": "2026-05-31T19:42:19.859Z",
+      "file_hash": "50f49ff0f0ea1566929ab0d7c734d9aad73e3391f505aeb33f18475965ae265e",
       "git_status": "M",
       "roles": [],
       "imports": [],
@@ -4316,15 +4232,15 @@
       "path": "pyproject.toml",
       "language": "toml",
       "size_bytes": 2733,
-      "last_modified": "2026-05-31T15:27:01.822Z",
-      "file_hash": "b2e8a37f6f5f0bf142d1509756774953110380720ac87d9a052a8d08e08f9bb3",
-      "git_status": "clean",
+      "last_modified": "2026-05-31T19:42:19.861Z",
+      "file_hash": "ff4db4ad9086ad52d4b91fad1ec349d102b0a5bd7d244b460c67bc0533c8fa8d",
+      "git_status": "M",
       "roles": [
         "config"
       ],
       "imports": [],
       "exports": [],
-      "importance": 0.32
+      "importance": 0.52
     },
     {
       "path": "rust/simplicio-core/Cargo.toml",
@@ -4367,1890 +4283,6 @@
         "used"
       ],
       "importance": 0.2
-    },
-    {
-      "path": "rust/simplicio-core/target/.rustc_info.json",
-      "language": "json",
-      "size_bytes": 3043,
-      "last_modified": "2026-05-29T04:10:31.365Z",
-      "file_hash": "facc645b206f4b9ef6a83b85dcfacf110d5dbc9719204b5fd9fe1f65203dbf3f",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.cargo-lock",
-      "language": "text",
-      "size_bytes": 0,
-      "last_modified": "2026-05-28T22:42:45.350Z",
-      "file_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/autocfg-52f1e2f5d3b6f531/dep-lib-autocfg",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.358Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/autocfg-52f1e2f5d3b6f531/lib-autocfg",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:45.962Z",
-      "file_hash": "e9258cc4427da580f23e8f993e11aa1b42184d6c9d8de371b22a4eca0d424cd5",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/autocfg-52f1e2f5d3b6f531/lib-autocfg.json",
-      "language": "json",
-      "size_bytes": 406,
-      "last_modified": "2026-05-28T22:42:45.962Z",
-      "file_hash": "d555e8a8c93cfc1bac71b681ac146dcf482a5e300adbc9c95e01d231ff84a630",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/bumpalo-d599906fa762aebd/dep-lib-bumpalo",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.984Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/bumpalo-d599906fa762aebd/lib-bumpalo",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:46.514Z",
-      "file_hash": "30622695bdfefbe32e62b51bf303658a6b5cf52174b230ef10e401c8823f21f4",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/bumpalo-d599906fa762aebd/lib-bumpalo.json",
-      "language": "json",
-      "size_bytes": 558,
-      "last_modified": "2026-05-28T22:42:46.514Z",
-      "file_hash": "cb6b9944ec58ab9ab9d7f0ccdd5abff7bdfc458645dee62b79502d87f072e6d9",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/cfg-if-5a2df024a0244d59/dep-lib-cfg_if",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.954Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/cfg-if-5a2df024a0244d59/lib-cfg_if",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:45.984Z",
-      "file_hash": "a7644ecf7f1c6e0a20a12eb3fe8d59f7a0be83d5331e07544eefe36f122ce16e",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/cfg-if-5a2df024a0244d59/lib-cfg_if.json",
-      "language": "json",
-      "size_bytes": 435,
-      "last_modified": "2026-05-28T22:42:45.984Z",
-      "file_hash": "3c3a26c8937e911b70f92e0116f5b22ab976e1f34726c4c7db79d08810822aac",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/heck-f8a81639bd45458f/dep-lib-heck",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.358Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/heck-f8a81639bd45458f/lib-heck",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:45.797Z",
-      "file_hash": "0af7dd0ba6eb30db9421c22e39ae3a0ec217b9e3ef1325eeeb8b018b05bc3619",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/heck-f8a81639bd45458f/lib-heck.json",
-      "language": "json",
-      "size_bytes": 401,
-      "last_modified": "2026-05-28T22:42:45.797Z",
-      "file_hash": "dc8add16adca42683f796a0b8448050575f8a616c1b8326643a48abf00996a4b",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/indoc-4dfa3347cc7108ac/dep-lib-indoc",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.797Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/indoc-4dfa3347cc7108ac/lib-indoc",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:46.479Z",
-      "file_hash": "08aeda4146daef9665f14caf3af6a15e0d8ab61938c825187f47deb68979a5ee",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/indoc-4dfa3347cc7108ac/lib-indoc.json",
-      "language": "json",
-      "size_bytes": 402,
-      "last_modified": "2026-05-28T22:42:46.479Z",
-      "file_hash": "48a8dee8ffe86f34503eb144cdf5ca495166805c39126d96eb18e3ba35e14236",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/libc-0f55473076502b75/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:46.882Z",
-      "file_hash": "ebab1979d1da7ae42efad719946b598eddcb025058a05c236252d35aed86ad97",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/libc-0f55473076502b75/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 773,
-      "last_modified": "2026-05-28T22:42:46.882Z",
-      "file_hash": "32a0db96ac5222a237cec2d8de2df59a5ca9b153fd648fc1b91a8c2f24f52c41",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/libc-a5c696aaa231cfb8/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:46.470Z",
-      "file_hash": "f5934c8f7ffa27bea0950cca8933de214ef340b6dc4487a64d586d55b85342bb",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/libc-a5c696aaa231cfb8/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 579,
-      "last_modified": "2026-05-28T22:42:46.470Z",
-      "file_hash": "1e6976549d5a71054b5fe745e4ccb193eb946944206553a1632dbbe0cd7a1bd4",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/libc-a5c696aaa231cfb8/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.358Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/libc-afa72664555f39cf/dep-lib-libc",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:46.882Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/libc-afa72664555f39cf/lib-libc",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:47.200Z",
-      "file_hash": "b164b8189aece2f66ce220acb0367314eab79d67016f78f0afd13905605fdad7",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/libc-afa72664555f39cf/lib-libc.json",
-      "language": "json",
-      "size_bytes": 625,
-      "last_modified": "2026-05-28T22:42:47.201Z",
-      "file_hash": "ab80b8d208e092775048205772e1834d5e008578fd5fee7730ab8618d374f71c",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/memoffset-64bb239043a1f328/dep-lib-memoffset",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:47.547Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/memoffset-64bb239043a1f328/lib-memoffset",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:47.571Z",
-      "file_hash": "cbd6947e5210fbc275c0bff675ad2a59c9fcc44e4e98b9d00e705d658fcd93b5",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/memoffset-64bb239043a1f328/lib-memoffset.json",
-      "language": "json",
-      "size_bytes": 545,
-      "last_modified": "2026-05-28T22:42:47.571Z",
-      "file_hash": "7b08237cab6f5b33c2629ce3fa10759a366bbb7d6e9188d6417b04d5c7027206",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/memoffset-781636177a004803/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:46.494Z",
-      "file_hash": "2652035b647cf3d42c1b2718426f1954494921457746fa4bbacc5796932e7e0d",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/memoffset-781636177a004803/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 553,
-      "last_modified": "2026-05-28T22:42:46.494Z",
-      "file_hash": "2d498681aa757e74b34edea974f5cb6db9aed31f4cf586967b8055b19ddc5718",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/memoffset-781636177a004803/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.963Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/memoffset-9f848c3b0a792455/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:47.547Z",
-      "file_hash": "414e406d40a386ef20563cbb4066a859de96830a4e426bf144b661876313a9ab",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/memoffset-9f848c3b0a792455/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 314,
-      "last_modified": "2026-05-28T22:42:47.547Z",
-      "file_hash": "1ac2dc682a0ba89c03887c7a7962412cf9bae5e4150a8bd8db6a6a269334091b",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/once_cell-124dbefc89219fb6/dep-lib-once_cell",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.963Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/once_cell-124dbefc89219fb6/lib-once_cell",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:46.129Z",
-      "file_hash": "50c8b1fff3546438c27e67b73f6f48ce0d0f6eff892663a2b4881103168556a1",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/once_cell-124dbefc89219fb6/lib-once_cell.json",
-      "language": "json",
-      "size_bytes": 587,
-      "last_modified": "2026-05-28T22:42:46.129Z",
-      "file_hash": "5e4a2951a5fb75670f894899160723085dd723d2b4a2907050f701714779e0db",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/once_cell-a86ca678d3d9c1f1/dep-lib-once_cell",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.358Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/once_cell-a86ca678d3d9c1f1/lib-once_cell",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:45.752Z",
-      "file_hash": "2a4bf2e374f3b0a64966718b683ca780e69e7ba373d9c60e5d69e60d7458a98d",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/once_cell-a86ca678d3d9c1f1/lib-once_cell.json",
-      "language": "json",
-      "size_bytes": 588,
-      "last_modified": "2026-05-28T22:42:45.752Z",
-      "file_hash": "2c65e8b11ef80fb95680fa0e4be6ad4c5b4137835ef9e045a078842e9be31dc0",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/proc-macro2-4e6cb64e095ad94b/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:47.222Z",
-      "file_hash": "8ae803fd27484b3e3638c2757eb016e3b4eb7ec38de292f24ea599e40127ef20",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/proc-macro2-4e6cb64e095ad94b/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 544,
-      "last_modified": "2026-05-28T22:42:47.222Z",
-      "file_hash": "1b345ee35099b8f67e74d6113d191b880daeeb9b6472f3a4526b39b5f2af8620",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/proc-macro2-9b550a34ee3a4901/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:46.486Z",
-      "file_hash": "870cca1f8b9582c2b83fa1302e7078e53994369412d36674a44d7ff7a2908eda",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/proc-macro2-9b550a34ee3a4901/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 504,
-      "last_modified": "2026-05-28T22:42:46.486Z",
-      "file_hash": "2d1f6fa03e57fcb8b937bc8a75cffe06ebaa46fe17edefee24a017da71db7937",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/proc-macro2-9b550a34ee3a4901/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.358Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/proc-macro2-b4b6a63978c32c47/dep-lib-proc_macro2",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:47.222Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/proc-macro2-b4b6a63978c32c47/lib-proc_macro2",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:47.512Z",
-      "file_hash": "85ab26ea9894af8edfbb592aaa55b6b4c4d6f7fb902b0bcd604f26357e6f0564",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/proc-macro2-b4b6a63978c32c47/lib-proc_macro2.json",
-      "language": "json",
-      "size_bytes": 619,
-      "last_modified": "2026-05-28T22:42:47.512Z",
-      "file_hash": "e8c304e067a54c3ad7f39b7ef4ded14f3ecf3144d0c0e90e566ccbe66b2da653",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-0542c20745b42dfe/dep-lib-pyo3",
-      "language": "text",
-      "size_bytes": 40,
-      "last_modified": "2026-05-28T22:42:51.492Z",
-      "file_hash": "96b1368543a8b8632850896e4f47337571ecad4bd2e2904267a36c32d13346e3",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-0542c20745b42dfe/lib-pyo3",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:54.818Z",
-      "file_hash": "9e87ba25af75509de6d22277da1c5b0f6952a1e3fc17aab7edae1eadc59c691c",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-0542c20745b42dfe/lib-pyo3.json",
-      "language": "json",
-      "size_bytes": 1587,
-      "last_modified": "2026-05-28T22:42:54.818Z",
-      "file_hash": "687c64c91d1fd8bc62a4250940aa147d70a97098d5df6b9470fd309651e2f158",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-67814d0815e0f236/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:50.313Z",
-      "file_hash": "5c4a21edce9f1d43f6189f2e147ed5cc077e2605d4e3f519876a3d12ee3e59b4",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-67814d0815e0f236/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 381,
-      "last_modified": "2026-05-28T22:42:50.313Z",
-      "file_hash": "9e294039e5c8f19ddaf7da2490e78604ef60c144cfb1a1462fb4f0765e724c51",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-6a1bfcc1db69f066/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:49.454Z",
-      "file_hash": "3198754387b78e2a52b5de638e36226ee329884cd874d6657b2ca8011f842633",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-6a1bfcc1db69f066/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 1139,
-      "last_modified": "2026-05-28T22:42:49.454Z",
-      "file_hash": "293f330d96ba4bba885c55dc3c04abf507132d347435232f9058370976dc7398",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-6a1bfcc1db69f066/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:49.304Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-9f664ea975d21292/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:34.825Z",
-      "file_hash": "396c7ecd6e6f67496df89b023520bf1f01396870c6ba704b617dcb0994f2b101",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-9f664ea975d21292/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 384,
-      "last_modified": "2026-05-29T04:10:34.825Z",
-      "file_hash": "8b0c90eeb924276e40a4d1d9ce888f4b9d0ea30220188964f1aadf1453b6e691",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-52a0ead753c5bb4d/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:48.656Z",
-      "file_hash": "2773570880906cef843b6d05d15af44a92e1730d5f0c2b95957d7685269389a8",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-52a0ead753c5bb4d/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 730,
-      "last_modified": "2026-05-28T22:42:48.657Z",
-      "file_hash": "c4532022be27760eac4a48f0fe1d520ed06d4b3bd7857fe478697bf6f5e0a5b9",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-52a0ead753c5bb4d/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:48.344Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-7c5f8f461352006d/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:33.244Z",
-      "file_hash": "1e5715355215c5ce3cf80b898f10b6c74a00a3924a7f8e91dd160902961af78c",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-7c5f8f461352006d/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 767,
-      "last_modified": "2026-05-29T04:10:33.244Z",
-      "file_hash": "5140d1befd9e8fbf1079034fd7ae75bbc4ccfbd76723d1f3edee3ebd9172849f",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-7c5f8f461352006d/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-29T04:10:32.916Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-a527e1e0f30a4dcd/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:49.015Z",
-      "file_hash": "ca1398cbb67b4efc5c5b7b4c19b4c66bd5ccc8a7c983ff73816982dbcd8c1659",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-a527e1e0f30a4dcd/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 649,
-      "last_modified": "2026-05-28T22:42:49.015Z",
-      "file_hash": "edb5e22eb742741b17e5942f1b994defa6e755132fd191152683297c63863234",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-baab59bea02f9102/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:33.608Z",
-      "file_hash": "9862a152e17a56d3078e0f03617a856977de90f3a26fc6b39bcde4cf0579b684",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-baab59bea02f9102/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 724,
-      "last_modified": "2026-05-29T04:10:33.608Z",
-      "file_hash": "aaeea5390b422fa73d5967448360cb61c7d6e6a2d21c322079aeab6bc50013ed",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-d6312bf7197ee6d7/dep-lib-pyo3_build_config",
-      "language": "text",
-      "size_bytes": 179,
-      "last_modified": "2026-05-29T04:10:33.608Z",
-      "file_hash": "a68b4e2dd4788a329a58c9517fecd98f0d7f47c29094fdfdea79f7bc3f65ba46",
-      "git_status": "clean",
-      "roles": [
-        "config"
-      ],
-      "imports": [],
-      "exports": [],
-      "importance": 0.32
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-d6312bf7197ee6d7/lib-pyo3_build_config",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:33.847Z",
-      "file_hash": "fca83a37e894c8c69f2bd4d4962d2833421eef1cf1fa5a6467e6b1b78f9af9d2",
-      "git_status": "clean",
-      "roles": [
-        "config"
-      ],
-      "imports": [],
-      "exports": [],
-      "importance": 0.32
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-d6312bf7197ee6d7/lib-pyo3_build_config.json",
-      "language": "json",
-      "size_bytes": 827,
-      "last_modified": "2026-05-29T04:10:33.847Z",
-      "file_hash": "32e15ebd7644ed50f0b1c4d8a1acf26b73f033f8f60de12eb68638696d53062d",
-      "git_status": "clean",
-      "roles": [
-        "config"
-      ],
-      "imports": [],
-      "exports": [],
-      "importance": 0.32
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-f02d847a09413f50/dep-lib-pyo3_build_config",
-      "language": "text",
-      "size_bytes": 179,
-      "last_modified": "2026-05-28T22:42:49.015Z",
-      "file_hash": "5016f1ddadfd5582f0835c17a914909b0c4376a8e99b452e42d6a932d13b8cb2",
-      "git_status": "clean",
-      "roles": [
-        "config"
-      ],
-      "imports": [],
-      "exports": [],
-      "importance": 0.32
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-f02d847a09413f50/lib-pyo3_build_config",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:49.304Z",
-      "file_hash": "094c81d5d3b47293890ddc06f81a2f1abfab4632bb04dad11b669e1b81c4a11a",
-      "git_status": "clean",
-      "roles": [
-        "config"
-      ],
-      "imports": [],
-      "exports": [],
-      "importance": 0.32
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-f02d847a09413f50/lib-pyo3_build_config.json",
-      "language": "json",
-      "size_bytes": 850,
-      "last_modified": "2026-05-28T22:42:49.304Z",
-      "file_hash": "30be1ad5782f391fa169b1b7115ce87497ecac421291a14544f4f8a2f142fccb",
-      "git_status": "clean",
-      "roles": [
-        "config"
-      ],
-      "imports": [],
-      "exports": [],
-      "importance": 0.32
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-d353224aa3bd968d/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:33.954Z",
-      "file_hash": "cbc35f1df5182f461c2f6dfb0812449f218cdfebf46f08dcaa39d4ac85def419",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-d353224aa3bd968d/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 1248,
-      "last_modified": "2026-05-29T04:10:33.954Z",
-      "file_hash": "f1491e9fd3c8f85bf2b9a85b8e46b7bc1195a439cc4d7be50906b4763b1ce5a5",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-d353224aa3bd968d/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-29T04:10:33.847Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-df079841136fdd2a/dep-lib-pyo3",
-      "language": "text",
-      "size_bytes": 40,
-      "last_modified": "2026-05-29T04:10:35.956Z",
-      "file_hash": "96b1368543a8b8632850896e4f47337571ecad4bd2e2904267a36c32d13346e3",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-df079841136fdd2a/lib-pyo3",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:39.009Z",
-      "file_hash": "e73b3263730e0c61a75e3d24e50c0b0868405431115175827a4888fd0d7c8870",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-df079841136fdd2a/lib-pyo3.json",
-      "language": "json",
-      "size_bytes": 1464,
-      "last_modified": "2026-05-29T04:10:39.009Z",
-      "file_hash": "4545c4f151b0d75c79fb0f9ab85493047d36fdea4b34de6fdc19b1f1ee757dab",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-1fd4ee6be767a52d/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:49.472Z",
-      "file_hash": "859fa7cda1b85eac63dc31062becf7968b3ca130624d283a5f0325d9694e41c2",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-1fd4ee6be767a52d/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 690,
-      "last_modified": "2026-05-28T22:42:49.473Z",
-      "file_hash": "6989020636502a9b60612e975cd0689b0795187acc89d1fa9d2a4a4bf3e40d5c",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-1fd4ee6be767a52d/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:49.304Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-5e9c763f983710d2/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:34.548Z",
-      "file_hash": "26337257bef9d2d43ee8db93a771ec624717c1d325883e0d978832e461381a21",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-5e9c763f983710d2/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 610,
-      "last_modified": "2026-05-29T04:10:34.548Z",
-      "file_hash": "83378406c23b6b8526dc7fcc215df8051188acd1b67cb6631cf1a890abba1a8c",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-651ee9cb59ca8de9/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:50.025Z",
-      "file_hash": "43139e702c0d96eaf3181e784f7aff69420be4f31d88a01c3c494968f5ba27c2",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-651ee9cb59ca8de9/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 607,
-      "last_modified": "2026-05-28T22:42:50.025Z",
-      "file_hash": "27ff034c1c81bf7e90f8f49d0bc0af6e62e402d2606979e19c68480230a852fe",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-990cd185b6083ec2/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:33.979Z",
-      "file_hash": "236e62e1b05ab82294a9cc848049efd85f201669945ecc4bbc8674822366ae74",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-990cd185b6083ec2/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 720,
-      "last_modified": "2026-05-29T04:10:33.979Z",
-      "file_hash": "8c2420b833381bea3636a98b62b4be4c72d9860cb5f3f881bfe6084e0e39c738",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-990cd185b6083ec2/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-29T04:10:33.847Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-99fb3370ac59af75/dep-lib-pyo3_ffi",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:50.026Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-99fb3370ac59af75/lib-pyo3_ffi",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:50.240Z",
-      "file_hash": "5c462006802e068e35a09f71a41d1742f10f2fc873f2c2220c6ee3a9f977237f",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-99fb3370ac59af75/lib-pyo3_ffi.json",
-      "language": "json",
-      "size_bytes": 725,
-      "last_modified": "2026-05-28T22:42:50.240Z",
-      "file_hash": "5ac9fc10cf1d20fde571a6d4e6f4b12283d5665f5904a8dc52ac20eed68c4d4d",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-b8da7819e1ebcdc4/dep-lib-pyo3_ffi",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-29T04:10:34.548Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-b8da7819e1ebcdc4/lib-pyo3_ffi",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:34.746Z",
-      "file_hash": "38c607423f34ca6131ec7fdeee1e3f3f05592c1eb017da9eead466bba3c82821",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-ffi-b8da7819e1ebcdc4/lib-pyo3_ffi.json",
-      "language": "json",
-      "size_bytes": 756,
-      "last_modified": "2026-05-29T04:10:34.746Z",
-      "file_hash": "b5ca802dcdb852e872b30fed3789f67ea84af2cb9b4f13ee077db842a297416d",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-07f2bdd53934d86d/dep-lib-pyo3_macros",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:51.260Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-07f2bdd53934d86d/lib-pyo3_macros",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:51.492Z",
-      "file_hash": "1c96a5834f2faa6dfaeb7f230c898b4fdac475735c8cfa1855932841aebc7cbf",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-07f2bdd53934d86d/lib-pyo3_macros.json",
-      "language": "json",
-      "size_bytes": 716,
-      "last_modified": "2026-05-28T22:42:51.492Z",
-      "file_hash": "c32749f75c1dd96961823d59c6197d0b7ecc1e1ad6e50cffea6b68b65463e993",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-0b3671172ed2957d/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:49.760Z",
-      "file_hash": "8aee5bf862b5fe8169bb797d5b15062de6fbf3e888f777f65d720ad7f80d3c71",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-0b3671172ed2957d/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 313,
-      "last_modified": "2026-05-28T22:42:49.760Z",
-      "file_hash": "1bf64f4ee738e7f7ebf7c45b7cc8de985a48e1b6a606ec196909dc080b7e8e16",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-3261671ab1efbd22/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:49.431Z",
-      "file_hash": "5067d9aeeaa44cb368c110a93bbbc5e33c3b7e11e5b115ce69e456626d291875",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-3261671ab1efbd22/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 541,
-      "last_modified": "2026-05-28T22:42:49.432Z",
-      "file_hash": "e284839ba9f207125836d193317c68567d126c7c8474c9a87e4b1a4791b3a6f1",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-3261671ab1efbd22/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:49.304Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-801b3196081d271e/dep-lib-pyo3_macros_backend",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:49.761Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-801b3196081d271e/lib-pyo3_macros_backend",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:51.260Z",
-      "file_hash": "fdbcc741652905b71edae129c3290b761884cb52ab79e84489c12a0b49f2624e",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-801b3196081d271e/lib-pyo3_macros_backend.json",
-      "language": "json",
-      "size_bytes": 831,
-      "last_modified": "2026-05-28T22:42:51.260Z",
-      "file_hash": "074074ae016e675ec6db54a5d9cd6500da235f111c3585a79d965b4a056bf4c0",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-8691cb09756d7f41/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:34.289Z",
-      "file_hash": "ac5d00626a5b10d066ca6b8d27c96b55845174f98c5b8c41a88e591f7ebb18ae",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-8691cb09756d7f41/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 313,
-      "last_modified": "2026-05-29T04:10:34.289Z",
-      "file_hash": "af8c308a45e466e6df05ca8260508a26aa285679066ee436e0d247a5cbba868e",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-be42ac81af5be6ee/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:33.942Z",
-      "file_hash": "83478e909b947a1e5e10f207a4c112a5c736f5cba1fcb28dc60a77e5e3b8111a",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-be42ac81af5be6ee/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 553,
-      "last_modified": "2026-05-29T04:10:33.942Z",
-      "file_hash": "c707341a24b8eddc03661a73559dd371df65ee00cd850637c5691cb7ac0088ac",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-be42ac81af5be6ee/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-29T04:10:33.847Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-f9ecf73f79bee556/dep-lib-pyo3_macros_backend",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-29T04:10:34.289Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-f9ecf73f79bee556/lib-pyo3_macros_backend",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:35.702Z",
-      "file_hash": "81ed9e9b84412d0c5cfbd11b601e434dffcdb837e52589f2971c056ab835d1a4",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-backend-f9ecf73f79bee556/lib-pyo3_macros_backend.json",
-      "language": "json",
-      "size_bytes": 846,
-      "last_modified": "2026-05-29T04:10:35.702Z",
-      "file_hash": "10a6ca57a90de75f8909bde689fed80d0eb7748cd9771b173ebde24e7f53effc",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-cede7ce3cf13e8ba/dep-lib-pyo3_macros",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-29T04:10:35.702Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-cede7ce3cf13e8ba/lib-pyo3_macros",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:35.956Z",
-      "file_hash": "3841d1abdbdfef17c2d426ec6ce6500c43cec1313d45f94214ba3aa79a30cd5b",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/pyo3-macros-cede7ce3cf13e8ba/lib-pyo3_macros.json",
-      "language": "json",
-      "size_bytes": 730,
-      "last_modified": "2026-05-29T04:10:35.956Z",
-      "file_hash": "50b7ec72b1970fa1f68a75832fd7e5874b55625dbdcc3b4ceb83662da7ab7487",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/quote-6904f93d36540fc9/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:47.939Z",
-      "file_hash": "0873e4d01892c0d3afd39902154122a389146482f304f17431d3b180c7202067",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/quote-6904f93d36540fc9/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 384,
-      "last_modified": "2026-05-28T22:42:47.939Z",
-      "file_hash": "d7d3fec03e19a7bced8290babe44451c4834c549a60961ba28693d958d11075d",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/quote-7b52ac38a0746c7c/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:46.501Z",
-      "file_hash": "3a824d3a373dc142b982af2f893c4b323ecfe2b0dcc569f666c8620e837b70b7",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/quote-7b52ac38a0746c7c/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 477,
-      "last_modified": "2026-05-28T22:42:46.502Z",
-      "file_hash": "4b24490d2b6942f295f5b7c858adf8b1f9e6b1f7c1ea95d91ad787138f9b5350",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/quote-7b52ac38a0746c7c/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.358Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/quote-aba9eda47b4a98b7/dep-lib-quote",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:47.939Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/quote-aba9eda47b4a98b7/lib-quote",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:48.057Z",
-      "file_hash": "4e7f5ff9305cf2d7fb283090562943df1e5ec8f1fd2a5cd64c56524650603f08",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/quote-aba9eda47b4a98b7/lib-quote.json",
-      "language": "json",
-      "size_bytes": 589,
-      "last_modified": "2026-05-28T22:42:48.057Z",
-      "file_hash": "89f9be44dff24431280bcdb6c10bd5a1b09b52629512477b5432d80a1e524165",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/simplicio-core-faf34c4e0c024de1/dep-lib-simplicio_core",
-      "language": "text",
-      "size_bytes": 30,
-      "last_modified": "2026-05-29T04:10:39.009Z",
-      "file_hash": "a91713a12f59fb2d4c5f0616f967516a801b59b269787dd6a6d1d4e629a35b35",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/simplicio-core-faf34c4e0c024de1/lib-simplicio_core",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:41.080Z",
-      "file_hash": "c1a732fc27242a225cc7fbc44f405b40e1bd38b104f1f0de7e0a161cbad71e78",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/simplicio-core-faf34c4e0c024de1/lib-simplicio_core.json",
-      "language": "json",
-      "size_bytes": 535,
-      "last_modified": "2026-05-29T04:10:41.080Z",
-      "file_hash": "733ff2388f0c62c0f894199abf81b252aecb9ebe98dde9d95c7c11155dc29cdc",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/syn-14cfc5756557fc61/dep-lib-syn",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-29T04:10:31.608Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/syn-14cfc5756557fc61/lib-syn",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:33.431Z",
-      "file_hash": "1b6aa3f1b8e2cc5944c0d4717862faa8e6210f979f245d74357fc24cafa4b17e",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/syn-14cfc5756557fc61/lib-syn.json",
-      "language": "json",
-      "size_bytes": 862,
-      "last_modified": "2026-05-29T04:10:33.431Z",
-      "file_hash": "797a19d5b874d48bc9b5d0250fba73c1728a132d1a36ab220cd82895fea07dac",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/syn-fd95f1ea399bf31d/dep-lib-syn",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:48.023Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/syn-fd95f1ea399bf31d/lib-syn",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:49.943Z",
-      "file_hash": "0482a24a3bbc7468643bfffc17b6505157dc1614d00b9424ef2dc9eaf2ab7804",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/syn-fd95f1ea399bf31d/lib-syn.json",
-      "language": "json",
-      "size_bytes": 847,
-      "last_modified": "2026-05-28T22:42:49.943Z",
-      "file_hash": "018dd87f388bbae1c9eb848f7e2cb44126b85e703afa50d39a563844559f91cb",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-0b3ffad50f44a5b0/dep-lib-target_lexicon",
-      "language": "text",
-      "size_bytes": 77,
-      "last_modified": "2026-05-28T22:42:48.209Z",
-      "file_hash": "6300ad7f292e4480409be5900a4052c80a9caaefd9be612cc070345284f2df95",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-0b3ffad50f44a5b0/lib-target_lexicon",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:48.344Z",
-      "file_hash": "a54756e6da39e8c36a15910966f03c489831cf3840c41ce96f3998ce9239f79a",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-0b3ffad50f44a5b0/lib-target_lexicon.json",
-      "language": "json",
-      "size_bytes": 569,
-      "last_modified": "2026-05-28T22:42:48.344Z",
-      "file_hash": "834202cec7fa9881576c29ac4323264ac4f48cbfd33403e7d0479342d3c2eaa5",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-0e31b8c6b9dc1a84/dep-lib-target_lexicon",
-      "language": "text",
-      "size_bytes": 77,
-      "last_modified": "2026-05-29T04:10:32.783Z",
-      "file_hash": "d626d2f69698d46144a47568db7b770ff3dfcb0cd132b745262410f6496d579c",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-0e31b8c6b9dc1a84/lib-target_lexicon",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:32.916Z",
-      "file_hash": "a67f5e9049bbc788a52f31c00512f4fb27e7638ad6b64b32a6ae34fd242d6a1a",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-0e31b8c6b9dc1a84/lib-target_lexicon.json",
-      "language": "json",
-      "size_bytes": 579,
-      "last_modified": "2026-05-29T04:10:32.916Z",
-      "file_hash": "a7fe798f5207af21fd9437547a1d79abd19d9c06859be1a1c3aa752217ff5137",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-1cf8bc8a6972a1e2/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:46.517Z",
-      "file_hash": "155c923c11210061ec06ed6aa868fca89583cb1f82570ae1e014a9915fecf78c",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-1cf8bc8a6972a1e2/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 512,
-      "last_modified": "2026-05-28T22:42:46.517Z",
-      "file_hash": "59acb3592985f9224526f1bb1811d1caabcb2a6f2fc9d0fd189ea8788ccd8891",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-1cf8bc8a6972a1e2/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.358Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-30818f5de6404b9d/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:32.782Z",
-      "file_hash": "0e1ad8028211761af3369573bd1d90960bd50050726bd763eb42d91d59f9f8ca",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-30818f5de6404b9d/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 313,
-      "last_modified": "2026-05-29T04:10:32.782Z",
-      "file_hash": "a9de13a6bed46285f0d8921d26016d151351d42e3d7c8d9f155175aa52fb6c88",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-46816b1b2987802c/run-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:48.208Z",
-      "file_hash": "3e542d096d294c346579d6e4fc331a4b3117e7c0baa7915545ebdeea30ae56fe",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-46816b1b2987802c/run-build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 316,
-      "last_modified": "2026-05-28T22:42:48.208Z",
-      "file_hash": "b41e3b63e745db8fe95f8794b96c8369ad40a4000456f5833308e3bb8e9e60c9",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-9635f01ea39ffb35/build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-29T04:10:32.478Z",
-      "file_hash": "1b963e7a70fa27b019bfc2c68a4ef6740a62b2b841ba89ed7bcde9cac759d1f9",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-9635f01ea39ffb35/build-script-build-script-build.json",
-      "language": "json",
-      "size_bytes": 525,
-      "last_modified": "2026-05-29T04:10:32.479Z",
-      "file_hash": "cfd6b3caa34fb5d0295e6cf5a396925a8650b4fac80273ed2fdbc1f5926ea864",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/target-lexicon-9635f01ea39ffb35/dep-build-script-build-script-build",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-29T04:10:31.606Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/unicode-ident-d4097a2ea255ba8a/dep-lib-unicode_ident",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.360Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/unicode-ident-d4097a2ea255ba8a/lib-unicode_ident",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:45.962Z",
-      "file_hash": "5b0bcae6be7c8f309b45c902c5ee3814fdb11fb4e27aafbadfd8d119da08c2bf",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/unicode-ident-d4097a2ea255ba8a/lib-unicode_ident.json",
-      "language": "json",
-      "size_bytes": 420,
-      "last_modified": "2026-05-28T22:42:45.963Z",
-      "file_hash": "eac8dbb290ecd85d8e1d75141f05c7931a44de304979b596166e6cea4c61715c",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/unindent-f8396306a4377bb5/dep-lib-unindent",
-      "language": "text",
-      "size_bytes": 14,
-      "last_modified": "2026-05-28T22:42:45.753Z",
-      "file_hash": "a5d767aa85306288cd0bd96da5176a674f0f62a3c826a0792a42dfae2ebcc721",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/unindent-f8396306a4377bb5/lib-unindent",
-      "language": "text",
-      "size_bytes": 16,
-      "last_modified": "2026-05-28T22:42:45.953Z",
-      "file_hash": "5d6f3946b316df2093d383eb8d1fce003fc58e0929ea6a4c55cc8ba5cf68fa73",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
-    },
-    {
-      "path": "rust/simplicio-core/target/release/.fingerprint/unindent-f8396306a4377bb5/lib-unindent.json",
-      "language": "json",
-      "size_bytes": 409,
-      "last_modified": "2026-05-28T22:42:45.953Z",
-      "file_hash": "3811f2d2e85957fcc61dd122c35bb356f826f2cc9a7069b4022fbe6ac6f899ee",
-      "git_status": "clean",
-      "roles": [],
-      "imports": [],
-      "exports": [],
-      "importance": 0.12
     },
     {
       "path": "scripts/README.md",
@@ -6459,13 +4491,13 @@
       "path": "simplicio/__init__.py",
       "language": "python",
       "size_bytes": 22,
-      "last_modified": "2026-05-31T15:27:01.822Z",
-      "file_hash": "b60ceea8729c11d28168fe7b179a17c6ae17956da7f49e058fc646bbb9c63998",
-      "git_status": "clean",
+      "last_modified": "2026-05-31T19:42:19.861Z",
+      "file_hash": "08c1f7e06b7502a3bbcff4ea463f785f0a211a85427fc69eb3476392a9b8e669",
+      "git_status": "M",
       "roles": [],
       "imports": [],
       "exports": [],
-      "importance": 0.12
+      "importance": 0.32
     },
     {
       "path": "simplicio/_cache.py",
@@ -6606,9 +4638,9 @@
     {
       "path": "simplicio/cli.py",
       "language": "python",
-      "size_bytes": 23366,
-      "last_modified": "2026-05-31T11:48:33.865Z",
-      "file_hash": "08417336d04746c675fc487ef16bae1ede60d2f368d9138fa678e52f908d1fa2",
+      "size_bytes": 23612,
+      "last_modified": "2026-05-31T19:04:40.192Z",
+      "file_hash": "eccec4eb2b531098bda53a99134b6c6e204217f4bee7dd325e2cdbeed33316da",
       "git_status": "clean",
       "roles": [
         "entrypoint"
@@ -6659,10 +4691,10 @@
     {
       "path": "simplicio/detect.py",
       "language": "python",
-      "size_bytes": 4845,
-      "last_modified": "2026-05-27T19:05:30.521Z",
-      "file_hash": "a51c59b0c4fc313ff015450388f46aa9029b957f40ea733f4cb93f56818f2602",
-      "git_status": "clean",
+      "size_bytes": 5331,
+      "last_modified": "2026-05-31T19:42:19.854Z",
+      "file_hash": "8f81ad04cd4e2619b42442e33c0beebeb6435f4b732cab4ca0193f16a80e065b",
+      "git_status": "M",
       "roles": [],
       "imports": [
         "__future__",
@@ -6679,7 +4711,7 @@
         "detect",
         "main"
       ],
-      "importance": 0.28
+      "importance": 0.48
     },
     {
       "path": "simplicio/doctor.py",
@@ -6832,9 +4864,9 @@
     {
       "path": "simplicio/intent.py",
       "language": "python",
-      "size_bytes": 9201,
-      "last_modified": "2026-05-31T10:10:13.527Z",
-      "file_hash": "35a1b61e3cabd9736e315ec699f80128adee3b4b152f05c1413953cc0fbf4c37",
+      "size_bytes": 9917,
+      "last_modified": "2026-05-31T19:04:46.597Z",
+      "file_hash": "09af584c084631069bf5fa7451e990903e323cc3123ceb98c326388278a42cdb",
       "git_status": "clean",
       "roles": [],
       "imports": [
@@ -7091,9 +5123,9 @@
     {
       "path": "simplicio/precedent.py",
       "language": "python",
-      "size_bytes": 4633,
-      "last_modified": "2026-05-30T15:33:01.722Z",
-      "file_hash": "62d91ebb462b8a73a15cea5b41ec87f4f484dfcdf335848d0124b18142334021",
+      "size_bytes": 5596,
+      "last_modified": "2026-05-31T19:27:52.304Z",
+      "file_hash": "9218684851835fe6b55660ceec483866d97350d675d0a93757b87047d92b1b75",
       "git_status": "clean",
       "roles": [],
       "imports": [
@@ -7107,6 +5139,8 @@
       ],
       "exports": [
         "_embedder",
+        "_embedding_index_enabled",
+        "_resolve_stack_key",
         "build_precedent_block",
         "grep_candidates",
         "index_repo"
@@ -7230,10 +5264,10 @@
     {
       "path": "simplicio/scratch/cli.py",
       "language": "python",
-      "size_bytes": 19372,
-      "last_modified": "2026-05-31T17:44:41.950Z",
-      "file_hash": "dccd3653b260d7831eae09d9bbd72c1f6ccb01c6282dc4f533afd0aa3d7f3145",
-      "git_status": "M",
+      "size_bytes": 18236,
+      "last_modified": "2026-05-31T19:01:56.557Z",
+      "file_hash": "4b5b5c7ddc2910754b67fa79a6701c116bd471b56dd1a4d5b83f7f46fe4d9aaa",
+      "git_status": "clean",
       "roles": [
         "entrypoint"
       ],
@@ -7268,7 +5302,7 @@
         "_recipe_summary",
         "main"
       ],
-      "importance": 0.93
+      "importance": 0.73
     },
     {
       "path": "simplicio/scratch/codegen/__init__.py",
@@ -12088,17 +10122,19 @@
     {
       "path": "tests/python/test_detect.py",
       "language": "python",
-      "size_bytes": 1504,
-      "last_modified": "2026-05-27T19:05:30.524Z",
-      "file_hash": "691e99d50c3fea6ae2f8f282baa447e7f445902bf075397a982fc70568c801b3",
-      "git_status": "clean",
+      "size_bytes": 2562,
+      "last_modified": "2026-05-31T19:42:19.856Z",
+      "file_hash": "5d7b598f9ec83171f6b4b17e03e01d2a209380025807f9aff9b2a33f912958cf",
+      "git_status": "M",
       "roles": [
         "test"
       ],
       "imports": [
+        "simplicio",
         "simplicio.detect"
       ],
       "exports": [
+        "test_cli_detect_accepts_positional_prompt",
         "test_code_task_english",
         "test_code_task_with_file_and_verb",
         "test_empty_prompt",
@@ -12106,9 +10142,11 @@
         "test_explicit_invocation_alone_wins",
         "test_hint_includes_target_file_when_present",
         "test_low_signal_prompt_below_threshold",
+        "test_portuguese_endpoint_alignment_is_code_task",
+        "test_portuguese_playwright_local_api_evidence_is_code_task",
         "test_read_only_question_is_not_code_task"
       ],
-      "importance": 0.53
+      "importance": 0.73
     },
     {
       "path": "tests/python/test_init.py",
@@ -12137,9 +10175,9 @@
     {
       "path": "tests/python/test_intent.py",
       "language": "python",
-      "size_bytes": 2887,
-      "last_modified": "2026-05-31T10:10:13.530Z",
-      "file_hash": "1c7b879ccb4aba424dd703c12c43c50c22d53ccc8040147f4bbaf9b6f58b8988",
+      "size_bytes": 3228,
+      "last_modified": "2026-05-31T19:04:11.663Z",
+      "file_hash": "b8401e3922aad7086454471273849cc1013fc8858c4c3562b3c5717560cd0953",
       "git_status": "clean",
       "roles": [
         "test"
@@ -12149,6 +10187,7 @@
         "simplicio.intent"
       ],
       "exports": [
+        "test_cross_repo_endpoint_alignment_is_sprint",
         "test_explicit_scope_wins_over_text",
         "test_feature_goal_without_target_file",
         "test_invalid_explicit_scope_raises",
@@ -12248,9 +10287,9 @@
     {
       "path": "tests/python/test_mapping_retry_flow.py",
       "language": "python",
-      "size_bytes": 14079,
-      "last_modified": "2026-05-31T12:00:08.043Z",
-      "file_hash": "a326e099e8c6a45d21a2ecd6550908f2a7506f50ba2ab462a7cdae8dfd41a29f",
+      "size_bytes": 15196,
+      "last_modified": "2026-05-31T19:27:52.305Z",
+      "file_hash": "260243db7dc4cb11aeb2e138896ce29be2621f60997527e4221c78b776a71c5b",
       "git_status": "clean",
       "roles": [
         "test"
@@ -12267,15 +10306,18 @@
         "fake_fixers",
         "fake_generate",
         "pay",
+        "routes",
         "run_case",
         "test_apply_and_test_applies_unified_diff_before_running_test",
         "test_apply_and_test_recovers_bad_hunk_counts_with_recount",
         "test_benchmark_writes_observability_log",
         "test_external_test_command_allows_textual_placeholder_mentions",
         "test_external_test_command_satisfies_generated_test_contract",
+        "test_index_repo_skips_heavy_embedding_by_default",
         "test_mapper_consumes_project_map_and_precedent_index",
         "test_pipeline_retries_with_llm_when_static_fixer_does_not_resolve",
         "test_pipeline_static_fixer_skips_llm_retry_when_verify_passes",
+        "test_precedent_alias_stack_scanner_handles_project_stack_labels",
         "test_precedent_index_ranks_candidates_without_embedding",
         "test_precedent_unknown_stack_falls_back_without_keyerror",
         "test_prompt_adds_model_adaptation_and_decomposition",
@@ -12324,8 +10366,8 @@
       "path": "tests/python/test_package_metadata.py",
       "language": "python",
       "size_bytes": 609,
-      "last_modified": "2026-05-31T15:45:18.826Z",
-      "file_hash": "b5577ac43c35271116176f33c80eda6b46bb71193b0f2b31f5301155dfbaada1",
+      "last_modified": "2026-05-31T19:30:45.397Z",
+      "file_hash": "ea9bd2e628c434e664a003e43f33810448b78093fd2f0465622b227108aabeda",
       "git_status": "clean",
       "roles": [
         "test"
@@ -12557,9 +10599,9 @@
     {
       "path": "tests/python/test_run_cli.py",
       "language": "python",
-      "size_bytes": 20695,
-      "last_modified": "2026-05-31T10:10:13.531Z",
-      "file_hash": "a016438e510dd847cdeed797ed47119c9a0ccb8dc6a4fdc0524a04fcfa7d7078",
+      "size_bytes": 21506,
+      "last_modified": "2026-05-31T19:14:24.686Z",
+      "file_hash": "ad7be769f39c16d45b4fb5cf44ac7cedefcd2be224767303dcba4878c226bda0",
       "git_status": "clean",
       "roles": [
         "test"
@@ -12584,6 +10626,7 @@
         "test_run_scope_feature_outputs_orchestrator_result",
         "test_run_scope_feature_rejects_negative_max_cost",
         "test_run_scope_feature_rejects_non_decimal_max_cost",
+        "test_run_scope_scratch_forwards_existing_project_root",
         "test_run_scope_scratch_forwards_to_scratch_cli",
         "test_run_scope_sprint_does_not_resume_ambiguous_duplicate_titles",
         "test_run_scope_sprint_manual_dod_blocks_completion",
@@ -12755,9 +10798,9 @@
     {
       "path": "tests/python/test_scratch_cli_recipes.py",
       "language": "python",
-      "size_bytes": 4889,
-      "last_modified": "2026-05-30T15:33:01.759Z",
-      "file_hash": "16476f3e28dacfc47f41296d2f5e83ec85deefb911329e50c214457f456c714b",
+      "size_bytes": 5678,
+      "last_modified": "2026-05-31T19:01:02.923Z",
+      "file_hash": "6b1518bb9d5d81c9476cd3f3cff7a175dccf1c9da9f8b8adbbc0c354fd29733d",
       "git_status": "clean",
       "roles": [
         "test"
@@ -12776,6 +10819,8 @@
         "fake_generate_plan",
         "list",
         "test_empty_slot_value_fails_before_planner",
+        "test_infer_stack_from_existing_angular_root",
+        "test_infer_stack_from_existing_dotnet_solution_root",
         "test_list_recipes_json_outputs_machine_readable_registry",
         "test_list_recipes_outputs_registered_patterns",
         "test_list_recipes_reports_missing_registry",
@@ -13770,12 +11815,6 @@
     "pyproject.toml",
     "rust/simplicio-core/Cargo.toml",
     "rust/simplicio-core/pyproject.toml",
-    "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-d6312bf7197ee6d7/dep-lib-pyo3_build_config",
-    "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-d6312bf7197ee6d7/lib-pyo3_build_config",
-    "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-d6312bf7197ee6d7/lib-pyo3_build_config.json",
-    "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-f02d847a09413f50/dep-lib-pyo3_build_config",
-    "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-f02d847a09413f50/lib-pyo3_build_config",
-    "rust/simplicio-core/target/release/.fingerprint/pyo3-build-config-f02d847a09413f50/lib-pyo3_build_config.json",
     "simplicio/templates/stacks/js-express/tree/package.json",
     "simplicio/templates/stacks/py-cli/tree/pyproject.toml",
     "simplicio/templates/stacks/py-django/tree/pyproject.toml",
@@ -13899,27 +11938,6 @@
       "file_count": 20
     },
     {
-      "name": ".pytest_cache",
-      "files": [
-        ".pytest_cache/.gitignore",
-        ".pytest_cache/README.md",
-        ".pytest_cache/v/cache/lastfailed",
-        ".pytest_cache/v/cache/nodeids"
-      ],
-      "roles": [],
-      "file_count": 4
-    },
-    {
-      "name": ".ruff_cache",
-      "files": [
-        ".ruff_cache/.gitignore",
-        ".ruff_cache/0.15.12/15803349904002088029",
-        ".ruff_cache/0.15.12/4859909486955991810"
-      ],
-      "roles": [],
-      "file_count": 3
-    },
-    {
       "name": ".skills",
       "files": [
         ".skills/README.md",
@@ -14038,29 +12056,12 @@
       "files": [
         "rust/simplicio-core/Cargo.toml",
         "rust/simplicio-core/pyproject.toml",
-        "rust/simplicio-core/src/lib.rs",
-        "rust/simplicio-core/target/.rustc_info.json",
-        "rust/simplicio-core/target/release/.cargo-lock",
-        "rust/simplicio-core/target/release/.fingerprint/autocfg-52f1e2f5d3b6f531/dep-lib-autocfg",
-        "rust/simplicio-core/target/release/.fingerprint/autocfg-52f1e2f5d3b6f531/lib-autocfg",
-        "rust/simplicio-core/target/release/.fingerprint/autocfg-52f1e2f5d3b6f531/lib-autocfg.json",
-        "rust/simplicio-core/target/release/.fingerprint/bumpalo-d599906fa762aebd/dep-lib-bumpalo",
-        "rust/simplicio-core/target/release/.fingerprint/bumpalo-d599906fa762aebd/lib-bumpalo",
-        "rust/simplicio-core/target/release/.fingerprint/bumpalo-d599906fa762aebd/lib-bumpalo.json",
-        "rust/simplicio-core/target/release/.fingerprint/cfg-if-5a2df024a0244d59/dep-lib-cfg_if",
-        "rust/simplicio-core/target/release/.fingerprint/cfg-if-5a2df024a0244d59/lib-cfg_if",
-        "rust/simplicio-core/target/release/.fingerprint/cfg-if-5a2df024a0244d59/lib-cfg_if.json",
-        "rust/simplicio-core/target/release/.fingerprint/heck-f8a81639bd45458f/dep-lib-heck",
-        "rust/simplicio-core/target/release/.fingerprint/heck-f8a81639bd45458f/lib-heck",
-        "rust/simplicio-core/target/release/.fingerprint/heck-f8a81639bd45458f/lib-heck.json",
-        "rust/simplicio-core/target/release/.fingerprint/indoc-4dfa3347cc7108ac/dep-lib-indoc",
-        "rust/simplicio-core/target/release/.fingerprint/indoc-4dfa3347cc7108ac/lib-indoc",
-        "rust/simplicio-core/target/release/.fingerprint/indoc-4dfa3347cc7108ac/lib-indoc.json"
+        "rust/simplicio-core/src/lib.rs"
       ],
       "roles": [
         "config"
       ],
-      "file_count": 159
+      "file_count": 3
     },
     {
       "name": "scripts",
@@ -14166,16 +12167,8 @@
   ],
   "entities": [
     {
-      "name": "build",
-      "score": 286
-    },
-    {
       "name": "run",
-      "score": 278
-    },
-    {
-      "name": "script",
-      "score": 148
+      "score": 252
     },
     {
       "name": "gate",
@@ -14183,7 +12176,7 @@
     },
     {
       "name": "task",
-      "score": 129
+      "score": 133
     },
     {
       "name": "live",
@@ -14191,19 +12184,23 @@
     },
     {
       "name": "scratch",
-      "score": 123
+      "score": 125
+    },
+    {
+      "name": "stack",
+      "score": 115
     },
     {
       "name": "executor",
       "score": 107
     },
     {
-      "name": "stack",
-      "score": 105
-    },
-    {
       "name": "bench",
       "score": 102
+    },
+    {
+      "name": "local",
+      "score": 97
     },
     {
       "name": "results",
@@ -14212,10 +12209,6 @@
     {
       "name": "write",
       "score": 96
-    },
-    {
-      "name": "local",
-      "score": 95
     },
     {
       "name": "parse",
@@ -14242,6 +12235,10 @@
       "score": 76
     },
     {
+      "name": "from",
+      "score": 76
+    },
+    {
       "name": "reports",
       "score": 76
     },
@@ -14254,19 +12251,15 @@
       "score": 73
     },
     {
-      "name": "readme",
-      "score": 73
-    },
-    {
-      "name": "from",
-      "score": 72
-    },
-    {
       "name": "model",
       "score": 72
     },
     {
       "name": "path",
+      "score": 72
+    },
+    {
+      "name": "readme",
       "score": 72
     },
     {
@@ -14278,11 +12271,19 @@
       "score": 71
     },
     {
+      "name": "build",
+      "score": 70
+    },
+    {
       "name": "recipe",
       "score": 68
     },
     {
       "name": "python",
+      "score": 65
+    },
+    {
+      "name": "sprint",
       "score": 65
     }
   ],
@@ -14291,6 +12292,8 @@
       "angular",
       "django",
       "dotnet",
+      "express",
+      "fastapi",
       "nestjs",
       "nextjs",
       "playwright",
@@ -14314,13 +12317,28 @@
       "status": "M"
     },
     {
-      "path": "simplicio/scratch/cli.py",
+      "path": "pyproject.toml",
+      "status": "M"
+    },
+    {
+      "path": "simplicio/__init__.py",
+      "status": "M"
+    },
+    {
+      "path": "simplicio/detect.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/python/test_detect.py",
       "status": "M"
     }
   ],
   "changed_files": [
     "CHANGELOG.md",
-    "simplicio/scratch/cli.py"
+    "pyproject.toml",
+    "simplicio/__init__.py",
+    "simplicio/detect.py",
+    "tests/python/test_detect.py"
   ],
   "integration": {
     "dev_cli_mapper": "read .simplicio/project-map.json, then use .simplicio/precedent-index.json for task-specific examples",

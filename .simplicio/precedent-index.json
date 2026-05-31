@@ -1,7 +1,7 @@
 {
   "schema": "simplicio.precedent-index/v1",
   "version": 1,
-  "generated_at": "2026-05-31T18:47:22.362Z",
+  "generated_at": "2026-05-31T19:43:40.244Z",
   "source_project_map": ".simplicio/project-map.json",
   "items": [
     {
@@ -218,9 +218,9 @@
       "snippet": "```typescript\n// tests/unit/calculate-invoice-total.test.ts\ntest('aplica desconto quando cliente e VIP', () => {\n  const invoice = makeInvoice({ items: [{ price: 100 }], customer: { tier: 'vip' } });\n  expect(calculateInvoiceTotal(invoice)).toBe(90);"
     },
     {
-      "id": "aed1aea2817174b5",
+      "id": "93b30e296cdfc20d",
       "path": "CHANGELOG.md",
-      "line": 135,
+      "line": 170,
       "language": "markdown",
       "change_type": "error-handling",
       "tags": [
@@ -1659,9 +1659,9 @@
       "snippet": "\n\ndef maybe_autoinstall(cmd: str | None) -> bool:\n    \"\"\"Install skill + hook on first run when Claude Code is detected.\"\"\"\n    if os.environ.get(\"SIMPLICIO_SKIP_AUTO_INIT\"):"
     },
     {
-      "id": "80401dbe0c38f6b3",
+      "id": "59805a9e668bdeac",
       "path": "simplicio/detect.py",
-      "line": 53,
+      "line": 60,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -1743,9 +1743,9 @@
       "snippet": "from .utils.serialization import dumps_str, loads\n\ntry:\n    from importlib.resources import files as _res_files\nexcept ImportError:  # pragma: no cover"
     },
     {
-      "id": "70dcc83fb6e714f5",
+      "id": "9af03bd0b741bf78",
       "path": "simplicio/intent.py",
-      "line": 229,
+      "line": 250,
       "language": "python",
       "change_type": "feature",
       "tags": [
@@ -3845,9 +3845,9 @@
       "snippet": "\n\ndef test_cost_governor_allows_missing_budget():\n    gov = CostGovernor.from_value(None)\n    gov.charge_usd(\"999\")"
     },
     {
-      "id": "225c385b0ff68513",
+      "id": "ecd5aac947147808",
       "path": "tests/python/test_detect.py",
-      "line": 5,
+      "line": 6,
       "language": "python",
       "change_type": "test",
       "tags": [
@@ -3935,9 +3935,9 @@
       "snippet": "    (4, 0, True, \"cpu-tiny\"),\n])\ndef test_pick_tier_threshold_table(ram, vram, apple, expected) -> None:\n    assert pick_tier(ram, vram, apple) == expected\n"
     },
     {
-      "id": "f87e5ff1e010f6fd",
+      "id": "c2a4aecedf9dd6cf",
       "path": "tests/python/test_mapping_retry_flow.py",
-      "line": 10,
+      "line": 11,
       "language": "python",
       "change_type": "test",
       "tags": [

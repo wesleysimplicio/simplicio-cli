@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.6] — 2026-05-31
+
+### Changed
+- `simplicio detect` now recognizes Portuguese Playwright/API/PostgreSQL
+  evidence requests as code work, so QA prompts such as local web-to-API smoke
+  validation are routed into the Simplicio execution flow.
+
 ## [0.5.5] — 2026-05-31
 
 ### Changed

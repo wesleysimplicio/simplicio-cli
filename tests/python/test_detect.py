@@ -60,6 +60,13 @@ def test_portuguese_endpoint_alignment_is_code_task():
     assert any(signal.startswith("noun:") for signal in r.signals)
 
 
+def test_portuguese_playwright_local_api_evidence_is_code_task():
+    r = detect("vamos usar playwright para evidenciar as telas web conectando ao api com banco postgresql local")
+    assert r.is_code_task is True
+    assert any(signal.startswith("verb:") for signal in r.signals)
+    assert any(signal.startswith("noun:") for signal in r.signals)
+
+
 def test_cli_detect_accepts_positional_prompt(monkeypatch, capsys):
     monkeypatch.setenv("SIMPLICIO_SKIP_AUTO_INIT", "1")
 
