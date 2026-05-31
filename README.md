@@ -500,6 +500,7 @@ user prompt. UserPromptSubmit is the right pre-hook for routing decisions.
 | DeepSeek | `deepseek-chat` | `https://api.deepseek.com` |
 | OpenAI | `gpt-4.1` | `https://api.openai.com/v1` |
 | Local (Ollama) | `llama3` | `http://localhost:11434/v1` |
+| Local (in-process) | `local-llama/default` | *(leave unset)* |
 | Anthropic native | `claude-opus-4-7` | *(leave unset)* |
 
 If `SIMPLICIO_BASE_URL` is unset and the key is `ANTHROPIC_API_KEY`, it uses the
@@ -509,6 +510,40 @@ your `base_url` — so **any** OpenAI-like provider works without code changes.
 ```bash
 simplicio smoke      # prints provider config + one test call
 ```
+
+### Path 4 — offline-first local model (zero key, zero HTTP)
+
+simplicio ships an **in-process** backend powered by
+[`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python). When **no
+provider is configured** (`SIMPLICIO_MODEL` *and* `SIMPLICIO_BASE_URL` both
+unset), it runs **Qwen2.5-Coder-1.5B-Instruct (Q5_K_M GGUF)** directly — small,
+code-specialized, fast on CPU, no API key, no Ollama, no HTTP overhead. The
+6-layer contract is what makes a 1.5B usable: it lifts the same model from ~34%
+to ~88% pass-rate on the local benchmark.
+
+```bash
+pip install 'simplicio-cli[local]'          # pulls llama-cpp-python + huggingface-hub
+
+simplicio task "add input validation to createUser" \
+  --target src/users.ts --local              # forces the local model
+
+# the GGUF is fetched once from the Hugging Face Hub, then cached + reused
+```
+
+Explicit routes (override the default model/weights):
+
+```bash
+SIMPLICIO_MODEL=local-llama/default                                  # bundled default
+SIMPLICIO_MODEL=local-llama/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF::Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf
+SIMPLICIO_MODEL=local-llama//models/my-model.gguf                    # direct local path
+SIMPLICIO_LOCAL_MODEL_PATH=/models/my-model.gguf                     # always wins
+```
+
+Tuning knobs (all optional): `SIMPLICIO_LOCAL_CTX` (context window, default
+`8192`), `SIMPLICIO_LOCAL_THREADS`, `SIMPLICIO_LOCAL_GPU_LAYERS` (offload to GPU,
+default `0`), `SIMPLICIO_LOCAL_MAX_TOKENS` (generation cap),
+`SIMPLICIO_LOCAL_TEMP` (default `0.1`), `SIMPLICIO_LOCAL_MODEL_REPO` /
+`SIMPLICIO_LOCAL_MODEL_FILE`.
 
 ### The pipeline (both paths)
 
