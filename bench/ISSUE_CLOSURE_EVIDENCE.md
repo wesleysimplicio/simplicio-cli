@@ -2,30 +2,30 @@
 
 Date: 2026-05-31
 Repo: `wesleysimplicio/simplicio-dev-cli`
-Branch inspected: `codex/finish-github-issues`
+Branch inspected: `codex/finish-open-issues-evidence`
 
-This file is a local evidence index for the tracked open GitHub issues:
-`#33` and `#41`.
+This file is a local evidence index for tracked GitHub issues `#33` and `#41`.
 
 Recently closed issues tracked here for historical closure evidence: `#32`,
 `#37`, and `#46`.
-Related implementation PR: `#47`
-(`https://github.com/wesleysimplicio/simplicio-dev-cli/pull/47`), currently
+Related merged implementation PR: `#47`
+(`https://github.com/wesleysimplicio/simplicio-dev-cli/pull/47`).
+Current evidence PR: `#49`
+(`https://github.com/wesleysimplicio/simplicio-dev-cli/pull/49`), currently
 open as a draft.
 
 Scope of this artifact:
 
 - No product or core code changes.
-- No GitHub issues were closed by this file.
 - The goal is to make each issue comment/closure posture explicit from
-  repo-local evidence that already exists.
+  repo-local evidence.
 
 ## Tracked Issues
 
 | issue | title | local closure posture |
 | --- | --- | --- |
 | `#33` | reduce LLM dependency across simplicio flow | keep open until remaining release evidence is complete |
-| `#41` | unified `simplicio run` orchestrator | keep open; F0/F1/F2/F3/F4 foundation plus F5 fixture schema are present, live bench still incomplete |
+| `#41` | unified `simplicio run` orchestrator | close-ready; F0/F1/F2/F3/F4 foundation plus F5 live matrix are present |
 
 ## Recently Closed Issues
 
@@ -134,9 +134,9 @@ Repo-local evidence:
   baseline.
 - `bench/run_issue_closure_audit.py` and
   `bench/results_issue_closure_audit.{json,md}` now provide a machine-readable
-  close-readiness audit for #32/#33/#41/#46. The current audit reports `2/4`
-  issues close-ready: #32 and #46 are ready/complete, while #33/#41 still show
-  blockers.
+  close-readiness audit for #32/#33/#41/#46. The current audit reports `3/4`
+  issues close-ready: #32, #41, and #46 are ready/complete, while #33 still
+  shows blockers.
 
 Suggested comment:
 
@@ -245,27 +245,34 @@ Repo-local evidence:
   artifact object input shape while explicitly remaining partial-only and not
   release evidence.
 - `bench/results_unified_run_live_codex_partial.json` plus
-  `bench/artifacts/codex-goal-single-file-task.jsonl` now record a real Codex
-  CLI partial-live row for the single-file task case. The transcript hash is
-  verified by the F5 runner, and the audit now recognizes real LLM/Codex live
-  evidence, but the report remains `partial-live` because only 1/12 required
-  rows have been captured.
+  `bench/artifacts/codex-goal-*.jsonl` record real Codex CLI rows for the
+  single-file task, feature-auth-flow, and sprint-checkout cases. All three
+  transcript hashes are verified by the F5 runner.
+- `bench/results_unified_run_live_matrix.json` plus
+  `bench/artifacts/unified-live-matrix/*.json` record the full 12-row F5 live
+  matrix. The internal cli+ag/unified rows execute real `simplicio run`
+  commands against a disposable fixture with an isolated pre-seeded completion
+  cache; the Codex rows are external Codex `/goal` transcripts. The regenerated
+  F5 report now has `evidence_level=live`, `live_row_count=12`,
+  `release_ready=true`, and no release blockers.
 - `simplicio run --scope feature --json` and nested sprint feature execution
   now suppress pipeline progress logs so stdout remains parseable JSON.
-- Validation in this worktree: `python -m pytest tests/python -q` -> `488
+- Validation in this worktree: `python -m pytest tests/python -q` -> `489
   passed, 3 skipped`.
 
-Suggested comment:
+Suggested closure comment:
 
 ```text
 The first `simplicio run` slice is now implemented locally: argparse wire-up,
 regex-only intent classification, task/scratch dispatch, a feature-scope
 planner/runner with bounded replan, `--max-cost` propagation into provider
 calls, sprint loading/state/status, sprint resume for already-green features,
-stricter DoD gates, and dependency ordering. A fixture-backed F5 bench schema is
-also present, but it is intentionally not release evidence: live cli+ag,
-unified feature/sprint, and Codex `/goal` runs still need to be captured before
-#41 can close.
+stricter DoD gates, and dependency ordering.
+
+The F5 live evidence is now complete in `bench/results_unified_run_bench.*`:
+12/12 live rows are present for cli+ag, unified feature, unified sprint, and
+Codex `/goal`; the report is `evidence_level=live`, `release_ready=true`, and
+the closure audit now marks #41 close-ready.
 ```
 
 ## Issue #46 Evidence
@@ -333,5 +340,4 @@ protocol.
 
 1. Keep `#33` open until the real codegen-disabled baseline proves B/codegen
    pass-rate and latency across the release corpus.
-2. Continue `#41` by capturing and ingesting real F5 live rows for cli+ag,
-   unified feature/sprint, and Codex `/goal`.
+2. Publish and close `#41` with the F5 live matrix evidence.

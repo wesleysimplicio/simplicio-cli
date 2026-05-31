@@ -606,11 +606,11 @@ def _to_markdown(result: dict[str, Any]) -> str:
             f"{row['replan_supported']} | {row['cost_observable']} |"
         )
 
-    lines.extend(["", "## Missing Live Evidence", ""])
-    for item in summary["missing_live_evidence"]:
-        lines.append(f"- {item}")
-    lines.append("")
-    return "\n".join(lines)
+    if summary["missing_live_evidence"]:
+        lines.extend(["", "## Missing Live Evidence", ""])
+        for item in summary["missing_live_evidence"]:
+            lines.append(f"- {item}")
+    return "\n".join(lines) + "\n"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
