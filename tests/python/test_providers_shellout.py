@@ -166,8 +166,11 @@ def test_native_path_still_requires_key(monkeypatch):
     assert "claude-cli" in str(exc.value)
 
 
-def test_no_model_raises_with_hint(monkeypatch):
+def test_no_model_with_base_raises_with_hint(monkeypatch):
+    # With no model but an OpenAI-compatible base_url set, the local default
+    # does NOT kick in (the base signals a remote endpoint) so we still raise.
     monkeypatch.delenv("SIMPLICIO_MODEL", raising=False)
+    monkeypatch.setenv("SIMPLICIO_BASE_URL", "http://localhost:11434/v1")
 
     with pytest.raises(SystemExit) as exc:
         providers.generate("x")
@@ -175,3 +178,14 @@ def test_no_model_raises_with_hint(monkeypatch):
     assert "SIMPLICIO_MODEL" in msg
     assert "claude-cli" in msg
     assert "codex-cli" in msg
+    assert "local-llama" in msg
+
+
+def test_no_config_at_all_routes_to_local_default(monkeypatch):
+    # No model AND no base -> offline-first local default (Path 4), not a raise.
+    monkeypatch.delenv("SIMPLICIO_MODEL", raising=False)
+    monkeypatch.delenv("SIMPLICIO_BASE_URL", raising=False)
+    monkeypatch.setattr(
+        providers, "_local_generate", lambda p, f, m, mt: f"local:{m}"
+    )
+    assert providers.generate("x") == "local:local-llama/default"

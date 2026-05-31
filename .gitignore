@@ -15,3 +15,7 @@ test-results/
 
 # Rust build artifacts
 rust/*/target/
+
+# Local GGUF weights (Path 4 in-process llama backend)
+*.gguf
+/models/
